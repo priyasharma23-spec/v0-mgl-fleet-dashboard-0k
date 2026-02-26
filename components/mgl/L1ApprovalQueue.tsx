@@ -45,7 +45,7 @@ export default function L1ApprovalQueue({ onViewChange }: L1ApprovalQueueProps) 
   return (
     <div className="flex flex-col gap-5 p-5">
       <div>
-        <h1 className="text-xl font-bold text-foreground">L1 Approval Queue</html>
+        <h1 className="text-xl font-bold text-foreground">L1 Approval Queue</h1>
         <p className="text-sm text-muted-foreground">Review and approve vehicle pre-delivery documents</p>
       </div>
 
