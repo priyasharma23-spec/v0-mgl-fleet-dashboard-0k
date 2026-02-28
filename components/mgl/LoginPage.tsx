@@ -317,8 +317,8 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                   </div>
                 )}
 
-                {/* Login Method Toggle - Hide for activation flow */}
-                {!(selected === "fleet-operator" && (activationData || foFlow === "register")) && (
+                {/* Login Method Toggle - Only for MIC/ZIC, FO always uses Mobile+OTP */}
+                {selected !== "fleet-operator" && (
                   <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
                     <button
                       onClick={() => { setLoginMethod("mobile"); resetOtpState(); }}
@@ -345,8 +345,8 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                   </div>
                 )}
 
-                {/* Mobile + OTP Login - For all flows */}
-                {(loginMethod === "mobile" || (selected === "fleet-operator" && (activationData || foFlow === "register"))) && (
+                {/* Mobile + OTP Login - Always for FO, conditional for MIC/ZIC */}
+                {(selected === "fleet-operator" || loginMethod === "mobile") && (
                   <div className="space-y-3">
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">
@@ -447,8 +447,8 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                   </div>
                 )}
 
-                {/* Email + Password Login - Hide for FO activation/registration flows */}
-                {loginMethod === "email" && !(selected === "fleet-operator" && (activationData || foFlow === "register")) && (
+                {/* Email + Password Login - Only for MIC/ZIC (FO always uses Mobile+OTP) */}
+                {loginMethod === "email" && selected !== "fleet-operator" && (
                   <div className="space-y-3">
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Email / Username</label>
