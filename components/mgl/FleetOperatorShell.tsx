@@ -9,7 +9,13 @@ import {
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
-import { mockVehicles, mockFleetOperators } from "@/lib/mgl-data"
+import { 
+  mockVehicles, mockFleetOperators, 
+  oems, dealers, retrofitters, 
+  getDealersByOEM, getCategoriesByOEM, getModelsByOEMAndCategory,
+  calculateVehicleAge,
+  type VehicleCategory
+} from "@/lib/mgl-data"
 import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/StatusBadge"
 import type { VehicleStatus } from "@/lib/mgl-data"
 import {
@@ -489,19 +495,43 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [submitted, setSubmitted] = useState(false)
   const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit">("new_purchase")
   const [form, setForm] = useState({
-    vehicleNumber: "", oem: "", model: "", category: "HCV",
-    dealership: "", bookingDate: "", driverName: "", driverContact: "",
+    vehicleNumber: "", 
+    oemId: "", 
+    dealerId: "",
+    retrofitterId: "",
+    category: "" as VehicleCategory | "",
+    model: "", 
+    customModel: "",
+    bookingDate: "", 
+    registrationDate: "",
+    driverName: "", 
+    driverContact: "",
+    driverLicense: "",
+    deliveryAddress: "",
     bookingReceipt: null as File | null,
     deliveryChallan: null as File | null,
     rcBook: null as File | null,
     cngCert: null as File | null,
     eFitment: null as File | null,
+    rtoEndorsement: null as File | null,
+    typeApproval: null as File | null,
+    taxInvoice: null as File | null,
+    driverLicenseFile: null as File | null,
   })
 
-  function Field({ label, name, type = "text", placeholder }: { label: string; name: string; type?: string; placeholder?: string }) {
+  // Get filtered options based on selections
+  const selectedOEM = oems.find(o => o.id === form.oemId)
+  const availableDealers = form.oemId ? getDealersByOEM(form.oemId) : []
+  const availableCategories = form.oemId ? getCategoriesByOEM(form.oemId) : []
+  const availableModels = form.oemId && form.category ? getModelsByOEMAndCategory(form.oemId, form.category as VehicleCategory) : []
+  
+  // Calculate vehicle age for retrofits
+  const vehicleAge = form.registrationDate ? calculateVehicleAge(form.registrationDate) : null
+
+  function Field({ label, name, type = "text", placeholder, required = false }: { label: string; name: string; type?: string; placeholder?: string; required?: boolean }) {
     return (
       <div>
-        <label className="text-xs font-medium text-muted-foreground">{label}</label>
+        <label className="text-xs font-medium text-muted-foreground">{label}{required && <span className="text-destructive ml-0.5">*</span>}</label>
         <input
           type={type} placeholder={placeholder || label}
           value={(form as Record<string, string>)[name] || ""}
@@ -531,40 +561,41 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     <div className="flex flex-col gap-5 p-5 max-w-3xl mx-auto">
       <div>
         <h1 className="text-xl font-bold text-foreground">Register New Vehicle</h1>
-        <p className="text-sm text-muted-foreground">Add a CNG vehicle to your fleet</p>
+        <p className="text-sm text-muted-foreground">Add a CNG vehicle to your fleet for card issuance</p>
       </div>
 
       {/* Steps */}
       <div className="flex items-center gap-0">
-        {["Vehicle Type", "Vehicle Details", "Upload Documents", "Review & Submit"].map((label, i) => {
+        {["Vehicle Type", "Vehicle Details", "Driver & Address", "Documents", "Review"].map((label, i) => {
           const s = i + 1
           return (
             <div key={i} className="flex items-center">
               <div className="flex flex-col items-center gap-1">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                   step > s ? "bg-primary text-white" : step === s ? "bg-primary/20 text-primary ring-2 ring-primary/30" : "bg-muted text-muted-foreground"
                 }`}>{step > s ? "✓" : s}</div>
-                <span className={`text-[10px] font-medium whitespace-nowrap hidden sm:block ${step === s ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+                <span className={`text-[9px] sm:text-[10px] font-medium whitespace-nowrap hidden sm:block ${step === s ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
               </div>
-              {i < 3 && <div className={`h-0.5 w-8 sm:w-12 mx-1 mb-4 shrink-0 ${step > s ? "bg-primary" : "bg-border"}`} />}
+              {i < 4 && <div className={`h-0.5 w-6 sm:w-10 mx-0.5 sm:mx-1 mb-4 shrink-0 ${step > s ? "bg-primary" : "bg-border"}`} />}
             </div>
           )
         })}
       </div>
 
       <div className="bg-card rounded-xl border border-border p-5">
+        {/* Step 1: Vehicle Type */}
         {step === 1 && (
           <div className="space-y-4">
             <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Select Vehicle Onboarding Type</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {([
-                { id: "new_purchase" as const, label: "New CNG Vehicle Purchase", desc: "Dealer-supplied factory CNG vehicle (HCV/ICV/LCV/Bus)", icon: Truck, color: "border-blue-200 bg-blue-50", active: "border-blue-500 bg-blue-50" },
-                { id: "retrofit" as const, label: "CNG Retrofit Conversion", desc: "Existing diesel/petrol vehicle converted to CNG", icon: RefreshCw, color: "border-amber-200 bg-amber-50", active: "border-amber-500 bg-amber-50" },
+                { id: "new_purchase" as const, label: "New CNG Vehicle", desc: "Factory-fitted CNG from OEM dealer", icon: Truck, bg: "bg-blue-50 border-blue-200" },
+                { id: "retrofit" as const, label: "Retrofitted Vehicle", desc: "Existing vehicle converted to CNG", icon: RefreshCw, bg: "bg-amber-50 border-amber-200" },
               ]).map((t) => {
                 const Icon = t.icon
                 return (
-                  <button key={t.id} onClick={() => setVehicleType(t.id)}
-                    className={`p-4 rounded-xl border-2 text-left transition-all ${vehicleType === t.id ? t.active + " border-primary" : "border-border"}`}>
+                  <button key={t.id} onClick={() => { setVehicleType(t.id); setForm({ ...form, oemId: "", dealerId: "", retrofitterId: "", category: "", model: "" }); }}
+                    className={`p-4 rounded-xl border-2 text-left transition-all ${vehicleType === t.id ? "border-primary ring-2 ring-primary/20 " + t.bg : "border-border hover:border-muted-foreground/30"}`}>
                     <Icon className={`w-6 h-6 mb-2 ${vehicleType === t.id ? "text-primary" : "text-muted-foreground"}`} />
                     <p className={`font-semibold text-sm ${vehicleType === t.id ? "text-primary" : "text-foreground"}`}>{t.label}</p>
                     <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
@@ -572,83 +603,238 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 )
               })}
             </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-4">
-            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Vehicle Details</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" />
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">Category</label>
-                <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                  {["HCV", "ICV", "LCV", "Bus"].map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <Field label="OEM / Manufacturer" name="oem" placeholder="Tata Motors" />
-              <Field label="Model" name="model" placeholder="LPT 2518" />
-              {vehicleType === "new_purchase" && (
-                <>
-                  <Field label="Dealership Name" name="dealership" placeholder="Tata Motors Andheri" />
-                  <Field label="Booking / Delivery Date" name="bookingDate" type="date" />
-                </>
-              )}
-              <Field label="Driver Name (Optional)" name="driverName" />
-              <Field label="Driver Contact (Optional)" name="driverContact" type="tel" />
+            <div className={`p-3 rounded-lg text-xs ${vehicleType === "new_purchase" ? "bg-blue-50 border border-blue-200 text-blue-700" : "bg-amber-50 border border-amber-200 text-amber-700"}`}>
+              {vehicleType === "new_purchase" 
+                ? "New vehicles require L1 (pre-delivery) and L2 (post-delivery) approvals before card issuance."
+                : "Retrofitted vehicles go directly to L2 approval. Ensure all CNG conversion documents are ready."}
             </div>
           </div>
         )}
 
-        {step === 3 && (
+        {/* Step 2: Vehicle Details - Cascading Dropdowns */}
+        {step === 2 && (
           <div className="space-y-4">
             <p className="font-semibold text-sm text-foreground border-b border-border pb-2">
-              {vehicleType === "new_purchase" ? "Pre-Delivery Documents (L1)" : "Retrofitment Documents (L2)"}
+              {vehicleType === "new_purchase" ? "New Vehicle Details" : "Retrofitted Vehicle Details"}
             </p>
+            
             {vehicleType === "new_purchase" ? (
-              <div className="space-y-3">
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-                  Upload documents before vehicle delivery for L1 approval. Post-delivery RC Book and Challan are needed for L2.
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* OEM Selection */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">OEM / Manufacturer <span className="text-destructive">*</span></label>
+                  <select 
+                    value={form.oemId} 
+                    onChange={(e) => setForm({ ...form, oemId: e.target.value, dealerId: "", category: "", model: "" })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Select OEM</option>
+                    {oems.filter(o => o.type === "New Vehicle").map(o => (
+                      <option key={o.id} value={o.id}>{o.name}</option>
+                    ))}
+                  </select>
                 </div>
-                <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
-                <FileField label="Delivery Challan (post-delivery)" fieldName="deliveryChallan" />
-                <FileField label="RC Book (post-registration)" fieldName="rcBook" />
+
+                {/* Dealership Selection */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Dealership Name <span className="text-destructive">*</span></label>
+                  <select 
+                    value={form.dealerId} 
+                    onChange={(e) => setForm({ ...form, dealerId: e.target.value })}
+                    disabled={!form.oemId}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
+                  >
+                    <option value="">Select Dealership</option>
+                    {availableDealers.map(d => (
+                      <option key={d.id} value={d.id}>{d.name} - {d.city}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Vehicle Category */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
+                  <select 
+                    value={form.category} 
+                    onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory, model: "" })}
+                    disabled={!form.oemId}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
+                  >
+                    <option value="">Select Category</option>
+                    {availableCategories.map(c => (
+                      <option key={c} value={c}>
+                        {c === "HCV" ? "HCV (≥15T)" : c === "ICV" ? "ICV (≥10T, <15T)" : c === "LCV" ? "LCV (>3.5T, <10T)" : "Bus"}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Vehicle Model */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Vehicle Model <span className="text-destructive">*</span></label>
+                  <select 
+                    value={form.model} 
+                    onChange={(e) => setForm({ ...form, model: e.target.value })}
+                    disabled={!form.category}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
+                  >
+                    <option value="">Select Model</option>
+                    {availableModels.map(m => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                    <option value="__other">Other (specify)</option>
+                  </select>
+                  {form.model === "__other" && (
+                    <input
+                      type="text"
+                      placeholder="Enter model name"
+                      value={form.customModel}
+                      onChange={(e) => setForm({ ...form, customModel: e.target.value })}
+                      className="w-full mt-2 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  )}
+                </div>
+
+                <Field label="Vehicle Booking Receipt No." name="vehicleNumber" placeholder="Booking reference" required />
+                <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
               </div>
             ) : (
-              <div className="space-y-3">
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-                  Upload all documents for L2 review. All documents are mandatory for card issuance.
+              /* Retrofit flow */
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Retrofitter Selection */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Retrofitter Name <span className="text-destructive">*</span></label>
+                  <select 
+                    value={form.retrofitterId} 
+                    onChange={(e) => setForm({ ...form, retrofitterId: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Select Retrofitter</option>
+                    {retrofitters.map(r => (
+                      <option key={r.id} value={r.id}>{r.name}</option>
+                    ))}
+                  </select>
                 </div>
-                <FileField label="CNG Kit Installation Certificate" fieldName="cngCert" required />
-                <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
-                <FileField label="RC Book / Registration Certificate" fieldName="rcBook" required />
+
+                {/* Vehicle Category */}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
+                  <select 
+                    value={form.category} 
+                    onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Select Category</option>
+                    <option value="LCV">LCV ({'>'}3.5T, {'<'}10T)</option>
+                    <option value="ICV">ICV (≥10T, {'<'}15T)</option>
+                    <option value="HCV">HCV (≥15T)</option>
+                    <option value="Bus">Bus</option>
+                  </select>
+                </div>
+
+                <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" required />
+                <Field label="Vehicle Registration Date" name="registrationDate" type="date" required />
+
+                {vehicleAge && (
+                  <div className="sm:col-span-2 p-3 bg-muted/50 rounded-lg">
+                    <p className="text-xs font-medium text-muted-foreground">Vehicle Age (calculated)</p>
+                    <p className="text-sm font-semibold text-foreground">{vehicleAge.years} years, {vehicleAge.months} months</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {step === 4 && !submitted && (
+        {/* Step 3: Driver & Delivery Address */}
+        {step === 3 && (
+          <div className="space-y-4">
+            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Driver Details & Card Delivery Address</p>
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+              Driver details are optional. Card delivery address is required for physical card dispatch.
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Driver Name" name="driverName" placeholder="Full name" />
+              <Field label="Driver Contact Number" name="driverContact" type="tel" placeholder="10-digit mobile" />
+              <Field label="Driver License Number" name="driverLicense" placeholder="DL number" />
+              <FileField label="Driver License Copy" fieldName="driverLicenseFile" />
+              <div className="sm:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Card Delivery Address <span className="text-destructive">*</span></label>
+                <textarea
+                  rows={2}
+                  placeholder="Full address with PIN code for card delivery"
+                  value={form.deliveryAddress}
+                  onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
+                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Documents */}
+        {step === 4 && (
+          <div className="space-y-4">
+            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">
+              {vehicleType === "new_purchase" ? "L1 Pre-Delivery Documents" : "L2 Retrofitment Documents"}
+            </p>
+            {vehicleType === "new_purchase" ? (
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                  <strong>L1 Review:</strong> Upload booking receipt now. Delivery challan and RC Book are required for L2 approval after delivery.
+                </div>
+                <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
+                <div className="pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-3">Post-Delivery Documents (for L2 - can upload later)</p>
+                  <div className="space-y-3">
+                    <FileField label="Delivery Challan / Delivery Note" fieldName="deliveryChallan" />
+                    <FileField label="RTO Receipt / RC Book" fieldName="rcBook" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                  <strong>L2 Review:</strong> All documents are mandatory for retrofitted vehicles. Physical card will be ordered after L2 approval.
+                </div>
+                <FileField label="CNG Kit Installation Certificate" fieldName="cngCert" required />
+                <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
+                <FileField label="RTO Endorsement (CNG conversion)" fieldName="rtoEndorsement" required />
+                <FileField label="Type Approval Certificate" fieldName="typeApproval" required />
+                <FileField label="Tax Invoice from Retrofitment Center" fieldName="taxInvoice" required />
+                <FileField label="RC Book" fieldName="rcBook" required />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 5: Review */}
+        {step === 5 && !submitted && (
           <div className="space-y-4">
             <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Review & Submit</p>
             <div className="grid grid-cols-2 gap-3 text-sm">
               {[
-                ["Type", vehicleType === "new_purchase" ? "New Purchase" : "Retrofit"],
-                ["Vehicle No.", form.vehicleNumber || "MH04GH9900"],
-                ["Category", form.category],
-                ["OEM", form.oem || "Tata Motors"],
-                ["Model", form.model || "LPT 2518"],
-                ["Dealership", form.dealership || "—"],
-                ["Driver", form.driverName || "—"],
+                ["Onboarding Type", vehicleType === "new_purchase" ? "New Purchase" : "Retrofit"],
+                ["Vehicle/Booking No.", form.vehicleNumber || "—"],
+                ["Category", form.category || "—"],
+                vehicleType === "new_purchase" 
+                  ? ["OEM", selectedOEM?.name || "—"]
+                  : ["Retrofitter", retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"],
+                ["Model", form.model === "__other" ? form.customModel : form.model || "—"],
+                vehicleType === "new_purchase"
+                  ? ["Dealership", availableDealers.find(d => d.id === form.dealerId)?.name || "—"]
+                  : ["Vehicle Age", vehicleAge ? `${vehicleAge.years}y ${vehicleAge.months}m` : "—"],
+                ["Driver", form.driverName || "Not provided"],
+                ["Delivery Address", form.deliveryAddress ? "Provided" : "Not provided"],
               ].map(([k, v]) => (
-                <div key={k}>
+                <div key={k as string}>
                   <p className="text-xs text-muted-foreground">{k}</p>
                   <p className="font-medium text-foreground">{v}</p>
                 </div>
               ))}
             </div>
             <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-xs text-primary">
-              By submitting, you confirm all uploaded documents are authentic. False submissions may result in account suspension.
+              By submitting, you confirm all uploaded documents are authentic. The vehicle will be sent to {vehicleType === "new_purchase" ? "L1 (MIC)" : "L2 (ZIC)"} for review.
             </div>
           </div>
         )}
@@ -660,13 +846,17 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
             </div>
             <div>
               <p className="font-semibold text-foreground">Vehicle Submitted for Review!</p>
-              <p className="text-sm text-muted-foreground mt-1">Your MIC officer will review the documents for L1 approval.</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Expected TAT: 2–3 business days</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {vehicleType === "new_purchase" 
+                  ? "Your MIC officer will review the documents for L1 approval."
+                  : "Your ZIC officer will review the documents for L2 approval."}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">Expected TAT: 2-3 business days</p>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => { setSubmitted(false); setStep(1); }}
+              <button onClick={() => { setSubmitted(false); setStep(1); setForm({ ...form, vehicleNumber: "", oemId: "", dealerId: "", retrofitterId: "", category: "", model: "", customModel: "" }); }}
                 className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted">
-                Add Another
+                Add Another Vehicle
               </button>
               <button onClick={() => onViewChange("fo-vehicles")}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
@@ -682,7 +872,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               className="px-4 py-2 rounded-lg border border-border text-sm font-medium disabled:opacity-40 hover:bg-muted">
               Back
             </button>
-            {step < 4 ? (
+            {step < 5 ? (
               <button onClick={() => setStep(step + 1)}
                 className="px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90">
                 Continue

@@ -38,16 +38,19 @@ export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view:
   };
 
   const newPurchaseDocs = [
-    { name: "Delivery Challan / Delivery Note", key: "challan" },
+    { name: "Delivery Date", key: "deliveryDate", isField: true },
+    { name: "Delivery Challan / Delivery Note (with delivery date)", key: "challan" },
+    { name: "Registration Date", key: "registrationDate", isField: true },
     { name: "RTO Receipt / Challan / RC Book", key: "rto" },
   ];
 
   const retrofitDocs = [
     { name: "CNG Kit Installation Certificate", key: "cng" },
     { name: "E-Fitment Certificate", key: "eFitment" },
-    { name: "RTO Endorsement (CNG conversion)", key: "rtoEndorse" },
+    { name: "RTO Endorsement reflecting CNG conversion", key: "rtoEndorse" },
     { name: "Type Approval Certificate", key: "typeApproval" },
-    { name: "Tax Invoice (Retrofit Center)", key: "taxInvoice" },
+    { name: "Tax Invoice for Retrofitment Center", key: "taxInvoice" },
+    { name: "RC Book", key: "rcBook" },
   ];
 
   return (
@@ -155,16 +158,46 @@ export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view:
 
                 {/* Documents */}
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">L2 Documents</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    L2 {docType === "new_purchase" ? "Post-Delivery" : "Retrofitment"} Documents
+                  </p>
                   <div className="space-y-2">
                     {(docType === "new_purchase" ? newPurchaseDocs : retrofitDocs).map((doc) => (
                       <div key={doc.key} className="flex items-center gap-2 p-2.5 rounded-lg border border-green-200 bg-green-50">
                         <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
                         <span className="text-sm flex-1">{doc.name}</span>
-                        <button className="text-xs text-primary font-medium hover:underline">View</button>
+                        {(doc as { isField?: boolean }).isField ? (
+                          <span className="text-xs font-medium text-green-700">
+                            {doc.key === "deliveryDate" ? selectedVehicle.deliveryDate || "2025-02-10" : selectedVehicle.registrationDate || "2025-02-15"}
+                          </span>
+                        ) : (
+                          <button className="text-xs text-primary font-medium hover:underline">View</button>
+                        )}
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* L2 Verification Checklist */}
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs font-semibold text-amber-700 mb-1">L2 Verification Checklist</p>
+                  <ul className="text-xs text-amber-600 space-y-1">
+                    {docType === "new_purchase" ? (
+                      <>
+                        <li>• Verify delivery challan date matches declared delivery date</li>
+                        <li>• Confirm RC Book shows correct vehicle number and owner</li>
+                        <li>• Check registration is within 30 days of delivery</li>
+                      </>
+                    ) : (
+                      <>
+                        <li>• Verify CNG kit certificate is from approved retrofitter</li>
+                        <li>• Confirm RTO endorsement reflects CNG conversion</li>
+                        <li>• Check Type Approval matches vehicle model</li>
+                        <li>• Validate tax invoice amount and date</li>
+                      </>
+                    )}
+                    <li>• Upon approval, physical card order will be placed</li>
+                  </ul>
                 </div>
 
                 {/* Incentive info */}

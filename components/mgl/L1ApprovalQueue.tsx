@@ -137,27 +137,43 @@ export default function L1ApprovalQueue({ onViewChange }: L1ApprovalQueueProps) 
                   </div>
                 </div>
 
-                {/* Documents */}
+                {/* L1 Pre-Delivery Documents */}
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Uploaded Documents</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">L1 Pre-Delivery Documents</p>
                   <div className="space-y-2">
                     {[
-                      { name: "Vehicle Booking Receipt", uploaded: !!selectedVehicle.bookingReceiptUrl || true },
-                      { name: "Driver License (Optional)", uploaded: !!selectedVehicle.driverName },
+                      { name: "Vehicle Booking Receipt", uploaded: true, required: true },
+                      { name: "Vehicle Booking Date", uploaded: !!selectedVehicle.bookingDate, required: true, value: selectedVehicle.bookingDate },
+                      { name: "Dealership Information", uploaded: !!selectedVehicle.dealership, required: true, value: selectedVehicle.dealership },
+                      { name: "Driver License (Optional)", uploaded: !!selectedVehicle.driverName, required: false },
                     ].map((doc) => (
-                      <div key={doc.name} className={`flex items-center gap-2 p-2.5 rounded-lg border ${doc.uploaded ? "border-green-200 bg-green-50" : "border-border bg-muted/30"}`}>
+                      <div key={doc.name} className={`flex items-center gap-2 p-2.5 rounded-lg border ${doc.uploaded ? "border-green-200 bg-green-50" : doc.required ? "border-red-200 bg-red-50" : "border-border bg-muted/30"}`}>
                         {doc.uploaded ? (
                           <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
+                        ) : doc.required ? (
+                          <XCircle className="w-4 h-4 text-red-500 shrink-0" />
                         ) : (
                           <AlertCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                         )}
-                        <span className="text-sm">{doc.name}</span>
-                        {doc.uploaded && (
-                          <button className="ml-auto text-xs text-primary font-medium hover:underline">View</button>
+                        <span className="text-sm flex-1">{doc.name}</span>
+                        {doc.value && <span className="text-xs text-muted-foreground">{doc.value}</span>}
+                        {doc.uploaded && !doc.value && (
+                          <button className="text-xs text-primary font-medium hover:underline">View</button>
                         )}
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* Verification Info */}
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-xs font-semibold text-blue-700 mb-1">L1 Verification Checklist</p>
+                  <ul className="text-xs text-blue-600 space-y-1">
+                    <li>• Verify booking receipt matches declared vehicle model</li>
+                    <li>• Confirm dealership is an authorized MGL partner</li>
+                    <li>• Check booking date is within valid MoU period (if applicable)</li>
+                    <li>• Upon approval, card will be allocated automatically</li>
+                  </ul>
                 </div>
 
                 {/* Action area */}

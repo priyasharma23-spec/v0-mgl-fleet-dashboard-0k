@@ -16,6 +16,208 @@ export type VehicleStatus =
 
 export type FOStatus = "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED";
 export type OnboardingType = "MIC_ASSISTED" | "SELF_SERVICE";
+export type VehicleCategory = "HCV" | "ICV" | "LCV" | "Bus";
+export type VehicleType = "NEW_PURCHASE" | "RETROFIT";
+
+// OEM & Dealer Master Data
+export interface OEM {
+  id: string;
+  name: string;
+  type: "New Vehicle" | "Retrofitter";
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  contactPerson: string;
+  email: string;
+  mobile: string;
+  categories: VehicleCategory[];
+  models: Record<VehicleCategory, string[]>;
+}
+
+export interface Dealer {
+  id: string;
+  oemId: string;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  contactPerson: string;
+  email: string;
+  mobile: string;
+}
+
+export interface Retrofitter {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  contactPerson: string;
+  email: string;
+  mobile: string;
+}
+
+// OEM Master Data from PRD
+export const oems: OEM[] = [
+  {
+    id: "OEM001",
+    name: "Tata Motors",
+    type: "New Vehicle",
+    address: "Bombay House, 24 Homi Mody Street",
+    city: "Mumbai",
+    state: "Maharashtra",
+    pincode: "400001",
+    contactPerson: "Rajesh Kumar",
+    email: "fleet@tatamotors.com",
+    mobile: "9876543210",
+    categories: ["LCV", "ICV", "HCV", "Bus"],
+    models: {
+      "LCV": ["407g GOLD", "609g SFC"],
+      "ICV": ["709g LPT", "1109g LPT", "1412g LPT", "1612g", "1812g"],
+      "HCV": ["LPT 2518", "LPT 2818", "LPT 3518"],
+      "Bus": ["34 S SKI NAC/AC LP 410/36 CNG", "51 S SKI NAC/AC LP 310/52 CNG", "LP913CNG/52 AC 24V 3.8 SDI TC 125", "24 S Staff NAC/AC LP 410/36 CNG", "40 S Staff AC/NAC"]
+    }
+  },
+  {
+    id: "OEM002",
+    name: "Eicher",
+    type: "New Vehicle",
+    address: "Eicher House, 12 Commercial Complex",
+    city: "New Delhi",
+    state: "Delhi",
+    pincode: "110001",
+    contactPerson: "Vikram Singh",
+    email: "commercial@eicher.in",
+    mobile: "9123456789",
+    categories: ["LCV", "ICV", "HCV"],
+    models: {
+      "LCV": ["Pro 2049 CNG", "Pro 2059 CNG", "Pro 2059XP CNG", "Pro 2095XP CNG", "Pro 2109 CNG"],
+      "ICV": ["Pro 2110XP", "Pro 2114XP CNG", "Pro 2075 CNG"],
+      "HCV": ["Pro 3015", "Pro 3018 CNG", "Pro 3010"],
+      "Bus": []
+    }
+  },
+  {
+    id: "OEM003",
+    name: "Ashok Leyland",
+    type: "New Vehicle",
+    address: "Ashok Leyland Technical Centre",
+    city: "Chennai",
+    state: "Tamil Nadu",
+    pincode: "600086",
+    contactPerson: "Suresh Iyer",
+    email: "fleet@ashokleyland.com",
+    mobile: "9988776655",
+    categories: ["LCV", "ICV", "HCV"],
+    models: {
+      "LCV": ["Ecomet 1015", "Ecomet 1415"],
+      "ICV": ["Ecomet 1615", "Ecomet 1915"],
+      "HCV": ["Ecomet 1922", "Ecomet 2518"],
+      "Bus": []
+    }
+  },
+  {
+    id: "OEM004",
+    name: "Mahindra",
+    type: "New Vehicle",
+    address: "Mahindra Towers, Worli",
+    city: "Mumbai",
+    state: "Maharashtra",
+    pincode: "400018",
+    contactPerson: "Anil Sharma",
+    email: "commercial@mahindra.com",
+    mobile: "9765432100",
+    categories: ["LCV"],
+    models: {
+      "LCV": ["Bolero Pik-Up CNG", "Supro CNG", "Jeeto CNG"],
+      "ICV": [],
+      "HCV": [],
+      "Bus": []
+    }
+  },
+  {
+    id: "OEM005",
+    name: "Force Motors",
+    type: "New Vehicle",
+    address: "Force Motors Complex, Akurdi",
+    city: "Pune",
+    state: "Maharashtra",
+    pincode: "411035",
+    contactPerson: "Deepak Patil",
+    email: "sales@forcemotors.com",
+    mobile: "9654321098",
+    categories: ["LCV", "Bus"],
+    models: {
+      "LCV": ["Traveller 26 CNG", "Traveller 36 CNG"],
+      "ICV": [],
+      "HCV": [],
+      "Bus": ["Traveller Staff Bus", "Traveller School Bus"]
+    }
+  }
+];
+
+// Dealers linked to OEMs
+export const dealers: Dealer[] = [
+  { id: "DLR001", oemId: "OEM001", name: "Tata Motors Andheri", address: "Andheri East", city: "Mumbai", state: "Maharashtra", pincode: "400093", contactPerson: "Raj Mehta", email: "andheri@tatadealers.com", mobile: "9876501234" },
+  { id: "DLR002", oemId: "OEM001", name: "Tata Motors Thane", address: "Thane West", city: "Thane", state: "Maharashtra", pincode: "400601", contactPerson: "Amit Joshi", email: "thane@tatadealers.com", mobile: "9876502345" },
+  { id: "DLR003", oemId: "OEM001", name: "Tata Pune Central", address: "Pune Station Road", city: "Pune", state: "Maharashtra", pincode: "411001", contactPerson: "Sanjay Kulkarni", email: "pune@tatadealers.com", mobile: "9876503456" },
+  { id: "DLR004", oemId: "OEM002", name: "Eicher Goregaon", address: "Goregaon East", city: "Mumbai", state: "Maharashtra", pincode: "400063", contactPerson: "Vinay Desai", email: "goregaon@eicherdealers.com", mobile: "9123401234" },
+  { id: "DLR005", oemId: "OEM002", name: "Eicher Navi Mumbai", address: "Vashi", city: "Navi Mumbai", state: "Maharashtra", pincode: "400703", contactPerson: "Prakash Rao", email: "navimumbai@eicherdealers.com", mobile: "9123402345" },
+  { id: "DLR006", oemId: "OEM003", name: "AL Dealers Kurla", address: "Kurla West", city: "Mumbai", state: "Maharashtra", pincode: "400070", contactPerson: "Mahesh Kumar", email: "kurla@aldealers.com", mobile: "9988701234" },
+  { id: "DLR007", oemId: "OEM003", name: "AL Dealers Pune", address: "Hadapsar", city: "Pune", state: "Maharashtra", pincode: "411028", contactPerson: "Ramesh Patil", email: "pune@aldealers.com", mobile: "9988702345" },
+  { id: "DLR008", oemId: "OEM004", name: "Mahindra Pune West", address: "Kothrud", city: "Pune", state: "Maharashtra", pincode: "411038", contactPerson: "Nilesh Gaikwad", email: "punewest@mahindradealers.com", mobile: "9765401234" },
+  { id: "DLR009", oemId: "OEM004", name: "Mahindra Mumbai Central", address: "Lower Parel", city: "Mumbai", state: "Maharashtra", pincode: "400013", contactPerson: "Shyam Rathod", email: "mumbai@mahindradealers.com", mobile: "9765402345" },
+  { id: "DLR010", oemId: "OEM005", name: "Force Mumbai North", address: "Borivali", city: "Mumbai", state: "Maharashtra", pincode: "400066", contactPerson: "Ganesh Sawant", email: "mumbainorth@forcedealers.com", mobile: "9654301234" },
+];
+
+// Retrofitters (not OEM-specific, apply broadly)
+export const retrofitters: Retrofitter[] = [
+  { id: "RET001", name: "Shigan Telematics Private Limited", address: "Unit 5, MIDC Taloja", city: "Navi Mumbai", state: "Maharashtra", pincode: "410208", contactPerson: "Rahul Shigan", email: "info@shigantelematics.com", mobile: "9111222333" },
+  { id: "RET002", name: "Amol Prala Clean Energy Pvt. Ltd", address: "Plot 22, Chakan MIDC", city: "Pune", state: "Maharashtra", pincode: "410501", contactPerson: "Amol Prabhune", email: "retrofit@amolprala.com", mobile: "9222333444" },
+  { id: "RET003", name: "Advantek Global", address: "Survey No. 45, Bhosari", city: "Pune", state: "Maharashtra", pincode: "411026", contactPerson: "Sandeep Jain", email: "sales@advantekglobal.in", mobile: "9333444555" },
+];
+
+// Helper functions for dropdown cascading
+export function getOEMsByType(type: "New Vehicle" | "Retrofitter" | "all" = "all") {
+  if (type === "all") return oems;
+  return oems.filter(o => o.type === type);
+}
+
+export function getDealersByOEM(oemId: string) {
+  return dealers.filter(d => d.oemId === oemId);
+}
+
+export function getCategoriesByOEM(oemId: string): VehicleCategory[] {
+  const oem = oems.find(o => o.id === oemId);
+  return oem?.categories || [];
+}
+
+export function getModelsByOEMAndCategory(oemId: string, category: VehicleCategory): string[] {
+  const oem = oems.find(o => o.id === oemId);
+  return oem?.models[category] || [];
+}
+
+// Vehicle category classification
+export function classifyVehicleCategory(grossWeight: number): VehicleCategory {
+  if (grossWeight >= 15) return "HCV";
+  if (grossWeight >= 10) return "ICV";
+  if (grossWeight > 3.5) return "LCV";
+  return "LCV";
+}
+
+// Calculate vehicle age from registration date
+export function calculateVehicleAge(registrationDate: string): { years: number; months: number } {
+  const regDate = new Date(registrationDate);
+  const now = new Date();
+  const diffMs = now.getTime() - regDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const years = Math.floor(diffDays / 365);
+  const months = Math.floor((diffDays % 365) / 30);
+  return { years, months };
+}
 
 export interface FleetOperator {
   id: string;
