@@ -22,27 +22,79 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from "recharts"
 
+type FOOnboardingType = "MIC_ASSISTED" | "SELF_SERVICE"
+
 interface Props {
   user: { name: string; role: "fleet-operator" }
   onLogout: () => void
+  onboardingType?: FOOnboardingType
+  isNewRegistration?: boolean
 }
 
 // The FO data for this logged-in user
 const myFO = mockFleetOperators[0]
 const myVehicles = mockVehicles.filter((v) => v.foId === "FO001")
 
-export default function FleetOperatorShell({ user, onLogout }: Props) {
+export default function FleetOperatorShell({ user, onLogout, onboardingType = "SELF_SERVICE", isNewRegistration = false }: Props) {
   const [activeView, setActiveView] = useState("fo-dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isNewFO] = useState(user.name === "New Operator")
+  const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
+  
+  // Determine if this is a new FO that needs to complete registration
+  // Self-service flow: needs full KYB registration
+  // MIC-assisted flow: already registered, can directly add vehicles
+  const isSelfServiceNewFO = onboardingType === "SELF_SERVICE" && isNewRegistration
+  
+  // New FO signup state (only for self-service registration)
+  const [signupDone, setSignupDone] = useState(!isSelfServiceNewFO)
 
-  // New FO signup state
-  const [signupStep, setSignupStep] = useState(1)
-  const [signupDone, setSignupDone] = useState(false)
-
-  if (isNewFO && !signupDone) {
+  // For self-service new registration, show signup flow
+  if (isSelfServiceNewFO && !signupDone) {
     return <FOSignupFlow onComplete={() => setSignupDone(true)} onLogin={onLogout} />
   }
+
+  // Welcome modal for MIC-assisted FO (activated via link)
+  const WelcomeModal = () => showWelcomeModal ? (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-card rounded-2xl border border-border shadow-2xl max-w-md w-full p-6 space-y-4">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+            <CheckCircle className="w-8 h-8 text-green-600" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-foreground">Account Activated!</h2>
+            <p className="text-sm text-muted-foreground mt-1">Welcome to MGL Fleet Platform, {user.name}</p>
+          </div>
+        </div>
+        
+        <div className="p-4 bg-green-50 border border-green-200 rounded-xl space-y-2">
+          <p className="text-sm font-semibold text-green-800">Your account has been set up by MIC</p>
+          <p className="text-xs text-green-700">Your KYB details and MoU documents have already been verified. You can now:</p>
+          <ul className="text-xs text-green-700 list-disc list-inside space-y-1 mt-2">
+            <li>Add vehicles to your fleet</li>
+            <li>Upload vehicle documents for card issuance</li>
+            <li>Track card delivery status</li>
+          </ul>
+        </div>
+
+        <div className="flex gap-3">
+          <button 
+            onClick={() => setShowWelcomeModal(false)}
+            className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors"
+          >
+            Explore Dashboard
+          </button>
+          <button 
+            onClick={() => { setShowWelcomeModal(false); setActiveView("fo-add-vehicle"); }}
+            className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+          >
+            <Truck className="w-4 h-4" />
+            Add Vehicle
+          </button>
+        </div>
+      </div>
+    </div>
+  ) : null
 
   function renderView() {
     switch (activeView) {
@@ -58,6 +110,7 @@ export default function FleetOperatorShell({ user, onLogout }: Props) {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      <WelcomeModal />
       <MGLSidebar
         role="fleet-operator"
         activeView={activeView}

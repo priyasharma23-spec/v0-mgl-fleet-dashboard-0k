@@ -1,14 +1,19 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ArrowRight, Shield, Truck, Users, Smartphone, KeyRound } from "lucide-react";
+import { ArrowRight, Shield, Truck, Users, Smartphone, KeyRound, LinkIcon, UserPlus, CheckCircle } from "lucide-react";
 import type { UserRole } from "@/lib/mgl-data";
+import type { ActivationData, FOOnboardingType } from "@/app/page";
 
 interface LoginPageProps {
-  onLogin: (role: UserRole, name: string) => void;
+  onLogin: (role: UserRole, name: string, onboardingType?: FOOnboardingType) => void;
+  activationData?: ActivationData | null;
+  showRegistration?: boolean;
+  onStartRegistration?: () => void;
 }
 
 type LoginMethod = "email" | "mobile";
+type FOFlow = "login" | "activation" | "register";
 
 const roles = [
   {
@@ -49,18 +54,37 @@ const roles = [
   },
 ];
 
-export default function LoginPage({ onLogin }: LoginPageProps) {
+export default function LoginPage({ onLogin, activationData, showRegistration, onStartRegistration }: LoginPageProps) {
   const [selected, setSelected] = useState<UserRole | null>(null);
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("mobile");
+  const [foFlow, setFoFlow] = useState<FOFlow>(activationData ? "activation" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState(activationData?.registeredMobile || "");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpSent, setOtpSent] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
   const [loading, setLoading] = useState(false);
   const [otpError, setOtpError] = useState("");
+  const [mobileError, setMobileError] = useState("");
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Auto-select fleet operator if activation link detected
+  useEffect(() => {
+    if (activationData) {
+      setSelected("fleet-operator");
+      setFoFlow("activation");
+      setMobile("");
+    }
+  }, [activationData]);
+
+  // Switch to registration flow if requested
+  useEffect(() => {
+    if (showRegistration) {
+      setSelected("fleet-operator");
+      setFoFlow("register");
+    }
+  }, [showRegistration]);
 
   // OTP Timer countdown
   useEffect(() => {
@@ -74,6 +98,18 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     if (mobile.length !== 10) return;
     setLoading(true);
     setOtpError("");
+    setMobileError("");
+    
+    // For activation flow, verify mobile matches registered mobile
+    if (foFlow === "activation" && activationData) {
+      await new Promise((r) => setTimeout(r, 800));
+      if (mobile !== activationData.registeredMobile) {
+        setMobileError("Mobile number does not match the registered number. Please use the mobile provided during registration.");
+        setLoading(false);
+        return;
+      }
+    }
+    
     await new Promise((r) => setTimeout(r, 1000));
     setOtpSent(true);
     setOtpTimer(30);
@@ -130,8 +166,23 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
       await new Promise((r) => setTimeout(r, 800));
     }
     
-    const roleData = roles.find((r) => r.role === selected)!;
-    onLogin(selected, roleData.user);
+    // Determine onboarding type for fleet operator
+    if (selected === "fleet-operator") {
+      if (foFlow === "activation") {
+        // MIC-assisted flow - FO already registered by MIC
+        onLogin(selected, activationData?.foName || "ABC Logistics", "MIC_ASSISTED");
+      } else if (foFlow === "register") {
+        // Self-service flow - new registration
+        onLogin(selected, "New Operator", "SELF_SERVICE");
+      } else {
+        // Regular login
+        const roleData = roles.find((r) => r.role === selected)!;
+        onLogin(selected, roleData.user, "MIC_ASSISTED");
+      }
+    } else {
+      const roleData = roles.find((r) => r.role === selected)!;
+      onLogin(selected, roleData.user);
+    }
     setLoading(false);
   };
 
@@ -140,6 +191,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
     setOtp(["", "", "", "", "", ""]);
     setOtpTimer(0);
     setOtpError("");
+    setMobileError("");
   };
 
   return (
@@ -203,37 +255,103 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           {selected && (
             <div className="px-6 pb-6 border-t border-border pt-5">
               <div className="max-w-sm mx-auto space-y-4">
-                {/* Login Method Toggle */}
-                <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
-                  <button
-                    onClick={() => { setLoginMethod("mobile"); resetOtpState(); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                      loginMethod === "mobile" 
-                        ? "bg-card text-foreground shadow-sm" 
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Smartphone className="w-4 h-4" />
-                    Mobile + OTP
-                  </button>
-                  <button
-                    onClick={() => { setLoginMethod("email"); resetOtpState(); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                      loginMethod === "email" 
-                        ? "bg-card text-foreground shadow-sm" 
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <KeyRound className="w-4 h-4" />
-                    Email + Password
-                  </button>
-                </div>
+                
+                {/* FO Flow Selection - Only for Fleet Operator */}
+                {selected === "fleet-operator" && !activationData && (
+                  <div className="flex items-center gap-2 p-1 bg-muted rounded-lg mb-2">
+                    <button
+                      onClick={() => { setFoFlow("login"); resetOtpState(); }}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs font-medium transition-all ${
+                        foFlow === "login" 
+                          ? "bg-card text-foreground shadow-sm" 
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <KeyRound className="w-3.5 h-3.5" />
+                      Sign In
+                    </button>
+                    <button
+                      onClick={() => { setFoFlow("register"); resetOtpState(); onStartRegistration?.(); }}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 px-2 rounded-md text-xs font-medium transition-all ${
+                        foFlow === "register" 
+                          ? "bg-card text-foreground shadow-sm" 
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      New Registration
+                    </button>
+                  </div>
+                )}
 
-                {/* Mobile + OTP Login */}
-                {loginMethod === "mobile" && (
+                {/* Activation Link Banner */}
+                {selected === "fleet-operator" && activationData && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-xl space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                        <LinkIcon className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-green-800">Activation Link Detected</p>
+                        <p className="text-xs text-green-600">Your account was created by {activationData.micName}</p>
+                      </div>
+                    </div>
+                    <div className="text-xs text-green-700 space-y-1 pl-10">
+                      <p><span className="font-medium">Company:</span> {activationData.foName}</p>
+                      <p><span className="font-medium">Registered Mobile:</span> +91 {activationData.registeredMobile.slice(0, 2)}****{activationData.registeredMobile.slice(-2)}</p>
+                    </div>
+                    <p className="text-[11px] text-green-600 pl-10">Enter your registered mobile number to verify and activate your account.</p>
+                  </div>
+                )}
+
+                {/* Self-Registration Banner */}
+                {selected === "fleet-operator" && foFlow === "register" && !activationData && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <UserPlus className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-blue-700">Self-Service Registration</p>
+                        <p className="text-[11px] text-blue-600 mt-0.5">Create your Fleet Operator account. After verification, you'll complete the KYB registration process.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Login Method Toggle - Hide for activation flow */}
+                {!(selected === "fleet-operator" && (activationData || foFlow === "register")) && (
+                  <div className="flex items-center gap-2 p-1 bg-muted rounded-lg">
+                    <button
+                      onClick={() => { setLoginMethod("mobile"); resetOtpState(); }}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                        loginMethod === "mobile" 
+                          ? "bg-card text-foreground shadow-sm" 
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Smartphone className="w-4 h-4" />
+                      Mobile + OTP
+                    </button>
+                    <button
+                      onClick={() => { setLoginMethod("email"); resetOtpState(); }}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                        loginMethod === "email" 
+                          ? "bg-card text-foreground shadow-sm" 
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <KeyRound className="w-4 h-4" />
+                      Email + Password
+                    </button>
+                  </div>
+                )}
+
+                {/* Mobile + OTP Login - For all flows */}
+                {(loginMethod === "mobile" || (selected === "fleet-operator" && (activationData || foFlow === "register"))) && (
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                      <label className="text-xs font-medium text-muted-foreground">
+                        {activationData ? "Registered Mobile Number" : "Mobile Number"}
+                      </label>
                       <div className="flex gap-2 mt-1">
                         <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
                           +91
@@ -244,12 +362,16 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                           value={mobile}
                           onChange={(e) => { 
                             setMobile(e.target.value.replace(/\D/g, "")); 
+                            setMobileError("");
                             if (otpSent) resetOtpState();
                           }}
-                          placeholder="Enter 10-digit mobile"
-                          className="flex-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                          placeholder={activationData ? "Enter your registered mobile" : "Enter 10-digit mobile"}
+                          className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                            mobileError ? "border-destructive" : "border-border"
+                          }`}
                         />
                       </div>
+                      {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
                     </div>
 
                     {!otpSent ? (
@@ -261,7 +383,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                         {loading ? (
                           <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
-                          <>Send OTP <ArrowRight className="w-4 h-4" /></>
+                          <>{activationData ? "Verify & Send OTP" : "Send OTP"} <ArrowRight className="w-4 h-4" /></>
                         )}
                       </button>
                     ) : (
@@ -314,7 +436,10 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                           {loading ? (
                             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           ) : (
-                            <>Verify & Sign In <ArrowRight className="w-4 h-4" /></>
+                            <>
+                              {activationData ? "Activate Account" : foFlow === "register" ? "Create Account" : "Verify & Sign In"} 
+                              <ArrowRight className="w-4 h-4" />
+                            </>
                           )}
                         </button>
                       </>
@@ -322,8 +447,8 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   </div>
                 )}
 
-                {/* Email + Password Login */}
-                {loginMethod === "email" && (
+                {/* Email + Password Login - Hide for FO activation/registration flows */}
+                {loginMethod === "email" && !(selected === "fleet-operator" && (activationData || foFlow === "register")) && (
                   <div className="space-y-3">
                     <div>
                       <label className="text-xs font-medium text-muted-foreground">Email / Username</label>
@@ -359,15 +484,43 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   </div>
                 )}
 
-                <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
-                  New Fleet Operator?{" "}
-                  <button
-                    onClick={() => onLogin("fleet-operator", "New Operator")}
-                    className="text-primary font-medium hover:underline"
-                  >
-                    Register here
-                  </button>
-                </p>
+                {/* Registration / Activation hints */}
+                {selected !== "fleet-operator" && (
+                  <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
+                    New Fleet Operator?{" "}
+                    <button
+                      onClick={() => { setSelected("fleet-operator"); setFoFlow("register"); onStartRegistration?.(); }}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      Register here
+                    </button>
+                  </p>
+                )}
+                {selected === "fleet-operator" && foFlow === "register" && (
+                  <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
+                    Already have an account?{" "}
+                    <button
+                      onClick={() => setFoFlow("login")}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      Sign in here
+                    </button>
+                    {" | "}
+                    <span className="text-muted-foreground">Have an activation link? </span>
+                    <button
+                      onClick={() => alert("Please use the activation link sent to your email by MIC.")}
+                      className="text-primary font-medium hover:underline"
+                    >
+                      Use activation link
+                    </button>
+                  </p>
+                )}
+                {selected === "fleet-operator" && activationData && (
+                  <p className="text-center text-xs text-muted-foreground pt-2 border-t border-border">
+                    <CheckCircle className="w-3 h-3 inline mr-1 text-green-600" />
+                    After activation, you can directly add vehicles to your fleet.
+                  </p>
+                )}
               </div>
             </div>
           )}
