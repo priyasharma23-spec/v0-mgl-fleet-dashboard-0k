@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Upload, CheckCircle, Copy, RefreshCw, AlertCircle, Mail, Link2 } from "lucide-react";
+import { Upload, CheckCircle, Copy, RefreshCw, AlertCircle, Send, ExternalLink } from "lucide-react";
 
 interface MICRegisterFOProps {
   onViewChange: (view: string) => void;
@@ -275,12 +275,12 @@ export default function MICRegisterFO({ onViewChange }: MICRegisterFOProps) {
               <div className="flex items-center gap-2 pt-1 border-t border-blue-200">
                 <button onClick={resendActivationLink} disabled={linkSent}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 disabled:opacity-60 transition-colors">
-                  <Mail className="w-3 h-3" />
+                  <Send className="w-3 h-3" />
                   {linkSent ? "Email Sent!" : "Resend via Email"}
                 </button>
                 <button onClick={copyLink}
                   className="flex items-center gap-1.5 px-3 py-1.5 border border-blue-300 text-blue-700 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors">
-                  <Link2 className="w-3 h-3" />
+                  <ExternalLink className="w-3 h-3" />
                   Copy Link
                 </button>
               </div>
