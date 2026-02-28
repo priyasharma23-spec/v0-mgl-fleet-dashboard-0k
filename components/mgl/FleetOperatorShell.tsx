@@ -17,7 +17,7 @@ import {
 } from "recharts"
 
 interface Props {
-  user: { name: string; role: "fleet-operator" }
+  user: { name: string; role: "fleet" }
   onLogout: () => void
 }
 
