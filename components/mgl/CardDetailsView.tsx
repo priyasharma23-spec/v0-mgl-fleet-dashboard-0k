@@ -71,7 +71,7 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Card Visual - Left */}
           <div className="lg:col-span-1">
-            <div className="bg-gradient-to-br from-green-400 via-teal-400 to-blue-500 rounded-2xl p-6 text-white h-56 flex flex-col justify-between relative overflow-hidden">
+            <div className="bg-linear-to-br from-green-400 via-teal-400 to-blue-500 rounded-2xl p-6 text-white h-56 flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-16 translate-x-16" />
               <div className="relative z-10">
                 <p className="text-xs font-bold uppercase tracking-wider">MGL</p>
@@ -525,3 +525,6 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
           </div>
         </div>
       )}
+    </div>
+  );
+}
