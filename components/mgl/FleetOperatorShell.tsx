@@ -1427,6 +1427,8 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
                 </div>
               </div>
             )}
+        </div>
+      )}
     </div>
   )
 }
