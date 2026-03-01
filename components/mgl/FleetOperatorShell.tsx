@@ -1556,47 +1556,8 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
           </div>
         </div>
       )}
-
-      {/* Card Activation Multi-Step Modal */}
-      {activationStep && activationCardId && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
-
-            {/* Progress Indicator */}
-            <div className="flex gap-1 mb-6">
-              {["confirmation", "set-pin", "confirm-pin", "otp", "success"].map((step, idx) => (
-                <div
-                  key={step}
-                  className={`h-1 flex-1 rounded-full ${["confirmation", "set-pin", "confirm-pin", "otp", "success"].indexOf(activationStep) >= idx
-                      ? "bg-primary"
-                      : "bg-muted"
-                    }`}
-                />
-              ))}
-            </div>
-
-            {/* Step 1: Physical Card Confirmation */}
-            {activationStep === "confirmation" && (
-              <div>
-                <h3 className="text-lg font-bold text-foreground mb-4">Confirm Card Receipt</h3>
-                <p className="text-sm text-muted-foreground mb-4">Please confirm you have received the physical card for Vehicle {myVehicles.find(v => v.id === activationCardId)?.vehicleNumber}.</p>
-                <div className="mb-4 p-3 bg-muted rounded-lg text-sm">
-                  <p className="text-foreground font-semibold">Card Details:</p>
-                  <p className="text-muted-foreground mt-2">Card: ••••{myVehicles.find(v => v.id === activationCardId)?.cardNumber?.slice(-4)}</p>
-                  <p className="text-muted-foreground">Expiry: 12/27</p>
-                </div>
-                <label className="flex items-center gap-3 cursor-pointer mb-4">
-                  <input type="checkbox" checked={cardReceived} onChange={(e) => setCardReceived(e.target.checked)} className="w-4 h-4 rounded" />
-                  <span className="text-sm text-foreground">I confirm I have received the card.</span>
-                </label>
-                <div className="flex gap-2">
-                  <button onClick={() => setActivationStep(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                  <button
-                    onClick={() => { setActivationStep("set-pin"); setActivationPin(""); }}
-                    disabled={!cardReceived}
-                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Next
-                  </button>
+    </div>
+  )
                 </div>
               </div>
             )}
