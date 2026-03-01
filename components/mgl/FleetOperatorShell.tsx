@@ -971,6 +971,25 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [monthlyLimit, setMonthlyLimit] = useState("50000")
   const [replacementReason, setReplacementReason] = useState("")
 
+  // Card Activation Flow States
+  const [activationStep, setActivationStep] = useState<"receipt" | "otp" | "pin" | "success" | null>(null)
+  const [activationCardId, setActivationCardId] = useState<string | null>(null)
+  const [cardReceived, setCardReceived] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [otpResendCountdown, setOtpResendCountdown] = useState(0)
+  const [otpAttempts, setOtpAttempts] = useState(0)
+  const [activationPin, setActivationPin] = useState("")
+  const [activationPinConfirm, setActivationPinConfirm] = useState("")
+  const [cardStates, setCardStates] = useState<Record<string, "ordered" | "delivered" | "activated">>(() => {
+    const initial: Record<string, "ordered" | "delivered" | "activated"> = {}
+    myVehicles.forEach((v, idx) => {
+      if (v.cardNumber) {
+        initial[v.id] = idx % 3 === 0 ? "delivered" : "activated"
+      }
+    })
+    return initial
+  })
+
   const cards = myVehicles.filter((v) => v.cardNumber)
 
   // Filter vehicles based on search and status - only show vehicles post L1 approval with digital card issued
@@ -1285,35 +1304,37 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
 
                         {/* Quick Actions */}
                         <div className="flex gap-2">
-                          {v.status === "CARD_ACTIVE" && (
+                          {cardStates[v.id] === "delivered" && (
+                            <button 
+                              onClick={() => { setActivationCardId(v.id); setActivationStep("receipt"); setCardReceived(false); }}
+                              className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                              Activate Card
+                            </button>
+                          )}
+                          {(cardStates[v.id] === "activated" || v.status === "CARD_ACTIVE") && (
                             <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
                               Load Card
                             </button>
                           )}
-                          {v.status === "CARD_DISPATCHED" && (
-                            <button 
-                              onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
-                              className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
-                              Activate
-                            </button>
+                          {/* Card Actions Menu - Show for activated cards */}
+                          {(cardStates[v.id] === "activated" || v.status === "CARD_ACTIVE") && (
+                            <div className="relative">
+                              <button 
+                                onClick={() => setOpenMenuCard(openMenuCard === v.id ? null : v.id)}
+                                className="px-3 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
+                                ⋮
+                              </button>
+                              {openMenuCard === v.id && (
+                                <div className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-lg shadow-lg z-50">
+                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("reset-pin"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Reset PIN</button>
+                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("lock-unlock"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Lock/Unlock Card</button>
+                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("block"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border text-red-600">Block Card</button>
+                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("limits"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Set Limits</button>
+                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("replacement"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground">Order Replacement</button>
+                                </div>
+                              )}
+                            </div>
                           )}
-                          {/* Card Actions Menu */}
-                          <div className="relative">
-                            <button 
-                              onClick={() => setOpenMenuCard(openMenuCard === v.id ? null : v.id)}
-                              className="px-3 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
-                              ⋮
-                            </button>
-                            {openMenuCard === v.id && (
-                              <div className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-lg shadow-lg z-50">
-                                <button onClick={() => { setSelectedCard(v.id); setActionModal("reset-pin"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Reset PIN</button>
-                                <button onClick={() => { setSelectedCard(v.id); setActionModal("lock-unlock"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Lock/Unlock Card</button>
-                                <button onClick={() => { setSelectedCard(v.id); setActionModal("block"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border text-red-600">Block Card</button>
-                                <button onClick={() => { setSelectedCard(v.id); setActionModal("limits"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Set Limits</button>
-                                <button onClick={() => { setSelectedCard(v.id); setActionModal("replacement"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground">Order Replacement</button>
-                              </div>
-                            )}
-                          </div>
                         </div>
                       </div>
                     ))}
@@ -1325,7 +1346,162 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
         </div>
       )}
 
-      {/* Action Modals - At Root Level */}
+      {/* Card Activation Multi-Step Modal */}
+      {activationStep && activationCardId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
+            
+            {/* Step 1: Verify Card Receipt */}
+            {activationStep === "receipt" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Activate Your Card</h3>
+                <p className="text-sm text-muted-foreground mb-4">Please confirm you have received the physical card for Vehicle {myVehicles.find(v => v.id === activationCardId)?.vehicleNumber}.</p>
+                <div className="mb-4 p-3 bg-muted rounded-lg text-sm">
+                  <p className="text-foreground font-semibold">Card Details:</p>
+                  <p className="text-muted-foreground mt-2">Card: ••••{myVehicles.find(v => v.id === activationCardId)?.cardNumber?.slice(-4)}</p>
+                  <p className="text-muted-foreground">Expiry: 12/27</p>
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer mb-4">
+                  <input type="checkbox" checked={cardReceived} onChange={(e) => setCardReceived(e.target.checked)} className="w-4 h-4 rounded" />
+                  <span className="text-sm text-foreground">I confirm I have received the card.</span>
+                </label>
+                <div className="flex gap-2">
+                  <button onClick={() => setActivationStep(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button 
+                    onClick={() => { setActivationStep("otp"); setOtp(""); setOtpAttempts(0); setOtpResendCountdown(30); }}
+                    disabled={!cardReceived}
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Verify Identity via OTP */}
+            {activationStep === "otp" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Verify Your Identity</h3>
+                <p className="text-sm text-muted-foreground mb-4">Enter the OTP sent to your registered mobile ending in ••••23.</p>
+                <input
+                  type="text"
+                  placeholder="000000"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.slice(0, 6))}
+                  maxLength={6}
+                  className="w-full px-3 py-2 border border-border rounded-lg text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/30 mb-3"
+                />
+                <div className="text-xs text-muted-foreground mb-4">
+                  {otpResendCountdown > 0 ? (
+                    <p>Resend in {otpResendCountdown}s</p>
+                  ) : (
+                    <button onClick={() => setOtpResendCountdown(30)} className="text-primary hover:underline font-semibold">Resend OTP</button>
+                  )}
+                </div>
+                {otpAttempts > 0 && <p className="text-xs text-red-600 mb-2">Invalid OTP. Attempts remaining: {3 - otpAttempts}</p>}
+                <div className="flex gap-2">
+                  <button onClick={() => setActivationStep("receipt")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
+                  <button 
+                    onClick={() => {
+                      if (otp === "123456") {
+                        setActivationStep("pin");
+                        setActivationPin("");
+                        setActivationPinConfirm("");
+                      } else {
+                        setOtpAttempts(otpAttempts + 1);
+                        if (otpAttempts >= 2) {
+                          setActivationStep(null);
+                          setOtpAttempts(0);
+                        }
+                      }
+                    }}
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
+                    Verify & Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Set PIN */}
+            {activationStep === "pin" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Set Your Card PIN</h3>
+                <p className="text-sm text-muted-foreground mb-4">Create a 4-digit PIN for your card. You'll use this PIN for all transactions.</p>
+                <input
+                  type="password"
+                  placeholder="••••"
+                  value={activationPin}
+                  onChange={(e) => setActivationPin(e.target.value.slice(0, 4))}
+                  maxLength={4}
+                  className="w-full px-3 py-2 border border-border rounded-lg text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/30 mb-3"
+                />
+                <input
+                  type="password"
+                  placeholder="••••"
+                  value={activationPinConfirm}
+                  onChange={(e) => setActivationPinConfirm(e.target.value.slice(0, 4))}
+                  maxLength={4}
+                  className="w-full px-3 py-2 border border-border rounded-lg text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/30 mb-3"
+                />
+                {activationPin && /^(\d)\1{3}$|^1234$|^4321$|^0123$/.test(activationPin) && (
+                  <p className="text-xs text-red-600 mb-3">PIN cannot be sequential or repetitive</p>
+                )}
+                {activationPin !== activationPinConfirm && activationPinConfirm && (
+                  <p className="text-xs text-red-600 mb-3">PINs do not match</p>
+                )}
+                <div className="flex gap-2">
+                  <button onClick={() => setActivationStep("otp")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
+                  <button 
+                    onClick={() => setActivationStep("success")}
+                    disabled={activationPin.length < 4 || activationPinConfirm !== activationPin || /^(\d)\1{3}$|^1234$|^4321$|^0123$/.test(activationPin)}
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Set PIN & Activate
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Success */}
+            {activationStep === "success" && (
+              <div>
+                <h3 className="text-lg font-bold text-green-600 mb-4">✓ Card Activated Successfully!</h3>
+                <p className="text-sm text-muted-foreground mb-4">Your card for Vehicle {myVehicles.find(v => v.id === activationCardId)?.vehicleNumber} is now active and ready to use.</p>
+                <div className="mb-4 p-3 bg-green-50 rounded-lg text-sm border border-green-200">
+                  <p className="text-foreground font-semibold">Next Steps:</p>
+                  <ul className="text-muted-foreground mt-2 space-y-1 list-disc list-inside">
+                    <li>Load funds to start using your card</li>
+                    <li>Share the PIN securely with your driver</li>
+                  </ul>
+                </div>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => {
+                      setCardStates({...cardStates, [activationCardId]: "activated"});
+                      setActivationStep(null);
+                      setActivationCardId(null);
+                    }}
+                    className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">
+                    View Card Details
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setCardStates({...cardStates, [activationCardId]: "activated"});
+                      setActivationStep(null);
+                      setActivationCardId(null);
+                    }}
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
+                    Load Card Now
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Close Button */}
+            {activationStep !== "success" && (
+              <button onClick={() => setActivationStep(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-lg">✕</button>
+            )}
+          </div>
+        </div>
+      )}
       {actionModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
