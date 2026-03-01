@@ -158,7 +158,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ─────────────────────────────────────────────────────────
+// ─── FO Signup Flow ─────────────────────────────────────────────���───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -975,7 +975,7 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [confirmPin, setConfirmPin] = useState("")
   const [activeTab, setActiveTab] = useState<"vehicles" | "cards">("vehicles")
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "CARD_ACTIVE" | "CARD_DISPATCHED" | "L2_APPROVED">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "CARD_ACTIVE" | "CARD_DISPATCHED" | "L1_APPROVED">("all")
 
   const cards = myVehicles.filter((v) => v.cardNumber)
 
@@ -1075,7 +1075,7 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
               <option value="all">All Status</option>
               <option value="CARD_ACTIVE">Active</option>
               <option value="CARD_DISPATCHED">Dispatched</option>
-              <option value="L2_APPROVED">Approved</option>
+              <option value="L1_APPROVED">Approved</option>
             </select>
           </div>
 
