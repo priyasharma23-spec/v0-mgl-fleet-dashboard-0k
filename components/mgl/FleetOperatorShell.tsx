@@ -44,6 +44,17 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
   const [selectedCardVehicle, setSelectedCardVehicle] = useState<string | null>(null)
   
+  // Card Activation Flow States (Root level for modal visibility across views)
+  const [activationStep, setActivationStep] = useState<"confirmation" | "set-pin" | "confirm-pin" | "otp" | "success" | null>(null)
+  const [activationCardId, setActivationCardId] = useState<string | null>(null)
+  const [cardReceived, setCardReceived] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [otpResendCountdown, setOtpResendCountdown] = useState(0)
+  const [otpAttempts, setOtpAttempts] = useState(0)
+  const [activationPin, setActivationPin] = useState("")
+  const [activationPinConfirm, setActivationPinConfirm] = useState("")
+  const [actionModal, setActionModal] = useState<"reset-pin" | "lock-unlock" | "block" | "limits" | "replacement" | null>(null)
+  
   // Determine if this is a new FO that needs to complete registration
   // Self-service flow: needs full KYB registration
   // MIC-assisted flow: already registered, can directly add vehicles
@@ -111,7 +122,28 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
           onActionModal={setActionModal}
         />
       ) : (
-        <FOCardsView onViewChange={setActiveView} onManageCard={(vehicleId) => setSelectedCardVehicle(vehicleId)} />
+        <FOCardsView 
+          onViewChange={setActiveView} 
+          onManageCard={(vehicleId) => setSelectedCardVehicle(vehicleId)}
+          activationStep={activationStep}
+          setActivationStep={setActivationStep}
+          activationCardId={activationCardId}
+          setActivationCardId={setActivationCardId}
+          cardReceived={cardReceived}
+          setCardReceived={setCardReceived}
+          otp={otp}
+          setOtp={setOtp}
+          activationPin={activationPin}
+          setActivationPin={setActivationPin}
+          activationPinConfirm={activationPinConfirm}
+          setActivationPinConfirm={setActivationPinConfirm}
+          otpAttempts={otpAttempts}
+          setOtpAttempts={setOtpAttempts}
+          otpResendCountdown={otpResendCountdown}
+          setOtpResendCountdown={setOtpResendCountdown}
+          actionModal={actionModal}
+          setActionModal={setActionModal}
+        />
       )
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
@@ -961,18 +993,11 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
 }
 
 // ─── FO Cards View ───────────────────────────────────────────────────────────
-function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
-  const [activatingCard, setActivatingCard] = useState<string | null>(null)
-  const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
-  const [pin, setPin] = useState("")
-  const [confirmPin, setConfirmPin] = useState("")
+function FOCardsView({ onViewChange, onManageCard, activationStep, setActivationStep, activationCardId, setActivationCardId, cardReceived, setCardReceived, otp, setOtp, activationPin, setActivationPin, activationPinConfirm, setActivationPinConfirm, otpAttempts, setOtpAttempts, otpResendCountdown, setOtpResendCountdown, actionModal, setActionModal }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void; activationStep: any; setActivationStep: any; activationCardId: any; setActivationCardId: any; cardReceived: boolean; setCardReceived: any; otp: string; setOtp: any; activationPin: string; setActivationPin: any; activationPinConfirm: string; setActivationPinConfirm: any; otpAttempts: number; setOtpAttempts: any; otpResendCountdown: number; setOtpResendCountdown: any; actionModal: any; setActionModal: any }) {
   const [activeTab, setActiveTab] = useState<"vehicles" | "cards">("vehicles")
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "CARD_ACTIVE" | "CARD_DISPATCHED" | "L1_APPROVED">("all")
-  
-  // Card Actions Menu States
   const [openMenuCard, setOpenMenuCard] = useState<string | null>(null)
-  const [actionModal, setActionModal] = useState<"reset-pin" | "lock-unlock" | "block" | "limits" | "replacement" | null>(null)
   const [selectedCard, setSelectedCard] = useState<string | null>(null)
   const [cardLocked, setCardLocked] = useState<Record<string, boolean>>({})
   const [newPin, setNewPin] = useState("")
@@ -980,16 +1005,6 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   const [dailyLimit, setDailyLimit] = useState("5000")
   const [monthlyLimit, setMonthlyLimit] = useState("50000")
   const [replacementReason, setReplacementReason] = useState("")
-
-  // Card Activation Flow States
-  const [activationStep, setActivationStep] = useState<"confirmation" | "set-pin" | "confirm-pin" | "otp" | "success" | null>(null)
-  const [activationCardId, setActivationCardId] = useState<string | null>(null)
-  const [cardReceived, setCardReceived] = useState(false)
-  const [otp, setOtp] = useState("")
-  const [otpResendCountdown, setOtpResendCountdown] = useState(0)
-  const [otpAttempts, setOtpAttempts] = useState(0)
-  const [activationPin, setActivationPin] = useState("")
-  const [activationPinConfirm, setActivationPinConfirm] = useState("")
 
   const cards = myVehicles.filter((v) => v.cardNumber)
 
