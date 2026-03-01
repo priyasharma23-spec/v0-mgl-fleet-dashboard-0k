@@ -955,8 +955,21 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
   const [pin, setPin] = useState("")
   const [confirmPin, setConfirmPin] = useState("")
+  const [activeTab, setActiveTab] = useState<"vehicles" | "cards">("vehicles")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive" | "replacement">("all")
 
   const cards = myVehicles.filter((v) => v.cardNumber)
+
+  // Filter vehicles based on search and status
+  const filteredVehicles = myVehicles.filter((v) => {
+    const matchesSearch = searchTerm === "" || 
+      v.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (v.cardNumber && v.cardNumber.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    const matchesStatus = statusFilter === "all" || v.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
 
   function CardVisual({ cardNumber, status }: { cardNumber: string; status: VehicleStatus }) {
     const isActive = status === "CARD_ACTIVE"
@@ -990,128 +1003,241 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   }
 
   return (
-    <div className="flex flex-col gap-5 p-5">
+    <div className="flex flex-col gap-5 p-5 h-full">
       <div>
-        <h1 className="text-xl font-bold text-foreground">My CNG Cards</h1>
-        <p className="text-sm text-muted-foreground">Manage your fleet fuel cards</p>
+        <h1 className="text-xl font-bold text-foreground">My Cards</h1>
+        <p className="text-sm text-muted-foreground">Manage your fleet fuel cards and vehicle wallets</p>
       </div>
 
-      {activatingCard ? (
-        <div className="max-w-md mx-auto w-full bg-card rounded-2xl border border-border p-6">
-          <div className="text-center mb-5">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Shield className="w-6 h-6 text-primary" />
-            </div>
-            <h2 className="font-bold text-foreground">Card Activation & PIN Setup</h2>
-            <p className="text-sm text-muted-foreground mt-1">Card: {activatingCard}</p>
+      {/* Tab Navigation */}
+      <div className="flex gap-2 border-b border-border">
+        <button
+          onClick={() => { setActiveTab("vehicles"); setSearchTerm(""); }}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "vehicles" 
+              ? "border-primary text-primary" 
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Vehicle Card Wallets
+        </button>
+        <button
+          onClick={() => { setActiveTab("cards"); setSearchTerm(""); }}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === "cards" 
+              ? "border-primary text-primary" 
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          My Physical Cards
+        </button>
+      </div>
+
+      {/* Vehicle Card Wallets Tab */}
+      {activeTab === "vehicles" && (
+        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+          {/* Search & Filter */}
+          <div className="flex gap-3">
+            <input
+              type="text"
+              placeholder="Search by vehicle number or card..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="all">All Status</option>
+              <option value="CARD_ACTIVE">Active</option>
+              <option value="CARD_INACTIVE">Inactive</option>
+              <option value="replacement">Replacement</option>
+            </select>
           </div>
 
-          {pinStep === "enter" && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">Enter 4-digit PIN</label>
-                <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value)}
-                  placeholder="• • • •"
-                  className="w-full mt-1 px-3 py-3 rounded-lg border border-border bg-input text-center text-xl font-bold tracking-[1em] focus:outline-none focus:ring-2 focus:ring-primary/30" />
-              </div>
-              <p className="text-xs text-muted-foreground text-center">Choose a secure PIN. Do not share with anyone.</p>
-              <button onClick={() => pin.length === 4 && setPinStep("confirm")} disabled={pin.length < 4}
-                className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90">
-                Continue
-              </button>
+          {/* Vehicle Cards Table */}
+          <div className="border border-border rounded-lg overflow-hidden flex-1 flex flex-col">
+            <div className="overflow-y-auto flex-1">
+              <table className="w-full text-sm">
+                <thead className="bg-muted sticky top-0">
+                  <tr className="border-b border-border">
+                    <th className="text-left px-4 py-2 font-semibold text-xs">Vehicle</th>
+                    <th className="text-left px-4 py-2 font-semibold text-xs">Card</th>
+                    <th className="text-right px-4 py-2 font-semibold text-xs">Card Balance</th>
+                    <th className="text-right px-4 py-2 font-semibold text-xs">Incentive</th>
+                    <th className="text-left px-4 py-2 font-semibold text-xs">Status</th>
+                    <th className="text-center px-4 py-2 font-semibold text-xs">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredVehicles.length === 0 ? (
+                    <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">No vehicles found</td></tr>
+                  ) : (
+                    filteredVehicles.map((v) => (
+                      <tr key={v.id} className="border-b border-border hover:bg-muted/50">
+                        <td className="px-4 py-3">{v.registrationNumber}</td>
+                        <td className="px-4 py-3 font-mono text-xs">{v.cardNumber || "—"}</td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="text-blue-600 font-semibold">₹{(Math.random() * 5000 + 500).toFixed(0)}</span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <span className="text-green-600 font-semibold">₹{(Math.random() * 1000).toFixed(0)}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                            v.status === "CARD_ACTIVE" 
+                              ? "bg-green-100 text-green-800" 
+                              : v.status === "replacement"
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}>
+                            {v.status === "CARD_ACTIVE" ? "Active" : v.status === "replacement" ? "Replacement" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {v.status === "CARD_ACTIVE" && (
+                            <button
+                              onClick={() => setActivatingCard(v.cardNumber || null)}
+                              className="text-primary text-xs font-semibold hover:underline"
+                            >
+                              Manage
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
-
-          {pinStep === "confirm" && (
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">Confirm PIN</label>
-                <input type="password" maxLength={4} value={confirmPin} onChange={(e) => setConfirmPin(e.target.value)}
-                  placeholder="• • • •"
-                  className="w-full mt-1 px-3 py-3 rounded-lg border border-border bg-input text-center text-xl font-bold tracking-[1em] focus:outline-none focus:ring-2 focus:ring-primary/30" />
-              </div>
-              {confirmPin.length === 4 && confirmPin !== pin && (
-                <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="w-3 h-3" /> PINs do not match</p>
-              )}
-              <div className="flex gap-3">
-                <button onClick={() => setPinStep("enter")} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">Back</button>
-                <button onClick={() => confirmPin === pin && confirmPin.length === 4 && setPinStep("done")}
-                  disabled={confirmPin !== pin || confirmPin.length < 4}
-                  className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90">
-                  Activate Card
-                </button>
-              </div>
-            </div>
-          )}
-
-          {pinStep === "done" && (
-            <div className="text-center space-y-4">
-              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-7 h-7 text-green-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">Card Activated!</p>
-                <p className="text-sm text-muted-foreground mt-1">Your card is now active and ready to use at CNG stations.</p>
-              </div>
-              <button onClick={() => { setActivatingCard(null); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
-                className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
-                Back to Cards
-              </button>
-            </div>
-          )}
+          </div>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {cards.map((v) => (
-            <div key={v.id} className="bg-card rounded-xl border border-border p-4">
-              <div className="flex flex-col sm:flex-row items-start gap-4">
-                <CardVisual cardNumber={v.cardNumber!} status={v.status} />
-                <div className="flex-1 min-w-0 space-y-3">
-                  <div>
-                    <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
-                    <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    {[
-                      ["Card No.", v.cardNumber!],
-                      ["Status", v.status.replace(/_/g, " ")],
-                      ["Dispatch Date", v.cardDispatchDate || "—"],
-                      ["Activated", v.cardActivatedAt || "Pending"],
-                    ].map(([k, val]) => (
-                      <div key={k}>
-                        <p className="text-muted-foreground">{k}</p>
-                        <p className="font-semibold text-foreground">{val}</p>
-                      </div>
-                    ))}
-                  </div>
-                  {v.status === "CARD_DISPATCHED" && (
-                    <button onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#F5A800] text-white rounded-lg text-sm font-semibold hover:bg-[#e09800] transition-colors">
-                      <Shield className="w-4 h-4" />
-                      Activate Card & Set PIN
-                    </button>
-                  )}
-                  {v.status === "CARD_ACTIVE" && (
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <p className="text-xs text-green-700 font-medium">Card is active and ready to use</p>
-                    </div>
-                  )}
+      )}
+
+      {/* Physical Cards Tab */}
+      {activeTab === "cards" && (
+        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+          {activatingCard ? (
+            <div className="max-w-md mx-auto w-full bg-card rounded-2xl border border-border p-6">
+              <div className="text-center mb-5">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Shield className="w-6 h-6 text-primary" />
                 </div>
+                <h2 className="font-bold text-foreground">Card Activation & PIN Setup</h2>
+                <p className="text-sm text-muted-foreground mt-1">Card: {activatingCard}</p>
               </div>
+
+              {pinStep === "enter" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Enter 4-digit PIN</label>
+                    <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value)}
+                      placeholder="• • • •"
+                      className="w-full mt-1 px-3 py-3 rounded-lg border border-border bg-input text-center text-xl font-bold tracking-[1em] focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">Choose a secure PIN. Do not share with anyone.</p>
+                  <button onClick={() => pin.length === 4 && setPinStep("confirm")} disabled={pin.length < 4}
+                    className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90">
+                    Continue
+                  </button>
+                </div>
+              )}
+
+              {pinStep === "confirm" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Confirm PIN</label>
+                    <input type="password" maxLength={4} value={confirmPin} onChange={(e) => setConfirmPin(e.target.value)}
+                      placeholder="• • • •"
+                      className="w-full mt-1 px-3 py-3 rounded-lg border border-border bg-input text-center text-xl font-bold tracking-[1em] focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  </div>
+                  {confirmPin.length === 4 && confirmPin !== pin && (
+                    <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="w-3 h-3" /> PINs do not match</p>
+                  )}
+                  <div className="flex gap-3">
+                    <button onClick={() => setPinStep("enter")} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">Back</button>
+                    <button onClick={() => confirmPin === pin && confirmPin.length === 4 && setPinStep("done")}
+                      disabled={confirmPin !== pin || confirmPin.length < 4}
+                      className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90">
+                      Activate Card
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {pinStep === "done" && (
+                <div className="text-center space-y-4">
+                  <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-7 h-7 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Card Activated!</p>
+                    <p className="text-sm text-muted-foreground mt-1">Your card is now active and ready to use at CNG stations.</p>
+                  </div>
+                  <button onClick={() => { setActivatingCard(null); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
+                    className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
+                    Back to Cards
+                  </button>
+                </div>
+              )}
             </div>
-          ))}
-          {cards.length === 0 && (
-            <div className="bg-card rounded-xl border border-border p-10 text-center text-muted-foreground">
-              <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p className="text-sm font-medium">No cards issued yet</p>
-              <p className="text-xs mt-1">Cards are issued after L2 approval</p>
+          ) : (
+            <div className="space-y-4 overflow-y-auto">
+              {cards.map((v) => (
+                <div key={v.id} className="bg-card rounded-xl border border-border p-4">
+                  <div className="flex flex-col sm:flex-row items-start gap-4">
+                    <CardVisual cardNumber={v.cardNumber!} status={v.status} />
+                    <div className="flex-1 min-w-0 space-y-3">
+                      <div>
+                        <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
+                        <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {[
+                          ["Card No.", v.cardNumber!],
+                          ["Status", v.status.replace(/_/g, " ")],
+                          ["Dispatch Date", v.cardDispatchDate || "—"],
+                          ["Activated", v.cardActivatedAt || "Pending"],
+                        ].map(([k, val]) => (
+                          <div key={k}>
+                            <p className="text-muted-foreground">{k}</p>
+                            <p className="font-semibold text-foreground">{val}</p>
+                          </div>
+                        ))}
+                      </div>
+                      {v.status === "CARD_DISPATCHED" && (
+                        <button onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
+                          className="flex items-center gap-2 px-4 py-2 bg-[#F5A800] text-white rounded-lg text-sm font-semibold hover:bg-[#e09800] transition-colors">
+                          <Shield className="w-4 h-4" />
+                          Activate Card & Set PIN
+                        </button>
+                      )}
+                      {v.status === "CARD_ACTIVE" && (
+                        <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <p className="text-xs text-green-700 font-medium">Card is active and ready to use</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {cards.length === 0 && (
+                <div className="bg-card rounded-xl border border-border p-10 text-center text-muted-foreground">
+                  <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm font-medium">No cards issued yet</p>
+                  <p className="text-xs mt-1">Cards are issued after L2 approval</p>
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
     </div>
   )
+}
 }
 
 // ─── FO Delivery Tracking ─────────────────────────────────────────────────────
