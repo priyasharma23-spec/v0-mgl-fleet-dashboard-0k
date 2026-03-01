@@ -780,7 +780,8 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 </div>
               )}
             </div>
-          ))}
+          )
+        })}
         </div>
       )}
 
