@@ -35,10 +35,10 @@ const zicNavItems: NavItem[] = [
 
 const foNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", view: "fo-dashboard" },
-  { icon: Wallet, label: "Wallet & Funds", view: "fo-wallet" },
+  { icon: Wallet, label: "Transactions", view: "fo-wallet" },
+  { icon: CreditCard, label: "My Cards", view: "fo-cards" },
   { icon: Truck, label: "My Vehicles", view: "fo-vehicles" },
   { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle" },
-  { icon: CreditCard, label: "My Cards", view: "fo-cards" },
   { icon: MapPin, label: "Card Delivery", view: "fo-delivery" },
   { icon: Bell, label: "Notifications", view: "fo-notifications" },
 ];

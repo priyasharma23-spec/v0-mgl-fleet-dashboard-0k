@@ -99,8 +99,8 @@ export default function FOWalletView() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Wallet & Funds</h1>
-          <p className="text-sm text-muted-foreground">Manage your parent wallet and vehicle card balances</p>
+          <h1 className="text-xl font-bold text-foreground">Transactions</h1>
+          <p className="text-sm text-muted-foreground">View your wallet activity and recent transactions</p>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md">
@@ -196,28 +196,6 @@ export default function FOWalletView() {
               <p className="text-[10px] text-white/40 mt-3 text-center">
                 Last updated: {parentWallet.lastUpdated}
               </p>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-card border border-border rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-blue-600" />
-                </div>
-              </div>
-              <p className="text-lg font-bold text-foreground">{formatCurrency(vehicleCards.reduce((a, c) => a + c.cardWallet, 0))}</p>
-              <p className="text-xs text-muted-foreground">Total Card Wallets</p>
-            </div>
-            <div className="p-4 bg-card border border-border rounded-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                  <Gift className="w-4 h-4 text-green-600" />
-                </div>
-              </div>
-              <p className="text-lg font-bold text-foreground">{formatCurrency(vehicleCards.reduce((a, c) => a + c.incentiveWallet, 0))}</p>
-              <p className="text-xs text-muted-foreground">Total Incentives</p>
             </div>
           </div>
 
