@@ -1559,19 +1559,6 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
     </div>
   )
 }
-              </div>
-            )}
-
-            {/* Close Button */}
-            {activationStep !== "success" && (
-              <button onClick={() => setActivationStep(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-lg">✕</button>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
 
 // ─── FO Fund Management ──────────────────────────────────────────────────────
 function FOFundManagement() {
@@ -1758,7 +1745,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ─────────────────────────────────────────────────────
+// ─── FO Delivery Tracking ──────────────��──────────────────────────────────────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 
