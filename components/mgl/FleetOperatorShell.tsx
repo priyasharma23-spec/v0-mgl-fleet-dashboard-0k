@@ -550,7 +550,20 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
                   {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
                 </div>
-      )}
+              )}
+
+              {/* Card info */}
+              {v.cardNumber && (
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
+                  <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
+                  <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
+                  {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
