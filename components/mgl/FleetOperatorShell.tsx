@@ -1192,36 +1192,7 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Card Lifecycle Timeline */}
-              <div className="bg-card rounded-xl border border-border p-5">
-                <h3 className="font-semibold text-foreground mb-5">Physical Card Lifecycle</h3>
-                <div className="space-y-4">
-                  {[
-                    { stage: "L1 Approval", status: "complete", icon: "✓", color: "bg-green-100 text-green-700" },
-                    { stage: "Digital Card Allocation", status: "complete", icon: "✓", color: "bg-green-100 text-green-700" },
-                    { stage: "L2 Approval", status: "complete", icon: "✓", color: "bg-green-100 text-green-700" },
-                    { stage: "Card Printing", status: "in-progress", icon: "⏳", color: "bg-blue-100 text-blue-700" },
-                    { stage: "Card Dispatch", status: "pending", icon: "○", color: "bg-gray-100 text-gray-700" },
-                    { stage: "Delivery & Activation", status: "pending", icon: "○", color: "bg-gray-100 text-gray-700" },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 ${item.color}`}>
-                        {item.icon}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-sm text-foreground">{item.stage}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {item.status === "complete" ? "Completed" : item.status === "in-progress" ? "In Progress" : "Awaiting"}
-                        </p>
-                      </div>
-                      {idx < 5 && <div className="w-0.5 h-6 bg-border ml-3 mb-2" />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Card Details */}
-              <div className="space-y-4">
+            <div className="space-y-4">
                 {cards.map((v) => (
                   <div key={v.id} className="bg-card rounded-xl border border-border p-4">
                     <div className="flex flex-col gap-4">
