@@ -788,23 +788,6 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
     </div>
   )
 }
-                  }}
-                  disabled={!selectedLoadCardVehicle || !loadCardAmount}
-                  className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
-                  Load Card
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
 
 // ─── FO Add Vehicle ──────────────────────────────────────────────────────────
 function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
