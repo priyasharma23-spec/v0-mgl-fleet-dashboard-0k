@@ -1169,74 +1169,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
       {/* Physical Cards Tab */}
       {activeTab === "cards" && (
         <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
-          {activatingCard ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="max-w-md w-full bg-card rounded-2xl border border-border p-6">
-              <div className="text-center mb-5">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Shield className="w-6 h-6 text-primary" />
-                </div>
-                <h2 className="font-bold text-foreground">Card Activation & PIN Setup</h2>
-                <p className="text-sm text-muted-foreground mt-1">Card: {activatingCard}</p>
-              </div>
-
-              {pinStep === "enter" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Enter 4-digit PIN</label>
-                    <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value)}
-                      placeholder="• • • •"
-                      className="w-full mt-1 px-3 py-3 rounded-lg border border-border bg-input text-center text-xl font-bold tracking-[1em] focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                  </div>
-                  <p className="text-xs text-muted-foreground text-center">Choose a secure PIN. Do not share with anyone.</p>
-                  <button onClick={() => pin.length === 4 && setPinStep("confirm")} disabled={pin.length < 4}
-                    className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90">
-                    Continue
-                  </button>
-                </div>
-              )}
-
-              {pinStep === "confirm" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Confirm PIN</label>
-                    <input type="password" maxLength={4} value={confirmPin} onChange={(e) => setConfirmPin(e.target.value)}
-                      placeholder="• • • •"
-                      className="w-full mt-1 px-3 py-3 rounded-lg border border-border bg-input text-center text-xl font-bold tracking-[1em] focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                  </div>
-                  {confirmPin.length === 4 && confirmPin !== pin && (
-                    <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="w-3 h-3" /> PINs do not match</p>
-                  )}
-                  <div className="flex gap-3">
-                    <button onClick={() => setPinStep("enter")} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">Back</button>
-                    <button onClick={() => confirmPin === pin && confirmPin.length === 4 && setPinStep("done")}
-                      disabled={confirmPin !== pin || confirmPin.length < 4}
-                      className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold disabled:opacity-40 hover:bg-primary/90">
-                      Activate Card
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {pinStep === "done" && (
-                <div className="text-center space-y-4">
-                  <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle className="w-7 h-7 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">Card Activated!</p>
-                    <p className="text-sm text-muted-foreground mt-1">Your card is now active and ready to use at CNG stations.</p>
-                  </div>
-                  <button onClick={() => { setActivatingCard(null); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
-                    className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
-                    Back to Cards
-                  </button>
-                </div>
-              )}
-            </div>
-            </div>
-          ) : (
-            <div className="space-y-4 flex flex-col flex-1 overflow-hidden">
+          <div className="space-y-4 flex flex-col flex-1 overflow-hidden">
               {/* Search and Filter Bar */}
               <div className="flex flex-col sm:flex-row gap-3 pb-3 border-b border-border sticky top-0 bg-background z-10">
                 <input
@@ -1351,7 +1284,6 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 )}
               </div>
             </div>
-          )}
         </div>
       )}
 
