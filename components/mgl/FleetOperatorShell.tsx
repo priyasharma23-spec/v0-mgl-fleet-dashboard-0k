@@ -1579,12 +1579,6 @@ function FOCardsView({ onViewChange, onManageCard, activationStep, setActivation
         </div>
       )}
 
-            {/* Close Button */}
-            <button onClick={() => setActionModal(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-lg">✕</button>
-          </div>
-        </div>
-      )}
-
       {/* Card Activation Multi-Step Modal */}
       {activationStep && activationCardId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
