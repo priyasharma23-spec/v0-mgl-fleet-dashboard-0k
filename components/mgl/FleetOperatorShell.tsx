@@ -101,14 +101,32 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   function renderView() {
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
-      case "fo-wallet": return <FOWalletView />
+      case "fo-wallet": return <FOTransactionHistory />
+      case "fo-card-wallets": return <FOCardWalletsView />
+      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
-      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
+      case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
+      // Account Management
+      case "fo-account": return <FOPlaceholder title="Account Settings" description="Manage your account details and profile information" />
+      case "fo-security": return <FOPlaceholder title="Security & Access" description="Manage security settings, passwords, and access permissions" />
+      // Driver Management
+      case "fo-drivers": return <FOPlaceholder title="Driver Management" description="Add, manage, and track your fleet drivers" />
+      // Transaction Management
+      case "fo-transactions": return <FOPlaceholder title="Transaction History" description="View detailed transaction history and records" />
+      // Reports
+      case "fo-reports": return <FOPlaceholder title="Reports & Analytics" description="Generate and download transaction reports" />
+      // Incentives & Loyalty
+      case "fo-incentives": return <FOPlaceholder title="Incentives & Loyalty" description="View available incentives, loyalty rewards, and offers" />
+      // Support
+      case "fo-support": return <FOPlaceholder title="Support Tickets" description="Manage your support requests and get help" />
+      // Analytics
+      case "fo-analytics": return <FOPlaceholder title="Analytics & Insights" description="View fleet analytics and business insights" />
       default: return <FODashboard onViewChange={setActiveView} />
     }
+  }
   }
 
   return (
@@ -1239,6 +1257,192 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
               )}
             </div>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── FO Fund Management ──────────────────────────────────────────────────────
+function FOFundManagement() {
+  const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
+  const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
+  const [loadAmount, setLoadAmount] = useState("")
+  const [selectedAllocationVehicle, setSelectedAllocationVehicle] = useState<string | null>(null)
+  const [allocationAmount, setAllocationAmount] = useState("")
+
+  const parentWalletBalance = 150000
+  const totalAllocated = 45000
+  const availableToLoad = parentWalletBalance - totalAllocated
+
+  const allocationHistory = [
+    { id: 1, vehicle: "MGL-001", amount: 15000, type: "Auto", date: "28 Feb 2025", status: "Success" },
+    { id: 2, vehicle: "MGL-002", amount: 10000, type: "Manual", date: "27 Feb 2025", status: "Success" },
+    { id: 3, vehicle: "MGL-003", amount: 8000, type: "Auto", date: "26 Feb 2025", status: "Success" },
+    { id: 4, vehicle: "MGL-004", amount: 12000, type: "Manual", date: "25 Feb 2025", status: "Success" },
+  ]
+
+  const pgLoadHistory = [
+    { id: 1, amount: 50000, date: "25 Feb 2025", status: "Settled", refId: "PG-2025-001" },
+    { id: 2, amount: 75000, date: "22 Feb 2025", status: "Settled", refId: "PG-2025-002" },
+  ]
+
+  return (
+    <div className="flex flex-col gap-5 p-5 h-full overflow-y-auto">
+      <div>
+        <h1 className="text-xl font-bold text-foreground">Fund Management</h1>
+        <p className="text-sm text-muted-foreground">Manage parent wallet and card allocations</p>
+      </div>
+
+      {/* Parent Wallet Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-card rounded-xl border border-border p-4">
+          <p className="text-xs text-muted-foreground font-semibold mb-1">Parent Wallet Balance</p>
+          <p className="text-2xl font-bold text-primary">₹{parentWalletBalance.toLocaleString()}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <p className="text-xs text-muted-foreground font-semibold mb-1">Allocated to Cards</p>
+          <p className="text-2xl font-bold text-orange-600">₹{totalAllocated.toLocaleString()}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <p className="text-xs text-muted-foreground font-semibold mb-1">Available for Load</p>
+          <p className="text-2xl font-bold text-green-600">₹{availableToLoad.toLocaleString()}</p>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex gap-2 border-b border-border">
+        {[
+          { id: "overview", label: "Overview" },
+          { id: "load", label: "Load from PG" },
+          { id: "allocate", label: "Allocate to Cards" },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Overview Tab */}
+      {activeTab === "overview" && (
+        <div className="flex flex-col gap-4">
+          {/* Fund Allocation History */}
+          <div className="bg-card rounded-xl border border-border p-4">
+            <h3 className="font-semibold text-foreground mb-4">Recent Allocations</h3>
+            <div className="space-y-3">
+              {allocationHistory.map((item) => (
+                <div key={item.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-foreground">{item.vehicle}</p>
+                    <p className="text-xs text-muted-foreground">{item.type} Load • {item.date}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-foreground">₹{item.amount.toLocaleString()}</p>
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">{item.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PG Load History */}
+          <div className="bg-card rounded-xl border border-border p-4">
+            <h3 className="font-semibold text-foreground mb-4">PG Load History</h3>
+            <div className="space-y-3">
+              {pgLoadHistory.map((item) => (
+                <div key={item.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm text-foreground">{item.refId}</p>
+                    <p className="text-xs text-muted-foreground">{item.date}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-semibold text-foreground">₹{item.amount.toLocaleString()}</p>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">{item.status}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load from PG Tab */}
+      {activeTab === "load" && (
+        <div className="max-w-md space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <p className="text-sm text-blue-900"><strong>Note:</strong> Funds will be credited to your parent wallet on T+1 day after successful PG processing.</p>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">Amount to Load (₹)</label>
+            <input
+              type="number"
+              value={loadAmount}
+              onChange={(e) => setLoadAmount(e.target.value)}
+              placeholder="Enter amount"
+              className="w-full px-4 py-2 rounded-lg border border-border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+          <button className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+            Proceed to Payment Gateway
+          </button>
+        </div>
+      )}
+
+      {/* Allocate to Cards Tab */}
+      {activeTab === "allocate" && (
+        <div className="max-w-md space-y-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p className="text-sm text-green-900"><strong>Available:</strong> ₹{availableToLoad.toLocaleString()} for allocation</p>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">Select Vehicle</label>
+            <select
+              value={selectedAllocationVehicle || ""}
+              onChange={(e) => setSelectedAllocationVehicle(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="">Choose a vehicle</option>
+              {myVehicles.filter(v => v.status === "L1_APPROVED" || v.status === "CARD_ACTIVE").map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.registrationNumber} • Current: ₹{(Math.random() * 10000).toFixed(0)}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">Allocation Method</label>
+            <div className="flex gap-3">
+              <label className="flex items-center gap-2 flex-1">
+                <input type="radio" name="method" defaultChecked className="w-4 h-4" />
+                <span className="text-sm">Auto Load</span>
+              </label>
+              <label className="flex items-center gap-2 flex-1">
+                <input type="radio" name="method" className="w-4 h-4" />
+                <span className="text-sm">Manual Load</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-foreground mb-2">Amount (₹)</label>
+            <input
+              type="number"
+              value={allocationAmount}
+              onChange={(e) => setAllocationAmount(e.target.value)}
+              placeholder="Enter amount"
+              className="w-full px-4 py-2 rounded-lg border border-border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+          <button className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+            Allocate Funds
+          </button>
         </div>
       )}
     </div>

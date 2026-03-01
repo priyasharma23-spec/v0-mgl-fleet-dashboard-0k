@@ -37,6 +37,7 @@ const foNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", view: "fo-dashboard" },
   { icon: Wallet, label: "Transactions", view: "fo-wallet" },
   { icon: CreditCard, label: "My Cards", view: "fo-cards" },
+  { icon: Gift, label: "Fund Management", view: "fo-funds" },
   { icon: Truck, label: "My Vehicles", view: "fo-vehicles" },
   { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle" },
   { icon: MapPin, label: "Card Delivery", view: "fo-delivery" },
