@@ -158,7 +158,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ─────────────────────────────────────────────���───────────
+// ─── FO Signup Flow ─────────────────────────────────────────────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -1208,53 +1208,123 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
             </div>
             </div>
           ) : (
-            <div className="space-y-4">
-              {cards.map((v) => (
-                <div key={v.id} className="bg-card rounded-xl border border-border p-4">
-                  <div className="flex flex-col sm:flex-row items-start gap-4">
-                    <CardVisual cardNumber={v.cardNumber!} status={v.status} />
-                    <div className="flex-1 min-w-0 space-y-3">
-                      <div>
-                        <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
-                        <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
+            <div className="space-y-6">
+              {/* Card Lifecycle Timeline */}
+              <div className="bg-card rounded-xl border border-border p-5">
+                <h3 className="font-semibold text-foreground mb-5">Physical Card Lifecycle</h3>
+                <div className="space-y-4">
+                  {[
+                    { stage: "L1 Approval", status: "complete", icon: "✓", color: "bg-green-100 text-green-700" },
+                    { stage: "Digital Card Allocation", status: "complete", icon: "✓", color: "bg-green-100 text-green-700" },
+                    { stage: "L2 Approval", status: "complete", icon: "✓", color: "bg-green-100 text-green-700" },
+                    { stage: "Card Printing", status: "in-progress", icon: "⏳", color: "bg-blue-100 text-blue-700" },
+                    { stage: "Card Dispatch", status: "pending", icon: "○", color: "bg-gray-100 text-gray-700" },
+                    { stage: "Delivery & Activation", status: "pending", icon: "○", color: "bg-gray-100 text-gray-700" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm flex-shrink-0 ${item.color}`}>
+                        {item.icon}
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        {[
-                          ["Card No.", v.cardNumber!],
-                          ["Status", v.status.replace(/_/g, " ")],
-                          ["Dispatch Date", v.cardDispatchDate || "—"],
-                          ["Activated", v.cardActivatedAt || "Pending"],
-                        ].map(([k, val]) => (
-                          <div key={k}>
-                            <p className="text-muted-foreground">{k}</p>
-                            <p className="font-semibold text-foreground">{val}</p>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-foreground">{item.stage}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {item.status === "complete" ? "Completed" : item.status === "in-progress" ? "In Progress" : "Awaiting"}
+                        </p>
+                      </div>
+                      {idx < 5 && <div className="w-0.5 h-6 bg-border ml-3 mb-2" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card Details */}
+              <div className="space-y-4">
+                {cards.map((v) => (
+                  <div key={v.id} className="bg-card rounded-xl border border-border p-4">
+                    <div className="flex flex-col gap-4">
+                      {/* Card Status Badge */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
+                          <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-800" :
+                          v.status === "CARD_DISPATCHED" ? "bg-blue-100 text-blue-800" :
+                          v.status === "CARD_PRINTED" ? "bg-orange-100 text-orange-800" :
+                          "bg-gray-100 text-gray-800"
+                        }`}>
+                          {v.status === "CARD_ACTIVE" ? "Active" : 
+                           v.status === "CARD_DISPATCHED" ? "Dispatched" :
+                           v.status === "CARD_PRINTED" ? "Printing" : "Processing"}
+                        </div>
+                      </div>
+
+                      {/* Card Visual and Details */}
+                      <div className="flex flex-col sm:flex-row items-start gap-4">
+                        <CardVisual cardNumber={v.cardNumber!} status={v.status} />
+                        <div className="flex-1 min-w-0">
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            {[
+                              ["Card No.", v.cardNumber!],
+                              ["Card Wallet", "₹" + (Math.random() * 10000).toFixed(0)],
+                              ["Incentive Wallet", "₹" + (Math.random() * 2000).toFixed(0)],
+                              ["Activated", v.cardActivatedAt || "Pending"],
+                            ].map(([k, val]) => (
+                              <div key={k}>
+                                <p className="text-muted-foreground">{k}</p>
+                                <p className="font-semibold text-foreground mt-0.5">{val}</p>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        </div>
                       </div>
+
+                      {/* Timeline for this Card */}
+                      <div className="border-t border-border pt-3 mt-2">
+                        <p className="text-xs font-semibold text-muted-foreground mb-2">Card Journey</p>
+                        <div className="flex gap-1">
+                          {[
+                            { label: "L1", complete: true },
+                            { label: "Alloc", complete: true },
+                            { label: "L2", complete: true },
+                            { label: "Print", complete: v.status === "CARD_PRINTED" || v.status === "CARD_DISPATCHED" || v.status === "CARD_ACTIVE" },
+                            { label: "Ship", complete: v.status === "CARD_DISPATCHED" || v.status === "CARD_ACTIVE" },
+                            { label: "Active", complete: v.status === "CARD_ACTIVE" },
+                          ].map((item, idx) => (
+                            <div key={idx} className="flex-1">
+                              <div className={`w-full h-1 rounded-full ${item.complete ? "bg-green-500" : "bg-gray-300"}`} />
+                              <p className="text-xs text-center mt-1 text-muted-foreground">{item.label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
                       {v.status === "CARD_DISPATCHED" && (
-                        <button onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
-                          className="flex items-center gap-2 px-4 py-2 bg-[#F5A800] text-white rounded-lg text-sm font-semibold hover:bg-[#e09800] transition-colors">
-                          <Shield className="w-4 h-4" />
-                          Activate Card & Set PIN
+                        <button 
+                          onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
+                          className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+                          Set PIN & Activate Card
                         </button>
                       )}
                       {v.status === "CARD_ACTIVE" && (
                         <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                           <p className="text-xs text-green-700 font-medium">Card is active and ready to use</p>
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
-              {cards.length === 0 && (
-                <div className="bg-card rounded-xl border border-border p-10 text-center text-muted-foreground">
-                  <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm font-medium">No cards issued yet</p>
-                  <p className="text-xs mt-1">Cards are issued after L2 approval</p>
-                </div>
-              )}
+                ))}
+                {cards.length === 0 && (
+                  <div className="bg-card rounded-xl border border-border p-10 text-center text-muted-foreground">
+                    <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm font-medium">No cards issued yet</p>
+                    <p className="text-xs mt-1">Cards are issued after L2 approval</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
