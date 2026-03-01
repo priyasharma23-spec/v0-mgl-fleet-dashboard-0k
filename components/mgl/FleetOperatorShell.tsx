@@ -957,7 +957,7 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [confirmPin, setConfirmPin] = useState("")
   const [activeTab, setActiveTab] = useState<"vehicles" | "cards">("vehicles")
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive" | "replacement">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "CARD_ACTIVE" | "CARD_DISPATCHED" | "L2_APPROVED">("all")
 
   const cards = myVehicles.filter((v) => v.cardNumber)
 
@@ -1052,8 +1052,8 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
             >
               <option value="all">All Status</option>
               <option value="CARD_ACTIVE">Active</option>
-              <option value="CARD_INACTIVE">Inactive</option>
-              <option value="replacement">Replacement</option>
+              <option value="CARD_DISPATCHED">Dispatched</option>
+              <option value="L2_APPROVED">Approved</option>
             </select>
           </div>
 
@@ -1089,11 +1089,11 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
                           <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
                             v.status === "CARD_ACTIVE" 
                               ? "bg-green-100 text-green-800" 
-                              : v.status === "replacement"
+                              : v.status === "CARD_DISPATCHED"
                               ? "bg-amber-100 text-amber-800"
                               : "bg-gray-100 text-gray-800"
                           }`}>
-                            {v.status === "CARD_ACTIVE" ? "Active" : v.status === "replacement" ? "Replacement" : "Inactive"}
+                            {v.status === "CARD_ACTIVE" ? "Active" : v.status === "CARD_DISPATCHED" ? "Dispatched" : v.status.replace(/_/g, " ")}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">
