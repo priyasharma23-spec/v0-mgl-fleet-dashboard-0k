@@ -237,7 +237,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
             <h2 className="text-lg font-semibold text-foreground">Select Your Role</h2>
             <p className="text-sm text-muted-foreground mt-1">Choose your portal to continue</p>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
             {roles.map((r) => {
               const Icon = r.icon;
               const isSelected = selected === r.role;
@@ -245,19 +245,18 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                 <button
                   key={r.role}
                   onClick={() => setSelected(r.role)}
-                  className={`relative p-4 rounded-xl border-2 text-left transition-all duration-150 ${r.color} ${isSelected ? "border-primary bg-primary/5 shadow-md" : "border-border bg-background"}`}
+                  className={`relative p-3 rounded-xl border-2 text-left transition-all duration-150 ${r.color} ${isSelected ? "border-primary bg-primary/5 shadow-md" : "border-border bg-background"}`}
                 >
                   {isSelected && (
-                    <span className="absolute top-2 right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                       <span className="text-white text-[10px] font-bold">✓</span>
                     </span>
                   )}
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${isSelected ? "bg-primary" : r.iconBg}`}>
-                    <Icon className={`w-5 h-5 ${isSelected ? "text-white" : r.iconColor}`} />
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-2 ${isSelected ? "bg-primary" : r.iconBg}`}>
+                    <Icon className={`w-4 h-4 ${isSelected ? "text-white" : r.iconColor}`} />
                   </div>
-                  <p className={`font-semibold text-sm ${isSelected ? "text-primary" : "text-foreground"}`}>{r.label}</p>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{r.description}</p>
-                  <span className={`inline-block mt-2 text-[10px] font-bold text-white px-2 py-0.5 rounded ${r.badgeBg}`}>{r.short}</span>
+                  <p className={`font-semibold text-xs ${isSelected ? "text-primary" : "text-foreground"}`}>{r.label}</p>
+                  <span className={`inline-block mt-1.5 text-[9px] font-bold text-white px-1.5 py-0.5 rounded ${r.badgeBg}`}>{r.short}</span>
                 </button>
               );
             })}
