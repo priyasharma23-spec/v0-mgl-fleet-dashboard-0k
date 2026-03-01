@@ -550,11 +550,165 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
                   {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
                 </div>
-              )}
+      )}
+
+      {/* Load Card Modal */}
+      {loadCardStep && loadCardId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
+            <button
+              onClick={() => {
+                setLoadCardStep(null);
+                setLoadCardId(null);
+                setLoadAmount("");
+                setLoadOtp("");
+              }}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-lg"
+            >
+              ✕
+            </button>
+
+            {/* Progress Indicator */}
+            <div className="flex gap-1 mb-6">
+              {["amount", "otp", "success"].map((step, idx) => (
+                <div
+                  key={step}
+                  className={`h-1 flex-1 rounded-full ${["amount", "otp", "success"].indexOf(loadCardStep) >= idx ? "bg-primary" : "bg-muted"}`}
+                />
+              ))}
             </div>
-          )
-        })}
-      </div>
+
+            {/* Step 1: Enter Amount */}
+            {loadCardStep === "amount" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Load Card</h3>
+                <p className="text-sm text-muted-foreground mb-4">Enter the amount you want to load on your card for Vehicle {myVehicles.find(v => v.id === loadCardId)?.vehicleNumber}.</p>
+                
+                <div className="mb-4 p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Card</p>
+                  <p className="font-medium text-foreground">••••{myVehicles.find(v => v.id === loadCardId)?.cardNumber?.slice(-4)}</p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-muted-foreground mb-2">Amount (₹)</label>
+                  <input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={loadAmount}
+                    onChange={(e) => setLoadAmount(e.target.value)}
+                    min="100"
+                    max="50000"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Min: ₹100 | Max: ₹50,000</p>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setLoadCardStep(null);
+                      setLoadCardId(null);
+                    }}
+                    className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLoadCardStep("otp");
+                      setLoadOtp("");
+                      setLoadOtpAttempts(0);
+                    }}
+                    disabled={!loadAmount || parseInt(loadAmount) < 100}
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: OTP Verification */}
+            {loadCardStep === "otp" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-2">Verify with OTP</h3>
+                <p className="text-sm text-muted-foreground mb-4">Enter the 6-digit OTP sent to your registered mobile.</p>
+
+                <div className="mb-4 p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Load Amount</p>
+                  <p className="text-lg font-bold text-foreground">₹{parseInt(loadAmount).toLocaleString()}</p>
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="000000"
+                  value={loadOtp}
+                  onChange={(e) => setLoadOtp(e.target.value.slice(0, 6).replace(/\D/g, ""))}
+                  maxLength={6}
+                  className="w-full px-3 py-2 border border-border rounded-lg text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-primary/30 mb-3"
+                />
+
+                {loadOtpAttempts > 0 && <p className="text-xs text-red-600 mb-2">Invalid OTP. Attempts remaining: {3 - loadOtpAttempts}</p>}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLoadCardStep("amount")}
+                    className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (loadOtp === "123456") {
+                        setCardBalances({
+                          ...cardBalances,
+                          [loadCardId]: (cardBalances[loadCardId] || 0) + parseInt(loadAmount),
+                        });
+                        setLoadCardStep("success");
+                      } else {
+                        setLoadOtpAttempts(loadOtpAttempts + 1);
+                        if (loadOtpAttempts >= 2) {
+                          setLoadCardStep("amount");
+                          setLoadOtpAttempts(0);
+                        }
+                      }
+                    }}
+                    disabled={loadOtp.length < 6}
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Verify OTP
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Success */}
+            {loadCardStep === "success" && (
+              <div className="text-center">
+                <div className="text-5xl mb-4">✓</div>
+                <h3 className="text-lg font-bold text-green-600 mb-4">Load Successful!</h3>
+                <p className="text-sm text-muted-foreground mb-4">₹{parseInt(loadAmount).toLocaleString()} has been loaded to your card for Vehicle {myVehicles.find(v => v.id === loadCardId)?.vehicleNumber}.</p>
+                
+                <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200 text-left">
+                  <p className="text-xs text-foreground font-semibold mb-2">Card Balance Updated</p>
+                  <p className="text-sm font-bold text-green-600">₹{(cardBalances[loadCardId] || 0).toLocaleString()}</p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setLoadCardStep(null);
+                    setLoadCardId(null);
+                    setLoadAmount("");
+                  }}
+                  className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90"
+                >
+                  Done
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -990,6 +1144,14 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   const [activationPin, setActivationPin] = useState("")
   const [activationPinConfirm, setActivationPinConfirm] = useState("")
 
+  // Load Card Flow States
+  const [loadCardStep, setLoadCardStep] = useState<"amount" | "otp" | "success" | null>(null)
+  const [loadCardId, setLoadCardId] = useState<string | null>(null)
+  const [loadAmount, setLoadAmount] = useState("")
+  const [loadOtp, setLoadOtp] = useState("")
+  const [loadOtpAttempts, setLoadOtpAttempts] = useState(0)
+  const [cardBalances, setCardBalances] = useState<Record<string, number>>({})
+
   const cards = myVehicles.filter((v) => v.cardNumber)
 
   // Filter vehicles based on search and status - only show vehicles post L1 approval with digital card issued
@@ -1243,8 +1405,8 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                       <div className="grid grid-cols-2 gap-3 mb-4">
                         <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
                           <p className="text-xs text-blue-700 font-semibold mb-1">Card Wallet</p>
-                          <p className="text-sm font-bold text-blue-900">₹{(Math.random() * 10000).toFixed(0)}</p>
-                          <p className="text-xs text-blue-600 mt-1">(Coins)</p>
+                          <p className="text-sm font-bold text-blue-900">₹{(cardBalances[v.id] || 0).toLocaleString()}</p>
+                          <p className="text-xs text-blue-600 mt-1">(Available)</p>
                         </div>
                         <div className="bg-green-50 rounded-lg p-3 border border-green-200">
                           <p className="text-xs text-green-700 font-semibold mb-1">Incentive</p>
@@ -1255,7 +1417,17 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
 
                       {/* Quick Actions */}
                       <div className="flex gap-2">
-                        <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                        <button
+                          onClick={() => {
+                            setLoadCardId(v.id);
+                            setLoadCardStep("amount");
+                            setLoadAmount("");
+                            setLoadOtp("");
+                            setLoadOtpAttempts(0);
+                          }}
+                          disabled={v.status !== "CARD_ACTIVE"}
+                          className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
                           Load Card
                         </button>
                         <button
