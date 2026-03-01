@@ -1118,9 +1118,10 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
 
       {/* Physical Cards Tab */}
       {activeTab === "cards" && (
-        <div className="flex flex-col gap-4 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
           {activatingCard ? (
-            <div className="max-w-md mx-auto w-full bg-card rounded-2xl border border-border p-6">
+            <div className="flex items-center justify-center py-8">
+              <div className="max-w-md w-full bg-card rounded-2xl border border-border p-6">
               <div className="text-center mb-5">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Shield className="w-6 h-6 text-primary" />
@@ -1183,8 +1184,9 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
                 </div>
               )}
             </div>
+            </div>
           ) : (
-            <div className="space-y-4 overflow-y-auto">
+            <div className="space-y-4">
               {cards.map((v) => (
                 <div key={v.id} className="bg-card rounded-xl border border-border p-4">
                   <div className="flex flex-col sm:flex-row items-start gap-4">
