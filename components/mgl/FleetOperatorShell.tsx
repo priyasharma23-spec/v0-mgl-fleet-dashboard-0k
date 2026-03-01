@@ -55,6 +55,12 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [activationPinConfirm, setActivationPinConfirm] = useState("")
   const [actionModal, setActionModal] = useState<"reset-pin" | "lock-unlock" | "block" | "limits" | "replacement" | null>(null)
 
+  // Load Card Flow States
+  const [loadCardModal, setLoadCardModal] = useState(false)
+  const [selectedLoadCardVehicle, setSelectedLoadCardVehicle] = useState<string | null>(null)
+  const [loadCardMethod, setLoadCardMethod] = useState<"auto" | "manual">("auto")
+  const [loadCardAmount, setLoadCardAmount] = useState("")
+
   // Helper function to validate PIN
   const isInvalidPin = (pin: string): boolean => {
     if (!pin) return false
@@ -556,9 +562,101 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                 className="px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 disabled:opacity-40">
                 {step === 3 ? (otpSent ? "Verify & Continue" : "Skip Verification") : "Continue"}
               </button>
-            </div>
-          )}
         </div>
+      )}
+
+      {/* Load Card Modal */}
+      {loadCardModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
+            <button onClick={() => setLoadCardModal(false)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-lg">✕</button>
+            
+            <h3 className="text-lg font-bold text-foreground mb-4">Load Card</h3>
+            <p className="text-sm text-muted-foreground mb-4">Add funds to your card</p>
+
+            <div className="space-y-4">
+              {/* Vehicle Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">Select Vehicle</label>
+                <select
+                  value={selectedLoadCardVehicle || ""}
+                  onChange={(e) => setSelectedLoadCardVehicle(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">Choose a vehicle</option>
+                  {myVehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.vehicleNumber} • Current: ₹{(Math.random() * 2000).toFixed(0)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Load Method */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">Load Method</label>
+                <div className="flex gap-3">
+                  <label className="flex items-center gap-2 flex-1">
+                    <input 
+                      type="radio" 
+                      name="loadMethod" 
+                      value="auto"
+                      checked={loadCardMethod === "auto"}
+                      onChange={(e) => setLoadCardMethod(e.target.value as "auto" | "manual")}
+                      className="w-4 h-4" 
+                    />
+                    <span className="text-sm">Auto Load</span>
+                  </label>
+                  <label className="flex items-center gap-2 flex-1">
+                    <input 
+                      type="radio" 
+                      name="loadMethod" 
+                      value="manual"
+                      checked={loadCardMethod === "manual"}
+                      onChange={(e) => setLoadCardMethod(e.target.value as "auto" | "manual")}
+                      className="w-4 h-4" 
+                    />
+                    <span className="text-sm">Manual Load</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">Amount (₹)</label>
+                <input
+                  type="number"
+                  value={loadCardAmount}
+                  onChange={(e) => setLoadCardAmount(e.target.value)}
+                  placeholder="Enter amount"
+                  className="w-full px-4 py-2 rounded-lg border border-border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={() => setLoadCardModal(false)}
+                  className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    if (selectedLoadCardVehicle && loadCardAmount) {
+                      setLoadCardModal(false);
+                      // Show success message or proceed to payment
+                    }
+                  }}
+                  disabled={!selectedLoadCardVehicle || !loadCardAmount}
+                  className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
+                  Load Card
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
           Already registered? <button onClick={onLogin} className="text-primary font-medium hover:underline">Sign in here</button>
@@ -1464,7 +1562,14 @@ function FOCardsView({ onViewChange, onManageCard, activationStep, setActivation
 
                         {/* Quick Actions */}
                         <div className="flex gap-2">
-                          <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                          <button 
+                            onClick={() => { 
+                              setLoadCardModal(true); 
+                              setSelectedLoadCardVehicle(v.id); 
+                              setLoadCardAmount("");
+                              setLoadCardMethod("auto");
+                            }}
+                            className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
                             Load Card
                           </button>
                           <button 
