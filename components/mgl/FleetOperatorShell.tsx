@@ -782,13 +782,12 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
             </div>
           )
         })}
-        </div>
-      )}
-
-      {/* Activation & Action Modals */}
+      </div>
     </div>
   )
 }
+
+// ─── FO Cards View ───────────────────────────────────────────────────────────
 
 // ─── FO Add Vehicle ──────────────────────────────────────────────────────────
 function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
