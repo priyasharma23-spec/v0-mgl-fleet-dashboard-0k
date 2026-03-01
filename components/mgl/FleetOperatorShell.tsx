@@ -13,9 +13,9 @@ import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
-import { 
-  mockVehicles, mockFleetOperators, 
-  oems, dealers, retrofitters, 
+import {
+  mockVehicles, mockFleetOperators,
+  oems, dealers, retrofitters,
   getDealersByOEM, getCategoriesByOEM, getModelsByOEMAndCategory,
   calculateVehicleAge,
   type VehicleCategory
@@ -44,12 +44,12 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
   const [selectedCardVehicle, setSelectedCardVehicle] = useState<string | null>(null)
-  
+
   // Determine if this is a new FO that needs to complete registration
   // Self-service flow: needs full KYB registration
   // MIC-assisted flow: already registered, can directly add vehicles
   const isSelfServiceNewFO = onboardingType === "SELF_SERVICE" && isNewRegistration
-  
+
   // New FO signup state (only for self-service registration)
   const [signupDone, setSignupDone] = useState(!isSelfServiceNewFO)
 
@@ -71,7 +71,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
             <p className="text-sm text-muted-foreground mt-1">Welcome to MGL Fleet Platform, {user.name}</p>
           </div>
         </div>
-        
+
         <div className="p-4 bg-green-50 border border-green-200 rounded-xl space-y-2">
           <p className="text-sm font-semibold text-green-800">Your account has been set up by MIC</p>
           <p className="text-xs text-green-700">Your KYB details and MoU documents have already been verified. You can now:</p>
@@ -83,13 +83,13 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
         </div>
 
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={() => setShowWelcomeModal(false)}
             className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors"
           >
             Explore Dashboard
           </button>
-          <button 
+          <button
             onClick={() => { setShowWelcomeModal(false); setActiveView("fo-add-vehicle"); }}
             className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
           >
@@ -106,8 +106,8 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
       case "fo-wallet": return <FOWalletView />
       case "fo-cards": return selectedCardVehicle ? (
-        <CardDetailsView 
-          vehicle={myVehicles.find(v => v.id === selectedCardVehicle)!} 
+        <CardDetailsView
+          vehicle={myVehicles.find(v => v.id === selectedCardVehicle)!}
           onBack={() => setSelectedCardVehicle(null)}
           onActionModal={setActionModal}
         />
@@ -181,7 +181,7 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0faf3] via-white to-[#e8f4ff] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-[#f0faf3] via-white to-[#e8f4ff] flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-3">
@@ -203,9 +203,8 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
             return (
               <div key={i} className="flex items-center">
                 <div className="flex flex-col items-center gap-1">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${
-                    step > s ? "bg-primary text-white" : step === s ? "bg-primary/20 text-primary ring-2 ring-primary/30" : "bg-muted text-muted-foreground"
-                  }`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all ${step > s ? "bg-primary text-white" : step === s ? "bg-primary/20 text-primary ring-2 ring-primary/30" : "bg-muted text-muted-foreground"
+                    }`}>
                     {step > s ? "✓" : s}
                   </div>
                   <span className={`text-[10px] font-medium whitespace-nowrap ${step === s ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
@@ -566,16 +565,16 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [submitted, setSubmitted] = useState(false)
   const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit">("new_purchase")
   const [form, setForm] = useState({
-    vehicleNumber: "", 
-    oemId: "", 
+    vehicleNumber: "",
+    oemId: "",
     dealerId: "",
     retrofitterId: "",
     category: "" as VehicleCategory | "",
-    model: "", 
+    model: "",
     customModel: "",
-    bookingDate: "", 
+    bookingDate: "",
     registrationDate: "",
-    driverName: "", 
+    driverName: "",
     driverContact: "",
     driverLicense: "",
     deliveryAddress: "",
@@ -595,7 +594,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   const availableDealers = form.oemId ? getDealersByOEM(form.oemId) : []
   const availableCategories = form.oemId ? getCategoriesByOEM(form.oemId) : []
   const availableModels = form.oemId && form.category ? getModelsByOEMAndCategory(form.oemId, form.category as VehicleCategory) : []
-  
+
   // Calculate vehicle age for retrofits
   const vehicleAge = form.registrationDate ? calculateVehicleAge(form.registrationDate) : null
 
@@ -642,9 +641,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           return (
             <div key={i} className="flex items-center">
               <div className="flex flex-col items-center gap-1">
-                <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                  step > s ? "bg-primary text-white" : step === s ? "bg-primary/20 text-primary ring-2 ring-primary/30" : "bg-muted text-muted-foreground"
-                }`}>{step > s ? "✓" : s}</div>
+                <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${step > s ? "bg-primary text-white" : step === s ? "bg-primary/20 text-primary ring-2 ring-primary/30" : "bg-muted text-muted-foreground"
+                  }`}>{step > s ? "✓" : s}</div>
                 <span className={`text-[9px] sm:text-[10px] font-medium whitespace-nowrap hidden sm:block ${step === s ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
               </div>
               {i < 4 && <div className={`h-0.5 w-6 sm:w-10 mx-0.5 sm:mx-1 mb-4 shrink-0 ${step > s ? "bg-primary" : "bg-border"}`} />}
@@ -675,7 +673,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               })}
             </div>
             <div className={`p-3 rounded-lg text-xs ${vehicleType === "new_purchase" ? "bg-blue-50 border border-blue-200 text-blue-700" : "bg-amber-50 border border-amber-200 text-amber-700"}`}>
-              {vehicleType === "new_purchase" 
+              {vehicleType === "new_purchase"
                 ? "New vehicles require L1 (pre-delivery) and L2 (post-delivery) approvals before card issuance."
                 : "Retrofitted vehicles go directly to L2 approval. Ensure all CNG conversion documents are ready."}
             </div>
@@ -688,14 +686,14 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
             <p className="font-semibold text-sm text-foreground border-b border-border pb-2">
               {vehicleType === "new_purchase" ? "New Vehicle Details" : "Retrofitted Vehicle Details"}
             </p>
-            
+
             {vehicleType === "new_purchase" ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* OEM Selection */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">OEM / Manufacturer <span className="text-destructive">*</span></label>
-                  <select 
-                    value={form.oemId} 
+                  <select
+                    value={form.oemId}
                     onChange={(e) => setForm({ ...form, oemId: e.target.value, dealerId: "", category: "", model: "" })}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
@@ -709,8 +707,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 {/* Dealership Selection */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Dealership Name <span className="text-destructive">*</span></label>
-                  <select 
-                    value={form.dealerId} 
+                  <select
+                    value={form.dealerId}
                     onChange={(e) => setForm({ ...form, dealerId: e.target.value })}
                     disabled={!form.oemId}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
@@ -725,8 +723,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 {/* Vehicle Category */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
-                  <select 
-                    value={form.category} 
+                  <select
+                    value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory, model: "" })}
                     disabled={!form.oemId}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
@@ -743,8 +741,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 {/* Vehicle Model */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Vehicle Model <span className="text-destructive">*</span></label>
-                  <select 
-                    value={form.model} 
+                  <select
+                    value={form.model}
                     onChange={(e) => setForm({ ...form, model: e.target.value })}
                     disabled={!form.category}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50"
@@ -775,8 +773,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 {/* Retrofitter Selection */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Retrofitter Name <span className="text-destructive">*</span></label>
-                  <select 
-                    value={form.retrofitterId} 
+                  <select
+                    value={form.retrofitterId}
                     onChange={(e) => setForm({ ...form, retrofitterId: e.target.value })}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
@@ -790,8 +788,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 {/* Vehicle Category */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
-                  <select 
-                    value={form.category} 
+                  <select
+                    value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory })}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
@@ -888,7 +886,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 ["Onboarding Type", vehicleType === "new_purchase" ? "New Purchase" : "Retrofit"],
                 ["Vehicle/Booking No.", form.vehicleNumber || "—"],
                 ["Category", form.category || "—"],
-                vehicleType === "new_purchase" 
+                vehicleType === "new_purchase"
                   ? ["OEM", selectedOEM?.name || "—"]
                   : ["Retrofitter", retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"],
                 ["Model", form.model === "__other" ? form.customModel : form.model || "—"],
@@ -918,7 +916,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
             <div>
               <p className="font-semibold text-foreground">Vehicle Submitted for Review!</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {vehicleType === "new_purchase" 
+                {vehicleType === "new_purchase"
                   ? "Your MIC officer will review the documents for L1 approval."
                   : "Your ZIC officer will review the documents for L2 approval."}
               </p>
@@ -970,7 +968,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   const [activeTab, setActiveTab] = useState<"vehicles" | "cards">("vehicles")
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "CARD_ACTIVE" | "CARD_DISPATCHED" | "L1_APPROVED">("all")
-  
+
   // Card Actions Menu States
   const [openMenuCard, setOpenMenuCard] = useState<string | null>(null)
   const [actionModal, setActionModal] = useState<"reset-pin" | "lock-unlock" | "block" | "limits" | "replacement" | null>(null)
@@ -999,11 +997,11 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
     // Only show vehicles that have passed L1 approval and have a card number (digital card issued)
     const isPostL1Approved = ["L1_APPROVED", "L2_SUBMITTED", "L2_APPROVED", "L2_REJECTED", "CARD_PRINTED", "CARD_DISPATCHED", "CARD_ACTIVE"].includes(v.status)
     const hasCard = v.cardNumber
-    
-    const matchesSearch = searchTerm === "" || 
+
+    const matchesSearch = searchTerm === "" ||
       v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (v.cardNumber && v.cardNumber.toLowerCase().includes(searchTerm.toLowerCase()))
-    
+
     const matchesStatus = statusFilter === "all" || v.status === statusFilter
     return isPostL1Approved && hasCard && matchesSearch && matchesStatus
   })
@@ -1011,13 +1009,13 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   function CardVisual({ cardNumber, status }: { cardNumber: string; status: VehicleStatus }) {
     const isActive = status === "CARD_ACTIVE"
     const vehicleNumber = myVehicles.find(v => v.cardNumber === cardNumber)?.vehicleNumber || "MH 23 HD 2456"
-    
+
     return (
-      <div className={`relative w-full max-w-sm rounded-2xl p-6 text-white overflow-hidden h-56 flex flex-col justify-between ${isActive ? "bg-gradient-to-br from-green-400 via-teal-400 to-blue-500" : "bg-gradient-to-br from-gray-400 to-gray-600"}`}>
+      <div className={`relative w-full max-w-sm rounded-2xl p-6 text-white overflow-hidden h-56 flex flex-col justify-between ${isActive ? "bg-linear-to-br from-green-400 via-teal-400 to-blue-500" : "bg-linear-to-br from-gray-400 to-gray-600"}`}>
         {/* Background decorative elements */}
         <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-16 translate-x-16" />
         <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
-        
+
         <div className="relative z-10">
           {/* Top section: Logo & Company */}
           <div className="flex items-start justify-between mb-6">
@@ -1044,7 +1042,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
 
           {/* Card Number */}
           <p className="text-2xl font-mono font-bold tracking-widest mb-2 text-white drop-shadow-sm mt-4">{cardNumber.toUpperCase()}</p>
-          
+
           {/* Bottom section: Cardholder & Validity */}
           <div className="flex items-end justify-between">
             <div>
@@ -1072,21 +1070,19 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
       <div className="flex gap-2 border-b border-border">
         <button
           onClick={() => { setActiveTab("vehicles"); setSearchTerm(""); }}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "vehicles" 
-              ? "border-primary text-primary" 
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "vehicles"
+              ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           Vehicle Card Wallets
         </button>
         <button
           onClick={() => { setActiveTab("cards"); setSearchTerm(""); }}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === "cards" 
-              ? "border-primary text-primary" 
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === "cards"
+              ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           My Physical Cards
         </button>
@@ -1145,13 +1141,12 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                           <span className="text-green-600 font-semibold">₹{(Math.random() * 1000).toFixed(0)}</span>
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                            v.status === "CARD_ACTIVE" 
-                              ? "bg-green-100 text-green-800" 
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${v.status === "CARD_ACTIVE"
+                              ? "bg-green-100 text-green-800"
                               : v.status === "CARD_DISPATCHED"
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-gray-100 text-gray-800"
-                          }`}>
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}>
                             {v.status === "CARD_ACTIVE" ? "Active" : v.status === "CARD_DISPATCHED" ? "Dispatched" : v.status.replace(/_/g, " ")}
                           </span>
                         </td>
@@ -1179,128 +1174,127 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
       {activeTab === "cards" && (
         <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
           <div className="space-y-4 flex flex-col flex-1 overflow-hidden">
-              {/* Search and Filter Bar */}
-              <div className="flex flex-col sm:flex-row gap-3 pb-3 border-b border-border sticky top-0 bg-background z-10">
-                <input
-                  type="text"
-                  placeholder="Search by vehicle, card number..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  <option value="all">All Status</option>
-                  <option value="CARD_ACTIVE">Active</option>
-                  <option value="CARD_DISPATCHED">Dispatched</option>
-                  <option value="L1_APPROVED">Approved</option>
-                </select>
+            {/* Search and Filter Bar */}
+            <div className="flex flex-col sm:flex-row gap-3 pb-3 border-b border-border sticky top-0 bg-background z-10">
+              <input
+                type="text"
+                placeholder="Search by vehicle, card number..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="all">All Status</option>
+                <option value="CARD_ACTIVE">Active</option>
+                <option value="CARD_DISPATCHED">Dispatched</option>
+                <option value="L1_APPROVED">Approved</option>
+              </select>
+            </div>
+
+            {/* Results Summary */}
+            {cards.length > 0 && (
+              <div className="text-xs text-muted-foreground">
+                Displaying {cards.length} {cards.length === 1 ? "card" : "cards"}
               </div>
+            )}
 
-              {/* Results Summary */}
-              {cards.length > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Displaying {cards.length} {cards.length === 1 ? "card" : "cards"}
-                </div>
-              )}
-
-              {/* Card Grid - Responsive */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                {cards.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                      <p className="text-sm font-medium text-foreground">No cards found</p>
-                      <p className="text-xs text-muted-foreground mt-1">Cards appear here after L2 approval</p>
-                    </div>
+            {/* Card Grid - Responsive */}
+            <div className="flex-1 overflow-y-auto pr-2">
+              {cards.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm font-medium text-foreground">No cards found</p>
+                    <p className="text-xs text-muted-foreground mt-1">Cards appear here after L2 approval</p>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
-                    {cards.map((v) => (
-                      <div key={v.id} className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-shadow">
-                        {/* Card Header */}
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-foreground truncate">{v.vehicleNumber || v.id}</p>
-                            <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
-                          </div>
-                          <div className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${
-                            v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-800" :
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                  {cards.map((v) => (
+                    <div key={v.id} className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-shadow">
+                      {/* Card Header */}
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground truncate">{v.vehicleNumber || v.id}</p>
+                          <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
+                        </div>
+                        <div className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-800" :
                             v.status === "CARD_DISPATCHED" ? "bg-blue-100 text-blue-800" :
-                            v.status === "CARD_PRINTED" ? "bg-orange-100 text-orange-800" :
-                            "bg-gray-100 text-gray-800"
+                              v.status === "CARD_PRINTED" ? "bg-orange-100 text-orange-800" :
+                                "bg-gray-100 text-gray-800"
                           }`}>
-                            {v.status === "CARD_ACTIVE" ? "Active" : 
-                             v.status === "CARD_DISPATCHED" ? "Dispatched" :
-                             v.status === "CARD_PRINTED" ? "Printing" : "Processing"}
-                          </div>
-                        </div>
-
-                        {/* Card Image with Masked Number */}
-                        <div className="mb-3">
-                          <CardVisual cardNumber={v.cardNumber!} status={v.status} />
-                          <p className="text-xs text-muted-foreground mt-2">Card: {v.cardNumber ? `••••${v.cardNumber.slice(-4)}` : "—"}</p>
-                        </div>
-
-                        {/* Wallets Side by Side */}
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                            <p className="text-xs text-blue-700 font-semibold mb-1">Card Wallet</p>
-                            <p className="text-sm font-bold text-blue-900">₹{(Math.random() * 10000).toFixed(0)}</p>
-                            <p className="text-xs text-blue-600 mt-1">(Coins)</p>
-                          </div>
-                          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                            <p className="text-xs text-green-700 font-semibold mb-1">Incentive</p>
-                            <p className="text-sm font-bold text-green-900">₹{(Math.random() * 2000).toFixed(0)}</p>
-                            <p className="text-xs text-green-600 mt-1">(Coins)</p>
-                          </div>
-                        </div>
-
-                        {/* Quick Actions */}
-                        <div className="flex gap-2">
-                          <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
-                            Load Card
-                          </button>
-                          <button 
-                            onClick={() => { 
-                              setActivationCardId(v.id); 
-                              setActivationStep("confirmation"); 
-                              setCardReceived(false); 
-                              setActivationPin(""); 
-                              setActivationPinConfirm(""); 
-                              setOtp(""); 
-                              setOtpAttempts(0); 
-                            }}
-                            className="flex-1 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
-                            Activate Card
-                          </button>
-                          {/* Card Actions Menu */}
-                            <div className="relative">
-                              <button 
-                                onClick={() => setOpenMenuCard(openMenuCard === v.id ? null : v.id)}
-                                className="px-3 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
-                                ⋮
-                              </button>
-                              {openMenuCard === v.id && (
-                                <div className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-lg shadow-lg z-50">
-                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("reset-pin"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Reset PIN</button>
-                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("lock-unlock"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Lock/Unlock Card</button>
-                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("block"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border text-red-600">Block Card</button>
-                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("limits"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Set Limits</button>
-                                  <button onClick={() => { setSelectedCard(v.id); setActionModal("replacement"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground">Order Replacement</button>
-                                </div>
-                              )}
-                            </div>
+                          {v.status === "CARD_ACTIVE" ? "Active" :
+                            v.status === "CARD_DISPATCHED" ? "Dispatched" :
+                              v.status === "CARD_PRINTED" ? "Printing" : "Processing"}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+
+                      {/* Card Image with Masked Number */}
+                      <div className="mb-3">
+                        <CardVisual cardNumber={v.cardNumber!} status={v.status} />
+                        <p className="text-xs text-muted-foreground mt-2">Card: {v.cardNumber ? `••••${v.cardNumber.slice(-4)}` : "—"}</p>
+                      </div>
+
+                      {/* Wallets Side by Side */}
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                          <p className="text-xs text-blue-700 font-semibold mb-1">Card Wallet</p>
+                          <p className="text-sm font-bold text-blue-900">₹{(Math.random() * 10000).toFixed(0)}</p>
+                          <p className="text-xs text-blue-600 mt-1">(Coins)</p>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                          <p className="text-xs text-green-700 font-semibold mb-1">Incentive</p>
+                          <p className="text-sm font-bold text-green-900">₹{(Math.random() * 2000).toFixed(0)}</p>
+                          <p className="text-xs text-green-600 mt-1">(Coins)</p>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="flex gap-2">
+                        <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                          Load Card
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActivationCardId(v.id);
+                            setActivationStep("confirmation");
+                            setCardReceived(false);
+                            setActivationPin("");
+                            setActivationPinConfirm("");
+                            setOtp("");
+                            setOtpAttempts(0);
+                          }}
+                          className="flex-1 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
+                          Activate Card
+                        </button>
+                        {/* Card Actions Menu */}
+                        <div className="relative">
+                          <button
+                            onClick={() => setOpenMenuCard(openMenuCard === v.id ? null : v.id)}
+                            className="px-3 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
+                            ⋮
+                          </button>
+                          {openMenuCard === v.id && (
+                            <div className="absolute right-0 mt-1 w-40 bg-card border border-border rounded-lg shadow-lg z-50">
+                              <button onClick={() => { setSelectedCard(v.id); setActionModal("reset-pin"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Reset PIN</button>
+                              <button onClick={() => { setSelectedCard(v.id); setActionModal("lock-unlock"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Lock/Unlock Card</button>
+                              <button onClick={() => { setSelectedCard(v.id); setActionModal("block"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Block Card</button>
+                              <button onClick={() => { setSelectedCard(v.id); setActionModal("limits"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground border-b border-border">Set Limits</button>
+                              <button onClick={() => { setSelectedCard(v.id); setActionModal("replacement"); setOpenMenuCard(null); }} className="w-full text-left px-4 py-2 text-xs hover:bg-muted text-foreground">Order Replacement</button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
         </div>
       )}
 
@@ -1328,17 +1322,17 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-4">{cardLocked[selectedCard!] ? "Unlock" : "Lock"} Card</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {cardLocked[selectedCard!] 
+                  {cardLocked[selectedCard!]
                     ? "Card will be unlocked and transactions will be allowed again."
                     : "Card will be temporarily locked. No transactions will be allowed."}
                 </p>
                 <div className="flex gap-2">
                   <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                  <button 
-                    onClick={() => { 
-                      setCardLocked({...cardLocked, [selectedCard!]: !cardLocked[selectedCard!]});
+                  <button
+                    onClick={() => {
+                      setCardLocked({ ...cardLocked, [selectedCard!]: !cardLocked[selectedCard!] });
                       setActionModal(null);
-                    }} 
+                    }}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
                     {cardLocked[selectedCard!] ? "Unlock Card" : "Lock Card"}
                   </button>
@@ -1419,7 +1413,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 </label>
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                  <button 
+                  <button
                     onClick={() => { setActivationStep("set-pin"); setActivationPin(""); }}
                     disabled={!cardReceived}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1447,7 +1441,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 )}
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep("confirmation")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
-                  <button 
+                  <button
                     onClick={() => setActivationStep("confirm-pin")}
                     disabled={activationPin.length < 4 || /^(\d)\1{3}$|^1234$|^4321$|^0123$|^9876$/.test(activationPin)}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1478,7 +1472,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 )}
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep("set-pin")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
-                  <button 
+                  <button
                     onClick={() => { setActivationStep("otp"); setOtp(""); setOtpAttempts(0); setOtpResendCountdown(30); }}
                     disabled={activationPin !== activationPinConfirm || activationPinConfirm.length < 4}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1511,7 +1505,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 {otpAttempts > 0 && <p className="text-xs text-red-600 mb-2">Invalid OTP. Attempts remaining: {3 - otpAttempts}</p>}
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep("confirm-pin")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
-                  <button 
+                  <button
                     onClick={() => {
                       if (otp === "123456") {
                         setActivationStep("success");
@@ -1544,7 +1538,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                     <li>Share the PIN securely with your driver</li>
                   </ul>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     setActivationStep(null);
                     setActivationCardId(null);
@@ -1567,17 +1561,16 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
       {activationStep && activationCardId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
-            
+
             {/* Progress Indicator */}
             <div className="flex gap-1 mb-6">
               {["confirmation", "set-pin", "confirm-pin", "otp", "success"].map((step, idx) => (
                 <div
                   key={step}
-                  className={`h-1 flex-1 rounded-full ${
-                    ["confirmation", "set-pin", "confirm-pin", "otp", "success"].indexOf(activationStep) >= idx
+                  className={`h-1 flex-1 rounded-full ${["confirmation", "set-pin", "confirm-pin", "otp", "success"].indexOf(activationStep) >= idx
                       ? "bg-primary"
                       : "bg-muted"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -1598,7 +1591,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 </label>
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                  <button 
+                  <button
                     onClick={() => { setActivationStep("set-pin"); setActivationPin(""); }}
                     disabled={!cardReceived}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1626,7 +1619,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 )}
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep("confirmation")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
-                  <button 
+                  <button
                     onClick={() => setActivationStep("confirm-pin")}
                     disabled={activationPin.length < 4 || /^(\d)\1{3}$|^1234$|^4321$|^0123$|^9876$/.test(activationPin)}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1657,7 +1650,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 )}
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep("set-pin")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
-                  <button 
+                  <button
                     onClick={() => { setActivationStep("otp"); setOtp(""); setOtpAttempts(0); setOtpResendCountdown(30); }}
                     disabled={activationPin !== activationPinConfirm || activationPinConfirm.length < 4}
                     className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -1690,7 +1683,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 {otpAttempts > 0 && <p className="text-xs text-red-600 mb-2">Invalid OTP. Attempts remaining: {3 - otpAttempts}</p>}
                 <div className="flex gap-2">
                   <button onClick={() => setActivationStep("confirm-pin")} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
-                  <button 
+                  <button
                     onClick={() => {
                       if (otp === "123456") {
                         setActivationStep("success");
@@ -1723,7 +1716,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                     <li>Share the PIN securely with your driver</li>
                   </ul>
                 </div>
-                <button 
+                <button
                   onClick={() => {
                     setActivationStep(null);
                     setActivationCardId(null);
@@ -1802,11 +1795,10 @@ function FOFundManagement() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === tab.id
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             {tab.label}
           </button>
