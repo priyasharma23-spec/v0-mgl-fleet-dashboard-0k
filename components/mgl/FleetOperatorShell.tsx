@@ -1238,7 +1238,6 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
     </div>
   )
 }
-}
 
 // ─── FO Delivery Tracking ─────────────────────────────────────────────────────
 function FODeliveryTracking() {
