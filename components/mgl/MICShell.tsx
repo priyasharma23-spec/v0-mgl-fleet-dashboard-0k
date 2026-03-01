@@ -3,6 +3,7 @@
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
+import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MICDashboard from "@/components/mgl/MICDashboard"
 import MICRegisterFO from "@/components/mgl/MICRegisterFO"
 import L1ApprovalQueue from "@/components/mgl/L1ApprovalQueue"
@@ -50,6 +51,7 @@ export default function MICShell({ user, onLogout }: Props) {
           {renderView()}
         </main>
       </div>
+      <PoweredByFooter />
     </div>
   )
 }

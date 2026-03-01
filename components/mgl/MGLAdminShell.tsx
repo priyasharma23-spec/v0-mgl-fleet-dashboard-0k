@@ -3,6 +3,7 @@
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
+import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import { 
   TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, Clock, CheckCircle, 
   AlertTriangle, ArrowRight, Search, Filter, Download, ChevronRight, Eye,
@@ -54,6 +55,7 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
           {renderView()}
         </main>
       </div>
+      <PoweredByFooter />
     </div>
   )
 }

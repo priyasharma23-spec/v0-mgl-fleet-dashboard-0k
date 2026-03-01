@@ -3,6 +3,7 @@
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
+import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import ZICDashboard from "@/components/mgl/ZICDashboard"
 import L2ApprovalQueue from "@/components/mgl/L2ApprovalQueue"
 import { mockVehicles } from "@/lib/mgl-data"
@@ -49,6 +50,7 @@ export default function ZICShell({ user, onLogout }: Props) {
           {renderView()}
         </main>
       </div>
+      <PoweredByFooter />
     </div>
   )
 }

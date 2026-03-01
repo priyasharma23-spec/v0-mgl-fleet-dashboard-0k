@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight, Shield, Truck, Users, Smartphone, KeyRound, LinkIcon, UserPlus, CheckCircle, Building2 } from "lucide-react";
 import type { UserRole } from "@/lib/mgl-data";
 import type { ActivationData, FOOnboardingType } from "@/app/page";
+import { PoweredByFooter } from "@/components/mgl/PoweredByFooter";
 
 interface LoginPageProps {
   onLogin: (role: UserRole, name: string, onboardingType?: FOOnboardingType) => void;
@@ -537,11 +538,8 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
           )}
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          © 2025 Mahanagar Gas Limited. All rights reserved. | Platform v2.1
-        </p>
       </div>
+      <PoweredByFooter />
     </div>
   );
 }

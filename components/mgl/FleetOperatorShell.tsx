@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
+import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import { 
@@ -132,6 +133,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
           {renderView()}
         </main>
       </div>
+      <PoweredByFooter />
     </div>
   )
 }
