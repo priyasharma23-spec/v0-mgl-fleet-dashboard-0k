@@ -289,6 +289,133 @@ export interface Notification {
   targetRole: UserRole | "all";
 }
 
+export interface CardTransaction {
+  id: string;
+  cardId: string;
+  date: string;
+  type: "load" | "spend" | "incentive" | "refund";
+  wallet: "card" | "incentive";
+  amount: number;
+  status: "success" | "pending" | "failed";
+  source?: string;
+  campaign?: string;
+}
+
+export interface CardBalance {
+  cardWallet: {
+    balance: number;
+    coins: number;
+  };
+  incentiveWallet: {
+    balance: number;
+    coins: number;
+  };
+}
+
+// ─── Mock Card Transactions ───────────────────────────────────────────────────
+export const mockCardTransactions: CardTransaction[] = [
+  {
+    id: "TXN001",
+    cardId: "CARD001",
+    date: "2024-05-10T10:15:00",
+    type: "load",
+    wallet: "card",
+    amount: 1200,
+    status: "success",
+    source: "Parent Wallet Transfer",
+  },
+  {
+    id: "TXN002",
+    cardId: "CARD001",
+    date: "2024-05-08T14:30:00",
+    type: "incentive",
+    wallet: "incentive",
+    amount: 50,
+    status: "success",
+    campaign: "May Fuel Saver Offer",
+  },
+  {
+    id: "TXN003",
+    cardId: "CARD001",
+    date: "2024-05-07T09:20:00",
+    type: "spend",
+    wallet: "card",
+    amount: -800,
+    status: "success",
+    source: "Fuel Purchase",
+  },
+  {
+    id: "TXN004",
+    cardId: "CARD001",
+    date: "2024-05-06T16:45:00",
+    type: "spend",
+    wallet: "card",
+    amount: -650,
+    status: "success",
+    source: "Fuel Purchase",
+  },
+  {
+    id: "TXN005",
+    cardId: "CARD001",
+    date: "2024-05-05T11:10:00",
+    type: "load",
+    wallet: "card",
+    amount: 2000,
+    status: "success",
+    source: "Parent Wallet Transfer",
+  },
+  {
+    id: "TXN006",
+    cardId: "CARD001",
+    date: "2024-05-04T08:30:00",
+    type: "incentive",
+    wallet: "incentive",
+    amount: 100,
+    status: "success",
+    campaign: "Efficiency Bonus",
+  },
+  {
+    id: "TXN007",
+    cardId: "CARD001",
+    date: "2024-05-03T15:20:00",
+    type: "spend",
+    wallet: "card",
+    amount: -900,
+    status: "success",
+    source: "Fuel Purchase",
+  },
+  {
+    id: "TXN008",
+    cardId: "CARD001",
+    date: "2024-05-02T10:45:00",
+    type: "spend",
+    wallet: "card",
+    amount: -750,
+    status: "success",
+    source: "Fuel Purchase",
+  },
+  {
+    id: "TXN009",
+    cardId: "CARD001",
+    date: "2024-05-01T12:30:00",
+    type: "load",
+    wallet: "card",
+    amount: 1500,
+    status: "success",
+    source: "Parent Wallet Transfer",
+  },
+  {
+    id: "TXN010",
+    cardId: "CARD001",
+    date: "2024-04-30T09:15:00",
+    type: "spend",
+    wallet: "card",
+    amount: -850,
+    status: "success",
+    source: "Fuel Purchase",
+  },
+];
+
 // ─── Mock Fleet Operators ───────────────────────────────────────────────────
 export const mockFleetOperators: FleetOperator[] = [
   {

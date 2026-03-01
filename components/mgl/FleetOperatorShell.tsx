@@ -11,6 +11,7 @@ import MGLHeader from "@/components/mgl/MGLHeader"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
+import CardDetailsView from "@/components/mgl/CardDetailsView"
 import { 
   mockVehicles, mockFleetOperators, 
   oems, dealers, retrofitters, 
@@ -41,6 +42,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [activeView, setActiveView] = useState("fo-dashboard")
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
+  const [selectedCardVehicle, setSelectedCardVehicle] = useState<string | null>(null)
   
   // Determine if this is a new FO that needs to complete registration
   // Self-service flow: needs full KYB registration
@@ -102,7 +104,15 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
       case "fo-wallet": return <FOWalletView />
-      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
+      case "fo-cards": return selectedCardVehicle ? (
+        <CardDetailsView 
+          vehicle={myVehicles.find(v => v.id === selectedCardVehicle)!} 
+          onBack={() => setSelectedCardVehicle(null)}
+          onActionModal={setActionModal}
+        />
+      ) : (
+        <FOCardsView onViewChange={setActiveView} onManageCard={(vehicleId) => setSelectedCardVehicle(vehicleId)} />
+      )
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
       case "fo-funds": return <FOFundManagement />
@@ -951,7 +961,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
 }
 
 // ─── FO Cards View ───────────────────────────────────────────────────────────
-function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
+function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
   const [activatingCard, setActivatingCard] = useState<string | null>(null)
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
   const [pin, setPin] = useState("")
@@ -1334,9 +1344,16 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
                             </button>
                           )}
                           {(cardStates[v.id] === "activated" || v.status === "CARD_ACTIVE") && (
-                            <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
-                              Load Card
-                            </button>
+                            <>
+                              <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                                Load Card
+                              </button>
+                              <button 
+                                onClick={() => onManageCard?.(v.id)}
+                                className="flex-1 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
+                                Manage
+                              </button>
+                            </>
                           )}
                           {/* Card Actions Menu - Show for activated cards */}
                           {(cardStates[v.id] === "activated" || v.status === "CARD_ACTIVE") && (
