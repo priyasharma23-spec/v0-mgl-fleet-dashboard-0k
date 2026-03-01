@@ -3,7 +3,8 @@ import {
   LayoutDashboard, Users, Truck, CreditCard, CheckSquare, Clock,
   BarChart2, Settings, HelpCircle, LogOut, ChevronRight, FileText,
   MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet, Gift, 
-  ArrowRightLeft, FileSpreadsheet, Activity, Building2
+  ArrowRightLeft, FileSpreadsheet, Activity, Building2, User, 
+  Lock, MoreHorizontal, TrendingUp, MessageCircle
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ interface NavItem {
   label: string;
   view: string;
   badge?: number;
+  section?: string;
 }
 
 const micNavItems: NavItem[] = [
@@ -34,13 +36,40 @@ const zicNavItems: NavItem[] = [
 ];
 
 const foNavItems: NavItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", view: "fo-dashboard" },
-  { icon: Wallet, label: "Transactions", view: "fo-wallet" },
-  { icon: CreditCard, label: "Card Wallets", view: "fo-card-wallets" },
-  { icon: Truck, label: "My Vehicles", view: "fo-vehicles" },
-  { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle" },
-  { icon: MapPin, label: "Card Delivery", view: "fo-delivery" },
-  { icon: Bell, label: "Notifications", view: "fo-notifications" },
+  // Overview
+  { icon: LayoutDashboard, label: "Dashboard", view: "fo-dashboard", section: "Overview" },
+  
+  // Account Management
+  { icon: User, label: "Account Settings", view: "fo-account", section: "Account Management" },
+  { icon: Lock, label: "Security & Access", view: "fo-security", section: "Account Management" },
+  
+  // Fleet & Vehicle Management
+  { icon: Truck, label: "My Vehicles", view: "fo-vehicles", section: "Fleet Management" },
+  { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle", section: "Fleet Management" },
+  { icon: Users, label: "Driver Management", view: "fo-drivers", section: "Driver Management" },
+  
+  // Card & Fund Management
+  { icon: CreditCard, label: "Card Wallets", view: "fo-card-wallets", section: "Card Management" },
+  { icon: CreditCard, label: "My Cards", view: "fo-cards", section: "Card Management" },
+  { icon: Wallet, label: "Fund Management", view: "fo-funds", section: "Fund Management" },
+  
+  // Transaction Management
+  { icon: ArrowRightLeft, label: "Transactions", view: "fo-wallet", section: "Transaction Controls" },
+  { icon: FileSpreadsheet, label: "Transaction History", view: "fo-transactions", section: "Transaction History & Reporting" },
+  { icon: BarChart2, label: "Reports", view: "fo-reports", section: "Transaction History & Reporting" },
+  
+  // Incentives & Loyalty
+  { icon: Gift, label: "Incentives & Loyalty", view: "fo-incentives", section: "Incentives & Loyalty" },
+  
+  // Support
+  { icon: MapPin, label: "Card Delivery", view: "fo-delivery", section: "Support and Communication" },
+  { icon: MessageCircle, label: "Support Tickets", view: "fo-support", section: "Support and Communication" },
+  
+  // Analytics
+  { icon: Activity, label: "Analytics", view: "fo-analytics", section: "Analytics" },
+  
+  // Notifications
+  { icon: Bell, label: "Notifications", view: "fo-notifications", section: "Notifications" },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -100,35 +129,76 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
 
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-          <p className="text-sidebar-foreground/40 text-[10px] font-semibold uppercase tracking-widest px-2 py-2">Main Menu</p>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeView === item.view;
-            return (
-              <button
-                key={item.view}
-                onClick={() => { onViewChange(item.view); onClose(); }}
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
-                  isActive
-                    ? "bg-primary text-primary-foreground font-semibold"
-                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                )}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="flex-1 text-left">{item.label}</span>
-                {item.badge ? (
-                  <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
-                    isActive ? "bg-white/25 text-white" : "bg-primary/20 text-primary"
-                  )}>
-                    {item.badge}
-                  </span>
-                ) : (
-                  <ChevronRight className={cn("w-3 h-3 transition-opacity", isActive ? "opacity-80" : "opacity-0 group-hover:opacity-40")} />
-                )}
-              </button>
-            );
-          })}
+          {role === "fleet-operator" ? (
+            <>
+              {/* Group FO items by section */}
+              {Array.from(new Set(navItems.filter(i => i.section).map(i => i.section))).map((section) => (
+                <div key={section} className="mb-3">
+                  <p className="text-sidebar-foreground/40 text-[10px] font-semibold uppercase tracking-widest px-2 py-2">{section}</p>
+                  {navItems.filter(i => i.section === section).map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeView === item.view;
+                    return (
+                      <button
+                        key={item.view}
+                        onClick={() => { onViewChange(item.view); onClose(); }}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
+                          isActive
+                            ? "bg-primary text-primary-foreground font-semibold"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        <Icon className="w-4 h-4 shrink-0" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                        {item.badge ? (
+                          <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
+                            isActive ? "bg-white/25 text-white" : "bg-primary/20 text-primary"
+                          )}>
+                            {item.badge}
+                          </span>
+                        ) : (
+                          <ChevronRight className={cn("w-3 h-3 transition-opacity", isActive ? "opacity-80" : "opacity-0 group-hover:opacity-40")} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              <p className="text-sidebar-foreground/40 text-[10px] font-semibold uppercase tracking-widest px-2 py-2">Main Menu</p>
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeView === item.view;
+                return (
+                  <button
+                    key={item.view}
+                    onClick={() => { onViewChange(item.view); onClose(); }}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 group",
+                      isActive
+                        ? "bg-primary text-primary-foreground font-semibold"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    )}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    {item.badge ? (
+                      <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center",
+                        isActive ? "bg-white/25 text-white" : "bg-primary/20 text-primary"
+                      )}>
+                        {item.badge}
+                      </span>
+                    ) : (
+                      <ChevronRight className={cn("w-3 h-3 transition-opacity", isActive ? "opacity-80" : "opacity-0 group-hover:opacity-40")} />
+                    )}
+                  </button>
+                );
+              })}
+            </>
+          )}
 
           <p className="text-sidebar-foreground/40 text-[10px] font-semibold uppercase tracking-widest px-2 py-2 mt-4">General</p>
           {[

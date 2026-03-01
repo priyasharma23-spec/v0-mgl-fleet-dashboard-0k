@@ -105,14 +105,50 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
       case "fo-wallet": return <FOWalletView />
       case "fo-card-wallets": return <FOCardWalletsView />
+      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
-      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
+      // Account Management
+      case "fo-account": return <FOPlaceholder title="Account Settings" description="Manage your account details and profile information" />
+      case "fo-security": return <FOPlaceholder title="Security & Access" description="Manage security settings, passwords, and access permissions" />
+      // Driver Management
+      case "fo-drivers": return <FOPlaceholder title="Driver Management" description="Add, manage, and track your fleet drivers" />
+      // Fund Management
+      case "fo-funds": return <FOPlaceholder title="Fund Management" description="Manage fund allocation and wallet distributions" />
+      // Transaction Management
+      case "fo-transactions": return <FOPlaceholder title="Transaction History" description="View detailed transaction history and records" />
+      // Reports
+      case "fo-reports": return <FOPlaceholder title="Reports & Analytics" description="Generate and download transaction reports" />
+      // Incentives & Loyalty
+      case "fo-incentives": return <FOPlaceholder title="Incentives & Loyalty" description="View available incentives, loyalty rewards, and offers" />
+      // Support
+      case "fo-support": return <FOPlaceholder title="Support Tickets" description="Manage your support requests and get help" />
+      // Analytics
+      case "fo-analytics": return <FOPlaceholder title="Analytics & Insights" description="View fleet analytics and business insights" />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
+
+  // Placeholder component for coming soon modules
+  const FOPlaceholder = ({ title, description }: { title: string; description: string }) => (
+    <div className="p-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Package className="w-8 h-8 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{title}</h2>
+          <p className="text-muted-foreground mb-6">{description}</p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium">
+            <Clock className="w-4 h-4" />
+            Coming Soon
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex flex-col h-screen bg-background">
