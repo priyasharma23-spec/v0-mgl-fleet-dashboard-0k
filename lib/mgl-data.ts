@@ -1,6 +1,6 @@
 // MGL Fleet Platform - Mock Data & Types
 
-export type UserRole = "mic" | "zic" | "fleet-operator" | "login";
+export type UserRole = "mic" | "zic" | "fleet-operator" | "mgl-admin" | "login";
 
 export type VehicleStatus =
   | "DRAFT"

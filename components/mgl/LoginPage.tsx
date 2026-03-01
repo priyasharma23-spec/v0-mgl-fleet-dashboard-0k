@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ArrowRight, Shield, Truck, Users, Smartphone, KeyRound, LinkIcon, UserPlus, CheckCircle } from "lucide-react";
+import { ArrowRight, Shield, Truck, Users, Smartphone, KeyRound, LinkIcon, UserPlus, CheckCircle, Building2 } from "lucide-react";
 import type { UserRole } from "@/lib/mgl-data";
 import type { ActivationData, FOOnboardingType } from "@/app/page";
 
@@ -16,6 +16,18 @@ type LoginMethod = "email" | "mobile";
 type FOFlow = "login" | "activation" | "register";
 
 const roles = [
+  {
+    role: "mgl-admin" as UserRole,
+    label: "MGL Admin",
+    short: "Admin",
+    description: "System oversight, settlements, incentive management, and MIS reporting",
+    icon: Building2,
+    color: "border-purple-200 hover:border-purple-400 hover:bg-purple-50",
+    iconBg: "bg-purple-100",
+    iconColor: "text-purple-600",
+    badgeBg: "bg-purple-600",
+    user: "Arun Verma",
+  },
   {
     role: "mic" as UserRole,
     label: "Marketing In-Charge",

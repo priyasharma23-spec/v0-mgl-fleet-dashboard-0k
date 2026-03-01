@@ -9,6 +9,7 @@ const LoginPage = dynamic(() => import("@/components/mgl/LoginPage"), { ssr: fal
 const MICShell = dynamic(() => import("@/components/mgl/MICShell"), { ssr: false })
 const ZICShell = dynamic(() => import("@/components/mgl/ZICShell"), { ssr: false })
 const FleetOperatorShell = dynamic(() => import("@/components/mgl/FleetOperatorShell"), { ssr: false })
+const MGLAdminShell = dynamic(() => import("@/components/mgl/MGLAdminShell"), { ssr: false })
 
 // FO Onboarding type: MIC_ASSISTED (via activation link) or SELF_SERVICE (new registration)
 export type FOOnboardingType = "MIC_ASSISTED" | "SELF_SERVICE"
@@ -84,6 +85,7 @@ export default function Page() {
     )
   }
   
+  if (role === "mgl-admin") return <MGLAdminShell user={{ name: user.name, role: "mgl-admin" }} onLogout={handleLogout} />
   if (role === "mic") return <MICShell user={{ name: user.name, role: "mic" }} onLogout={handleLogout} />
   if (role === "zic") return <ZICShell user={{ name: user.name, role: "zic" }} onLogout={handleLogout} />
   

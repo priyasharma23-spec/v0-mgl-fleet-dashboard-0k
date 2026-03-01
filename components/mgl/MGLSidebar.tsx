@@ -2,7 +2,8 @@
 import {
   LayoutDashboard, Users, Truck, CreditCard, CheckSquare, Clock,
   BarChart2, Settings, HelpCircle, LogOut, ChevronRight, FileText,
-  MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet
+  MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet, Gift, 
+  ArrowRightLeft, FileSpreadsheet, Activity, Building2
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,17 @@ const foNavItems: NavItem[] = [
   { icon: Bell, label: "Notifications", view: "fo-notifications" },
 ];
 
+const adminNavItems: NavItem[] = [
+  { icon: LayoutDashboard, label: "Dashboard", view: "admin-dashboard" },
+  { icon: Building2, label: "Fleet Operators", view: "admin-fo-directory" },
+  { icon: CreditCard, label: "Cards & Wallets", view: "admin-cards" },
+  { icon: Gift, label: "Incentives & Offers", view: "admin-incentives" },
+  { icon: ArrowRightLeft, label: "Transactions", view: "admin-transactions", badge: 3 },
+  { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
+  { icon: Activity, label: "Analytics", view: "admin-analytics" },
+  { icon: Settings, label: "Configuration", view: "admin-config" },
+];
+
 interface MGLSidebarProps {
   role: UserRole;
   activeView: string;
@@ -51,8 +63,8 @@ interface MGLSidebarProps {
 }
 
 export default function MGLSidebar({ role, activeView, onViewChange, open, onClose }: MGLSidebarProps) {
-  const navItems = role === "mic" ? micNavItems : role === "zic" ? zicNavItems : foNavItems;
-  const roleLabel = role === "mic" ? "MIC Portal" : role === "zic" ? "ZIC Portal" : "Fleet Portal";
+  const navItems = role === "mgl-admin" ? adminNavItems : role === "mic" ? micNavItems : role === "zic" ? zicNavItems : foNavItems;
+  const roleLabel = role === "mgl-admin" ? "Admin Portal" : role === "mic" ? "MIC Portal" : role === "zic" ? "ZIC Portal" : "Fleet Portal";
 
   return (
     <>

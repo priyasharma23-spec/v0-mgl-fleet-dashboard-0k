@@ -22,8 +22,8 @@ export default function MGLHeader({ role, userName, onLogout, onMenuToggle, side
   );
   const unread = roleNotifs.filter((n) => !n.read).length;
 
-  const roleLabel = role === "mic" ? "Marketing In-Charge (MIC)" : role === "zic" ? "Zone In-Charge (ZIC)" : "Fleet Operator";
-  const roleBadgeColor = role === "mic" ? "bg-blue-100 text-blue-700" : role === "zic" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700";
+  const roleLabel = role === "mgl-admin" ? "MGL Admin" : role === "mic" ? "Marketing In-Charge (MIC)" : role === "zic" ? "Zone In-Charge (ZIC)" : "Fleet Operator";
+  const roleBadgeColor = role === "mgl-admin" ? "bg-purple-100 text-purple-700" : role === "mic" ? "bg-blue-100 text-blue-700" : role === "zic" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700";
 
   return (
     <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 gap-4 shrink-0 z-30 relative">
