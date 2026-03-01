@@ -2,7 +2,7 @@
 import {
   LayoutDashboard, Users, Truck, CreditCard, CheckSquare, Clock,
   BarChart2, Settings, HelpCircle, LogOut, ChevronRight, FileText,
-  MapPin, Bell, Package, ShieldCheck, UserPlus
+  MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -34,6 +34,7 @@ const zicNavItems: NavItem[] = [
 
 const foNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", view: "fo-dashboard" },
+  { icon: Wallet, label: "Wallet & Funds", view: "fo-wallet" },
   { icon: Truck, label: "My Vehicles", view: "fo-vehicles" },
   { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle" },
   { icon: CreditCard, label: "My Cards", view: "fo-cards" },

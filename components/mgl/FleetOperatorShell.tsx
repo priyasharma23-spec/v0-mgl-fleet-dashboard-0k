@@ -9,6 +9,7 @@ import {
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
+import FOWalletView from "@/components/mgl/FOWalletView"
 import { 
   mockVehicles, mockFleetOperators, 
   oems, dealers, retrofitters, 
@@ -99,6 +100,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   function renderView() {
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
+      case "fo-wallet": return <FOWalletView />
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
       case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
