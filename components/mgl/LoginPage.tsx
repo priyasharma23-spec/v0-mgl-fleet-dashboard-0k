@@ -221,6 +221,8 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                 width={64}
                 height={64}
                 className="object-contain"
+                priority
+                loading="eager"
               />
             </div>
           </div>
