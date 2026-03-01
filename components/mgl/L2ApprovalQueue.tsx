@@ -1,9 +1,36 @@
 "use client";
 import { useState } from "react";
-import { Truck, CheckCircle, XCircle, Eye, Upload, AlertCircle, ChevronRight, Calculator } from "lucide-react";
+import { Truck, CheckCircle, XCircle, Eye, Upload, AlertCircle, ChevronRight } from "lucide-react";
 import { mockVehicles } from "@/lib/mgl-data";
 import { VehicleStatusBadge } from "@/components/mgl/StatusBadge";
 import type { Vehicle } from "@/lib/mgl-data";
+
+interface IncentiveData {
+  gross: number;
+  tds: number;
+  net: number;
+  hasPan: boolean;
+  type: "NEW_PURCHASE" | "RETROFIT";
+}
+
+function calculateIncentive(vehicle: Vehicle): IncentiveData {
+  // Incentive rates based on vehicle category and type
+  const incentiveRates: Record<string, Record<"NEW_PURCHASE" | "RETROFIT", number>> = {
+    "LCV": { "NEW_PURCHASE": 12000, "RETROFIT": 8000 },
+    "ICV": { "NEW_PURCHASE": 18000, "RETROFIT": 12000 },
+    "HCV": { "NEW_PURCHASE": 25000, "RETROFIT": 15000 },
+    "Bus": { "NEW_PURCHASE": 30000, "RETROFIT": 20000 },
+  };
+
+  // Determine vehicle type (NEW_PURCHASE for onboardingType MIC_ASSISTED, RETROFIT for SELF_SERVICE)
+  const vehicleType: "NEW_PURCHASE" | "RETROFIT" = vehicle.onboardingType === "MIC_ASSISTED" ? "NEW_PURCHASE" : "RETROFIT";
+  const gross = incentiveRates[vehicle.category]?.[vehicleType] || 10000;
+  const hasPan = true; // Assume PAN verified during FO registration
+  const tds = Math.round(gross * (hasPan ? 0.1 : 0.2)); // 10% with PAN, 20% without
+  const net = gross - tds;
+
+  return { gross, tds, net, hasPan, type: vehicleType };
+}
 
 export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view: string) => void }) {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -12,8 +39,7 @@ export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view:
   const [processed, setProcessed] = useState<Record<string, "approved" | "rejected">>({});
   const [vehicles, setVehicles] = useState(mockVehicles);
   const [docType, setDocType] = useState<"new_purchase" | "retrofit">("new_purchase");
-  const [showIncentiveCalculator, setShowIncentiveCalculator] = useState(false);
-  const [calculatedIncentive, setCalculatedIncentive] = useState<{ gross: number; tds: number; net: number } | null>(null);
+  const [approvedIncentive, setApprovedIncentive] = useState<Record<string, boolean>>({});
 
   const queue = vehicles.filter((v) => v.status === "L2_SUBMITTED" || processed[v.id]);
 
@@ -143,17 +169,6 @@ export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view:
                   ))}
                 </div>
 
-                {/* Calculate Incentive Button */}
-                {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.status === "L2_SUBMITTED" && (
-                  <button
-                    onClick={() => setShowIncentiveCalculator(true)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-primary/40 bg-primary/5 text-primary text-sm font-medium hover:bg-primary/10 transition-colors"
-                  >
-                    <Calculator className="w-4 h-4" />
-                    Calculate Incentive
-                  </button>
-                )}
-
                 {/* Doc type selector */}
                 {selectedVehicle.status === "L2_SUBMITTED" && (
                   <div>
@@ -212,6 +227,54 @@ export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view:
                     <li>• Upon approval, physical card order will be placed</li>
                   </ul>
                 </div>
+
+                {/* Auto-Calculated Incentive */}
+                {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.status === "L2_SUBMITTED" && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs font-semibold text-blue-700 mb-3">Auto-Calculated Incentive</p>
+                    {(() => {
+                      const incentive = calculateIncentive(selectedVehicle);
+                      return (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">Vehicle Type</span>
+                            <span className="text-xs font-medium text-foreground">{incentive.type === "NEW_PURCHASE" ? "New Purchase" : "Retrofitment"}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">Category</span>
+                            <span className="text-xs font-medium text-foreground">{selectedVehicle.category}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">Gross Incentive</span>
+                            <span className="text-xs font-medium text-foreground">₹{incentive.gross.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">TDS ({incentive.hasPan ? "10%" : "20%"})</span>
+                            <span className="text-xs font-medium text-foreground">-₹{incentive.tds.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                            <span className="text-xs font-semibold text-blue-700">Net Incentive (Payable)</span>
+                            <span className="text-sm font-bold text-blue-700">₹{incentive.net.toLocaleString()}</span>
+                          </div>
+                          {!approvedIncentive[selectedVehicle.id] && (
+                            <button
+                              onClick={() => setApprovedIncentive({ ...approvedIncentive, [selectedVehicle.id]: true })}
+                              className="w-full mt-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
+                            >
+                              Approve Incentive
+                            </button>
+                          )}
+                          {approvedIncentive[selectedVehicle.id] && (
+                            <div className="flex items-center gap-2 mt-3 p-2 bg-green-50 rounded-lg border border-green-200">
+                              <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
+                              <p className="text-xs text-green-700 font-medium">Incentive Approved</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
 
                 {/* Incentive info */}
                 {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.status === "L2_SUBMITTED" && (
@@ -272,104 +335,6 @@ export default function L2ApprovalQueue({ onViewChange }: { onViewChange: (view:
           )}
         </div>
       </div>
-
-      {/* Incentive Calculator Modal */}
-      {showIncentiveCalculator && selectedVehicle && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
-            <button
-              onClick={() => {
-                setShowIncentiveCalculator(false);
-                setCalculatedIncentive(null);
-              }}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-            >
-              ✕
-            </button>
-
-            <h3 className="text-lg font-bold text-foreground mb-4">Calculate Incentive</h3>
-
-            {!calculatedIncentive ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-2">Vehicle Segment</label>
-                  <select className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    <option>Select Segment</option>
-                    <option>Light Commercial Vehicle (3.5T-7.5T)</option>
-                    <option>Medium Commercial Vehicle (7.5T+)</option>
-                    <option>Retrofit Vehicle</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-2">Quantity</label>
-                  <input type="number" defaultValue="1" min="1" className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-2">Age of Vehicle</label>
-                  <input type="number" placeholder="Years" min="0" className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 rounded" defaultChecked />
-                    <span className="text-sm text-foreground">Has PAN</span>
-                  </label>
-                </div>
-
-                <button
-                  onClick={() =>
-                    setCalculatedIncentive({
-                      gross: 15000,
-                      tds: 1500,
-                      net: 13500,
-                    })
-                  }
-                  className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90"
-                >
-                  Calculate
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="p-3 bg-muted/30 rounded-lg space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Gross Incentive</span>
-                    <span className="font-semibold text-foreground">₹{calculatedIncentive.gross.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">TDS (10%)</span>
-                    <span className="font-semibold text-foreground">₹{calculatedIncentive.tds.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t border-border">
-                    <span className="text-sm font-medium text-foreground">Net Incentive</span>
-                    <span className="text-lg font-bold text-primary">₹{calculatedIncentive.net.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCalculatedIncentive(null)}
-                    className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted"
-                  >
-                    Recalculate
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowIncentiveCalculator(false);
-                      setCalculatedIncentive(null);
-                    }}
-                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90"
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
