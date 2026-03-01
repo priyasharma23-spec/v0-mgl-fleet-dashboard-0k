@@ -101,32 +101,15 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   function renderView() {
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
-      case "fo-wallet": return <FOTransactionHistory />
-      case "fo-card-wallets": return <FOCardWalletsView />
+      case "fo-wallet": return <FOWalletView />
       case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
-      // Account Management
-      case "fo-account": return <FOPlaceholder title="Account Settings" description="Manage your account details and profile information" />
-      case "fo-security": return <FOPlaceholder title="Security & Access" description="Manage security settings, passwords, and access permissions" />
-      // Driver Management
-      case "fo-drivers": return <FOPlaceholder title="Driver Management" description="Add, manage, and track your fleet drivers" />
-      // Transaction Management
-      case "fo-transactions": return <FOPlaceholder title="Transaction History" description="View detailed transaction history and records" />
-      // Reports
-      case "fo-reports": return <FOPlaceholder title="Reports & Analytics" description="Generate and download transaction reports" />
-      // Incentives & Loyalty
-      case "fo-incentives": return <FOPlaceholder title="Incentives & Loyalty" description="View available incentives, loyalty rewards, and offers" />
-      // Support
-      case "fo-support": return <FOPlaceholder title="Support Tickets" description="Manage your support requests and get help" />
-      // Analytics
-      case "fo-analytics": return <FOPlaceholder title="Analytics & Insights" description="View fleet analytics and business insights" />
       default: return <FODashboard onViewChange={setActiveView} />
     }
-  }
   }
 
   return (
@@ -986,7 +969,7 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
     const hasCard = v.cardNumber
     
     const matchesSearch = searchTerm === "" || 
-      v.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.vehicleNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (v.cardNumber && v.cardNumber.toLowerCase().includes(searchTerm.toLowerCase()))
     
     const matchesStatus = statusFilter === "all" || v.status === statusFilter
@@ -1099,7 +1082,7 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
                   ) : (
                     filteredVehicles.map((v) => (
                       <tr key={v.id} className="border-b border-border hover:bg-muted/50">
-                        <td className="px-4 py-3">{v.registrationNumber}</td>
+                        <td className="px-4 py-3">{v.vehicleNumber}</td>
                         <td className="px-4 py-3 font-mono text-xs">{v.cardNumber || "—"}</td>
                         <td className="px-4 py-3 text-right">
                           <span className="text-blue-600 font-semibold">₹{(Math.random() * 5000 + 500).toFixed(0)}</span>
@@ -1482,7 +1465,7 @@ function FOFundManagement() {
               <option value="">Choose a vehicle</option>
               {myVehicles.filter(v => v.status === "L1_APPROVED" || v.status === "CARD_ACTIVE").map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.registrationNumber} • Current: ₹{(Math.random() * 10000).toFixed(0)}
+                  {v.vehicleNumber} • Current: ₹{(Math.random() * 10000).toFixed(0)}
                 </option>
               ))}
             </select>
