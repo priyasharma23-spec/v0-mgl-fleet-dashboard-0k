@@ -9,16 +9,8 @@ import {
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
+import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
-import FOCardWalletsView from "@/components/mgl/FOCardWalletsView"
-import FOAccountSettings from "@/components/mgl/FOAccountSettings"
-import FOSecurityAccess from "@/components/mgl/FOSecurityAccess"
-import FODriverManagement from "@/components/mgl/FODriverManagement"
-import FOTransactionHistory from "@/components/mgl/FOTransactionHistory"
-import FOReports from "@/components/mgl/FOReports"
-import FOIncentives from "@/components/mgl/FOIncentives"
-import FOSupport from "@/components/mgl/FOSupport"
-import FOAnalytics from "@/components/mgl/FOAnalytics"
 import { 
   mockVehicles, mockFleetOperators, 
   oems, dealers, retrofitters, 
@@ -109,53 +101,15 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   function renderView() {
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
-      case "fo-wallet": return <FOTransactionHistory />
-      case "fo-card-wallets": return <FOCardWalletsView />
-      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
+      case "fo-wallet": return <FOWalletView />
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
+      case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
-      // Account Management
-      case "fo-account": return <FOAccountSettings />
-      case "fo-security": return <FOSecurityAccess />
-      // Driver Management
-      case "fo-drivers": return <FODriverManagement />
-      // Fund Management
-      case "fo-funds": return <FOWalletView />
-      // Transaction Management
-      case "fo-transactions": return <FOTransactionHistory />
-      // Reports
-      case "fo-reports": return <FOReports />
-      // Incentives & Loyalty
-      case "fo-incentives": return <FOIncentives />
-      // Support
-      case "fo-support": return <FOSupport />
-      // Analytics
-      case "fo-analytics": return <FOAnalytics />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
-  }
-
-  // Placeholder component for coming soon modules
-  const FOPlaceholder = ({ title, description }: { title: string; description: string }) => (
-    <div className="p-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="rounded-xl border border-border bg-card p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Package className="w-8 h-8 text-primary" />
-          </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">{title}</h2>
-          <p className="text-muted-foreground mb-6">{description}</p>
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium">
-            <Clock className="w-4 h-4" />
-            Coming Soon
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 
   return (
     <div className="flex flex-col h-screen bg-background">
