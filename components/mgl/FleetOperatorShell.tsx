@@ -11,8 +11,14 @@ import MGLHeader from "@/components/mgl/MGLHeader"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import FOCardWalletsView from "@/components/mgl/FOCardWalletsView"
-import MGLSidebar from "@/components/mgl/MGLSidebar"
-import FOWalletView from "@/components/mgl/FOWalletView"
+import FOAccountSettings from "@/components/mgl/FOAccountSettings"
+import FOSecurityAccess from "@/components/mgl/FOSecurityAccess"
+import FODriverManagement from "@/components/mgl/FODriverManagement"
+import FOTransactionHistory from "@/components/mgl/FOTransactionHistory"
+import FOReports from "@/components/mgl/FOReports"
+import FOIncentives from "@/components/mgl/FOIncentives"
+import FOSupport from "@/components/mgl/FOSupport"
+import FOAnalytics from "@/components/mgl/FOAnalytics"
 import { 
   mockVehicles, mockFleetOperators, 
   oems, dealers, retrofitters, 
@@ -103,7 +109,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   function renderView() {
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
-      case "fo-wallet": return <FOWalletView />
+      case "fo-wallet": return <FOTransactionHistory />
       case "fo-card-wallets": return <FOCardWalletsView />
       case "fo-cards": return <FOCardsView onViewChange={setActiveView} />
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
@@ -111,24 +117,25 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
       // Account Management
-      case "fo-account": return <FOPlaceholder title="Account Settings" description="Manage your account details and profile information" />
-      case "fo-security": return <FOPlaceholder title="Security & Access" description="Manage security settings, passwords, and access permissions" />
+      case "fo-account": return <FOAccountSettings />
+      case "fo-security": return <FOSecurityAccess />
       // Driver Management
-      case "fo-drivers": return <FOPlaceholder title="Driver Management" description="Add, manage, and track your fleet drivers" />
+      case "fo-drivers": return <FODriverManagement />
       // Fund Management
-      case "fo-funds": return <FOPlaceholder title="Fund Management" description="Manage fund allocation and wallet distributions" />
+      case "fo-funds": return <FOWalletView />
       // Transaction Management
-      case "fo-transactions": return <FOPlaceholder title="Transaction History" description="View detailed transaction history and records" />
+      case "fo-transactions": return <FOTransactionHistory />
       // Reports
-      case "fo-reports": return <FOPlaceholder title="Reports & Analytics" description="Generate and download transaction reports" />
+      case "fo-reports": return <FOReports />
       // Incentives & Loyalty
-      case "fo-incentives": return <FOPlaceholder title="Incentives & Loyalty" description="View available incentives, loyalty rewards, and offers" />
+      case "fo-incentives": return <FOIncentives />
       // Support
-      case "fo-support": return <FOPlaceholder title="Support Tickets" description="Manage your support requests and get help" />
+      case "fo-support": return <FOSupport />
       // Analytics
-      case "fo-analytics": return <FOPlaceholder title="Analytics & Insights" description="View fleet analytics and business insights" />
+      case "fo-analytics": return <FOAnalytics />
       default: return <FODashboard onViewChange={setActiveView} />
     }
+  }
   }
 
   // Placeholder component for coming soon modules
