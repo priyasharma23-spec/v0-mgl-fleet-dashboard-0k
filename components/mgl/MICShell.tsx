@@ -32,7 +32,7 @@ export default function MICShell({ user, onLogout }: Props) {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <MGLSidebar
           role="mic"
           activeView={activeView}

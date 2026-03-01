@@ -208,8 +208,9 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-4 mb-4">
@@ -537,7 +538,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
             </div>
           )}
         </div>
-
+        </div>
       </div>
       <PoweredByFooter />
     </div>
