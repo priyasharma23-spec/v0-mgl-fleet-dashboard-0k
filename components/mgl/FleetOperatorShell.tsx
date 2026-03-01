@@ -1321,112 +1321,113 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
                 )}
               </div>
             </div>
+          )}
+        </div>
+      )}
 
-            {/* Action Modals */}
-            {actionModal && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-card rounded-xl border border-border w-full max-w-md p-6">
-                  {/* Reset PIN Modal */}
-                  {actionModal === "reset-pin" && (
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground mb-4">Reset Card PIN</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Enter and confirm a new 4-digit PIN for card {selectedCard}</p>
-                      <div className="space-y-3 mb-4">
-                        <input type="password" placeholder="New PIN" value={newPin} onChange={(e) => setNewPin(e.target.value)} maxLength={4} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                        <input type="password" placeholder="Confirm PIN" value={confirmNewPin} onChange={(e) => setConfirmNewPin(e.target.value)} maxLength={4} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                        <button onClick={() => { setActionModal(null); setNewPin(""); setConfirmNewPin(""); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Reset PIN</button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Lock/Unlock Modal */}
-                  {actionModal === "lock-unlock" && (
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground mb-4">{cardLocked[selectedCard!] ? "Unlock" : "Lock"} Card</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {cardLocked[selectedCard!] 
-                          ? "Card will be unlocked and transactions will be allowed again."
-                          : "Card will be temporarily locked. No transactions will be allowed."}
-                      </p>
-                      <div className="flex gap-2">
-                        <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                        <button 
-                          onClick={() => { 
-                            setCardLocked({...cardLocked, [selectedCard!]: !cardLocked[selectedCard!]});
-                            setActionModal(null);
-                          }} 
-                          className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
-                          {cardLocked[selectedCard!] ? "Unlock Card" : "Lock Card"}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Block Card Modal */}
-                  {actionModal === "block" && (
-                    <div>
-                      <h3 className="text-lg font-bold text-red-600 mb-4">Block Card</h3>
-                      <p className="text-sm text-muted-foreground mb-4">This action cannot be undone. The card will be permanently blocked and cannot be used for any transactions. A replacement card can be ordered.</p>
-                      <div className="flex gap-2">
-                        <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                        <button onClick={() => { setActionModal(null); }} className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700">Block Card</button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Set Limits Modal */}
-                  {actionModal === "limits" && (
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground mb-4">Set Transaction Limits</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Set daily and monthly spending limits for this card</p>
-                      <div className="space-y-3 mb-4">
-                        <div>
-                          <label className="text-xs font-semibold text-foreground mb-1 block">Daily Limit (₹)</label>
-                          <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-semibold text-foreground mb-1 block">Monthly Limit (₹)</label>
-                          <input type="number" value={monthlyLimit} onChange={(e) => setMonthlyLimit(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                        <button onClick={() => { setActionModal(null); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Set Limits</button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Order Replacement Modal */}
-                  {actionModal === "replacement" && (
-                    <div>
-                      <h3 className="text-lg font-bold text-foreground mb-4">Order Replacement Card</h3>
-                      <p className="text-sm text-muted-foreground mb-4">Request a replacement card. The new card will be sent to your registered address.</p>
-                      <div className="mb-4">
-                        <label className="text-xs font-semibold text-foreground mb-2 block">Reason for Replacement</label>
-                        <select value={replacementReason} onChange={(e) => setReplacementReason(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
-                          <option value="">Select reason</option>
-                          <option value="damaged">Card Damaged</option>
-                          <option value="lost">Card Lost</option>
-                          <option value="stolen">Card Stolen</option>
-                          <option value="expired">Card Expired</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                        <button onClick={() => { setActionModal(null); setReplacementReason(""); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Order Replacement</button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Close Modal Button */}
-                  <button onClick={() => setActionModal(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">✕</button>
+      {/* Action Modals - At Root Level */}
+      {actionModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
+            {/* Reset PIN Modal */}
+            {actionModal === "reset-pin" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Reset Card PIN</h3>
+                <p className="text-sm text-muted-foreground mb-4">Enter and confirm a new 4-digit PIN for card {selectedCard}</p>
+                <div className="space-y-3 mb-4">
+                  <input type="password" placeholder="New PIN" value={newPin} onChange={(e) => setNewPin(e.target.value)} maxLength={4} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input type="password" placeholder="Confirm PIN" value={confirmNewPin} onChange={(e) => setConfirmNewPin(e.target.value)} maxLength={4} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button onClick={() => { setActionModal(null); setNewPin(""); setConfirmNewPin(""); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Reset PIN</button>
                 </div>
               </div>
             )}
+
+            {/* Lock/Unlock Modal */}
+            {actionModal === "lock-unlock" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">{cardLocked[selectedCard!] ? "Unlock" : "Lock"} Card</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {cardLocked[selectedCard!] 
+                    ? "Card will be unlocked and transactions will be allowed again."
+                    : "Card will be temporarily locked. No transactions will be allowed."}
+                </p>
+                <div className="flex gap-2">
+                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button 
+                    onClick={() => { 
+                      setCardLocked({...cardLocked, [selectedCard!]: !cardLocked[selectedCard!]});
+                      setActionModal(null);
+                    }} 
+                    className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
+                    {cardLocked[selectedCard!] ? "Unlock Card" : "Lock Card"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Block Card Modal */}
+            {actionModal === "block" && (
+              <div>
+                <h3 className="text-lg font-bold text-red-600 mb-4">Block Card</h3>
+                <p className="text-sm text-muted-foreground mb-4">This action cannot be undone. The card will be permanently blocked and cannot be used for any transactions. A replacement card can be ordered.</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button onClick={() => { setActionModal(null); }} className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700">Block Card</button>
+                </div>
+              </div>
+            )}
+
+            {/* Set Limits Modal */}
+            {actionModal === "limits" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Set Transaction Limits</h3>
+                <p className="text-sm text-muted-foreground mb-4">Set daily and monthly spending limits for this card</p>
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <label className="text-xs font-semibold text-foreground mb-1 block">Daily Limit (₹)</label>
+                    <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-foreground mb-1 block">Monthly Limit (₹)</label>
+                    <input type="number" value={monthlyLimit} onChange={(e) => setMonthlyLimit(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button onClick={() => { setActionModal(null); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Set Limits</button>
+                </div>
+              </div>
+            )}
+
+            {/* Order Replacement Modal */}
+            {actionModal === "replacement" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Order Replacement Card</h3>
+                <p className="text-sm text-muted-foreground mb-4">Request a replacement card. The new card will be sent to your registered address.</p>
+                <div className="mb-4">
+                  <label className="text-xs font-semibold text-foreground mb-2 block">Reason for Replacement</label>
+                  <select value={replacementReason} onChange={(e) => setReplacementReason(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
+                    <option value="">Select reason</option>
+                    <option value="damaged">Card Damaged</option>
+                    <option value="lost">Card Lost</option>
+                    <option value="stolen">Card Stolen</option>
+                    <option value="expired">Card Expired</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button onClick={() => { setActionModal(null); setReplacementReason(""); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Order Replacement</button>
+                </div>
+              </div>
+            )}
+
+            {/* Close Button */}
+            <button onClick={() => setActionModal(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-lg">✕</button>
+          </div>
         </div>
       )}
     </div>
@@ -1702,7 +1703,7 @@ function FODeliveryTracking() {
   )
 }
 
-// ─── FO Notifications ─────────────────────────────────────────────────────────
+// ─── FO Notifications ───────────────────────────────���─────────────────────────
 function FONotificationsView() {
   const notifs = [
     { title: "Document Rejected — Action Required", message: "Vehicle MH04EF9012 L1 documents rejected. Reason: Booking receipt is unclear. Please resubmit.", type: "error", time: "2 hrs ago", read: false },
