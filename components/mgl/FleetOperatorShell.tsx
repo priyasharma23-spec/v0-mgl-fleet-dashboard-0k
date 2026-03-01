@@ -1008,29 +1008,51 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
 
   function CardVisual({ cardNumber, status }: { cardNumber: string; status: VehicleStatus }) {
     const isActive = status === "CARD_ACTIVE"
+    const vehicleNumber = myVehicles.find(v => v.cardNumber === cardNumber)?.vehicleNumber || "MH 23 HD 2456"
+    
     return (
-      <div className={`relative w-full max-w-xs rounded-2xl p-5 text-white overflow-hidden ${isActive ? "bg-[#1565C0]" : "bg-gray-500"}`}>
-        <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-8 translate-x-8" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-white/5 translate-y-10 -translate-x-8" />
-        <div className="relative">
-          <div className="flex items-center justify-between mb-6">
+      <div className={`relative w-full max-w-sm rounded-2xl p-6 text-white overflow-hidden h-56 flex flex-col justify-between ${isActive ? "bg-gradient-to-br from-green-400 via-teal-400 to-blue-500" : "bg-gradient-to-br from-gray-400 to-gray-600"}`}>
+        {/* Background decorative elements */}
+        <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-16 translate-x-16" />
+        <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5" />
+        
+        <div className="relative z-10">
+          {/* Top section: Logo & Company */}
+          <div className="flex items-start justify-between mb-6">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-widest opacity-70">MGL Fleet Card</p>
-              <p className="text-xs font-medium opacity-90">CNG Fuel Card</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-white/90">MGL</p>
+              <p className="text-sm font-bold uppercase tracking-wider text-white">Fleet</p>
+              <p className="text-xs font-medium uppercase tracking-widest text-white/80">Connect</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full bg-[#F5A800]" />
+            <div className="text-right">
+              <p className="text-[10px] font-semibold uppercase opacity-75">Fuel Card</p>
+              <p className="text-xs font-bold text-white mt-1">Mahanagar Gas</p>
             </div>
           </div>
-          <p className="text-lg font-mono font-bold tracking-widest mb-4">{cardNumber.replace("****", "•••• •••• ")}</p>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[9px] opacity-60 uppercase">Card Holder</p>
-              <p className="text-xs font-semibold">{myFO.name.toUpperCase().slice(0, 20)}</p>
+
+          {/* Chip - EMV style */}
+          <div className="absolute left-6 top-32 w-12 h-9 bg-yellow-500 rounded-lg border-2 border-yellow-600 flex items-center justify-center">
+            <div className="grid grid-cols-2 gap-1">
+              <div className="w-1 h-1 bg-yellow-700 rounded-sm" />
+              <div className="w-1 h-1 bg-yellow-700 rounded-sm" />
+              <div className="w-1 h-1 bg-yellow-700 rounded-sm" />
+              <div className="w-1 h-1 bg-yellow-700 rounded-sm" />
             </div>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? "bg-green-400 text-green-900" : "bg-gray-300 text-gray-800"}`}>
-              {isActive ? "ACTIVE" : "INACTIVE"}
-            </span>
+          </div>
+
+          {/* Card Number */}
+          <p className="text-2xl font-mono font-bold tracking-widest mb-2 text-white drop-shadow-sm mt-4">{cardNumber.toUpperCase()}</p>
+          
+          {/* Bottom section: Cardholder & Validity */}
+          <div className="flex items-end justify-between">
+            <div>
+              <p className="text-[8px] opacity-60 uppercase font-semibold">Card Holder</p>
+              <p className="text-xs font-semibold text-white">{myFO.name.toUpperCase().slice(0, 18)}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[8px] opacity-60 uppercase font-semibold">Valid Thru</p>
+              <p className="text-xs font-mono font-bold text-white">12/27</p>
+            </div>
           </div>
         </div>
       </div>

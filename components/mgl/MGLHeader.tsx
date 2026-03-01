@@ -13,6 +13,28 @@ interface MGLHeaderProps {
   sidebarOpen?: boolean;
 }
 
+// MGL Fleet Connect Logo Component
+function MGLLogo() {
+  return (
+    <div className="flex items-center gap-1.5">
+      {/* Icon - Stylized curved lines */}
+      <div className="relative w-6 h-6">
+        <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 6C4 6 6 4 8 4C10 4 12 6 12 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-teal-500" />
+          <path d="M4 12C4 12 6 10 8 10C10 10 12 12 12 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-blue-500" />
+          <path d="M4 18C4 18 6 16 8 16C10 16 12 18 12 20" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-green-500" />
+        </svg>
+      </div>
+      
+      {/* Text - MGL Fleet Connect */}
+      <div className="flex flex-col gap-0 leading-none">
+        <span className="text-xs font-bold text-foreground">MGL</span>
+        <span className="text-sm font-black text-green-600">Fleet</span>
+      </div>
+    </div>
+  );
+}
+
 export default function MGLHeader({ role, userName, onLogout, onMenuToggle, sidebarOpen }: MGLHeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -28,7 +50,7 @@ export default function MGLHeader({ role, userName, onLogout, onMenuToggle, side
   return (
     <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 gap-4 shrink-0 z-30 relative">
       {/* Left */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button
           onClick={onMenuToggle}
           className="lg:hidden p-1.5 rounded-md hover:bg-muted transition-colors"
@@ -36,6 +58,13 @@ export default function MGLHeader({ role, userName, onLogout, onMenuToggle, side
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
+        
+        {/* Logo */}
+        <MGLLogo />
+        
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-6 bg-border" />
+        
         <span className="text-sm font-medium text-muted-foreground hidden sm:block">
           {roleLabel}
         </span>
