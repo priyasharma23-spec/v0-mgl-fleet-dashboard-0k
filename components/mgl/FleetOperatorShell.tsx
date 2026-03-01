@@ -961,14 +961,18 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
 
   const cards = myVehicles.filter((v) => v.cardNumber)
 
-  // Filter vehicles based on search and status
+  // Filter vehicles based on search and status - only show vehicles post L1 approval with digital card issued
   const filteredVehicles = myVehicles.filter((v) => {
+    // Only show vehicles that have passed L1 approval and have a card number (digital card issued)
+    const isPostL1Approved = ["L1_APPROVED", "L2_SUBMITTED", "L2_APPROVED", "L2_REJECTED", "CARD_PRINTED", "CARD_DISPATCHED", "CARD_ACTIVE"].includes(v.status)
+    const hasCard = v.cardNumber
+    
     const matchesSearch = searchTerm === "" || 
       v.registrationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (v.cardNumber && v.cardNumber.toLowerCase().includes(searchTerm.toLowerCase()))
     
     const matchesStatus = statusFilter === "all" || v.status === statusFilter
-    return matchesSearch && matchesStatus
+    return isPostL1Approved && hasCard && matchesSearch && matchesStatus
   })
 
   function CardVisual({ cardNumber, status }: { cardNumber: string; status: VehicleStatus }) {
