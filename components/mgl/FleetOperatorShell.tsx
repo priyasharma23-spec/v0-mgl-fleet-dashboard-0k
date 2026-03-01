@@ -1191,92 +1191,111 @@ function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
             </div>
             </div>
           ) : (
-            <div className="space-y-6">
-            <div className="space-y-4">
-                {cards.map((v) => (
-                  <div key={v.id} className="bg-card rounded-xl border border-border p-4">
-                    <div className="flex flex-col gap-4">
-                      {/* Card Status Badge */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
-                          <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-800" :
-                          v.status === "CARD_DISPATCHED" ? "bg-blue-100 text-blue-800" :
-                          v.status === "CARD_PRINTED" ? "bg-orange-100 text-orange-800" :
-                          "bg-gray-100 text-gray-800"
-                        }`}>
-                          {v.status === "CARD_ACTIVE" ? "Active" : 
-                           v.status === "CARD_DISPATCHED" ? "Dispatched" :
-                           v.status === "CARD_PRINTED" ? "Printing" : "Processing"}
-                        </div>
-                      </div>
+            <div className="space-y-4 flex flex-col flex-1 overflow-hidden">
+              {/* Search and Filter Bar */}
+              <div className="flex flex-col sm:flex-row gap-3 pb-3 border-b border-border sticky top-0 bg-background z-10">
+                <input
+                  type="text"
+                  placeholder="Search by vehicle, card number..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as any)}
+                  className="px-3 py-2 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="all">All Status</option>
+                  <option value="CARD_ACTIVE">Active</option>
+                  <option value="CARD_DISPATCHED">Dispatched</option>
+                  <option value="L1_APPROVED">Approved</option>
+                </select>
+              </div>
 
-                      {/* Card Visual and Details */}
-                      <div className="flex flex-col sm:flex-row items-start gap-4">
-                        <CardVisual cardNumber={v.cardNumber!} status={v.status} />
-                        <div className="flex-1 min-w-0">
-                          <div className="grid grid-cols-2 gap-3 text-xs">
-                            {[
-                              ["Card No.", v.cardNumber!],
-                              ["Card Wallet", "₹" + (Math.random() * 10000).toFixed(0)],
-                              ["Incentive Wallet", "₹" + (Math.random() * 2000).toFixed(0)],
-                              ["Activated", v.cardActivatedAt || "Pending"],
-                            ].map(([k, val]) => (
-                              <div key={k}>
-                                <p className="text-muted-foreground">{k}</p>
-                                <p className="font-semibold text-foreground mt-0.5">{val}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+              {/* Results Summary */}
+              {cards.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Displaying {cards.length} {cards.length === 1 ? "card" : "cards"}
+                </div>
+              )}
 
-                      {/* Timeline for this Card */}
-                      <div className="border-t border-border pt-3 mt-2">
-                        <p className="text-xs font-semibold text-muted-foreground mb-2">Card Journey</p>
-                        <div className="flex gap-1">
-                          {[
-                            { label: "L1", complete: true },
-                            { label: "Alloc", complete: true },
-                            { label: "L2", complete: true },
-                            { label: "Print", complete: v.status === "CARD_PRINTED" || v.status === "CARD_DISPATCHED" || v.status === "CARD_ACTIVE" },
-                            { label: "Ship", complete: v.status === "CARD_DISPATCHED" || v.status === "CARD_ACTIVE" },
-                            { label: "Active", complete: v.status === "CARD_ACTIVE" },
-                          ].map((item, idx) => (
-                            <div key={idx} className="flex-1">
-                              <div className={`w-full h-1 rounded-full ${item.complete ? "bg-green-500" : "bg-gray-300"}`} />
-                              <p className="text-xs text-center mt-1 text-muted-foreground">{item.label}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      {v.status === "CARD_DISPATCHED" && (
-                        <button 
-                          onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
-                          className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
-                          Set PIN & Activate Card
-                        </button>
-                      )}
-                      {v.status === "CARD_ACTIVE" && (
-                        <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <p className="text-xs text-green-700 font-medium">Card is active and ready to use</p>
-                        </div>
-                      )}
+              {/* Card Grid - Responsive */}
+              <div className="flex-1 overflow-y-auto pr-2">
+                {cards.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm font-medium text-foreground">No cards found</p>
+                      <p className="text-xs text-muted-foreground mt-1">Cards appear here after L2 approval</p>
                     </div>
                   </div>
-                ))}
-                {cards.length === 0 && (
-                  <div className="bg-card rounded-xl border border-border p-10 text-center text-muted-foreground">
-                    <CreditCard className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                    <p className="text-sm font-medium">No cards issued yet</p>
-                    <p className="text-xs mt-1">Cards are issued after L2 approval</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                    {cards.map((v) => (
+                      <div key={v.id} className="bg-card rounded-xl border border-border p-4 hover:shadow-md transition-shadow">
+                        {/* Card Header */}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-foreground truncate">{v.vehicleNumber || v.id}</p>
+                            <p className="text-xs text-muted-foreground">{v.model} · {v.category}</p>
+                          </div>
+                          <div className={`px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${
+                            v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-800" :
+                            v.status === "CARD_DISPATCHED" ? "bg-blue-100 text-blue-800" :
+                            v.status === "CARD_PRINTED" ? "bg-orange-100 text-orange-800" :
+                            "bg-gray-100 text-gray-800"
+                          }`}>
+                            {v.status === "CARD_ACTIVE" ? "Active" : 
+                             v.status === "CARD_DISPATCHED" ? "Dispatched" :
+                             v.status === "CARD_PRINTED" ? "Printing" : "Processing"}
+                          </div>
+                        </div>
+
+                        {/* Card Image with Masked Number */}
+                        <div className="mb-3">
+                          <CardVisual cardNumber={v.cardNumber!} status={v.status} />
+                          <p className="text-xs text-muted-foreground mt-2">Card: {v.cardNumber ? `••••${v.cardNumber.slice(-4)}` : "—"}</p>
+                        </div>
+
+                        {/* Wallets Side by Side */}
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                            <p className="text-xs text-blue-700 font-semibold mb-1">Card Wallet</p>
+                            <p className="text-sm font-bold text-blue-900">₹{(Math.random() * 10000).toFixed(0)}</p>
+                            <p className="text-xs text-blue-600 mt-1">(Coins)</p>
+                          </div>
+                          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                            <p className="text-xs text-green-700 font-semibold mb-1">Incentive</p>
+                            <p className="text-sm font-bold text-green-900">₹{(Math.random() * 2000).toFixed(0)}</p>
+                            <p className="text-xs text-green-600 mt-1">(Coins)</p>
+                          </div>
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="flex gap-2">
+                          {v.status === "CARD_ACTIVE" && (
+                            <button className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                              Load Card
+                            </button>
+                          )}
+                          {v.status === "CARD_DISPATCHED" && (
+                            <button 
+                              onClick={() => { setActivatingCard(v.cardNumber!); setPinStep("enter"); setPin(""); setConfirmPin(""); }}
+                              className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition-colors">
+                              Activate
+                            </button>
+                          )}
+                          <button className="px-3 py-2 border border-border rounded-lg text-xs font-semibold hover:bg-muted transition-colors">
+                            ⋮
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                )}
+              </div>
+            </div>
                 )}
               </div>
             </div>
