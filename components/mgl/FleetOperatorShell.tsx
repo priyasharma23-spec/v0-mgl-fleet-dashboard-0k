@@ -1403,8 +1403,6 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
               </div>
             )}
 
-    </div>
-
             {/* Step 1: Physical Card Confirmation */}
             {activationStep === "confirmation" && (
               <div>
