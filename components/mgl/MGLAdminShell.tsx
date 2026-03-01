@@ -35,25 +35,27 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
   }
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      <MGLSidebar
-        role="mgl-admin"
-        activeView={activeView}
-        onViewChange={setActiveView}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <MGLHeader
+    <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-1 overflow-hidden">
+        <MGLSidebar
           role="mgl-admin"
-          userName={user.name}
-          onLogout={onLogout}
-          onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
-          sidebarOpen={sidebarOpen}
+          activeView={activeView}
+          onViewChange={setActiveView}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
-        <main className="flex-1 overflow-y-auto">
-          {renderView()}
-        </main>
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <MGLHeader
+            role="mgl-admin"
+            userName={user.name}
+            onLogout={onLogout}
+            onMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+            sidebarOpen={sidebarOpen}
+          />
+          <main className="flex-1 overflow-y-auto">
+            {renderView()}
+          </main>
+        </div>
       </div>
       <PoweredByFooter />
     </div>
