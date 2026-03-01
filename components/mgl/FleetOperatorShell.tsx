@@ -1,4 +1,5 @@
 "use client"
+// Fixed JSX structure for all components
 
 import { useState } from "react"
 import {
