@@ -1505,6 +1505,19 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-xl border border-border w-full max-w-md p-6 relative">
             {/* Reset PIN Modal */}
+            {actionModal === "reset-pin" && (
+              <div>
+                <h3 className="text-lg font-bold text-foreground mb-4">Reset Card PIN</h3>
+                <p className="text-sm text-muted-foreground mb-4">Resetting your PIN will send an OTP to your registered mobile number. You will need the OTP to set a new PIN.</p>
+                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-700 font-medium">Note: Your card will be temporarily disabled during the PIN reset process.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
+                  <button onClick={() => { setActionModal(null); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Send OTP</button>
+                </div>
+              </div>
+            )}
 
             {/* Lock/Unlock Modal */}
             {actionModal === "lock-unlock" && (
