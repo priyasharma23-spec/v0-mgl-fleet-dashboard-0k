@@ -988,6 +988,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   const [confirmNewPin, setConfirmNewPin] = useState("")
   const [dailyLimit, setDailyLimit] = useState("5000")
   const [monthlyLimit, setMonthlyLimit] = useState("50000")
+  const [perTransactionLimit, setPerTransactionLimit] = useState("2000")
   const [replacementReason, setReplacementReason] = useState("")
 
   // Card Activation Flow States
@@ -1558,8 +1559,12 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
             {actionModal === "limits" && (
               <div>
                 <h3 className="text-lg font-bold text-foreground mb-4">Set Transaction Limits</h3>
-                <p className="text-sm text-muted-foreground mb-4">Set daily and monthly spending limits for this card</p>
+                <p className="text-sm text-muted-foreground mb-4">Set per transaction, daily and monthly spending limits for this card</p>
                 <div className="space-y-3 mb-4">
+                  <div>
+                    <label className="text-xs font-semibold text-foreground mb-1 block">Per Transaction Limit (₹)</label>
+                    <input type="number" value={perTransactionLimit} onChange={(e) => setPerTransactionLimit(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  </div>
                   <div>
                     <label className="text-xs font-semibold text-foreground mb-1 block">Daily Limit (₹)</label>
                     <input type="number" value={dailyLimit} onChange={(e) => setDailyLimit(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30" />
