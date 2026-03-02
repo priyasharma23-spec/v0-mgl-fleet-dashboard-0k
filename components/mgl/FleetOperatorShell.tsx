@@ -44,6 +44,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
   const [selectedCardVehicle, setSelectedCardVehicle] = useState<string | null>(null)
+  const [actionModal, setActionModal] = useState<"reset-pin" | "lock" | "block" | "limits" | "replacement" | null>(null)
 
   // Determine if this is a new FO that needs to complete registration
   // Self-service flow: needs full KYB registration
@@ -613,7 +614,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         <label className="text-xs font-medium text-muted-foreground">{label}{required && <span className="text-destructive ml-0.5">*</span>}</label>
         <input
           type={type} placeholder={placeholder || label}
-          value={(form as Record<string, string>)[name] || ""}
+          value={(form as Record<string, string | File | null>)[name] as string || ""}
           onChange={(e) => setForm({ ...form, [name]: e.target.value })}
           className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
