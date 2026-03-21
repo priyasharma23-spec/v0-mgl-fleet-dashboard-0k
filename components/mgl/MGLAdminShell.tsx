@@ -73,11 +73,11 @@ function AdminUserManagement() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [users, setUsers] = useState([
-    { id: 1, empId: '2009', name: 'Bhushan Mayekar', email: 'mayekar.bhushan@mahanagargas.com', mobile: '8879136709', role: 'ZIC', mapping: 'NA', status: 'Pending' },
-    { id: 2, empId: '2010', name: 'Rajesh Kumar', email: 'rajesh.kumar@mahanagargas.com', mobile: '9876543210', role: 'MIC', mapping: 'Mumbai Region', status: 'Active' },
-    { id: 3, empId: '2011', name: 'Priya Sharma', email: 'priya.sharma@mahanagargas.com', mobile: '8765432109', role: 'ZIC', mapping: 'Thane Zone', status: 'Active' },
-    { id: 4, empId: '2012', name: 'Amit Patel', email: 'amit.patel@mahanagargas.com', mobile: '7654321098', role: 'Admin', mapping: 'National', status: 'Inactive' },
-    { id: 5, empId: '2013', name: 'Neha Singh', email: 'neha.singh@mahanagargas.com', mobile: '6543210987', role: 'ZIC', mapping: 'NA', status: 'Pending' },
+    { id: 1, empId: '2009', name: 'Bhushan Mayekar', email: 'mayekar.bhushan@mahanagargas.com', mobile: '8879136709', role: 'ZIC', mapping: 'NA', status: 'Pending', state: 'Maharashtra', city: 'Mumbai', department: 'Operations', branch: 'Andheri' },
+    { id: 2, empId: '2010', name: 'Rajesh Kumar', email: 'rajesh.kumar@mahanagargas.com', mobile: '9876543210', role: 'MIC', mapping: 'Mumbai Region', status: 'Active', state: 'Maharashtra', city: 'Mumbai', department: 'Sales', branch: 'Bandra' },
+    { id: 3, empId: '2011', name: 'Priya Sharma', email: 'priya.sharma@mahanagargas.com', mobile: '8765432109', role: 'ZIC', mapping: 'Thane Zone', status: 'Active', state: 'Maharashtra', city: 'Thane', department: 'Operations', branch: 'Ghodbunder' },
+    { id: 4, empId: '2012', name: 'Amit Patel', email: 'amit.patel@mahanagargas.com', mobile: '7654321098', role: 'Admin', mapping: 'National', status: 'Inactive', state: 'Maharashtra', city: 'Mumbai', department: 'Administration', branch: 'HQ' },
+    { id: 5, empId: '2013', name: 'Neha Singh', email: 'neha.singh@mahanagargas.com', mobile: '6543210987', role: 'ZIC', mapping: 'NA', status: 'Pending', state: 'Maharashtra', city: 'Pune', department: 'Customer Service', branch: 'Viman Nagar' },
   ])
 
   const filteredUsers = users.filter(user => {
@@ -209,7 +209,6 @@ function AdminUserManagement() {
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Role</th>
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Mapping</th>
                 <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
-                <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -233,29 +232,6 @@ function AdminUserManagement() {
                     <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(user.status)}`}>
                       {user.status}
                     </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {user.status === "Pending" || user.status === "Inactive" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleActivateDeactivate(user.id, "Active")
-                        }}
-                        className="px-3 py-1.5 border border-green-600 text-green-600 rounded-lg text-xs font-medium hover:bg-green-50"
-                      >
-                        Activate
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleActivateDeactivate(user.id, "Inactive")
-                        }}
-                        className="px-3 py-1.5 border border-red-600 text-red-600 rounded-lg text-xs font-medium hover:bg-red-50"
-                      >
-                        Deactivate
-                      </button>
-                    )}
                   </td>
                 </tr>
               ))}
@@ -323,6 +299,29 @@ function AdminUserManagement() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mapping:</span>
                   <span className="font-semibold">{selectedUser.mapping}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Location & Department Card */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Location & Department</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">State:</span>
+                  <span className="font-semibold">{selectedUser.state}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">City:</span>
+                  <span className="font-semibold">{selectedUser.city}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Department:</span>
+                  <span className="font-semibold">{selectedUser.department}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Branch:</span>
+                  <span className="font-semibold">{selectedUser.branch}</span>
                 </div>
               </div>
             </div>
