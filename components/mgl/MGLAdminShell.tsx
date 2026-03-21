@@ -1373,42 +1373,98 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
         </div>
       )}
 
+      {/* Dark overlay for transaction tray */}
+      {selectedTransaction && (
+        <div
+          className="fixed inset-0 bg-black/50 z-[60]"
+          onClick={() => setSelectedTransaction(null)}
+        />
+      )}
+
       {/* Transaction Details Tray */}
       {selectedTransaction && (
-        <div className="fixed bottom-0 right-96 top-0 w-96 bg-card border-l border-border shadow-xl overflow-y-auto z-50">
-          <div className="p-4 border-b border-border flex items-center justify-between sticky top-0 bg-card">
-            <h2 className="font-bold text-foreground">Transaction Details</h2>
-            <button onClick={() => setSelectedTransaction(null)} className="text-muted-foreground hover:text-foreground">
-              <X className="w-5 h-5" />
-            </button>
+        <div className={`fixed bottom-0 right-0 top-0 max-w-md bg-card border-l border-border shadow-xl overflow-y-auto z-[61] transform transition-transform duration-300 border-t-4 ${
+          selectedTransaction.status === "Successful" ? "border-t-green-600" :
+          selectedTransaction.status === "Failed" ? "border-t-red-600" :
+          selectedTransaction.status === "Pending" ? "border-t-yellow-600" : "border-t-blue-600"
+        }`}>
+          {/* Sticky Header */}
+          <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-foreground">Transaction Details</h2>
+              <button
+                onClick={() => setSelectedTransaction(null)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm text-muted-foreground">{selectedTransaction.txnId}</span>
+              <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
+                selectedTransaction.status === "Successful" ? "bg-green-50 text-green-700 border border-green-200" :
+                selectedTransaction.status === "Failed" ? "bg-red-50 text-red-700 border border-red-200" :
+                selectedTransaction.status === "Pending" ? "bg-yellow-50 text-yellow-700 border border-yellow-200" : "bg-blue-50 text-blue-700 border border-blue-200"
+              }`}>
+                {selectedTransaction.status}
+              </span>
+            </div>
           </div>
 
-          <div className="p-4 space-y-3">
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Transaction ID</p>
-              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.txnId}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Date & Time</p>
-              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.dateTime}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">Dealership</p>
-              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.dealership}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium text-muted-foreground">POS ID</p>
-              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.posId}</p>
-            </div>
-            <div className="border-t border-border pt-4">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Amount Breakdown</p>
-              <div className="space-y-2 text-sm bg-muted p-3 rounded-lg">
-                <div className="flex justify-between"><span>Amount:</span> <span className="font-semibold">₹{selectedTransaction.amount.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span>Fee:</span> <span className="font-semibold">-₹{selectedTransaction.fee.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span>Taxes:</span> <span className="font-semibold">-₹{selectedTransaction.taxes.toLocaleString()}</span></div>
-                <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="font-semibold">Net Amount:</span> <span className="font-bold text-green-600">₹{(selectedTransaction.amount - selectedTransaction.fee - selectedTransaction.taxes).toLocaleString()}</span></div>
+          <div className="p-4 space-y-4 pb-24">
+            {/* Transaction Info Card */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Transaction Info</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Date & Time:</span>
+                  <span className="font-semibold">{selectedTransaction.dateTime}</span>
+                </div>
+                {selectedTransaction.posId && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">POS ID:</span>
+                    <span className="font-semibold">{selectedTransaction.posId}</span>
+                  </div>
+                )}
+                {selectedTransaction.dealership && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Dealership:</span>
+                    <span className="font-semibold">{selectedTransaction.dealership}</span>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Amount Breakdown Card */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Amount Breakdown</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Amount:</span>
+                  <span className="font-semibold">₹{selectedTransaction.amount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Fee:</span>
+                  <span className="font-semibold text-red-600">-₹{selectedTransaction.fee.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Taxes:</span>
+                  <span className="font-semibold text-red-600">-₹{selectedTransaction.taxes.toLocaleString()}</span>
+                </div>
+                <div className="border-t border-border pt-3 mt-3 flex justify-between">
+                  <span className="text-muted-foreground">Net Amount:</span>
+                  <span className="text-xl font-bold text-green-600">₹{(selectedTransaction.amount - selectedTransaction.fee - selectedTransaction.taxes).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Download Receipt Button - Fixed at bottom */}
+          <div className="fixed bottom-0 right-0 max-w-md p-4 bg-card border-t border-border">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors">
+              <Download className="w-4 h-4" />
+              Download Receipt
+            </button>
           </div>
         </div>
       )}
