@@ -1581,6 +1581,12 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
 
 // ============ MIS & REPORTS ============
 function AdminReports() {
+  const [reportType, setReportType] = useState("Transaction Report")
+  const [foFilter, setFoFilter] = useState("All FOs")
+  const [dateFrom, setDateFrom] = useState(new Date(Date.now() - 86400000).toISOString().split('T')[0])
+  const [dateTo, setDateTo] = useState(new Date().toISOString().split('T')[0])
+  const [generatedReports, setGeneratedReports] = useState<any[]>([])
+
   const reportTemplates = [
     { name: "FO Balance Summary", desc: "Parent wallet and card balances by FO", format: "Excel" },
     { name: "Settlement Reconciliation", desc: "Daily T+1 settlement report", format: "Excel" },
@@ -1588,6 +1594,33 @@ function AdminReports() {
     { name: "Card Issuance Report", desc: "New cards issued by region and FO", format: "Excel" },
     { name: "Transaction Ledger", desc: "Complete transaction history", format: "CSV" },
   ]
+
+  const handleGenerateReport = () => {
+    const newReport = {
+      id: Date.now(),
+      reportType,
+      fo: foFilter,
+      dateRange: `${dateFrom} to ${dateTo}`,
+      requestedAt: new Date().toLocaleString(),
+      status: "Preparing",
+      createdAt: Date.now(),
+    }
+    setGeneratedReports(prev => [...prev, newReport])
+
+    // Change status to Ready after 5 minutes
+    setTimeout(() => {
+      setGeneratedReports(prev =>
+        prev.map(report =>
+          report.id === newReport.id ? { ...report, status: "Ready" } : report
+        )
+      )
+    }, 300000)
+  }
+
+  const getExpiryDate = (createdAt: number) => {
+    const date = new Date(createdAt + 7 * 24 * 60 * 60 * 1000)
+    return date.toLocaleDateString()
+  }
 
   return (
     <div className="flex flex-col gap-5 p-5">
@@ -1614,7 +1647,7 @@ function AdminReports() {
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{report.format}</span>
               <button className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
-                <Download className="w-3 h-3" /> Generate
+                <Download className="w-3 h-3" /> Download
               </button>
             </div>
           </div>
@@ -1624,68 +1657,120 @@ function AdminReports() {
       {/* Custom Report Builder */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h2 className="font-semibold mb-4">Custom Report Builder</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
             <label className="text-xs font-medium text-muted-foreground">Report Type</label>
-            <select className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm">
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            >
               <option>Transaction Report</option>
               <option>Settlement Report</option>
               <option>Incentive Report</option>
             </select>
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground">Date Range</label>
-            <select className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm">
-              <option>Last 7 days</option>
-              <option>Last 30 days</option>
-              <option>Custom Range</option>
-            </select>
+            <label className="text-xs font-medium text-muted-foreground">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-muted-foreground">Fleet Operator</label>
-            <select className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm">
+            <select
+              value={foFilter}
+              onChange={(e) => setFoFilter(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            >
               <option>All FOs</option>
               <option>ABC Logistics</option>
               <option>Metro Freight</option>
             </select>
           </div>
           <div className="flex items-end">
-            <button className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-              Generate Report
+            <button
+              onClick={handleGenerateReport}
+              className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+            >
+              Download Report
             </button>
           </div>
         </div>
       </div>
 
-      {/* Scheduled Reports */}
-      <div className="bg-card rounded-xl border border-border p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Scheduled Reports</h2>
-          <button className="text-sm text-primary font-medium hover:underline">+ Add Schedule</button>
-        </div>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-            <div>
-              <p className="font-medium text-sm">Daily Settlement Report</p>
-              <p className="text-xs text-muted-foreground">Every day at 9:00 AM • finance@mgl.co.in</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">Active</span>
-              <button className="p-1.5 hover:bg-muted rounded"><Edit3 className="w-3 h-3" /></button>
+      {/* Generated Reports */}
+      {generatedReports.length > 0 && (
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h2 className="font-semibold mb-4">Generated Reports</h2>
+          <div className="border border-border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Report Type</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">FO</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date Range</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Requested At</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Expires</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {generatedReports.map((report) => (
+                    <div key={report.id}>
+                      <tr className="hover:bg-muted/50">
+                        <td className="px-4 py-3">{report.reportType}</td>
+                        <td className="px-4 py-3">{report.fo}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">{report.dateRange}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">{report.requestedAt}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full ${
+                            report.status === "Preparing"
+                              ? "bg-amber-50 text-amber-700 border border-amber-200"
+                              : "bg-green-50 text-green-700 border border-green-200"
+                          }`}>
+                            {report.status}
+                            {report.status === "Ready" && <Download className="w-3 h-3" />}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm">{getExpiryDate(report.createdAt)}</td>
+                        <td className="px-4 py-3">
+                          {report.status === "Ready" ? (
+                            <button className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium">
+                              <Download className="w-4 h-4" /> Download
+                            </button>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan={7} className="px-4 py-2 bg-muted/20 text-xs text-muted-foreground">
+                          Available for 7 days · Expires on {getExpiryDate(report.createdAt)}
+                        </td>
+                      </tr>
+                    </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-            <div>
-              <p className="font-medium text-sm">Weekly Incentive Summary</p>
-              <p className="text-xs text-muted-foreground">Every Monday at 10:00 AM • marketing@mgl.co.in</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">Active</span>
-              <button className="p-1.5 hover:bg-muted rounded"><Edit3 className="w-3 h-3" /></button>
-            </div>
-          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
