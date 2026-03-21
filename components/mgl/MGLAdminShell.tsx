@@ -254,6 +254,7 @@ function AdminUserManagement() {
             </div>
           </div>
         )}
+      </div>
 
       {/* Users Table */}
       <div className="border border-border rounded-lg overflow-hidden">
