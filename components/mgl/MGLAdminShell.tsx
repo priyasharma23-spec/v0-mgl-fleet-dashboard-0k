@@ -148,7 +148,7 @@ function AdminUserManagement() {
   return (
     <div className="flex flex-col gap-5 p-5">
       <div>
-        <h1 className="text-xl font-bold text-foreground">User Management</h1>
+        <h1 className="text-xl font-bold text-foreground">User Management </h1>
         <p className="text-sm text-muted-foreground">Manage MGL portal users and access control</p>
       </div>
 
