@@ -72,6 +72,12 @@ function AdminUserManagement() {
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [showAddUserModal, setShowAddUserModal] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "", empId: "", email: "", mobile: "",
+    role: "ZIC", mapping: "",
+    state: "Maharashtra", city: "", department: "", branch: ""
+  })
   const [users, setUsers] = useState([
     { id: 1, empId: '2009', name: 'Bhushan Mayekar', email: 'mayekar.bhushan@mahanagargas.com', mobile: '8879136709', role: 'ZIC', mapping: 'NA', status: 'Pending', state: 'Maharashtra', city: 'Mumbai', department: 'Operations', branch: 'Andheri' },
     { id: 2, empId: '2010', name: 'Rajesh Kumar', email: 'rajesh.kumar@mahanagargas.com', mobile: '9876543210', role: 'MIC', mapping: 'Mumbai Region', status: 'Active', state: 'Maharashtra', city: 'Mumbai', department: 'Sales', branch: 'Bandra' },
@@ -99,6 +105,21 @@ function AdminUserManagement() {
     if (selectedUser?.id === userId) {
       setSelectedUser(prev => ({ ...prev, status: newStatus }))
     }
+  }
+
+  const handleAddUser = () => {
+    const newUser = {
+      id: Math.max(...users.map(u => u.id), 0) + 1,
+      ...formData,
+      status: "Pending"
+    }
+    setUsers(prev => [...prev, newUser])
+    setShowAddUserModal(false)
+    setFormData({
+      name: "", empId: "", email: "", mobile: "",
+      role: "ZIC", mapping: "",
+      state: "Maharashtra", city: "", department: "", branch: ""
+    })
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -191,7 +212,9 @@ function AdminUserManagement() {
             <option value="Pending">Pending</option>
           </select>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+        <button 
+          onClick={() => setShowAddUserModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
           + Add User
         </button>
       </div>
@@ -427,8 +450,168 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                 }`}>
                   {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                   {kpi.change}
+        </div>
+      )}
+
+      {/* Add User Modal */}
+      {showAddUserModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="bg-card rounded-xl border border-border max-h-screen overflow-y-auto w-full max-w-2xl">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
+              <h2 className="font-bold text-lg text-foreground">Add New User</h2>
+              <button
+                onClick={() => setShowAddUserModal(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Personal Info Section */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-4">Personal Info</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Name</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      placeholder="Full name"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Emp ID</label>
+                    <input
+                      type="text"
+                      value={formData.empId}
+                      onChange={(e) => setFormData({...formData, empId: e.target.value})}
+                      placeholder="e.g., 2014"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Email</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      placeholder="name@mahanagargas.com"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Mobile</label>
+                    <input
+                      type="text"
+                      value={formData.mobile}
+                      onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                      placeholder="10-digit number"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* Role & Access Section */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-4">Role & Access</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Role</label>
+                    <select
+                      value={formData.role}
+                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    >
+                      <option value="MIC">MIC</option>
+                      <option value="ZIC">ZIC</option>
+                      <option value="Admin">Admin</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Mapping</label>
+                    <input
+                      type="text"
+                      value={formData.mapping}
+                      onChange={(e) => setFormData({...formData, mapping: e.target.value})}
+                      placeholder="e.g., Mumbai Region"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Location & Department Section */}
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-4">Location & Department</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">State</label>
+                    <input
+                      type="text"
+                      value={formData.state}
+                      onChange={(e) => setFormData({...formData, state: e.target.value})}
+                      placeholder="State"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">City</label>
+                    <input
+                      type="text"
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      placeholder="City"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Department</label>
+                    <input
+                      type="text"
+                      value={formData.department}
+                      onChange={(e) => setFormData({...formData, department: e.target.value})}
+                      placeholder="Department"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Branch</label>
+                    <input
+                      type="text"
+                      value={formData.branch}
+                      onChange={(e) => setFormData({...formData, branch: e.target.value})}
+                      placeholder="Branch"
+                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t border-border p-6 flex gap-3 justify-end bg-muted/20">
+              <button
+                onClick={() => setShowAddUserModal(false)}
+                className="px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddUser}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+              >
+                Add User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
               {kpi.trend === "neutral" && (
                 <span className="text-xs font-medium text-amber-600">{kpi.change} used</span>
               )}
