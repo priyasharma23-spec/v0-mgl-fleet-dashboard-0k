@@ -50,6 +50,7 @@ const adminNavItems: NavItem[] = [
   { icon: CreditCard, label: "Cards & Wallets", view: "admin-cards" },
   { icon: Gift, label: "Incentives & Offers", view: "admin-incentives" },
   { icon: ArrowRightLeft, label: "Transactions", view: "admin-transactions", badge: 3 },
+  { icon: FileSpreadsheet, label: "Settlements", view: "admin-settlements" },
   { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
   { icon: Activity, label: "Analytics", view: "admin-analytics" },
   { icon: Settings, label: "Configuration", view: "admin-config" },

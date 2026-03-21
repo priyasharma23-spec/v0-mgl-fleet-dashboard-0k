@@ -1,5 +1,7 @@
 "use client"
 
+
+
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
@@ -27,6 +29,7 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
       case "admin-cards": return <AdminCardsWallets onViewChange={setActiveView} />
       case "admin-incentives": return <AdminIncentives onViewChange={setActiveView} />
       case "admin-transactions": return <AdminTransactions onViewChange={setActiveView} />
+      case "admin-settlements": return <AdminSettlements onViewChange={setActiveView} />
       case "admin-reports": return <AdminReports />
       case "admin-analytics": return <AdminAnalytics />
       case "admin-config": return <AdminConfig />
@@ -715,121 +718,541 @@ function CreateOfferModal({ onClose }: { onClose: () => void }) {
 
 // ============ TRANSACTIONS VIEW ============
 function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
-  const [activeTab, setActiveTab] = useState<"all" | "settlements" | "loads" | "transfers">("all")
+  const [type, setType] = useState<"POS" | "Load">("POS")
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
 
-  const transactions = [
-    { id: "TXN001", type: "PG Load", fo: "ABC Logistics", amount: "₹50,000", status: "Completed", time: "10:30 AM", settlementStatus: "T+1 Pending" },
-    { id: "TXN002", type: "Card Transfer", fo: "Metro Freight", amount: "₹15,000", status: "Completed", time: "10:15 AM", settlementStatus: "-" },
-    { id: "TXN003", type: "Incentive Credit", fo: "Sunrise Transport", amount: "₹2,500", status: "Completed", time: "09:45 AM", settlementStatus: "-" },
-    { id: "TXN004", type: "PG Load", fo: "City Express", amount: "₹1,00,000", status: "Processing", time: "09:30 AM", settlementStatus: "Pending" },
-    { id: "TXN005", type: "Settlement", fo: "Multiple", amount: "₹12,45,000", status: "Completed", time: "Yesterday", settlementStatus: "Settled to MGL" },
+  const posTransactions = [
+    { id: "TXN001", dateTime: "Mar 21, 2024 10:30 AM", posId: "POS-001", dealership: "ABC Motors", fo: "ABC Logistics", amount: "₹50,000", status: "Successful" as const },
+    { id: "TXN002", dateTime: "Mar 21, 2024 10:15 AM", posId: "POS-002", dealership: "XYZ Auto", fo: "Metro Freight", amount: "₹15,000", status: "Successful" as const },
+    { id: "TXN003", dateTime: "Mar 21, 2024 09:45 AM", posId: "POS-003", dealership: "Prime Motors", fo: "Sunrise Transport", amount: "₹2,500", status: "Pending" as const },
+    { id: "TXN004", dateTime: "Mar 21, 2024 09:30 AM", posId: "POS-001", dealership: "ABC Motors", fo: "ABC Logistics", amount: "₹1,00,000", status: "Successful" as const },
+    { id: "TXN005", dateTime: "Mar 20, 2024 05:15 PM", posId: "POS-004", dealership: "Elite Autos", fo: "Global Transport", amount: "₹35,000", status: "Failed" as const },
+    { id: "TXN006", dateTime: "Mar 20, 2024 04:00 PM", posId: "POS-002", dealership: "XYZ Auto", fo: "Metro Freight", amount: "₹22,500", status: "Processing" as const },
   ]
+
+  const loadTransactions = [
+    { id: "LOAD001", dateTime: "Mar 21, 2024 11:00 AM", fo: "ABC Logistics", amount: "₹50,000", status: "Successful" as const },
+    { id: "LOAD002", dateTime: "Mar 21, 2024 10:45 AM", fo: "Sunrise Transport", amount: "₹2,500", status: "Failed" as const },
+    { id: "LOAD003", dateTime: "Mar 20, 2024 06:00 PM", fo: "National Logistics", amount: "₹45,000", status: "Pending" as const },
+    { id: "LOAD004", dateTime: "Mar 20, 2024 02:30 PM", fo: "Metro Freight", amount: "₹75,000", status: "Processing" as const },
+    { id: "LOAD005", dateTime: "Mar 20, 2024 11:00 AM", fo: "City Express", amount: "₹30,000", status: "Successful" as const },
+  ]
+
+  const parseAmount = (amt: string) => parseInt(amt.replace(/[₹,]/g, "")) || 0
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Successful": return "bg-green-50 text-green-700 border border-green-200"
+      case "Failed": return "bg-red-50 text-red-700 border border-red-200"
+      case "Pending": return "bg-yellow-50 text-yellow-700 border border-yellow-200"
+      case "Processing": return "bg-blue-50 text-blue-700 border border-blue-200"
+      default: return "bg-gray-50 text-gray-700 border border-gray-200"
+    }
+  }
+
+  const getStatusBorderColor = (status: string) => {
+    switch (status) {
+      case "Successful": return "border-t-green-600"
+      case "Failed": return "border-t-red-600"
+      case "Pending": return "border-t-yellow-600"
+      case "Processing": return "border-t-blue-600"
+      default: return "border-t-gray-600"
+    }
+  }
+
+  // POS calculations
+  const successful = posTransactions.filter(t => t.status === "Successful")
+  const pendingProcessing = posTransactions.filter(t => t.status === "Pending" || t.status === "Processing")
+  const failed = posTransactions.filter(t => t.status === "Failed")
+  const totalAmount = posTransactions.reduce((sum, t) => sum + parseAmount(t.amount), 0)
+
+  // Load calculations
+  const lSuccessful = loadTransactions.filter(t => t.status === "Successful")
+  const lPending = loadTransactions.filter(t => t.status === "Pending")
+  const lFailed = loadTransactions.filter(t => t.status === "Failed")
+  const totalLoadAmount = loadTransactions.reduce((sum, t) => sum + parseAmount(t.amount), 0)
 
   return (
     <div className="flex flex-col gap-5 p-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Transactions & Settlements</h1>
-          <p className="text-sm text-muted-foreground">Monitor all wallet transactions and settlement status</p>
+          <h1 className="text-xl font-bold text-foreground">Transactions</h1>
+          <p className="text-sm text-muted-foreground">Monitor all transaction statuses</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-          <Download className="w-4 h-4" />
-          Export Ledger
+          <Download className="w-4 h-4" /> Export
         </button>
       </div>
 
-      {/* Summary */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-amber-600" />
-            <span className="text-sm font-medium text-amber-800">T+1 Pending</span>
+      <div className="flex gap-2 border-b border-border">
+        <button
+          onClick={() => setType("POS")}
+          className={`px-4 py-2 font-medium text-sm border-b-2 ${type === "POS" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          POS
+        </button>
+        <button
+          onClick={() => setType("Load")}
+          className={`px-4 py-2 font-medium text-sm border-b-2 ${type === "Load" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          Load
+        </button>
+      </div>
+
+      {type === "POS" && (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-green-800">Successful</p>
+              <p className="text-lg font-bold text-green-900 mt-1">₹{(successful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-green-700 mt-0.5">{successful.length} transactions</p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-amber-800">Pending / Processing</p>
+              <p className="text-lg font-bold text-amber-900 mt-1">₹{(pendingProcessing.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-amber-700 mt-0.5">{pendingProcessing.length} transactions</p>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-red-800">Failed</p>
+              <p className="text-lg font-bold text-red-900 mt-1">₹{(failed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-red-700 mt-0.5">{failed.length} transactions</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-blue-800">Total</p>
+              <p className="text-lg font-bold text-blue-900 mt-1">₹{(totalAmount / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-blue-700 mt-0.5">{posTransactions.length} transactions</p>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-amber-900 mt-2">₹28.5L</p>
-          <p className="text-xs text-amber-700">23 transactions</p>
+
+          <div className="border border-border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">TXN ID</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date & Time</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">POS ID</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Dealership</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">FO</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Amount</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {posTransactions.map(txn => (
+                    <tr key={txn.id} className="hover:bg-muted/50">
+                      <td className="px-4 py-3 font-medium">{txn.id}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{txn.dateTime}</td>
+                      <td className="px-4 py-3">{txn.posId}</td>
+                      <td className="px-4 py-3">{txn.dealership}</td>
+                      <td className="px-4 py-3">{txn.fo}</td>
+                      <td className="px-4 py-3 font-semibold">{txn.amount}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(txn.status)}`}>{txn.status}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setSelectedTransaction(txn)}
+                          className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
+                        >
+                          <Eye className="w-4 h-4" /> View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {type === "Load" && (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-blue-800">Total Load Attempted</p>
+              <p className="text-lg font-bold text-blue-900 mt-1">₹{(totalLoadAmount / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-blue-700 mt-0.5">{loadTransactions.length} transactions</p>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-green-800">Successful Load</p>
+              <p className="text-lg font-bold text-green-900 mt-1">₹{(lSuccessful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-green-700 mt-0.5">{lSuccessful.length} transactions</p>
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-yellow-800">Pending Load</p>
+              <p className="text-lg font-bold text-yellow-900 mt-1">₹{(lPending.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-yellow-700 mt-0.5">{lPending.length} transactions</p>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-xs font-medium text-red-800">Failed Load</p>
+              <p className="text-lg font-bold text-red-900 mt-1">₹{(lFailed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-red-700 mt-0.5">{lFailed.length} transactions</p>
+            </div>
+          </div>
+
+          <div className="border border-border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">TXN ID</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date & Time</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">FO</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Amount</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {loadTransactions.map(txn => (
+                    <tr key={txn.id} className="hover:bg-muted/50">
+                      <td className="px-4 py-3 font-medium">{txn.id}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{txn.dateTime}</td>
+                      <td className="px-4 py-3">{txn.fo}</td>
+                      <td className="px-4 py-3 font-semibold">{txn.amount}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(txn.status)}`}>{txn.status}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setSelectedTransaction(txn)}
+                          className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
+                        >
+                          <Eye className="w-4 h-4" /> View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Dark overlay */}
+      {selectedTransaction && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSelectedTransaction(null)}
+        />
+      )}
+
+      {/* Transaction Details Tray with colored top border */}
+      {selectedTransaction && (
+        <div className={`fixed bottom-0 right-0 top-0 w-96 bg-card border-l border-border shadow-lg overflow-y-auto z-50 border-t-4 transform transition-transform duration-300 ${getStatusBorderColor(selectedTransaction.status)}`}>
+          {/* Sticky Header */}
+          <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-foreground">Transaction Details</h2>
+              <button
+                onClick={() => setSelectedTransaction(null)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-sm font-mono text-muted-foreground">{selectedTransaction.id}</span>
+              <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedTransaction.status)}`}>
+                {selectedTransaction.status}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-4 space-y-4">
+            {/* Transaction Info Card */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Transaction Info</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Date & Time:</span>
+                  <span className="font-semibold">{selectedTransaction.dateTime}</span>
+                </div>
+                {type === "POS" && (
+                  <>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">POS ID:</span>
+                      <span className="font-semibold">{selectedTransaction.posId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Dealership:</span>
+                      <span className="font-semibold">{selectedTransaction.dealership}</span>
+                    </div>
+                  </>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Fleet Operator:</span>
+                  <span className="font-semibold">{selectedTransaction.fo}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Amount Card */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold text-foreground">Amount</p>
+              <p className="text-2xl font-bold text-green-600">{selectedTransaction.amount}</p>
+              <p className="text-xs text-muted-foreground">Fuel purchase via CNG card</p>
+            </div>
+
+            {/* Download Receipt Button */}
+            <button className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors">
+              <Download className="w-4 h-4" />
+              Download Receipt
+            </button>
+          </div>
         </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">Processing</span>
-          </div>
-          <p className="text-2xl font-bold text-blue-900 mt-2">₹5.2L</p>
-          <p className="text-xs text-blue-700">8 transactions</p>
+      )}
+    </div>
+  )
+}
+
+// ============ SETTLEMENTS ============
+function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void }) {
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedSettlement, setSelectedSettlement] = useState<any>(null)
+  const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+
+  const settlementData = [
+    {
+      id: "SETL001",
+      dateTime: "Mar 21, 2024 10:30 AM",
+      dealership: "ABC Motors",
+      totalAmount: 152000,
+      totalFee: 1520,
+      totalTaxes: 15200,
+      netAmount: 135280,
+      status: "Settled",
+      transactionFrom: "Mar 21, 2024 00:00",
+      transactionTill: "Mar 21, 2024 23:59",
+      settlementDate: "Mar 22, 2024",
+      bankUTR: "UTR123456789",
+      bankAccount: "****4521",
+      bankName: "HDFC Bank",
+      transactions: [
+        { txnId: "TXN001", dateTime: "Mar 21, 2024 10:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 50000, fee: 500, taxes: 5000 },
+        { txnId: "TXN004", dateTime: "Mar 21, 2024 09:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 102000, fee: 1020, taxes: 10200 },
+      ]
+    },
+    {
+      id: "SETL002",
+      dateTime: "Mar 20, 2024 04:00 PM",
+      dealership: "XYZ Auto",
+      totalAmount: 87500,
+      totalFee: 875,
+      totalTaxes: 8750,
+      netAmount: 77875,
+      status: "Pending",
+      transactionFrom: "Mar 20, 2024 00:00",
+      transactionTill: "Mar 20, 2024 23:59",
+      settlementDate: "Mar 21, 2024",
+      bankUTR: "UTR987654321",
+      bankAccount: "****8765",
+      bankName: "ICICI Bank",
+      transactions: [
+        { txnId: "TXN002", dateTime: "Mar 21, 2024 10:15 AM", dealership: "XYZ Auto", posId: "POS-002", amount: 15000, fee: 150, taxes: 1500 },
+        { txnId: "TXN006", dateTime: "Mar 20, 2024 04:00 PM", dealership: "XYZ Auto", posId: "POS-002", amount: 72500, fee: 725, taxes: 7250 },
+      ]
+    },
+    {
+      id: "SETL003",
+      dateTime: "Mar 19, 2024 01:15 PM",
+      dealership: "Prime Motors",
+      totalAmount: 15000,
+      totalFee: 150,
+      totalTaxes: 1500,
+      netAmount: 13350,
+      status: "Processing",
+      transactionFrom: "Mar 19, 2024 00:00",
+      transactionTill: "Mar 19, 2024 23:59",
+      settlementDate: "Mar 20, 2024",
+      bankUTR: "UTR111222333",
+      bankAccount: "****5678",
+      bankName: "Axis Bank",
+      transactions: [
+        { txnId: "TXN003", dateTime: "Mar 21, 2024 09:45 AM", dealership: "Prime Motors", posId: "POS-003", amount: 2500, fee: 25, taxes: 250 },
+        { txnId: "TXN008", dateTime: "Mar 20, 2024 01:15 PM", dealership: "Prime Motors", posId: "POS-003", amount: 12500, fee: 125, taxes: 1250 },
+      ]
+    },
+    {
+      id: "SETL004",
+      dateTime: "Mar 18, 2024 05:15 PM",
+      dealership: "Elite Autos",
+      totalAmount: 35000,
+      totalFee: 350,
+      totalTaxes: 3500,
+      netAmount: 31150,
+      status: "On Hold",
+      transactionFrom: "Mar 18, 2024 00:00",
+      transactionTill: "Mar 18, 2024 23:59",
+      settlementDate: "Mar 19, 2024",
+      bankUTR: "UTR444555666",
+      bankAccount: "****9012",
+      bankName: "Yes Bank",
+      transactions: [
+        { txnId: "TXN005", dateTime: "Mar 20, 2024 05:15 PM", dealership: "Elite Autos", posId: "POS-004", amount: 35000, fee: 350, taxes: 3500 },
+      ]
+    },
+    {
+      id: "SETL005",
+      dateTime: "Mar 17, 2024 11:30 AM",
+      dealership: "Metro Garage",
+      totalAmount: 62500,
+      totalFee: 625,
+      totalTaxes: 6250,
+      netAmount: 55625,
+      status: "Failed",
+      transactionFrom: "Mar 17, 2024 00:00",
+      transactionTill: "Mar 17, 2024 23:59",
+      settlementDate: "Mar 18, 2024",
+      bankUTR: "UTR777888999",
+      bankAccount: "****3456",
+      bankName: "Kotak Bank",
+      transactions: [
+        { txnId: "TXN007", dateTime: "Mar 17, 2024 11:30 AM", dealership: "Metro Garage", posId: "POS-005", amount: 62500, fee: 625, taxes: 6250 },
+      ]
+    },
+    {
+      id: "SETL006",
+      dateTime: "Mar 16, 2024 03:45 PM",
+      dealership: "Prime Motors",
+      totalAmount: 45000,
+      totalFee: 450,
+      totalTaxes: 4500,
+      netAmount: 40050,
+      status: "Settled",
+      transactionFrom: "Mar 16, 2024 00:00",
+      transactionTill: "Mar 16, 2024 23:59",
+      settlementDate: "Mar 17, 2024",
+      bankUTR: "UTR101112131415",
+      bankAccount: "****7890",
+      bankName: "IndusInd Bank",
+      transactions: [
+        { txnId: "TXN009", dateTime: "Mar 16, 2024 03:45 PM", dealership: "Prime Motors", posId: "POS-003", amount: 45000, fee: 450, taxes: 4500 },
+      ]
+    },
+  ]
+
+  const filteredSettlements = settlementData.filter(s => 
+    (statusFilter === "all" || s.status.toLowerCase() === statusFilter.toLowerCase()) &&
+    (s.dealership.toLowerCase().includes(searchTerm.toLowerCase()) || s.id.toLowerCase().includes(searchTerm.toLowerCase()))
+  )
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case "Settled": return "bg-green-50 text-green-700 border border-green-200"
+      case "Pending": return "bg-yellow-50 text-yellow-700 border border-yellow-200"
+      case "Processing": return "bg-blue-50 text-blue-700 border border-blue-200"
+      case "On Hold": return "bg-orange-50 text-orange-700 border border-orange-200"
+      case "Failed": return "bg-red-50 text-red-700 border border-red-200"
+      default: return "bg-gray-50 text-gray-700 border border-gray-200"
+    }
+  }
+
+  const summaryStats = {
+    settled: settlementData.filter(s => s.status === "Settled").reduce((sum, s) => sum + s.netAmount, 0),
+    upcoming: settlementData.filter(s => s.status === "Pending" || s.status === "Processing").reduce((sum, s) => sum + s.netAmount, 0),
+    onHold: settlementData.filter(s => s.status === "On Hold").reduce((sum, s) => sum + s.totalAmount, 0),
+    failed: settlementData.filter(s => s.status === "Failed").reduce((sum, s) => sum + s.totalAmount, 0),
+    settledDealerships: new Set(settlementData.filter(s => s.status === "Settled").map(s => s.dealership)).size,
+    upcomingDealerships: new Set(settlementData.filter(s => s.status === "Pending" || s.status === "Processing").map(s => s.dealership)).size,
+    onHoldDealerships: new Set(settlementData.filter(s => s.status === "On Hold").map(s => s.dealership)).size,
+    failedDealerships: new Set(settlementData.filter(s => s.status === "Failed").map(s => s.dealership)).size,
+  }
+
+  return (
+    <div className="flex flex-col gap-5 p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Settlements</h1>
+          <p className="text-sm text-muted-foreground">Monitor settlement status and dealership-wise summary</p>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium text-green-800">Settled Today</span>
-          </div>
-          <p className="text-2xl font-bold text-green-900 mt-2">₹45.8L</p>
-          <p className="text-xs text-green-700">156 transactions</p>
+        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Download className="w-4 h-4" /> Export
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <p className="text-xs font-medium text-green-800">Settled</p>
+          <p className="text-lg font-bold text-green-900 mt-1">₹{(summaryStats.settled / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-green-700 mt-0.5">{summaryStats.settledDealerships} dealerships</p>
         </div>
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <span className="text-sm font-medium text-red-800">Failed</span>
-          </div>
-          <p className="text-2xl font-bold text-red-900 mt-2">₹1.2L</p>
-          <p className="text-xs text-red-700">2 transactions - <button className="underline">Retry</button></p>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <p className="text-xs font-medium text-amber-800">Upcoming</p>
+          <p className="text-lg font-bold text-amber-900 mt-1">₹{(summaryStats.upcoming / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-amber-700 mt-0.5">{summaryStats.upcomingDealerships} dealerships</p>
+        </div>
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+          <p className="text-xs font-medium text-orange-800">On Hold</p>
+          <p className="text-lg font-bold text-orange-900 mt-1">₹{(summaryStats.onHold / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-orange-700 mt-0.5">{summaryStats.onHoldDealerships} dealerships</p>
+        </div>
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+          <p className="text-xs font-medium text-purple-800">Failed</p>
+          <p className="text-lg font-bold text-purple-900 mt-1">₹{(summaryStats.failed / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-purple-700 mt-0.5">{summaryStats.failedDealerships} dealerships</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit">
-        {[
-          { key: "all", label: "All" },
-          { key: "settlements", label: "Settlements" },
-          { key: "loads", label: "PG Loads" },
-          { key: "transfers", label: "Transfers" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key as any)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === tab.key ? "bg-card shadow-sm" : "hover:bg-card/50"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex gap-3 items-center">
+        <input
+          type="text"
+          placeholder="Search by dealership or settlement ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground"
+        />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground">
+          <option value="all">All Status</option>
+          <option value="settled">Settled</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="on hold">On Hold</option>
+          <option value="failed">Failed</option>
+        </select>
       </div>
 
-      {/* Transactions Table */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                {["Txn ID", "Type", "Fleet Operator", "Amount", "Status", "Time", "Settlement"].map((h) => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
-                ))}
+            <thead className="bg-muted border-b border-border">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Date & Time</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Dealership</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Total Amount</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Fee</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Taxes</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Net Amount</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
+                <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
               </tr>
             </thead>
-            <tbody>
-              {transactions.map((txn) => (
-                <tr key={txn.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                  <td className="px-4 py-3 font-mono text-xs">{txn.id}</td>
+            <tbody className="divide-y divide-border">
+              {filteredSettlements.map(settlement => (
+                <tr key={settlement.id} className="hover:bg-muted/50">
+                  <td className="px-4 py-3 text-muted-foreground">{settlement.dateTime}</td>
+                  <td className="px-4 py-3 font-medium">{settlement.dealership}</td>
+                  <td className="px-4 py-3">₹{settlement.totalAmount.toLocaleString()}</td>
+                  <td className="px-4 py-3">₹{settlement.totalFee.toLocaleString()}</td>
+                  <td className="px-4 py-3">₹{settlement.totalTaxes.toLocaleString()}</td>
+                  <td className="px-4 py-3 font-semibold">₹{settlement.netAmount.toLocaleString()}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                      txn.type === "PG Load" ? "bg-purple-100 text-purple-700" :
-                      txn.type === "Card Transfer" ? "bg-blue-100 text-blue-700" :
-                      txn.type === "Settlement" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
-                    }`}>{txn.type}</span>
+                    <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(settlement.status)}`}>
+                      {settlement.status}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">{txn.fo}</td>
-                  <td className="px-4 py-3 font-medium">{txn.amount}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      txn.status === "Completed" ? "bg-green-100 text-green-700" :
-                      txn.status === "Processing" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"
-                    }`}>{txn.status}</span>
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{txn.time}</td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs ${
-                      txn.settlementStatus.includes("Pending") ? "text-amber-600" :
-                      txn.settlementStatus.includes("Settled") ? "text-green-600" : "text-muted-foreground"
-                    }`}>{txn.settlementStatus}</span>
+                    <button
+                      onClick={() => { setSelectedSettlement(settlement); setSelectedTransaction(null); }}
+                      className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
+                    >
+                      <Eye className="w-4 h-4" /> View
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -837,6 +1260,117 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
           </table>
         </div>
       </div>
+
+      {/* Dark overlay */}
+      {(selectedSettlement || selectedTransaction) && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => { setSelectedSettlement(null); setSelectedTransaction(null); }}
+        />
+      )}
+
+      {/* Settlement Details Tray */}
+      {selectedSettlement && !selectedTransaction && (
+        <div className="fixed bottom-0 right-0 top-0 w-96 bg-card border-l border-border shadow-lg overflow-y-auto z-50">
+          <div className="p-4 border-b border-border flex items-center justify-between sticky top-0 bg-card">
+            <h2 className="font-bold text-foreground">Settlement Details</h2>
+            <button onClick={() => { setSelectedSettlement(null); setSelectedTransaction(null); }} className="text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="p-4 space-y-4">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Settlement ID</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{selectedSettlement.id}</p>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Transaction Period</p>
+              <div className="space-y-1 text-sm">
+                <div><span className="text-muted-foreground">From:</span> {selectedSettlement.transactionFrom}</div>
+                <div><span className="text-muted-foreground">Till:</span> {selectedSettlement.transactionTill}</div>
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Settlement Information</p>
+              <div className="space-y-2 text-sm">
+                <div><span className="text-muted-foreground">Settlement Date:</span> {selectedSettlement.settlementDate}</div>
+                <div><span className="text-muted-foreground">Bank UTR:</span> {selectedSettlement.bankUTR}</div>
+                <div><span className="text-muted-foreground">Account:</span> {selectedSettlement.bankAccount}</div>
+                <div><span className="text-muted-foreground">Bank:</span> {selectedSettlement.bankName}</div>
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Net Amount Breakdown</p>
+              <div className="space-y-2 text-sm bg-muted p-3 rounded-lg">
+                <div className="flex justify-between"><span>Total Amount:</span> <span className="font-semibold">₹{selectedSettlement.totalAmount.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Fee:</span> <span className="font-semibold">-₹{selectedSettlement.totalFee.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Taxes:</span> <span className="font-semibold">-₹{selectedSettlement.totalTaxes.toLocaleString()}</span></div>
+                <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="font-semibold">Net Amount:</span> <span className="font-bold text-green-600">₹{selectedSettlement.netAmount.toLocaleString()}</span></div>
+              </div>
+            </div>
+
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted-foreground mb-3">Transactions ({selectedSettlement.transactions.length})</p>
+              <div className="space-y-2">
+                {selectedSettlement.transactions.map(txn => (
+                  <button
+                    key={txn.txnId}
+                    onClick={() => setSelectedTransaction(txn)}
+                    className="w-full text-left bg-muted hover:bg-muted/80 rounded-lg p-2 transition-colors"
+                  >
+                    <div className="text-xs font-semibold">{txn.txnId}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">₹{txn.amount.toLocaleString()}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transaction Details Tray */}
+      {selectedTransaction && (
+        <div className="fixed bottom-0 right-96 top-0 w-96 bg-card border-l border-border shadow-xl overflow-y-auto z-50">
+          <div className="p-4 border-b border-border flex items-center justify-between sticky top-0 bg-card">
+            <h2 className="font-bold text-foreground">Transaction Details</h2>
+            <button onClick={() => setSelectedTransaction(null)} className="text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="p-4 space-y-3">
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Transaction ID</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.txnId}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Date & Time</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.dateTime}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">Dealership</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.dealership}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">POS ID</p>
+              <p className="text-sm font-semibold text-foreground mt-1">{selectedTransaction.posId}</p>
+            </div>
+            <div className="border-t border-border pt-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">Amount Breakdown</p>
+              <div className="space-y-2 text-sm bg-muted p-3 rounded-lg">
+                <div className="flex justify-between"><span>Amount:</span> <span className="font-semibold">₹{selectedTransaction.amount.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Fee:</span> <span className="font-semibold">-₹{selectedTransaction.fee.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Taxes:</span> <span className="font-semibold">-₹{selectedTransaction.taxes.toLocaleString()}</span></div>
+                <div className="flex justify-between border-t border-border pt-2 mt-2"><span className="font-semibold">Net Amount:</span> <span className="font-bold text-green-600">₹{(selectedTransaction.amount - selectedTransaction.fee - selectedTransaction.taxes).toLocaleString()}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
