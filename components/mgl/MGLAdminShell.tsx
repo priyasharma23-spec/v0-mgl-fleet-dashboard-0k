@@ -10,7 +10,7 @@ import {
   TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, Clock, CheckCircle, 
   AlertTriangle, ArrowRight, Search, Filter, Download, ChevronRight, Eye,
   Calendar, BarChart3, PieChart, Activity, Building2, ArrowRightLeft,
-  Play, Pause, Edit3, FileText, Settings, RefreshCw, AlertCircle, X, Check, Plus
+  Play, Pause, Edit3, FileText, Settings, RefreshCw, AlertCircle, X, Check
 } from "lucide-react"
 
 interface Props {
@@ -192,7 +192,7 @@ function AdminUserManagement() {
           </select>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-          <Plus className="w-4 h-4" /> Add User
+          + Add User
         </button>
       </div>
 
