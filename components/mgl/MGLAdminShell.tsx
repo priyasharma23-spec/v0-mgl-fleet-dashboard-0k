@@ -1720,35 +1720,45 @@ function AdminReports() {
               <table className="w-full text-sm">
                 <thead className="bg-muted border-b border-border">
                   <tr>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Report Type</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">FO</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date Range</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Requested At</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Expires</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground whitespace-nowrap">Report Type</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground whitespace-nowrap">FO</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground whitespace-nowrap">Date Range</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground whitespace-nowrap">Requested At</th>
+                    <th className="px-4 py-3 text-center font-semibold text-foreground whitespace-nowrap">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground whitespace-nowrap">Expires</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground whitespace-nowrap">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {generatedReports.map((report) => (
-                    <div key={report.id}>
-                      <tr className="hover:bg-muted/50">
-                        <td className="px-4 py-3">{report.reportType}</td>
-                        <td className="px-4 py-3">{report.fo}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{report.dateRange}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{report.requestedAt}</td>
-                        <td className="px-4 py-3">
+                  {generatedReports.map((report) => {
+                    const requestDate = new Date(report.requestedAt)
+                    const formattedDateRange = (() => {
+                      const [from, to] = report.dateRange.split(' to ')
+                      const fromDate = new Date(from)
+                      const toDate = new Date(to)
+                      return `${fromDate.getDate()} ${fromDate.toLocaleDateString('en-US', { month: 'short' })} ${fromDate.getFullYear()} → ${toDate.getDate()} ${toDate.toLocaleDateString('en-US', { month: 'short' })} ${toDate.getFullYear()}`
+                    })()
+                    const formattedRequestedAt = `${String(requestDate.getDate()).padStart(2, '0')}/${String(requestDate.getMonth() + 1).padStart(2, '0')}/${requestDate.getFullYear()} ${String(requestDate.getHours()).padStart(2, '0')}:${String(requestDate.getMinutes()).padStart(2, '0')}`
+                    const expiryDate = new Date(report.createdAt + 7 * 24 * 60 * 60 * 1000)
+                    const formattedExpiry = `${expiryDate.getDate()} ${expiryDate.toLocaleDateString('en-US', { month: 'short' })} ${expiryDate.getFullYear()}`
+
+                    return (
+                      <tr key={report.id} className="hover:bg-muted/50 h-12">
+                        <td className="px-4 py-3 whitespace-nowrap">{report.reportType}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">{report.fo}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{formattedDateRange}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{formattedRequestedAt}</td>
+                        <td className="px-4 py-3 text-center">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full ${
                             report.status === "Preparing"
                               ? "bg-amber-50 text-amber-700 border border-amber-200"
                               : "bg-green-50 text-green-700 border border-green-200"
                           }`}>
                             {report.status}
-                            {report.status === "Ready" && <Download className="w-3 h-3" />}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm">{getExpiryDate(report.createdAt)}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 text-xs whitespace-nowrap">{formattedExpiry}</td>
+                        <td className="px-4 py-3 whitespace-nowrap">
                           {report.status === "Ready" ? (
                             <button className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium">
                               <Download className="w-4 h-4" /> Download
@@ -1758,13 +1768,8 @@ function AdminReports() {
                           )}
                         </td>
                       </tr>
-                      <tr>
-                        <td colSpan={7} className="px-4 py-2 bg-muted/20 text-xs text-muted-foreground">
-                          Available for 7 days · Expires on {getExpiryDate(report.createdAt)}
-                        </td>
-                      </tr>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
