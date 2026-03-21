@@ -455,10 +455,19 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                 }`}>
                   {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
                   {kpi.change}
-        </div>
-      )}
-
-      {/* Settlement Status & Activity */}
+                </div>
+              )}
+              {kpi.trend === "neutral" && (
+                <span className="text-xs font-medium text-amber-600">{kpi.change} used</span>
+              )}
+            </div>
+            <div className="mt-3">
+              <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+              <p className="text-xs text-muted-foreground">{kpi.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Settlement Overview */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border p-5">
