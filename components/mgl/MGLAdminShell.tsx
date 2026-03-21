@@ -72,11 +72,11 @@ function AdminUserManagement() {
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedUser, setSelectedUser] = useState<any>(null)
-  const [showAddUserModal, setShowAddUserModal] = useState(false)
-  const [formData, setFormData] = useState({
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [newUserForm, setNewUserForm] = useState({
     name: "", empId: "", email: "", mobile: "",
     role: "ZIC", mapping: "",
-    state: "Maharashtra", city: "", department: "", branch: ""
+    state: "", city: "", department: "", branch: ""
   })
   const [users, setUsers] = useState([
     { id: 1, empId: '2009', name: 'Bhushan Mayekar', email: 'mayekar.bhushan@mahanagargas.com', mobile: '8879136709', role: 'ZIC', mapping: 'NA', status: 'Pending', state: 'Maharashtra', city: 'Mumbai', department: 'Operations', branch: 'Andheri' },
@@ -109,17 +109,22 @@ function AdminUserManagement() {
 
   const handleAddUser = () => {
     const newUser = {
-      id: Math.max(...users.map(u => u.id), 0) + 1,
-      ...formData,
-      status: "Pending"
+      id: users.length + 1,
+      empId: newUserForm.empId,
+      name: newUserForm.name,
+      email: newUserForm.email,
+      mobile: newUserForm.mobile,
+      role: newUserForm.role,
+      mapping: newUserForm.mapping || 'NA',
+      state: newUserForm.state,
+      city: newUserForm.city,
+      department: newUserForm.department,
+      branch: newUserForm.branch,
+      status: 'Pending'
     }
     setUsers(prev => [...prev, newUser])
-    setShowAddUserModal(false)
-    setFormData({
-      name: "", empId: "", email: "", mobile: "",
-      role: "ZIC", mapping: "",
-      state: "Maharashtra", city: "", department: "", branch: ""
-    })
+    setShowAddModal(false)
+    setNewUserForm({ name: '', empId: '', email: '', mobile: '', role: 'ZIC', mapping: '', state: '', city: '', department: '', branch: '' })
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -213,7 +218,7 @@ function AdminUserManagement() {
           </select>
         </div>
         <button 
-          onClick={() => setShowAddUserModal(true)}
+          onClick={() => setShowAddModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
           + Add User
         </button>
@@ -454,14 +459,14 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
       )}
 
       {/* Add User Modal */}
-      {showAddUserModal && (
+      {showAddModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-card rounded-xl border border-border max-h-screen overflow-y-auto w-full max-w-2xl">
             {/* Modal Header */}
             <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
               <h2 className="font-bold text-lg text-foreground">Add New User</h2>
               <button
-                onClick={() => setShowAddUserModal(false)}
+                onClick={() => setShowAddModal(false)}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-5 h-5" />
@@ -478,8 +483,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Name</label>
                     <input
                       type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      value={newUserForm.name}
+                      onChange={(e) => setNewUserForm({...newUserForm, name: e.target.value})}
                       placeholder="Full name"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -488,8 +493,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Emp ID</label>
                     <input
                       type="text"
-                      value={formData.empId}
-                      onChange={(e) => setFormData({...formData, empId: e.target.value})}
+                      value={newUserForm.empId}
+                      onChange={(e) => setNewUserForm({...newUserForm, empId: e.target.value})}
                       placeholder="e.g., 2014"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -498,8 +503,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Email</label>
                     <input
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      value={newUserForm.email}
+                      onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
                       placeholder="name@mahanagargas.com"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -508,8 +513,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Mobile</label>
                     <input
                       type="text"
-                      value={formData.mobile}
-                      onChange={(e) => setFormData({...formData, mobile: e.target.value})}
+                      value={newUserForm.mobile}
+                      onChange={(e) => setNewUserForm({...newUserForm, mobile: e.target.value})}
                       placeholder="10-digit number"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -524,8 +529,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Role</label>
                     <select
-                      value={formData.role}
-                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      value={newUserForm.role}
+                      onChange={(e) => setNewUserForm({...newUserForm, role: e.target.value})}
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     >
                       <option value="MIC">MIC</option>
@@ -537,8 +542,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Mapping</label>
                     <input
                       type="text"
-                      value={formData.mapping}
-                      onChange={(e) => setFormData({...formData, mapping: e.target.value})}
+                      value={newUserForm.mapping}
+                      onChange={(e) => setNewUserForm({...newUserForm, mapping: e.target.value})}
                       placeholder="e.g., Mumbai Region"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -554,8 +559,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">State</label>
                     <input
                       type="text"
-                      value={formData.state}
-                      onChange={(e) => setFormData({...formData, state: e.target.value})}
+                      value={newUserForm.state}
+                      onChange={(e) => setNewUserForm({...newUserForm, state: e.target.value})}
                       placeholder="State"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -564,8 +569,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">City</label>
                     <input
                       type="text"
-                      value={formData.city}
-                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      value={newUserForm.city}
+                      onChange={(e) => setNewUserForm({...newUserForm, city: e.target.value})}
                       placeholder="City"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -574,8 +579,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Department</label>
                     <input
                       type="text"
-                      value={formData.department}
-                      onChange={(e) => setFormData({...formData, department: e.target.value})}
+                      value={newUserForm.department}
+                      onChange={(e) => setNewUserForm({...newUserForm, department: e.target.value})}
                       placeholder="Department"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -584,8 +589,8 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
                     <label className="text-xs font-medium text-muted-foreground">Branch</label>
                     <input
                       type="text"
-                      value={formData.branch}
-                      onChange={(e) => setFormData({...formData, branch: e.target.value})}
+                      value={newUserForm.branch}
+                      onChange={(e) => setNewUserForm({...newUserForm, branch: e.target.value})}
                       placeholder="Branch"
                       className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                     />
@@ -597,7 +602,7 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
             {/* Modal Footer */}
             <div className="border-t border-border p-6 flex gap-3 justify-end bg-muted/20">
               <button
-                onClick={() => setShowAddUserModal(false)}
+                onClick={() => setShowAddModal(false)}
                 className="px-4 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted"
               >
                 Cancel
