@@ -71,6 +71,9 @@ function AdminUserManagement() {
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [newUserForm, setNewUserForm] = useState({
@@ -190,52 +193,67 @@ function AdminUserManagement() {
       </div>
 
       {/* Search & Filters */}
-      <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-end">
-        <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground">Search</label>
-          <div className="relative mt-1">
+      <div className="space-y-4">
+        <div className="flex gap-3 items-center">
+          <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search by name, email, or emp ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card"
+              className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Filter className="w-4 h-4" />
+            Filters {((roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
+          </button>
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+            + Add User
+          </button>
         </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Role</label>
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-40 mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-          >
-            <option value="all">All</option>
-            <option value="MIC">MIC</option>
-            <option value="ZIC">ZIC</option>
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-40 mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-          >
-            <option value="all">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Pending">Pending</option>
-          </select>
-        </div>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-          + Add User
-        </button>
-      </div>
+
+        {showFilters && (
+          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">From Date</label>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">To Date</label>
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Role</label>
+                <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="MIC">MIC</option>
+                  <option value="ZIC">ZIC</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Status</label>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => { setFromDate(""); setToDate(""); setRoleFilter("all"); setStatusFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
+            </div>
+          </div>
+        )}
 
       {/* Users Table */}
       <div className="border border-border rounded-lg overflow-hidden">
@@ -684,6 +702,10 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
 function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [kycStatusFilter, setKycStatusFilter] = useState("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
 
   const fleetOperators = [
@@ -698,7 +720,8 @@ function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void 
     const matchesSearch = fo.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           fo.id.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === "all" || fo.status.toLowerCase() === statusFilter
-    return matchesSearch && matchesStatus
+    const matchesKycStatus = kycStatusFilter === "all" || fo.kycStatus === kycStatusFilter
+    return matchesSearch && matchesStatus && matchesKycStatus
   })
 
   return (
@@ -715,27 +738,61 @@ function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void 
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search by name or ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
+      <div className="space-y-4">
+        <div className="flex gap-3 items-center">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by name or ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Filter className="w-4 h-4" />
+            Filters {((statusFilter !== "all" ? 1 : 0) + (kycStatusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(statusFilter !== "all" ? 1 : 0) + (kycStatusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
+          </button>
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-        >
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-        </select>
-      </div>
+
+        {showFilters && (
+          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">From Date</label>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">To Date</label>
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Status</label>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">KYC Status</label>
+                <select value={kycStatusFilter} onChange={(e) => setKycStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="Verified">Verified</option>
+                  <option value="Expiring">Expiring</option>
+                  <option value="Expired">Expired</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => { setFromDate(""); setToDate(""); setStatusFilter("all"); setKycStatusFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
+            </div>
+          </div>
+        )}
 
       {/* FO Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -1159,6 +1216,11 @@ function CreateOfferModal({ onClose }: { onClose: () => void }) {
 function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [type, setType] = useState<"POS" | "Load">("POS")
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [channelFilter, setChannelFilter] = useState("all")
 
   const posTransactions = [
     { 
@@ -1268,6 +1330,55 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
         >
           Load
         </button>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="space-y-4">
+        <div className="flex gap-3 items-center">
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Filter className="w-4 h-4" />
+            Filters {((statusFilter !== "all" ? 1 : 0) + (channelFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(statusFilter !== "all" ? 1 : 0) + (channelFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">From Date</label>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">To Date</label>
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Status</label>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="Successful">Successful</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Failed">Failed</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Channel</label>
+                <select value={channelFilter} onChange={(e) => setChannelFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="POS">POS</option>
+                  <option value="Load">Load</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => { setFromDate(""); setToDate(""); setStatusFilter("all"); setChannelFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {type === "POS" && (
@@ -1562,6 +1673,10 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSettlement, setSelectedSettlement] = useState<any>(null)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+  const [dealershipFilter, setDealershipFilter] = useState("all")
 
   const settlementData = [
     {
@@ -1745,22 +1860,65 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
         </div>
       </div>
 
-      <div className="flex gap-3 items-center">
-        <input
-          type="text"
-          placeholder="Search by dealership or settlement ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground"
-        />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground">
-          <option value="all">All Status</option>
-          <option value="settled">Settled</option>
-          <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="on hold">On Hold</option>
-          <option value="failed">Failed</option>
-        </select>
+      <div className="space-y-4">
+        <div className="flex gap-3 items-center">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search by dealership or settlement ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Filter className="w-4 h-4" />
+            Filters {((statusFilter !== "all" ? 1 : 0) + (dealershipFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(statusFilter !== "all" ? 1 : 0) + (dealershipFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium text-foreground">From Date</label>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">To Date</label>
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Status</label>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All</option>
+                  <option value="settled">Settled</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="on hold">On Hold</option>
+                  <option value="failed">Failed</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground">Dealership</label>
+                <select value={dealershipFilter} onChange={(e) => setDealershipFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">All Dealerships</option>
+                  <option value="ABC Motors">ABC Motors</option>
+                  <option value="XYZ Auto">XYZ Auto</option>
+                  <option value="Prime Motors">Prime Motors</option>
+                  <option value="Elite Autos">Elite Autos</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => { setFromDate(""); setToDate(""); setStatusFilter("all"); setDealershipFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="border border-border rounded-lg overflow-hidden">
@@ -2096,56 +2254,60 @@ function AdminReports() {
       {/* Custom Report Builder */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h2 className="font-semibold mb-4">Custom Report Builder</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Report Type</label>
-            <select
-              value={reportType}
-              onChange={(e) => setReportType(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
-            >
-              <option>Transaction Report</option>
-              <option>Settlement Report</option>
-              <option>Incentive Report</option>
-            </select>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Report Type</label>
+              <select
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>Transaction Report</option>
+                <option>Settlement Report</option>
+                <option>Incentive Report</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">From Date</label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">To Date</label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Fleet Operator</label>
+              <select
+                value={foFilter}
+                onChange={(e) => setFoFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option>All FOs</option>
+                <option>ABC Logistics</option>
+                <option>Metro Freight</option>
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={handleGenerateReport}
+                className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+              >
+                Download Report
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">From</label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">To</label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Fleet Operator</label>
-            <select
-              value={foFilter}
-              onChange={(e) => setFoFilter(e.target.value)}
-              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
-            >
-              <option>All FOs</option>
-              <option>ABC Logistics</option>
-              <option>Metro Freight</option>
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={handleGenerateReport}
-              className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
-            >
-              Download Report
-            </button>
+        </div>
           </div>
         </div>
       </div>
