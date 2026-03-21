@@ -10,7 +10,7 @@ import {
   TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, Clock, CheckCircle, 
   AlertTriangle, ArrowRight, Search, Filter, Download, ChevronRight, Eye,
   Calendar, BarChart3, PieChart, Activity, Building2, ArrowRightLeft,
-  Play, Pause, Edit3, FileText, Settings, RefreshCw, AlertCircle, X, Check
+  Play, Pause, Edit3, FileText, Settings, RefreshCw, AlertCircle, X, Check, Plus
 } from "lucide-react"
 
 interface Props {
