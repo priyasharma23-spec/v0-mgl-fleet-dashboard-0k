@@ -722,12 +722,44 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
 
   const posTransactions = [
-    { id: "TXN001", dateTime: "Mar 21, 2024 10:30 AM", posId: "POS-001", dealership: "ABC Motors", fo: "ABC Logistics", amount: "₹50,000", status: "Successful" as const },
-    { id: "TXN002", dateTime: "Mar 21, 2024 10:15 AM", posId: "POS-002", dealership: "XYZ Auto", fo: "Metro Freight", amount: "₹15,000", status: "Successful" as const },
-    { id: "TXN003", dateTime: "Mar 21, 2024 09:45 AM", posId: "POS-003", dealership: "Prime Motors", fo: "Sunrise Transport", amount: "₹2,500", status: "Pending" as const },
-    { id: "TXN004", dateTime: "Mar 21, 2024 09:30 AM", posId: "POS-001", dealership: "ABC Motors", fo: "ABC Logistics", amount: "₹1,00,000", status: "Successful" as const },
-    { id: "TXN005", dateTime: "Mar 20, 2024 05:15 PM", posId: "POS-004", dealership: "Elite Autos", fo: "Global Transport", amount: "₹35,000", status: "Failed" as const },
-    { id: "TXN006", dateTime: "Mar 20, 2024 04:00 PM", posId: "POS-002", dealership: "XYZ Auto", fo: "Metro Freight", amount: "₹22,500", status: "Processing" as const },
+    { 
+      id: "42288", 
+      date: "02/03/2026", 
+      time: "01:33 PM", 
+      type: "debit", 
+      card: "xxxxxxxxxxxx1138", 
+      channel: "pos", 
+      product: "cng", 
+      amount: 14947, 
+      openingBalance: 58469, 
+      closingBalance: 43522, 
+      station: "MGL Hind CNG Filling Station", 
+      merchantCode: "100069", 
+      driver: "", 
+      vehicle: "MH47BY2770", 
+      reversedBy: "", 
+      reversalOf: "", 
+      status: "Successful" as const 
+    },
+    { 
+      id: "42287", 
+      date: "02/03/2026", 
+      time: "01:24 PM", 
+      type: "debit", 
+      card: "xxxxxxxxxxxx3175", 
+      channel: "pos", 
+      product: "cng", 
+      amount: 3260.6, 
+      openingBalance: 30742.9, 
+      closingBalance: 27482.3, 
+      station: "MGL Amul Chemicals Thane Belapur Road Rabale", 
+      merchantCode: "100119", 
+      driver: "", 
+      vehicle: "MH47BY1688", 
+      reversedBy: "", 
+      reversalOf: "", 
+      status: "Successful" as const 
+    },
   ]
 
   const loadTransactions = [
@@ -830,12 +862,12 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
                 <thead className="bg-muted border-b border-border">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">TXN ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date & Time</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">POS ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Dealership</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">FO</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Time</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Card</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Vehicle</th>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Station</th>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">Action</th>
                   </tr>
                 </thead>
@@ -843,14 +875,12 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
                   {posTransactions.map(txn => (
                     <tr key={txn.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3 font-medium">{txn.id}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{txn.dateTime}</td>
-                      <td className="px-4 py-3">{txn.posId}</td>
-                      <td className="px-4 py-3">{txn.dealership}</td>
-                      <td className="px-4 py-3">{txn.fo}</td>
-                      <td className="px-4 py-3 font-semibold">{txn.amount}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(txn.status)}`}>{txn.status}</span>
-                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{txn.date}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{txn.time}</td>
+                      <td className="px-4 py-3 font-mono text-xs">{txn.card}</td>
+                      <td className="px-4 py-3">{txn.vehicle}</td>
+                      <td className="px-4 py-3 font-semibold">₹{txn.amount.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-sm">{txn.station}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setSelectedTransaction(txn)}
@@ -943,7 +973,7 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
 
       {/* Transaction Details Tray with colored top border */}
       {selectedTransaction && (
-        <div className={`fixed bottom-0 right-0 top-0 w-96 bg-card border-l border-border shadow-lg overflow-y-auto z-50 border-t-4 transform transition-transform duration-300 ${getStatusBorderColor(selectedTransaction.status)}`}>
+        <div className={`fixed bottom-0 right-0 top-0 z-[61] w-full max-w-lg bg-card h-full overflow-y-auto shadow-xl border-l border-border border-t-4 transform transition-transform duration-300 ${getStatusBorderColor(selectedTransaction.status)}`}>
           {/* Sticky Header */}
           <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -963,43 +993,120 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
             </div>
           </div>
 
-          <div className="p-4 space-y-4">
-            {/* Transaction Info Card */}
+          <div className="p-4 space-y-4 pb-24">
+            {/* Card 1: Transaction Info */}
             <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">Transaction Info</p>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Date & Time:</span>
-                  <span className="font-semibold">{selectedTransaction.dateTime}</span>
+                  <span className="text-muted-foreground">ID:</span>
+                  <span className="font-semibold">{selectedTransaction.id}</span>
                 </div>
-                {type === "POS" && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">POS ID:</span>
-                      <span className="font-semibold">{selectedTransaction.posId}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Dealership:</span>
-                      <span className="font-semibold">{selectedTransaction.dealership}</span>
-                    </div>
-                  </>
-                )}
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Fleet Operator:</span>
-                  <span className="font-semibold">{selectedTransaction.fo}</span>
+                  <span className="text-muted-foreground">Date:</span>
+                  <span className="font-semibold">{selectedTransaction.date}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Time:</span>
+                  <span className="font-semibold">{selectedTransaction.time}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Type:</span>
+                  <span className={`inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full ${selectedTransaction.type === "debit" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                    {selectedTransaction.type}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Channel:</span>
+                  <span className="font-semibold capitalize">{selectedTransaction.channel}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Product:</span>
+                  <span className="font-semibold uppercase">{selectedTransaction.product}</span>
                 </div>
               </div>
             </div>
 
-            {/* Amount Card */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-semibold text-foreground">Amount</p>
-              <p className="text-2xl font-bold text-green-600">{selectedTransaction.amount}</p>
-              <p className="text-xs text-muted-foreground">Fuel purchase via CNG card</p>
+            {/* Card 2: Card & Vehicle */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Card & Vehicle</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Card:</span>
+                  <span className="font-mono text-xs">{selectedTransaction.card}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Vehicle:</span>
+                  <span className="font-semibold">{selectedTransaction.vehicle}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Driver:</span>
+                  <span className="font-semibold">{selectedTransaction.driver || "—"}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Download Receipt Button */}
-            <button className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors">
+            {/* Card 3: Station Info */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Station Info</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Station:</span>
+                  <span className="font-semibold text-right">{selectedTransaction.station}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Merchant Code:</span>
+                  <span className="font-semibold">{selectedTransaction.merchantCode}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Amount Details */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Amount Details</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Opening Balance:</span>
+                  <span className="font-semibold">₹{selectedTransaction.openingBalance.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Amount:</span>
+                  <span className={`text-lg font-bold ${selectedTransaction.type === "debit" ? "text-red-600" : "text-green-600"}`}>
+                    {selectedTransaction.type === "debit" ? "-" : "+"}₹{selectedTransaction.amount.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Closing Balance:</span>
+                  <span className="font-semibold">₹{selectedTransaction.closingBalance.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 5: Reversal Info (only if reversedBy or reversalOf) */}
+            {(selectedTransaction.reversedBy || selectedTransaction.reversalOf) && (
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-foreground">Reversal Info</p>
+                <div className="space-y-2 text-sm">
+                  {selectedTransaction.reversedBy && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Reversed By:</span>
+                      <span className="font-semibold">{selectedTransaction.reversedBy}</span>
+                    </div>
+                  )}
+                  {selectedTransaction.reversalOf && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Reversal Of:</span>
+                      <span className="font-semibold">{selectedTransaction.reversalOf}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Download Receipt Button - Fixed at bottom */}
+          <div className="fixed bottom-0 right-0 max-w-lg p-4 bg-card border-t border-border w-full">
+            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors">
               <Download className="w-4 h-4" />
               Download Receipt
             </button>
