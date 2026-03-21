@@ -388,6 +388,47 @@ function AdminUserManagement() {
           </div>
         </div>
       )}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowAddModal(false)}>
+          <div className="bg-card rounded-2xl border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <h2 className="font-semibold text-lg">Add New User</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-5 space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Personal Info</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-sm font-medium">Name</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.name} onChange={e => setNewUserForm(f => ({...f, name: e.target.value}))} placeholder="Full name" /></div>
+                  <div><label className="text-sm font-medium">Emp ID</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.empId} onChange={e => setNewUserForm(f => ({...f, empId: e.target.value}))} placeholder="Employee ID" /></div>
+                  <div><label className="text-sm font-medium">Email</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.email} onChange={e => setNewUserForm(f => ({...f, email: e.target.value}))} placeholder="email@mahanagargas.com" /></div>
+                  <div><label className="text-sm font-medium">Mobile</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.mobile} onChange={e => setNewUserForm(f => ({...f, mobile: e.target.value}))} placeholder="10-digit mobile" /></div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Role & Access</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-sm font-medium">Role</label><select className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm" value={newUserForm.role} onChange={e => setNewUserForm(f => ({...f, role: e.target.value}))}><option value="ZIC">ZIC</option><option value="MIC">MIC</option><option value="Admin">Admin</option></select></div>
+                  <div><label className="text-sm font-medium">Mapping</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.mapping} onChange={e => setNewUserForm(f => ({...f, mapping: e.target.value}))} placeholder="Region / Zone / NA" /></div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Location & Department</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-sm font-medium">State</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.state} onChange={e => setNewUserForm(f => ({...f, state: e.target.value}))} placeholder="State" /></div>
+                  <div><label className="text-sm font-medium">City</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.city} onChange={e => setNewUserForm(f => ({...f, city: e.target.value}))} placeholder="City" /></div>
+                  <div><label className="text-sm font-medium">Department</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.department} onChange={e => setNewUserForm(f => ({...f, department: e.target.value}))} placeholder="Department" /></div>
+                  <div><label className="text-sm font-medium">Branch</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.branch} onChange={e => setNewUserForm(f => ({...f, branch: e.target.value}))} placeholder="Branch" /></div>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowAddModal(false)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">Cancel</button>
+                <button onClick={handleAddUser} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Add User</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
