@@ -1383,7 +1383,7 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
 
       {/* Transaction Details Tray */}
       {selectedTransaction && (
-        <div className={`fixed bottom-0 right-0 top-0 max-w-md bg-card border-l border-border shadow-xl overflow-y-auto z-[61] transform transition-transform duration-300 border-t-4 ${
+        <div className={`fixed bottom-0 right-0 top-0 max-w-lg bg-card border-l border-border shadow-xl overflow-y-auto z-[61] transform transition-transform duration-300 border-t-4 ${
           selectedTransaction.status === "Successful" ? "border-t-green-600" :
           selectedTransaction.status === "Failed" ? "border-t-red-600" :
           selectedTransaction.status === "Pending" ? "border-t-yellow-600" : "border-t-blue-600"
