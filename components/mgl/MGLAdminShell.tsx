@@ -26,6 +26,7 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
     switch (activeView) {
       case "admin-dashboard": return <AdminDashboard onViewChange={setActiveView} />
       case "admin-fo-directory": return <AdminFODirectory onViewChange={setActiveView} />
+      case "admin-users": return <AdminDashboard onViewChange={setActiveView} />
       case "admin-cards": return <AdminCardsWallets onViewChange={setActiveView} />
       case "admin-incentives": return <AdminIncentives onViewChange={setActiveView} />
       case "admin-transactions": return <AdminTransactions onViewChange={setActiveView} />
