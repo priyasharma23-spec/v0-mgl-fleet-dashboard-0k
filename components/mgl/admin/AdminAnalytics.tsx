@@ -93,15 +93,21 @@ export default function AdminAnalytics() {
             <h3 className="font-semibold text-foreground">FO Registration Trend</h3>
             <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22% MoM</span>
           </div>
-          <div className="flex items-end gap-2 h-32">
-            {[{month: "Oct", value: 8}, {month: "Nov", value: 12}, {month: "Dec", value: 9}, {month: "Jan", value: 15}, {month: "Feb", value: 18}, {month: "Mar", value: 22}].map((item) => (
-              <div key={item.month} className="flex flex-col items-center flex-1 gap-1">
-                <span className="text-xs font-medium text-foreground">{item.value}</span>
-                <div className="w-full bg-green-500 rounded-t-sm" style={{height: `${(item.value/22)*100}%`}} />
-                <span className="text-xs text-muted-foreground">{item.month}</span>
+          {(() => {
+            const data = [{label:'Oct',value:8},{label:'Nov',value:12},{label:'Dec',value:9},{label:'Jan',value:15},{label:'Feb',value:18},{label:'Mar',value:22}]
+            const max = Math.max(...data.map(d => d.value))
+            return (
+              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
+                {data.map(d => (
+                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                    <span className="text-xs font-bold text-foreground">{d.value}</span>
+                    <div className="w-full bg-green-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
+                    <span className="text-xs text-muted-foreground">{d.label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </div>
 
         {/* Vehicle Registration Trend (MoM) */}
@@ -110,15 +116,21 @@ export default function AdminAnalytics() {
             <h3 className="font-semibold text-foreground">Vehicle Registration Trend</h3>
             <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18% MoM</span>
           </div>
-          <div className="flex items-end gap-2 h-32">
-            {[{month: "Oct", value: 45}, {month: "Nov", value: 62}, {month: "Dec", value: 58}, {month: "Jan", value: 78}, {month: "Feb", value: 95}, {month: "Mar", value: 112}].map((item) => (
-              <div key={item.month} className="flex flex-col items-center flex-1 gap-1">
-                <span className="text-xs font-medium text-foreground">{item.value}</span>
-                <div className="w-full bg-blue-500 rounded-t-sm" style={{height: `${(item.value/112)*100}%`}} />
-                <span className="text-xs text-muted-foreground">{item.month}</span>
+          {(() => {
+            const data = [{label:'Oct',value:45},{label:'Nov',value:62},{label:'Dec',value:58},{label:'Jan',value:78},{label:'Feb',value:95},{label:'Mar',value:112}]
+            const max = Math.max(...data.map(d => d.value))
+            return (
+              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
+                {data.map(d => (
+                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                    <span className="text-xs font-bold text-foreground">{d.value}</span>
+                    <div className="w-full bg-blue-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
+                    <span className="text-xs text-muted-foreground">{d.label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </div>
 
         {/* Self vs Assisted FO Onboarding */}
@@ -194,15 +206,21 @@ export default function AdminAnalytics() {
             <h3 className="font-semibold text-foreground">Transaction Trend</h3>
             <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15% MoM</span>
           </div>
-          <div className="flex items-end gap-2 h-32">
-            {[{month: "Oct", value: 1240}, {month: "Nov", value: 1580}, {month: "Dec", value: 1320}, {month: "Jan", value: 1890}, {month: "Feb", value: 2150}, {month: "Mar", value: 2480}].map((item) => (
-              <div key={item.month} className="flex flex-col items-center flex-1 gap-1">
-                <span className="text-xs font-medium text-foreground">{item.value.toLocaleString().slice(0, -1)}K</span>
-                <div className="w-full bg-purple-500 rounded-t-sm" style={{height: `${(item.value/2480)*100}%`}} />
-                <span className="text-xs text-muted-foreground">{item.month}</span>
+          {(() => {
+            const data = [{label:'Oct',value:1240},{label:'Nov',value:1580},{label:'Dec',value:1320},{label:'Jan',value:1890},{label:'Feb',value:2150},{label:'Mar',value:2480}]
+            const max = Math.max(...data.map(d => d.value))
+            return (
+              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
+                {data.map(d => (
+                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                    <span className="text-xs font-bold text-foreground">{(d.value/1000).toFixed(1)}K</span>
+                    <div className="w-full bg-purple-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
+                    <span className="text-xs text-muted-foreground">{d.label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </div>
       </div>
 
