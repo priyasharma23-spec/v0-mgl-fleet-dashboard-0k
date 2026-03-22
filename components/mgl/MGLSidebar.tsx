@@ -47,6 +47,7 @@ const foNavItems: NavItem[] = [
 const adminNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", view: "admin-dashboard" },
   { icon: Building2, label: "Fleet Operators", view: "admin-fo-directory" },
+  { icon: Users, label: "User Management", view: "admin-users" },
   { icon: CreditCard, label: "Cards & Wallets", view: "admin-cards" },
   { icon: Gift, label: "Incentives & Offers", view: "admin-incentives" },
   { icon: ArrowRightLeft, label: "Transactions", view: "admin-transactions", badge: 3 },
