@@ -124,7 +124,6 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
             </div>
           </div>
         ) : (
-          {/* FO Info */}
           <div className="space-y-3">
             {editMode && editData ? (
               <>
