@@ -150,6 +150,40 @@ export default function AdminAnalytics() {
           </div>
         </div>
       </div>
+
+      {/* Business Health */}
+      <div>
+        <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Card Activation Rate</p>
+              <p className="text-lg font-bold text-green-600">89%</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-green-500 h-2 rounded-full" style={{width: "89%"}} />
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Settlement Success Rate</p>
+              <p className="text-lg font-bold text-green-600">98.5%</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-green-500 h-2 rounded-full" style={{width: "98.5%"}} />
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Incentive Utilization</p>
+              <p className="text-lg font-bold text-amber-600">42%</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-amber-500 h-2 rounded-full" style={{width: "42%"}} />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

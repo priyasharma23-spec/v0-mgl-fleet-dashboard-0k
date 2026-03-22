@@ -123,37 +123,6 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
             </div>
           </div>
         </div>
-
-        {/* Business Health */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
-          <div className="grid grid-cols-1 gap-4">
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Card Activation Rate</span>
-                <span className="text-lg font-bold text-green-600">89%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[89%] bg-green-600" /></div>
-              <p className="text-xs text-muted-foreground mt-2">Target: 90%</p>
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Settlement Success Rate</span>
-                <span className="text-lg font-bold text-green-600">98.5%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[98.5%] bg-green-600" /></div>
-              <p className="text-xs text-muted-foreground mt-2">Excellent performance</p>
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Incentive Utilization</span>
-                <span className="text-lg font-bold text-amber-600">42%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[42%] bg-amber-600" /></div>
-              <p className="text-xs text-muted-foreground mt-2">Moderate usage</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Recent Activity */}
