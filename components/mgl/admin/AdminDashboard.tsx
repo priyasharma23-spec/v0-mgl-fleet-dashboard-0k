@@ -39,7 +39,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
           <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground">System overview and operations monitoring</p>
           <div className="flex items-center gap-2 mt-2">
-            <Wallet className="w-4 h-4 text-green-600" />
+            <Building2 className="w-4 h-4 text-green-600" />
             <span className="text-sm font-bold text-green-800">Available Balance: ₹4.2Cr</span>
             <span className="text-xs text-muted-foreground">• Fetched at Mar 23, 2026 12:25 AM</span>
             <button className="p-1 hover:bg-green-100 rounded-lg transition-colors">
@@ -51,7 +51,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
           <button className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
             <RefreshCw className="w-4 h-4 text-muted-foreground" />
           </button>
-          <span className="text-xs text-muted-foreground">2 mins ago</span>
+          <span className="text-xs text-muted-foreground">Board refreshed 2 mins ago</span>
         </div>
       </div>
 
