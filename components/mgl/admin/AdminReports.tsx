@@ -46,9 +46,15 @@ export default function AdminReports() {
 
   return (
     <div className="flex flex-col gap-5 p-5">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">MIS & Reports</h1>
-        <p className="text-sm text-muted-foreground">Generate and download compliance and business reports</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">MIS & Reports</h1>
+          <p className="text-sm text-muted-foreground">Generate and download compliance and business reports</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Download className="w-4 h-4" />
+          Export
+        </button>
       </div>
 
       {/* Quick Reports */}

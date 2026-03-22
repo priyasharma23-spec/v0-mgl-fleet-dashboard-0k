@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, X } from "lucide-react"
+import { Search, Filter, X, Download } from "lucide-react"
 
 export default function AdminUserManagement() {
   const [search, setSearch] = useState("")
@@ -119,9 +119,15 @@ export default function AdminUserManagement() {
 
   return (
     <div className="flex flex-col gap-5 p-5">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">User Management </h1>
-        <p className="text-sm text-muted-foreground">Manage MGL portal users and access control</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">User Management </h1>
+          <p className="text-sm text-muted-foreground">Manage MGL portal users and access control</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Download className="w-4 h-4" />
+          Export
+        </button>
       </div>
 
       {/* Summary Cards */}

@@ -129,9 +129,15 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
 
   return (
     <div className="flex flex-col gap-5 p-5">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">Fleet Operator Directory</h1>
-        <p className="text-sm text-muted-foreground">View and manage all registered fleet operators</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Fleet Operator Directory</h1>
+          <p className="text-sm text-muted-foreground">View and manage all registered fleet operators</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+          <Download className="w-4 h-4" />
+          Export
+        </button>
       </div>
 
       {/* Search Row */}
