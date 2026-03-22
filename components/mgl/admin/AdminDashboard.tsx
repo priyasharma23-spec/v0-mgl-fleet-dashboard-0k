@@ -49,38 +49,61 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
-        {kpis.map((kpi, i) => (
-          <div key={i} className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-start justify-between">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                kpi.color === "blue" ? "bg-blue-100" :
-                kpi.color === "green" ? "bg-green-100" :
-                kpi.color === "purple" ? "bg-purple-100" : "bg-amber-100"
-              }`}>
-                <kpi.icon className={`w-5 h-5 ${
-                  kpi.color === "blue" ? "text-blue-600" :
-                  kpi.color === "green" ? "text-green-600" :
-                  kpi.color === "purple" ? "text-purple-600" : "text-amber-600"
-                }`} />
-              </div>
-              {kpi.trend !== "neutral" && (
-                <div className={`flex items-center gap-1 text-xs font-medium ${
-                  kpi.trend === "up" ? "text-green-600" : "text-red-600"
-                }`}>
-                  {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {kpi.change}
+        {kpis.map((kpi, i) => {
+          if (kpi.label === "Today's Settlement") {
+            return (
+              <div key={i} className="bg-card rounded-xl border border-border p-4">
+                <div className="flex items-start justify-between">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <ArrowRightLeft className="w-5 h-5 text-green-600" />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">Today</span>
                 </div>
-              )}
-              {kpi.trend === "neutral" && (
-                <span className="text-xs font-medium text-amber-600">{kpi.change}</span>
-              )}
+                <div className="mt-3">
+                  <p className="text-2xl font-bold text-foreground">₹45.8L</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Today's Settlement</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-green-600 font-medium">156 txns</span>
+                    <span className="text-xs text-muted-foreground">•</span>
+                    <span className="text-xs text-blue-600 font-medium">12 dealerships</span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <div key={i} className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-start justify-between">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  kpi.color === "blue" ? "bg-blue-100" :
+                  kpi.color === "green" ? "bg-green-100" :
+                  kpi.color === "purple" ? "bg-purple-100" : "bg-amber-100"
+                }`}>
+                  <kpi.icon className={`w-5 h-5 ${
+                    kpi.color === "blue" ? "text-blue-600" :
+                    kpi.color === "green" ? "text-green-600" :
+                    kpi.color === "purple" ? "text-purple-600" : "text-amber-600"
+                  }`} />
+                </div>
+                {kpi.trend !== "neutral" && (
+                  <div className={`flex items-center gap-1 text-xs font-medium ${
+                    kpi.trend === "up" ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {kpi.change}
+                  </div>
+                )}
+                {kpi.trend === "neutral" && (
+                  <span className="text-xs font-medium text-amber-600">{kpi.change}</span>
+                )}
+              </div>
+              <div className="mt-3">
+                <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+                <p className="text-xs text-muted-foreground">{kpi.label}</p>
+              </div>
             </div>
-            <div className="mt-3">
-              <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
-              <p className="text-xs text-muted-foreground">{kpi.label}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Quick Actions */}
