@@ -140,6 +140,19 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
                 <p className="text-xs text-muted-foreground">{fo.vehicles} vehicles</p>
               </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                <p className="text-xs text-green-700">Incentive Wallet</p>
+                <p className="text-lg font-bold text-green-900">{fo.incentiveWallet}</p>
+                <p className="text-xs text-green-600">MGL Funded</p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+                <p className="text-xs text-blue-700">Cashback Earned</p>
+                <p className="text-lg font-bold text-blue-900">{fo.cashback}</p>
+                <p className="text-xs text-blue-600">Lifetime</p>
+              </div>
+            </div>
           </div>
 
           {/* Bank Account Details */}
@@ -262,11 +275,11 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
 
   const fleetOperators = [
-    { id: "FO001", name: "ABC Logistics Pvt. Ltd.", region: "Mumbai", status: "Active", vehicles: 15, cards: 12, parentWallet: "₹2.4L", kycStatus: "Verified", joinedDate: "Jan 2025", bankName: "HDFC Bank", accountNumber: "****4521", ifsc: "HDFC0001234", accountType: "Current" },
-    { id: "FO002", name: "Metro Freight Solutions", region: "Pune", status: "Active", vehicles: 20, cards: 18, parentWallet: "₹5.1L", kycStatus: "Verified", joinedDate: "Mar 2025", bankName: "ICICI Bank", accountNumber: "****7890", ifsc: "ICIC0005678", accountType: "Savings" },
-    { id: "FO003", name: "Sunrise Transport Co.", region: "Thane", status: "Active", vehicles: 8, cards: 8, parentWallet: "₹1.2L", kycStatus: "Expiring", joinedDate: "Dec 2024", bankName: "Axis Bank", accountNumber: "****3456", ifsc: "UTIB0001111", accountType: "Current" },
-    { id: "FO004", name: "Quick Move Logistics", region: "Navi Mumbai", status: "Suspended", vehicles: 5, cards: 3, parentWallet: "₹0", kycStatus: "Expired", joinedDate: "Nov 2024", bankName: "Kotak Bank", accountNumber: "****9012", ifsc: "KKBK0002222", accountType: "Savings" },
-    { id: "FO005", name: "City Express Carriers", region: "Mumbai", status: "Active", vehicles: 25, cards: 22, parentWallet: "₹8.3L", kycStatus: "Verified", joinedDate: "Feb 2025", bankName: "Yes Bank", accountNumber: "****5678", ifsc: "YESB0003333", accountType: "Current" },
+    { id: "FO001", name: "ABC Logistics Pvt. Ltd.", region: "Mumbai", status: "Active", vehicles: 15, cards: 12, parentWallet: "₹2.4L", kycStatus: "Verified", joinedDate: "Jan 2025", bankName: "HDFC Bank", accountNumber: "****4521", ifsc: "HDFC0001234", accountType: "Current", incentiveWallet: "₹2.4L", cashback: "₹12,500" },
+    { id: "FO002", name: "Metro Freight Solutions", region: "Pune", status: "Active", vehicles: 20, cards: 18, parentWallet: "₹5.1L", kycStatus: "Verified", joinedDate: "Mar 2025", bankName: "ICICI Bank", accountNumber: "****7890", ifsc: "ICIC0005678", accountType: "Savings", incentiveWallet: "₹3.8L", cashback: "₹28,900" },
+    { id: "FO003", name: "Sunrise Transport Co.", region: "Thane", status: "Active", vehicles: 8, cards: 8, parentWallet: "₹1.2L", kycStatus: "Expiring", joinedDate: "Dec 2024", bankName: "Axis Bank", accountNumber: "****3456", ifsc: "UTIB0001111", accountType: "Current", incentiveWallet: "₹0.8L", cashback: "₹5,200" },
+    { id: "FO004", name: "Quick Move Logistics", region: "Navi Mumbai", status: "Suspended", vehicles: 5, cards: 3, parentWallet: "₹0", kycStatus: "Expired", joinedDate: "Nov 2024", bankName: "Kotak Bank", accountNumber: "****9012", ifsc: "KKBK0002222", accountType: "Savings", incentiveWallet: "₹0.2L", cashback: "₹1,800" },
+    { id: "FO005", name: "City Express Carriers", region: "Mumbai", status: "Active", vehicles: 25, cards: 22, parentWallet: "₹8.3L", kycStatus: "Verified", joinedDate: "Feb 2025", bankName: "Yes Bank", accountNumber: "****5678", ifsc: "YESB0003333", accountType: "Current", incentiveWallet: "₹5.2L", cashback: "₹42,100" },
   ]
 
   const getActiveFilterCount = () => {
