@@ -71,17 +71,13 @@ function AdminUserManagement() {
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [showFilters, setShowFilters] = useState(false)
-  const [fromDate, setFromDate] = useState("")
-  const [toDate, setToDate] = useState("")
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [newUserForm, setNewUserForm] = useState({
     name: "", empId: "", email: "", mobile: "",
-    role: "", mapping: "",
+    role: "ZIC", mapping: "",
     state: "", city: "", department: "", branch: ""
   })
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [users, setUsers] = useState([
     { id: 1, empId: '2009', name: 'Bhushan Mayekar', email: 'mayekar.bhushan@mahanagargas.com', mobile: '8879136709', role: 'ZIC', mapping: 'NA', status: 'Pending', state: 'Maharashtra', city: 'Mumbai', department: 'Operations', branch: 'Andheri' },
     { id: 2, empId: '2010', name: 'Rajesh Kumar', email: 'rajesh.kumar@mahanagargas.com', mobile: '9876543210', role: 'MIC', mapping: 'Mumbai Region', status: 'Active', state: 'Maharashtra', city: 'Mumbai', department: 'Sales', branch: 'Bandra' },
@@ -112,17 +108,6 @@ function AdminUserManagement() {
   }
 
   const handleAddUser = () => {
-    const errors: Record<string, string> = {}
-    if (!newUserForm.name.trim()) errors.name = "This field is required"
-    if (!newUserForm.empId.trim()) errors.empId = "This field is required"
-    if (!newUserForm.mobile.trim()) errors.mobile = "This field is required"
-    if (!newUserForm.role) errors.role = "This field is required"
-    
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors)
-      return
-    }
-    
     const newUser = {
       id: users.length + 1,
       empId: newUserForm.empId,
@@ -139,8 +124,7 @@ function AdminUserManagement() {
     }
     setUsers(prev => [...prev, newUser])
     setShowAddModal(false)
-    setFormErrors({})
-    setNewUserForm({ name: '', empId: '', email: '', mobile: '', role: '', mapping: '', state: '', city: '', department: '', branch: '' })
+    setNewUserForm({ name: '', empId: '', email: '', mobile: '', role: 'ZIC', mapping: '', state: '', city: '', department: '', branch: '' })
   }
 
   const getRoleBadgeColor = (role: string) => {
@@ -193,67 +177,51 @@ function AdminUserManagement() {
       </div>
 
       {/* Search & Filters */}
-      <div className="space-y-4">
-        <div className="flex gap-3 items-center">
-          <div className="flex-1 relative">
+      <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-end">
+        <div className="flex-1">
+          <label className="text-xs font-medium text-muted-foreground">Search</label>
+          <div className="relative mt-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search by name, email, or emp ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card"
             />
           </div>
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-            <Filter className="w-4 h-4" />
-            Filters {((roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
-          </button>
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-            + Add User
-          </button>
         </div>
-
-        {showFilters && (
-          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">From Date</label>
-                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">To Date</label>
-                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Role</label>
-                <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="MIC">MIC</option>
-                  <option value="ZIC">ZIC</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Status</label>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Pending">Pending</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => { setFromDate(""); setToDate(""); setRoleFilter("all"); setStatusFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
-            </div>
-          </div>
-        )}
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Role</label>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="w-40 mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+          >
+            <option value="all">All</option>
+            <option value="MIC">MIC</option>
+            <option value="ZIC">ZIC</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Status</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-40 mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+          >
+            <option value="all">All</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Pending">Pending</option>
+          </select>
+        </div>
+        <button 
+          onClick={() => setShowAddModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+          + Add User
+        </button>
       </div>
 
       {/* Users Table */}
@@ -420,107 +388,6 @@ function AdminUserManagement() {
           </div>
         </div>
       )}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowAddModal(false)}>
-          <div className="bg-card rounded-2xl border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
-              <h2 className="font-semibold text-lg text-foreground">Add New User</h2>
-              <button onClick={() => setShowAddModal(false)} className="p-1 hover:bg-muted rounded-lg"><X className="w-5 h-5 text-muted-foreground" /></button>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Personal Info</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Name <span className="text-red-500">*</span></label>
-                    <input type="text" className={`w-full mt-1.5 px-3 py-2.5 rounded-lg border ${formErrors.name ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-blue-500'} bg-input text-sm focus:outline-none focus:ring-2`} value={newUserForm.name} onChange={e => { setNewUserForm(f => ({...f, name: e.target.value})); setFormErrors(prev => ({...prev, name: ''})) }} placeholder="Full name" />
-                    {formErrors.name && <p className="text-xs text-red-500 mt-1">{formErrors.name}</p>}
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Employee ID <span className="text-red-500">*</span></label>
-                    <input type="text" className={`w-full mt-1.5 px-3 py-2.5 rounded-lg border ${formErrors.empId ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-blue-500'} bg-input text-sm focus:outline-none focus:ring-2`} value={newUserForm.empId} onChange={e => { setNewUserForm(f => ({...f, empId: e.target.value})); setFormErrors(prev => ({...prev, empId: ''})) }} placeholder="Employee ID" />
-                    {formErrors.empId && <p className="text-xs text-red-500 mt-1">{formErrors.empId}</p>}
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Email</label>
-                    <input type="email" className="w-full mt-1.5 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={newUserForm.email} onChange={e => setNewUserForm(f => ({...f, email: e.target.value}))} placeholder="email@mahanagargas.com" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Mobile <span className="text-red-500">*</span></label>
-                    <input type="tel" className={`w-full mt-1.5 px-3 py-2.5 rounded-lg border ${formErrors.mobile ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-blue-500'} bg-input text-sm focus:outline-none focus:ring-2`} value={newUserForm.mobile} onChange={e => { setNewUserForm(f => ({...f, mobile: e.target.value})); setFormErrors(prev => ({...prev, mobile: ''})) }} placeholder="10-digit mobile number" />
-                    {formErrors.mobile && <p className="text-xs text-red-500 mt-1">{formErrors.mobile}</p>}
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border"></div>
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Role & Access</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Role <span className="text-red-500">*</span></label>
-                    <select className={`w-full mt-1.5 px-3 py-2.5 rounded-lg border ${formErrors.role ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-blue-500'} bg-card text-sm focus:outline-none focus:ring-2`} value={newUserForm.role} onChange={e => { setNewUserForm(f => ({...f, role: e.target.value})); setFormErrors(prev => ({...prev, role: ''})) }}>
-                      <option value="">Select Role</option>
-                      <option value="ZIC">ZIC</option>
-                      <option value="MIC">MIC</option>
-                      <option value="Admin">Admin</option>
-                    </select>
-                    {formErrors.role && <p className="text-xs text-red-500 mt-1">{formErrors.role}</p>}
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Mapping</label>
-                    <input type="text" className="w-full mt-1.5 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={newUserForm.mapping} onChange={e => setNewUserForm(f => ({...f, mapping: e.target.value}))} placeholder="Region / Zone / NA" />
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border"></div>
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Location & Department</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-foreground">State</label>
-                    <select className="w-full mt-1.5 px-3 py-2.5 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={newUserForm.state} onChange={e => setNewUserForm(f => ({...f, state: e.target.value}))}>
-                      <option value="">Select State</option>
-                      <option value="Maharashtra">Maharashtra</option>
-                      <option value="Delhi">Delhi</option>
-                      <option value="Karnataka">Karnataka</option>
-                      <option value="Tamil Nadu">Tamil Nadu</option>
-                      <option value="Gujarat">Gujarat</option>
-                      <option value="Rajasthan">Rajasthan</option>
-                      <option value="Uttar Pradesh">Uttar Pradesh</option>
-                      <option value="West Bengal">West Bengal</option>
-                      <option value="Telangana">Telangana</option>
-                      <option value="Kerala">Kerala</option>
-                      <option value="Punjab">Punjab</option>
-                      <option value="Haryana">Haryana</option>
-                      <option value="Madhya Pradesh">Madhya Pradesh</option>
-                      <option value="Bihar">Bihar</option>
-                      <option value="Odisha">Odisha</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">City</label>
-                    <input type="text" className="w-full mt-1.5 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={newUserForm.city} onChange={e => setNewUserForm(f => ({...f, city: e.target.value}))} placeholder="City" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Department</label>
-                    <input type="text" className="w-full mt-1.5 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={newUserForm.department} onChange={e => setNewUserForm(f => ({...f, department: e.target.value}))} placeholder="Department" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground">Branch</label>
-                    <input type="text" className="w-full mt-1.5 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={newUserForm.branch} onChange={e => setNewUserForm(f => ({...f, branch: e.target.value}))} placeholder="Branch" />
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-border"></div>
-              <div className="flex gap-3 pt-2">
-                <button onClick={() => setShowAddModal(false)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">Cancel</button>
-                <button onClick={handleAddUser} className="flex-1 py-2.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors">Add User</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -592,6 +459,48 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
               )}
               {kpi.trend === "neutral" && (
                 <span className="text-xs font-medium text-amber-600">{kpi.change} used</span>
+      )}
+
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowAddModal(false)}>
+          <div className="bg-card rounded-2xl border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <h2 className="font-semibold text-lg">Add New User</h2>
+              <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-5 space-y-5">
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Personal Info</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-sm font-medium">Name</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.name} onChange={e => setNewUserForm(f => ({...f, name: e.target.value}))} placeholder="Full name" /></div>
+                  <div><label className="text-sm font-medium">Emp ID</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.empId} onChange={e => setNewUserForm(f => ({...f, empId: e.target.value}))} placeholder="Employee ID" /></div>
+                  <div><label className="text-sm font-medium">Email</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.email} onChange={e => setNewUserForm(f => ({...f, email: e.target.value}))} placeholder="email@mahanagargas.com" /></div>
+                  <div><label className="text-sm font-medium">Mobile</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.mobile} onChange={e => setNewUserForm(f => ({...f, mobile: e.target.value}))} placeholder="10-digit mobile" /></div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Role & Access</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-sm font-medium">Role</label><select className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm" value={newUserForm.role} onChange={e => setNewUserForm(f => ({...f, role: e.target.value}))}><option value="ZIC">ZIC</option><option value="MIC">MIC</option><option value="Admin">Admin</option></select></div>
+                  <div><label className="text-sm font-medium">Mapping</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.mapping} onChange={e => setNewUserForm(f => ({...f, mapping: e.target.value}))} placeholder="Region / Zone / NA" /></div>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Location & Department</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-sm font-medium">State</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.state} onChange={e => setNewUserForm(f => ({...f, state: e.target.value}))} placeholder="State" /></div>
+                  <div><label className="text-sm font-medium">City</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.city} onChange={e => setNewUserForm(f => ({...f, city: e.target.value}))} placeholder="City" /></div>
+                  <div><label className="text-sm font-medium">Department</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.department} onChange={e => setNewUserForm(f => ({...f, department: e.target.value}))} placeholder="Department" /></div>
+                  <div><label className="text-sm font-medium">Branch</label><input className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-input text-sm" value={newUserForm.branch} onChange={e => setNewUserForm(f => ({...f, branch: e.target.value}))} placeholder="Branch" /></div>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowAddModal(false)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">Cancel</button>
+                <button onClick={handleAddUser} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Add User</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
             <div className="mt-3">
@@ -703,10 +612,6 @@ function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void })
 function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [kycStatusFilter, setKycStatusFilter] = useState("all")
-  const [showFilters, setShowFilters] = useState(false)
-  const [fromDate, setFromDate] = useState("")
-  const [toDate, setToDate] = useState("")
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
 
   const fleetOperators = [
@@ -721,8 +626,7 @@ function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void 
     const matchesSearch = fo.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           fo.id.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === "all" || fo.status.toLowerCase() === statusFilter
-    const matchesKycStatus = kycStatusFilter === "all" || fo.kycStatus === kycStatusFilter
-    return matchesSearch && matchesStatus && matchesKycStatus
+    return matchesSearch && matchesStatus
   })
 
   return (
@@ -739,61 +643,27 @@ function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void 
       </div>
 
       {/* Filters */}
-      <div className="space-y-4">
-        <div className="flex gap-3 items-center">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search by name or ID..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-            <Filter className="w-4 h-4" />
-            Filters {((statusFilter !== "all" ? 1 : 0) + (kycStatusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(statusFilter !== "all" ? 1 : 0) + (kycStatusFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
-          </button>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search by name or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
         </div>
-
-        {showFilters && (
-          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">From Date</label>
-                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">To Date</label>
-                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Status</label>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="active">Active</option>
-                  <option value="suspended">Suspended</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">KYC Status</label>
-                <select value={kycStatusFilter} onChange={(e) => setKycStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="Verified">Verified</option>
-                  <option value="Expiring">Expiring</option>
-                  <option value="Expired">Expired</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => { setFromDate(""); setToDate(""); setStatusFilter("all"); setKycStatusFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
-            </div>
-          </div>
-        )}
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-4 py-2.5 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="suspended">Suspended</option>
+        </select>
+      </div>
 
       {/* FO Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -1217,11 +1087,6 @@ function CreateOfferModal({ onClose }: { onClose: () => void }) {
 function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [type, setType] = useState<"POS" | "Load">("POS")
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
-  const [showFilters, setShowFilters] = useState(false)
-  const [fromDate, setFromDate] = useState("")
-  const [toDate, setToDate] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [channelFilter, setChannelFilter] = useState("all")
 
   const posTransactions = [
     { 
@@ -1331,55 +1196,6 @@ function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void
         >
           Load
         </button>
-      </div>
-
-      {/* Filter Bar */}
-      <div className="space-y-4">
-        <div className="flex gap-3 items-center">
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-            <Filter className="w-4 h-4" />
-            Filters {((statusFilter !== "all" ? 1 : 0) + (channelFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(statusFilter !== "all" ? 1 : 0) + (channelFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
-          </button>
-        </div>
-
-        {showFilters && (
-          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">From Date</label>
-                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">To Date</label>
-                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Status</label>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="Successful">Successful</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Failed">Failed</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Channel</label>
-                <select value={channelFilter} onChange={(e) => setChannelFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="POS">POS</option>
-                  <option value="Load">Load</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => { setFromDate(""); setToDate(""); setStatusFilter("all"); setChannelFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
-            </div>
-          </div>
-        )}
       </div>
 
       {type === "POS" && (
@@ -1674,10 +1490,6 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSettlement, setSelectedSettlement] = useState<any>(null)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
-  const [showFilters, setShowFilters] = useState(false)
-  const [fromDate, setFromDate] = useState("")
-  const [toDate, setToDate] = useState("")
-  const [dealershipFilter, setDealershipFilter] = useState("all")
 
   const settlementData = [
     {
@@ -1861,65 +1673,22 @@ function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void 
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex gap-3 items-center">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search by dealership or settlement ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button 
-            onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-            <Filter className="w-4 h-4" />
-            Filters {((statusFilter !== "all" ? 1 : 0) + (dealershipFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)) > 0 && <span className="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs bg-blue-500 text-white rounded-full">{(statusFilter !== "all" ? 1 : 0) + (dealershipFilter !== "all" ? 1 : 0) + (fromDate ? 1 : 0) + (toDate ? 1 : 0)}</span>}
-          </button>
-        </div>
-
-        {showFilters && (
-          <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">From Date</label>
-                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">To Date</label>
-                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Status</label>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All</option>
-                  <option value="settled">Settled</option>
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
-                  <option value="on hold">On Hold</option>
-                  <option value="failed">Failed</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Dealership</label>
-                <select value={dealershipFilter} onChange={(e) => setDealershipFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All Dealerships</option>
-                  <option value="ABC Motors">ABC Motors</option>
-                  <option value="XYZ Auto">XYZ Auto</option>
-                  <option value="Prime Motors">Prime Motors</option>
-                  <option value="Elite Autos">Elite Autos</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => { setFromDate(""); setToDate(""); setStatusFilter("all"); setDealershipFilter("all"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Apply Filters</button>
-            </div>
-          </div>
-        )}
+      <div className="flex gap-3 items-center">
+        <input
+          type="text"
+          placeholder="Search by dealership or settlement ID..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-1 px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground"
+        />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground">
+          <option value="all">All Status</option>
+          <option value="settled">Settled</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="on hold">On Hold</option>
+          <option value="failed">Failed</option>
+        </select>
       </div>
 
       <div className="border border-border rounded-lg overflow-hidden">
@@ -2255,60 +2024,56 @@ function AdminReports() {
       {/* Custom Report Builder */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h2 className="font-semibold mb-4">Custom Report Builder</h2>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Report Type</label>
-              <select
-                value={reportType}
-                onChange={(e) => setReportType(e.target.value)}
-                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option>Transaction Report</option>
-                <option>Settlement Report</option>
-                <option>Incentive Report</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-foreground">From Date</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-foreground">To Date</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Fleet Operator</label>
-              <select
-                value={foFilter}
-                onChange={(e) => setFoFilter(e.target.value)}
-                className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option>All FOs</option>
-                <option>ABC Logistics</option>
-                <option>Metro Freight</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <button
-                onClick={handleGenerateReport}
-                className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
-              >
-                Download Report
-              </button>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Report Type</label>
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            >
+              <option>Transaction Report</option>
+              <option>Settlement Report</option>
+              <option>Incentive Report</option>
+            </select>
           </div>
-        </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">From</label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">To</label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Fleet Operator</label>
+            <select
+              value={foFilter}
+              onChange={(e) => setFoFilter(e.target.value)}
+              className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-sm"
+            >
+              <option>All FOs</option>
+              <option>ABC Logistics</option>
+              <option>Metro Freight</option>
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button
+              onClick={handleGenerateReport}
+              className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+            >
+              Download Report
+            </button>
           </div>
         </div>
       </div>
