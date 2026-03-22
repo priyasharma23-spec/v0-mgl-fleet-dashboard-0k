@@ -58,82 +58,62 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
-      {/* Top Performing FOs */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold text-foreground">Top Performing FOs</h2>
-          <button className="text-xs text-primary font-medium hover:underline flex items-center gap-1">View All <ArrowRight className="w-3 h-3" /></button>
+      {/* Transaction Trend (MoM) */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-semibold text-foreground">Transaction Trend</h3>
+          <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15% MoM</span>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">5 Fleet Operators • 9,685 transactions • ₹147.9L volume</p>
-        <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-border">
-              <th className="px-4 py-3 text-left font-semibold text-foreground">FO Name</th>
-              <th className="px-4 py-3 text-left font-semibold text-foreground">Region</th>
-              <th className="px-4 py-3 text-center font-semibold text-foreground">Transactions</th>
-              <th className="px-4 py-3 text-center font-semibold text-foreground">Volume</th>
-              <th className="px-4 py-3 text-center font-semibold text-foreground">Cards Active</th>
-            </tr></thead>
-            <tbody>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥇</span>ABC Logistics</td><td className="px-4 py-3 text-muted-foreground">Mumbai</td><td className="px-4 py-3 text-center">2,847</td><td className="px-4 py-3 text-center">₹45.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">12</span></td></tr>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥈</span>Metro Freight</td><td className="px-4 py-3 text-muted-foreground">Pune</td><td className="px-4 py-3 text-center">2,156</td><td className="px-4 py-3 text-center">₹32.4L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">18</span></td></tr>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥉</span>City Express</td><td className="px-4 py-3 text-muted-foreground">Thane</td><td className="px-4 py-3 text-center">1,945</td><td className="px-4 py-3 text-center">₹28.6L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">22</span></td></tr>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Sunrise Transport</td><td className="px-4 py-3 text-muted-foreground">Navi Mumbai</td><td className="px-4 py-3 text-center">1,534</td><td className="px-4 py-3 text-center">₹22.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">8</span></td></tr>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Quick Move</td><td className="px-4 py-3 text-muted-foreground">Nashik</td><td className="px-4 py-3 text-center">1,203</td><td className="px-4 py-3 text-center">₹18.5L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">3</span></td></tr>
-              <tr className="border-t-2 border-border bg-muted/30"><td className="px-4 py-3 font-bold text-foreground">Total</td><td className="px-4 py-3 font-bold text-foreground">—</td><td className="px-4 py-3 text-center font-bold text-foreground">9,685</td><td className="px-4 py-3 text-center font-bold text-foreground">₹147.9L</td><td className="px-4 py-3 text-center font-bold text-foreground">63</td></tr>
-            </tbody>
-          </table>
-        </div>
+        {(() => {
+          const data = [{label:'Oct',value:1240},{label:'Nov',value:1580},{label:'Dec',value:1320},{label:'Jan',value:1890},{label:'Feb',value:2150},{label:'Mar',value:2480}]
+          const max = Math.max(...data.map(d => d.value))
+          return (
+            <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
+              {data.map(d => (
+                <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                  <span className="text-xs font-bold text-foreground">{(d.value/1000).toFixed(1)}K</span>
+                  <div className="w-full bg-purple-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
+                  <span className="text-xs text-muted-foreground">{d.label}</span>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
       </div>
 
-      {/* Charts */}
+      {/* Transaction Trend by Time of Day - Full Width */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-foreground">Transaction Trend by Time of Day</h2>
+          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">Peak: 9AM-12PM</span>
+        </div>
+        {(() => {
+          const slots = [
+            { label: '6AM-9AM', pct: 15, peak: false },
+            { label: '9AM-12PM', pct: 28, peak: true },
+            { label: '12PM-3PM', pct: 22, peak: false },
+            { label: '3PM-6PM', pct: 25, peak: false },
+            { label: '6PM-9PM', pct: 10, peak: false },
+          ]
+          return (
+            <div style={{height: '140px'}} className="flex items-end gap-3">
+              {slots.map(s => (
+                <div key={s.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                  <span className="text-xs font-bold">{s.pct}%</span>
+                  <div
+                    className={`w-full rounded-t-sm ${s.peak ? 'bg-amber-500' : 'bg-amber-200'}`}
+                    style={{height: `${Math.round((s.pct/28)*110)}px`}}
+                  />
+                  <span className="text-xs text-muted-foreground text-center">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
+      </div>
+
+      {/* Onboarding + Top MICs row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* FO Registration Trend (MoM) */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-foreground">FO Registration Trend</h3>
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22% MoM</span>
-          </div>
-          {(() => {
-            const data = [{label:'Oct',value:8},{label:'Nov',value:12},{label:'Dec',value:9},{label:'Jan',value:15},{label:'Feb',value:18},{label:'Mar',value:22}]
-            const max = Math.max(...data.map(d => d.value))
-            return (
-              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
-                {data.map(d => (
-                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
-                    <span className="text-xs font-bold text-foreground">{d.value}</span>
-                    <div className="w-full bg-green-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
-                    <span className="text-xs text-muted-foreground">{d.label}</span>
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
-        </div>
-
-        {/* Vehicle Registration Trend (MoM) */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-foreground">Vehicle Registration Trend</h3>
-            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18% MoM</span>
-          </div>
-          {(() => {
-            const data = [{label:'Oct',value:45},{label:'Nov',value:62},{label:'Dec',value:58},{label:'Jan',value:78},{label:'Feb',value:95},{label:'Mar',value:112}]
-            const max = Math.max(...data.map(d => d.value))
-            return (
-              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
-                {data.map(d => (
-                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
-                    <span className="text-xs font-bold text-foreground">{d.value}</span>
-                    <div className="w-full bg-blue-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
-                    <span className="text-xs text-muted-foreground">{d.label}</span>
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
-        </div>
-
         {/* Self vs Assisted FO Onboarding */}
         <div className="bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold text-foreground mb-6">Self vs Assisted FO Onboarding</h3>
@@ -177,83 +157,57 @@ export default function AdminAnalytics() {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Top 5 Dealerships by Volume */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold text-foreground mb-4">Top 5 Dealerships by Volume</h3>
-          <div className="space-y-3">
-            {[{rank: 1, name: "ABC Motors", volume: "₹45.8L", txns: 156}, {rank: 2, name: "XYZ Auto", volume: "₹32.4L", txns: 112}, {rank: 3, name: "Prime Motors", volume: "₹28.6L", txns: 98}, {rank: 4, name: "Elite Autos", volume: "₹22.1L", txns: 76}, {rank: 5, name: "Metro Garage", volume: "₹18.5L", txns: 64}].map((item) => (
-              <div key={item.name} className="flex items-center gap-3">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                  item.rank === 1 ? "bg-yellow-500" : item.rank === 2 ? "bg-gray-400" : item.rank === 3 ? "bg-orange-600" : "bg-gray-300"
-                }`}>
-                  {item.rank}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-foreground truncate">{item.name}</span>
-                    <span className="text-sm font-bold text-foreground ml-2">{item.volume}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{item.txns} transactions</p>
-                </div>
+      {/* Top 5 Dealerships by Volume */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <h3 className="font-semibold text-foreground mb-4">Top 5 Dealerships by Volume</h3>
+        <div className="space-y-3">
+          {[{rank: 1, name: "ABC Motors", volume: "₹45.8L", txns: 156}, {rank: 2, name: "XYZ Auto", volume: "₹32.4L", txns: 112}, {rank: 3, name: "Prime Motors", volume: "₹28.6L", txns: 98}, {rank: 4, name: "Elite Autos", volume: "₹22.1L", txns: 76}, {rank: 5, name: "Metro Garage", volume: "₹18.5L", txns: 64}].map((item) => (
+            <div key={item.name} className="flex items-center gap-3">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                item.rank === 1 ? "bg-yellow-500" : item.rank === 2 ? "bg-gray-400" : item.rank === 3 ? "bg-orange-600" : "bg-gray-300"
+              }`}>
+                {item.rank}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Transaction Trend (MoM) */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold text-foreground">Transaction Trend</h3>
-            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15% MoM</span>
-          </div>
-          {(() => {
-            const data = [{label:'Oct',value:1240},{label:'Nov',value:1580},{label:'Dec',value:1320},{label:'Jan',value:1890},{label:'Feb',value:2150},{label:'Mar',value:2480}]
-            const max = Math.max(...data.map(d => d.value))
-            return (
-              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
-                {data.map(d => (
-                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
-                    <span className="text-xs font-bold text-foreground">{(d.value/1000).toFixed(1)}K</span>
-                    <div className="w-full bg-purple-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
-                    <span className="text-xs text-muted-foreground">{d.label}</span>
-                  </div>
-                ))}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium text-foreground truncate">{item.name}</span>
+                  <span className="text-sm font-bold text-foreground ml-2">{item.volume}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{item.txns} transactions</p>
               </div>
-            )
-          })()}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Transaction Trend by Time of Day - Full Width */}
-      <div className="bg-card rounded-xl border border-border p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-foreground">Transaction Trend by Time of Day</h2>
-          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">Peak: 9AM-12PM</span>
+      {/* Top Performing FOs */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="font-semibold text-foreground">Top Performing FOs</h2>
+          <button className="text-xs text-primary font-medium hover:underline flex items-center gap-1">View All <ArrowRight className="w-3 h-3" /></button>
         </div>
-        {(() => {
-          const slots = [
-            { label: '6AM-9AM', pct: 15, peak: false },
-            { label: '9AM-12PM', pct: 28, peak: true },
-            { label: '12PM-3PM', pct: 22, peak: false },
-            { label: '3PM-6PM', pct: 25, peak: false },
-            { label: '6PM-9PM', pct: 10, peak: false },
-          ]
-          return (
-            <div style={{height: '140px'}} className="flex items-end gap-3">
-              {slots.map(s => (
-                <div key={s.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
-                  <span className="text-xs font-bold">{s.pct}%</span>
-                  <div
-                    className={`w-full rounded-t-sm ${s.peak ? 'bg-amber-500' : 'bg-amber-200'}`}
-                    style={{height: `${Math.round((s.pct/28)*110)}px`}}
-                  />
-                  <span className="text-xs text-muted-foreground text-center">{s.label}</span>
-                </div>
-              ))}
-            </div>
-          )
-        })()}
+        <p className="text-xs text-muted-foreground mb-3">5 Fleet Operators • 9,685 transactions • ₹147.9L volume</p>
+        <div className="bg-card rounded-xl border border-border overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border">
+              <th className="px-4 py-3 text-left font-semibold text-foreground">FO Name</th>
+              <th className="px-4 py-3 text-left font-semibold text-foreground">Region</th>
+              <th className="px-4 py-3 text-center font-semibold text-foreground">Transactions</th>
+              <th className="px-4 py-3 text-center font-semibold text-foreground">Volume</th>
+              <th className="px-4 py-3 text-center font-semibold text-foreground">Cards Active</th>
+            </tr></thead>
+            <tbody>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥇</span>ABC Logistics</td><td className="px-4 py-3 text-muted-foreground">Mumbai</td><td className="px-4 py-3 text-center">2,847</td><td className="px-4 py-3 text-center">₹45.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">12</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥈</span>Metro Freight</td><td className="px-4 py-3 text-muted-foreground">Pune</td><td className="px-4 py-3 text-center">2,156</td><td className="px-4 py-3 text-center">₹32.4L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">18</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥉</span>City Express</td><td className="px-4 py-3 text-muted-foreground">Thane</td><td className="px-4 py-3 text-center">1,945</td><td className="px-4 py-3 text-center">₹28.6L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">22</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Sunrise Transport</td><td className="px-4 py-3 text-muted-foreground">Navi Mumbai</td><td className="px-4 py-3 text-center">1,534</td><td className="px-4 py-3 text-center">₹22.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">8</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Quick Move</td><td className="px-4 py-3 text-muted-foreground">Nashik</td><td className="px-4 py-3 text-center">1,203</td><td className="px-4 py-3 text-center">₹18.5L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">3</span></td></tr>
+              <tr className="border-t-2 border-border bg-muted/30"><td className="px-4 py-3 font-bold text-foreground">Total</td><td className="px-4 py-3 font-bold text-foreground">—</td><td className="px-4 py-3 text-center font-bold text-foreground">9,685</td><td className="px-4 py-3 text-center font-bold text-foreground">₹147.9L</td><td className="px-4 py-3 text-center font-bold text-foreground">63</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Key Metrics */}
@@ -310,6 +264,55 @@ export default function AdminAnalytics() {
               <div className="bg-amber-500 h-2 rounded-full" style={{width: "42%"}} />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Trend Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* FO Registration Trend (MoM) */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-semibold text-foreground">FO Registration Trend</h3>
+            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22% MoM</span>
+          </div>
+          {(() => {
+            const data = [{label:'Oct',value:8},{label:'Nov',value:12},{label:'Dec',value:9},{label:'Jan',value:15},{label:'Feb',value:18},{label:'Mar',value:22}]
+            const max = Math.max(...data.map(d => d.value))
+            return (
+              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
+                {data.map(d => (
+                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                    <span className="text-xs font-bold text-foreground">{d.value}</span>
+                    <div className="w-full bg-green-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
+                    <span className="text-xs text-muted-foreground">{d.label}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
+        </div>
+
+        {/* Vehicle Registration Trend (MoM) */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-semibold text-foreground">Vehicle Registration Trend</h3>
+            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18% MoM</span>
+          </div>
+          {(() => {
+            const data = [{label:'Oct',value:45},{label:'Nov',value:62},{label:'Dec',value:58},{label:'Jan',value:78},{label:'Feb',value:95},{label:'Mar',value:112}]
+            const max = Math.max(...data.map(d => d.value))
+            return (
+              <div className="flex items-end justify-between gap-1 mt-4" style={{height: '120px'}}>
+                {data.map(d => (
+                  <div key={d.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                    <span className="text-xs font-bold text-foreground">{d.value}</span>
+                    <div className="w-full bg-blue-500 rounded-t" style={{height: `${Math.round((d.value/max)*80)}px`}} />
+                    <span className="text-xs text-muted-foreground">{d.label}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>
