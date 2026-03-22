@@ -1,10 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Eye, X } from "lucide-react"
+import { Download, Eye, X, Search, Filter } from "lucide-react"
 
 export default function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [type, setType] = useState<"POS" | "Load">("POS")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
 
   const posTransactions = [
@@ -78,6 +83,14 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
     }
   }
 
+  const getActiveFilterCount = () => {
+    let count = 0
+    if (statusFilter !== "all") count++
+    if (fromDate) count++
+    if (toDate) count++
+    return count
+  }
+
   const successful = posTransactions.filter(t => t.status === "Successful")
   const pendingProcessing = posTransactions.filter(t => t.status === "Pending" || t.status === "Processing")
   const failed = posTransactions.filter(t => t.status === "Failed")
@@ -99,6 +112,102 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
           <Download className="w-4 h-4" /> Export
         </button>
       </div>
+
+      {/* Search Row */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search transactions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-card"
+          />
+        </div>
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted relative">
+          <Filter className="w-4 h-4" />
+          Filters
+          {getActiveFilterCount() > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {getActiveFilterCount()}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Filter Panel - sibling, no shared wrapper */}
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">From Date</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">To Date</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="all">All</option>
+                <option value="successful">Successful</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Channel</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as "POS" | "Load")}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="POS">POS</option>
+                <option value="Load">Load</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted"
+              onClick={() => {}}
+            >
+              Apply
+            </button>
+            <button
+              onClick={() => {
+                setStatusFilter("all")
+                setFromDate("")
+                setToDate("")
+              }}
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted text-muted-foreground"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-2 border-b border-border">
         <button
