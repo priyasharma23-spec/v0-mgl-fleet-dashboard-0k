@@ -9,6 +9,9 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
     { label: "Total Active Cards", value: "2,847", change: "+156", trend: "up", icon: CreditCard, color: "green" },
     { label: "Parent Wallet Balance", value: "₹4.2Cr", change: "+12%", trend: "up", icon: Wallet, color: "purple" },
     { label: "Incentive Pool Used", value: "₹18.5L", change: "42%", trend: "neutral", icon: Gift, color: "amber" },
+    { label: "Incentive Paid Today", value: "₹2.4L", change: "", trend: "neutral", icon: Gift, color: "green" },
+    { label: "Cashback Paid Today", value: "₹85,000", change: "", trend: "neutral", icon: Percent, color: "blue" },
+    { label: "Unused Card Balance", value: "₹1.2Cr", change: "", trend: "neutral", icon: CreditCard, color: "purple" },
   ]
 
   const recentActivity = [
@@ -44,7 +47,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {kpis.map((kpi, i) => (
           <div key={i} className="bg-card rounded-xl border border-border p-4">
             <div className="flex items-start justify-between">
@@ -180,18 +183,6 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
                 <span className="text-sm text-muted-foreground">Dealerships to be Paid</span>
               </div>
               <span className="text-sm font-medium">12</span>
-            </div>
-            <div className="flex items-center justify-between border-t border-border pt-3">
-              <span className="text-sm text-muted-foreground">Incentive Paid Today</span>
-              <span className="text-sm font-medium text-green-600">₹2.4L</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Cashback Paid Today</span>
-              <span className="text-sm font-medium text-blue-600">₹85,000</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total Unused Card Balance</span>
-              <span className="text-sm font-medium text-purple-600">₹1.2Cr</span>
             </div>
           </div>
 
