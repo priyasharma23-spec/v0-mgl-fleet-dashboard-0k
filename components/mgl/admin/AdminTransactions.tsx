@@ -414,8 +414,47 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                 <div className="flex justify-between"><span className="text-muted-foreground">ID:</span><span className="font-semibold">{selectedTransaction.id}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Date:</span><span className="font-semibold">{selectedTransaction.date}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Time:</span><span className="font-semibold">{selectedTransaction.time}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Type:</span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${selectedTransaction.type === 'debit' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{selectedTransaction.type === 'debit' ? 'Debit' : 'Credit'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Channel:</span><span className="font-semibold capitalize">{selectedTransaction.channel}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Product:</span><span className="font-semibold uppercase">{selectedTransaction.product}</span></div>
               </div>
             </div>
+
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Card & Vehicle</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Card:</span><span className="font-mono text-xs">{selectedTransaction.card}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Vehicle:</span><span className="font-semibold">{selectedTransaction.vehicle}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Driver:</span><span className="font-semibold">{selectedTransaction.driver || '—'}</span></div>
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Station Info</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Station:</span><span className="font-semibold text-right">{selectedTransaction.station}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Merchant Code:</span><span className="font-mono text-xs">{selectedTransaction.merchantCode}</span></div>
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-foreground">Amount Details</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Opening Balance:</span><span className="font-semibold">₹{selectedTransaction.openingBalance?.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Amount:</span><span className="font-bold text-lg">₹{selectedTransaction.amount?.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Closing Balance:</span><span className="font-semibold">₹{selectedTransaction.closingBalance?.toLocaleString()}</span></div>
+              </div>
+            </div>
+
+            {(selectedTransaction.reversedBy || selectedTransaction.reversalOf) && (
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-foreground">Reversal Info</p>
+                <div className="space-y-2 text-sm">
+                  {selectedTransaction.reversedBy && <div className="flex justify-between"><span className="text-muted-foreground">Reversed By:</span><span className="font-mono text-xs">{selectedTransaction.reversedBy}</span></div>}
+                  {selectedTransaction.reversalOf && <div className="flex justify-between"><span className="text-muted-foreground">Reversal Of:</span><span className="font-mono text-xs">{selectedTransaction.reversalOf}</span></div>}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
