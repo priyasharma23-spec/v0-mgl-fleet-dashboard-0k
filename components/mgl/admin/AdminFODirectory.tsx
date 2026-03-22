@@ -7,314 +7,79 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
   const [editMode, setEditMode] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [showTransactions, setShowTransactions] = useState(false)
-  
-  let fo = fleetOperators.find(f => f.id === foId)
+  const fo = fleetOperators.find(f => f.id === foId)
   if (!fo) return null
-  
-  if (editMode && editData) {
-    fo = editData
-  }
-
-  const cards = [
-    { vehicle: "MH-12-AB-1234", cardNo: "****4521", cardWallet: "₹12,500", incentiveWallet: "₹2,100", status: "Active" },
-    { vehicle: "MH-12-CD-5678", cardNo: "****4522", cardWallet: "₹8,200", incentiveWallet: "₹1,500", status: "Active" },
-    { vehicle: "MH-12-EF-9012", cardNo: "****4523", cardWallet: "₹0", incentiveWallet: "₹800", status: "Blocked" },
-  ]
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex justify-end">
-      <div className="w-full max-w-lg bg-card h-full overflow-y-auto">
-      <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
-        {showTransactions ? (
-          <>
-            <button 
-              onClick={() => setShowTransactions(false)}
-              className="flex items-center gap-2 text-primary hover:text-primary/80 font-medium text-sm">
-              ← Back
-            </button>
-            <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg">
-              <X className="w-4 h-4" />
-            </button>
-          </>
-        ) : (
-          <>
-            <h2 className="font-semibold text-foreground">Fleet Operator Details</h2>
-            <div className="flex items-center gap-2">
-              {editMode ? (
-                <>
-                  <button 
-                    onClick={() => {
-                      const originalFO = fleetOperators.find(f => f.id === foId)
-                      if (originalFO) {
-                        Object.assign(originalFO, editData)
-                      }
-                      setEditMode(false)
-                      setEditData(null)
-                    }}
-                    className="p-2 hover:bg-muted rounded-lg text-green-600">
-                    <Check className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setEditMode(false)
-                      setEditData(null)
-                    }}
-                    className="p-2 hover:bg-muted rounded-lg">
-                    <X className="w-4 h-4" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => {
-                      setEditData(fleetOperators.find(f => f.id === foId))
-                      setEditMode(true)
-                    }}
-                    className="p-2 hover:bg-muted rounded-lg">
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg">
-                    <X className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+    <div className="fixed inset-0 bg-black/50 z-50 flex justify-end" onClick={onClose}>
+      <div className="w-full max-w-lg bg-card h-full overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
+        <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
+          <div>
+            <h2 className="font-semibold text-foreground">{showTransactions ? "Transaction History" : "Fleet Operator Details"}</h2>
+            {showTransactions && <p className="text-xs text-muted-foreground">{fo.name}</p>}
+          </div>
+          <div className="flex items-center gap-2">
+            {!showTransactions && !editMode && <button onClick={() => { setEditData({...fo}); setEditMode(true) }} className="p-2 hover:bg-muted rounded-lg"><Edit3 className="w-4 h-4 text-muted-foreground" /></button>}
+            {editMode && <button onClick={() => { setEditMode(false); setEditData(null) }} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>}
+            <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
+          </div>
+        </div>
 
         {showTransactions ? (
           <div className="p-4 space-y-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground">Transaction History</h1>
-              <p className="text-sm text-muted-foreground">{fo.name}</p>
+            <button onClick={() => setShowTransactions(false)} className="flex items-center gap-2 text-sm text-primary hover:underline">← Back</button>
+            <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm">
+              <div><p className="text-xs text-muted-foreground">Total</p><p className="font-bold">{fo.transactions?.length || 0}</p></div>
+              <div><p className="text-xs text-muted-foreground">Amount</p><p className="font-bold">₹{(fo.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0).toLocaleString()}</p></div>
             </div>
-
-            <div className="flex gap-4 p-3 bg-muted/30 rounded-lg">
-              <div>
-                <p className="text-xs text-muted-foreground">Total Transactions</p>
-                <p className="text-lg font-bold text-foreground">{fo.transactions?.length || 0}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Amount</p>
-                <p className="text-lg font-bold text-foreground">₹{(fo.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0).toLocaleString()}</p>
-              </div>
-            </div>
-
             <div className="space-y-2">
               {fo.transactions?.map((txn: any) => (
-                <div key={txn.id} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-mono font-semibold">{txn.id}</p>
-                    <p className="text-xs text-muted-foreground">{txn.date}</p>
-                  </div>
-                  <div>
-                    <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
-                      txn.type === 'POS' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                    }`}>{txn.type}</span>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-foreground">₹{txn.amount.toLocaleString()}</p>
-                    <p className={`text-xs font-medium ${
-                      txn.status === 'Successful' ? 'text-green-600' : txn.status === 'Failed' ? 'text-red-600' : 'text-amber-600'
-                    }`}>{txn.status}</p>
-                  </div>
+                <div key={txn.id} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/50">
+                  <div className="flex-1"><p className="text-xs font-mono font-semibold">{txn.id}</p><p className="text-xs text-muted-foreground">{txn.date}</p></div>
+                  <span className={`px-2 py-1 text-xs font-medium rounded ${txn.type === 'POS' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>{txn.type}</span>
+                  <div className="text-right"><p className="font-bold text-sm">₹{txn.amount.toLocaleString()}</p><p className={`text-xs ${txn.status === 'Successful' ? 'text-green-600' : txn.status === 'Failed' ? 'text-red-600' : 'text-amber-600'}`}>{txn.status}</p></div>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            {editMode && editData ? (
-              <>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Name</label>
-                  <input 
-                    type="text" 
-                    value={editData.name} 
-                    onChange={(e) => setEditData({...editData, name: e.target.value})}
-                    className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-input"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Region</label>
-                  <input 
-                    type="text" 
-                    value={editData.region} 
-                    onChange={(e) => setEditData({...editData, region: e.target.value})}
-                    className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-input"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Status</label>
-                    <select 
-                      value={editData.status}
-                      onChange={(e) => setEditData({...editData, status: e.target.value})}
-                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Suspended">Suspended</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">KYC Status</label>
-                    <select 
-                      value={editData.kycStatus}
-                      onChange={(e) => setEditData({...editData, kycStatus: e.target.value})}
-                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                    >
-                      <option value="Verified">Verified</option>
-                      <option value="Expiring">Expiring</option>
-                      <option value="Expired">Expired</option>
-                    </select>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-semibold text-lg">{fo.name}</p>
-                  <p className="text-sm text-muted-foreground">{fo.id} • {fo.region}</p>
-                </div>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                  fo.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                }`}>{fo.status}</span>
-              </div>
-            )}
-
+          <div className="p-4 space-y-4">
+            <div className="flex items-start justify-between">
+              <div><h3 className="font-bold text-lg">{fo.name}</h3><p className="text-sm text-muted-foreground">{fo.id} • {fo.region}</p></div>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${fo.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{fo.status}</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <p className="text-xs text-muted-foreground">Parent Wallet</p>
-                <p className="text-lg font-bold text-foreground">{fo.parentWallet}</p>
-                <p className="text-xs text-amber-600">T+1 Pending: ₹15,000</p>
-              </div>
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <p className="text-xs text-muted-foreground">Total Cards</p>
-                <p className="text-lg font-bold text-foreground">{fo.cards}</p>
-                <p className="text-xs text-muted-foreground">{fo.vehicles} vehicles</p>
-              </div>
+              <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Parent Wallet</p><p className="font-bold text-lg">{fo.parentWallet}</p><p className="text-xs text-amber-600">T+1 Pending: ₹15,000</p></div>
+              <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Total Cards</p><p className="font-bold text-lg">{fo.cards}</p><p className="text-xs text-muted-foreground">{fo.vehicles} vehicles</p></div>
             </div>
-
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-green-50 border border-green-200 rounded-xl p-3">
-                <p className="text-xs text-green-700">Incentive Wallet</p>
-                <p className="text-lg font-bold text-green-900">{fo.incentiveWallet}</p>
-                <p className="text-xs text-green-600">MGL Funded</p>
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                <p className="text-xs text-blue-700">Cashback Earned</p>
-                <p className="text-lg font-bold text-blue-900">{fo.cashback}</p>
-                <p className="text-xs text-blue-600">Lifetime</p>
+              <div className="bg-green-50 border border-green-200 rounded-xl p-3"><p className="text-xs text-green-700">Incentive Wallet</p><p className="text-lg font-bold text-green-900">{fo.incentiveWallet}</p><p className="text-xs text-green-600">MGL Funded</p></div>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3"><p className="text-xs text-blue-700">Cashback Earned</p><p className="text-lg font-bold text-blue-900">{fo.cashback}</p><p className="text-xs text-blue-600">Lifetime</p></div>
+            </div>
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold">Bank Account Details</p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Bank Name</span><span className="font-medium">{fo.bankName}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Account Number</span><span className="font-mono font-medium">{fo.accountNumber}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">IFSC Code</span><span className="font-mono font-medium">{fo.ifsc}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Account Type</span><span className="font-medium">{fo.accountType}</span></div>
               </div>
             </div>
-          </div>
-
-          {/* Bank Account Details */}
-          <div>
-            <h3 className="font-semibold text-sm mb-3">Bank Account Details</h3>
-            {editMode && editData ? (
-              <div className="space-y-3 p-4 border border-border rounded-lg bg-muted/20">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Bank Name</label>
-                  <input 
-                    type="text" 
-                    value={editData.bankName} 
-                    onChange={(e) => setEditData({...editData, bankName: e.target.value})}
-                    className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-input"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Account Number</label>
-                  <input 
-                    type="text" 
-                    value={editData.accountNumber} 
-                    onChange={(e) => setEditData({...editData, accountNumber: e.target.value})}
-                    className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-input"
-                    placeholder="****4521"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">IFSC Code</label>
-                  <input 
-                    type="text" 
-                    value={editData.ifsc} 
-                    onChange={(e) => setEditData({...editData, ifsc: e.target.value})}
-                    className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-input"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Account Type</label>
-                  <select 
-                    value={editData.accountType}
-                    onChange={(e) => setEditData({...editData, accountType: e.target.value})}
-                    className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                  >
-                    <option value="Current">Current</option>
-                    <option value="Savings">Savings</option>
-                  </select>
-                </div>
-              </div>
-            ) : (
-              <div className="p-4 bg-muted/30 rounded-lg space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bank Name:</span>
-                  <span className="font-medium">{fo.bankName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account Number:</span>
-                  <span className="font-mono text-xs">{fo.accountNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">IFSC Code:</span>
-                  <span className="font-medium">{fo.ifsc}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account Type:</span>
-                  <span className="font-medium">{fo.accountType}</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Vehicle Cards */}
-          <div>
-            <h3 className="font-semibold text-sm mb-3">Vehicle Cards</h3>
-            <div className="space-y-2">
-              {cards.map((card, i) => (
-                <div key={i} className="p-3 border border-border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="font-medium text-sm">{card.vehicle}</p>
-                      <p className="text-xs text-muted-foreground">Card: {card.cardNo}</p>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      card.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}>{card.status}</span>
+            <div>
+              <p className="text-sm font-semibold mb-2">Vehicle Cards</p>
+              <div className="space-y-2">
+                {fo.cards && Array.from({length: 3}, (_, i) => (
+                  <div key={i} className="border border-border rounded-lg p-3">
+                    <div className="flex justify-between items-center mb-1"><span className="font-medium text-sm">MH-12-AB-{1234+i}</span><span className={`px-2 py-0.5 text-xs rounded-full ${i === 2 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{i === 2 ? 'Blocked' : 'Active'}</span></div>
+                    <p className="text-xs text-muted-foreground">Card: ****{4521+i}</p>
+                    <div className="flex gap-3 mt-1 text-xs"><span className="text-blue-600">Card Wallet: ₹{(12500-i*4000).toLocaleString()}</span><span className="text-green-600">Incentive: ₹{(2100-i*600).toLocaleString()}</span></div>
                   </div>
-                  <div className="flex gap-4 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Card Wallet: </span>
-                      <span className="font-medium text-blue-600">{card.cardWallet}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Incentive: </span>
-                      <span className="font-medium text-green-600">{card.incentiveWallet}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+            <button onClick={() => setShowTransactions(true)} className="w-full py-3 border border-green-600 text-green-600 rounded-lg text-sm font-medium hover:bg-green-50 flex items-center justify-center gap-2">View Transaction History →</button>
+            <p className="text-xs text-muted-foreground text-center">Read-only access • FO-funded wallet modifications restricted</p>
           </div>
-
-          <button onClick={() => setShowTransactions(true)} className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
-            View Transaction History <ArrowRight className="w-4 h-4" />
-          </button>
-
-          <p className="text-xs text-muted-foreground text-center">
-            Read-only access • FO-funded wallet modifications restricted
-          </p>
-        </div>
         )}
       </div>
     </div>
