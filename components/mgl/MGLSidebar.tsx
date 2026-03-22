@@ -63,10 +63,22 @@ interface MGLSidebarProps {
   onViewChange: (view: string) => void;
   open: boolean;
   onClose: () => void;
+  department?: string;
 }
 
-export default function MGLSidebar({ role, activeView, onViewChange, open, onClose }: MGLSidebarProps) {
-  const navItems = role === "mgl-admin" ? adminNavItems : role === "mic" ? micNavItems : role === "zic" ? zicNavItems : foNavItems;
+export default function MGLSidebar({ role, activeView, onViewChange, open, onClose, department }: MGLSidebarProps) {
+  let navItems = role === "mgl-admin" ? adminNavItems : role === "mic" ? micNavItems : role === "zic" ? zicNavItems : foNavItems;
+  
+  if (role === "mgl-admin" && department) {
+    const financeItems = ["Dashboard", "Settlements", "Transactions", "Cards & Wallets", "MIS & Reports", "Analytics"];
+    const marketingItems = ["Dashboard", "Fleet Operators", "Transactions", "Settlements", "Cards & Wallets", "Incentives & Offers", "MIS & Reports", "Analytics"];
+    const allowedItems = department === "finance" ? financeItems : department === "marketing" ? marketingItems : [];
+    
+    if (allowedItems.length > 0) {
+      navItems = adminNavItems.filter(item => allowedItems.includes(item.label));
+    }
+  }
+  
   const roleLabel = role === "mgl-admin" ? "Admin Portal" : role === "mic" ? "MIC Portal" : role === "zic" ? "ZIC Portal" : "Fleet Portal";
 
   return (
