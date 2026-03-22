@@ -11,46 +11,45 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Recently Added */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* New Fleet Operators */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">New Fleet Operators (Last 7 days)</h2>
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-foreground">Recently Added</h2>
+          <span className="text-xs text-muted-foreground">Last 7 days</span>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Fleet Operators <span className="text-primary ml-1">3 new</span></p>
             <div className="divide-y divide-border">
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="text-sm font-medium text-foreground">Swift Logistics</p>
                 <p className="text-xs text-muted-foreground">Pune • Mar 20 • 8 vehicles</p>
               </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="text-sm font-medium text-foreground">Express Fleet Co.</p>
                 <p className="text-xs text-muted-foreground">Chennai • Mar 19 • 5 vehicles</p>
               </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="text-sm font-medium text-foreground">Urban Movers Ltd.</p>
                 <p className="text-xs text-muted-foreground">Delhi • Mar 18 • 12 vehicles</p>
               </div>
             </div>
           </div>
-        </div>
-
-        {/* New Vehicles Registered */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">New Vehicles Registered (Last 7 days)</h2>
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vehicles <span className="text-primary ml-1">4 new</span></p>
             <div className="divide-y divide-border">
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="font-mono text-sm font-medium text-foreground">MH12AB1234</p>
                 <p className="text-xs text-muted-foreground">ABC Logistics • Card Active • Mar 21</p>
               </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="font-mono text-sm font-medium text-foreground">KA05XY5678</p>
                 <p className="text-xs text-muted-foreground">Metro Freight • Card Pending • Mar 21</p>
               </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="font-mono text-sm font-medium text-foreground">DL08CD9012</p>
                 <p className="text-xs text-muted-foreground">Urban Transport • Card Active • Mar 20</p>
               </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
                 <p className="font-mono text-sm font-medium text-foreground">TN03EF3456</p>
                 <p className="text-xs text-muted-foreground">City Express • Card Active • Mar 20</p>
               </div>
@@ -61,10 +60,11 @@ export default function AdminAnalytics() {
 
       {/* Top Performing FOs */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <h2 className="font-semibold text-foreground">Top Performing FOs</h2>
           <button className="text-xs text-primary font-medium hover:underline flex items-center gap-1">View All <ArrowRight className="w-3 h-3" /></button>
         </div>
+        <p className="text-xs text-muted-foreground mb-3">5 Fleet Operators • 9,685 transactions • ₹147.9L volume</p>
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border">
@@ -75,11 +75,12 @@ export default function AdminAnalytics() {
               <th className="px-4 py-3 text-center font-semibold text-foreground">Cards Active</th>
             </tr></thead>
             <tbody>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">ABC Logistics</td><td className="px-4 py-3 text-muted-foreground">Mumbai</td><td className="px-4 py-3 text-center">2,847</td><td className="px-4 py-3 text-center">₹45.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">12</span></td></tr>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Metro Freight</td><td className="px-4 py-3 text-muted-foreground">Pune</td><td className="px-4 py-3 text-center">2,156</td><td className="px-4 py-3 text-center">₹32.4L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">18</span></td></tr>
-              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">City Express</td><td className="px-4 py-3 text-muted-foreground">Thane</td><td className="px-4 py-3 text-center">1,945</td><td className="px-4 py-3 text-center">₹28.6L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">22</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥇</span>ABC Logistics</td><td className="px-4 py-3 text-muted-foreground">Mumbai</td><td className="px-4 py-3 text-center">2,847</td><td className="px-4 py-3 text-center">₹45.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">12</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥈</span>Metro Freight</td><td className="px-4 py-3 text-muted-foreground">Pune</td><td className="px-4 py-3 text-center">2,156</td><td className="px-4 py-3 text-center">₹32.4L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">18</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3"><span className="mr-2">🥉</span>City Express</td><td className="px-4 py-3 text-muted-foreground">Thane</td><td className="px-4 py-3 text-center">1,945</td><td className="px-4 py-3 text-center">₹28.6L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">22</span></td></tr>
               <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Sunrise Transport</td><td className="px-4 py-3 text-muted-foreground">Navi Mumbai</td><td className="px-4 py-3 text-center">1,534</td><td className="px-4 py-3 text-center">₹22.8L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">8</span></td></tr>
-              <tr className="hover:bg-muted/30"><td className="px-4 py-3">Quick Move</td><td className="px-4 py-3 text-muted-foreground">Nashik</td><td className="px-4 py-3 text-center">1,203</td><td className="px-4 py-3 text-center">₹18.5L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">3</span></td></tr>
+              <tr className="border-b border-border hover:bg-muted/30"><td className="px-4 py-3">Quick Move</td><td className="px-4 py-3 text-muted-foreground">Nashik</td><td className="px-4 py-3 text-center">1,203</td><td className="px-4 py-3 text-center">₹18.5L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">3</span></td></tr>
+              <tr className="border-t-2 border-border bg-muted/30"><td className="px-4 py-3 font-bold text-foreground">Total</td><td className="px-4 py-3 font-bold text-foreground">—</td><td className="px-4 py-3 text-center font-bold text-foreground">9,685</td><td className="px-4 py-3 text-center font-bold text-foreground">₹147.9L</td><td className="px-4 py-3 text-center font-bold text-foreground">63</td></tr>
             </tbody>
           </table>
         </div>
