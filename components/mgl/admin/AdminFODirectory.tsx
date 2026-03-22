@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Download, Eye, X, ArrowRight } from "lucide-react"
+import { Search, Download, Eye, X, ArrowRight, Filter } from "lucide-react"
 
 function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClose: () => void; fleetOperators: any[] }) {
   const fo = fleetOperators.find(f => f.id === foId)
@@ -97,6 +97,10 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
 export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+  const [kycFilter, setKycFilter] = useState("all")
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
 
   const fleetOperators = [
@@ -107,6 +111,15 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
     { id: "FO005", name: "City Express Carriers", region: "Mumbai", status: "Active", vehicles: 25, cards: 22, parentWallet: "₹8.3L", kycStatus: "Verified", joinedDate: "Feb 2025" },
   ]
 
+  const getActiveFilterCount = () => {
+    let count = 0
+    if (statusFilter !== "all") count++
+    if (kycFilter !== "all") count++
+    if (fromDate) count++
+    if (toDate) count++
+    return count
+  }
+
   const filtered = fleetOperators.filter(fo => {
     const matchesSearch = fo.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           fo.id.toLowerCase().includes(searchQuery.toLowerCase())
@@ -116,19 +129,13 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
 
   return (
     <div className="flex flex-col gap-5 p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Fleet Operator Directory</h1>
-          <p className="text-sm text-muted-foreground">View and manage all registered fleet operators</p>
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-          <Download className="w-4 h-4" />
-          Export
-        </button>
+      <div>
+        <h1 className="text-xl font-bold text-foreground">Fleet Operator Directory</h1>
+        <p className="text-sm text-muted-foreground">View and manage all registered fleet operators</p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      {/* Search Row */}
+      <div className="flex gap-3 items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
@@ -139,16 +146,94 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
             className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2.5 rounded-lg border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-        >
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="suspended">Suspended</option>
-        </select>
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-3 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted relative">
+          <Filter className="w-4 h-4" />
+          Filters
+          {getActiveFilterCount() > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {getActiveFilterCount()}
+            </span>
+          )}
+        </button>
+        <button className="flex items-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+          <Download className="w-4 h-4" />
+          Export
+        </button>
       </div>
+
+      {/* Filter Panel - sibling, no shared wrapper */}
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">From Date</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">To Date</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">KYC Status</label>
+              <select
+                value={kycFilter}
+                onChange={(e) => setKycFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="all">All</option>
+                <option value="verified">Verified</option>
+                <option value="expiring">Expiring</option>
+                <option value="expired">Expired</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted"
+              onClick={() => {}}
+            >
+              Apply
+            </button>
+            <button
+              onClick={() => {
+                setStatusFilter("all")
+                setKycFilter("all")
+                setFromDate("")
+                setToDate("")
+              }}
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted text-muted-foreground"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* FO Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
