@@ -227,19 +227,33 @@ export default function AdminAnalytics() {
 
       {/* Transaction Trend by Time of Day - Full Width */}
       <div className="bg-card rounded-xl border border-border p-5">
-        <h3 className="font-semibold text-foreground mb-6">Transaction Trend by Time of Day</h3>
-        <div className="flex items-end gap-3 h-40">
-          {[{period: "6AM-9AM", percentage: 15, isPeak: false}, {period: "9AM-12PM", percentage: 28, isPeak: true}, {period: "12PM-3PM", percentage: 22, isPeak: false}, {period: "3PM-6PM", percentage: 25, isPeak: false}, {period: "6PM-9PM", percentage: 10, isPeak: false}].map((item) => (
-            <div key={item.period} className="flex flex-col items-center flex-1 gap-1">
-              <span className="text-xs font-medium text-foreground">{item.percentage}%</span>
-              <div className={`w-full rounded-t-sm ${item.isPeak ? "bg-amber-600" : "bg-amber-300"}`} style={{height: `${item.percentage * 1.25}%`}} />
-              <span className="text-xs text-muted-foreground text-center">{item.period}</span>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-foreground">Transaction Trend by Time of Day</h2>
+          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">Peak: 9AM-12PM</span>
+        </div>
+        {(() => {
+          const slots = [
+            { label: '6AM-9AM', pct: 15, peak: false },
+            { label: '9AM-12PM', pct: 28, peak: true },
+            { label: '12PM-3PM', pct: 22, peak: false },
+            { label: '3PM-6PM', pct: 25, peak: false },
+            { label: '6PM-9PM', pct: 10, peak: false },
+          ]
+          return (
+            <div style={{height: '140px'}} className="flex items-end gap-3">
+              {slots.map(s => (
+                <div key={s.label} className="flex flex-col items-center justify-end flex-1 h-full gap-1">
+                  <span className="text-xs font-bold">{s.pct}%</span>
+                  <div
+                    className={`w-full rounded-t-sm ${s.peak ? 'bg-amber-500' : 'bg-amber-200'}`}
+                    style={{height: `${Math.round((s.pct/28)*110)}px`}}
+                  />
+                  <span className="text-xs text-muted-foreground text-center">{s.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <div className="mt-4 text-xs text-muted-foreground text-center">
-          <span className="inline-block w-3 h-3 bg-amber-600 rounded-sm mr-1" /> Peak: 9AM-12PM
-        </div>
+          )
+        })()}
       </div>
 
       {/* Key Metrics */}
