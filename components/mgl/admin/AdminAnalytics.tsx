@@ -86,6 +86,7 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="bg-card rounded-xl border border-border p-5">
           <h3 className="font-semibold mb-4">FO Growth Trend</h3>
           <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
