@@ -78,6 +78,81 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
           </div>
         ))}
       </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center"><Zap className="w-5 h-5 text-blue-600" /></div>
+          <span className="text-xs font-medium text-foreground">Process Settlement</span>
+        </button>
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center"><Gift className="w-5 h-5 text-green-600" /></div>
+          <span className="text-xs font-medium text-foreground">Create Offer</span>
+        </button>
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center"><Plus className="w-5 h-5 text-purple-600" /></div>
+          <span className="text-xs font-medium text-foreground">Add FO</span>
+        </button>
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center"><FileText className="w-5 h-5 text-amber-600" /></div>
+          <span className="text-xs font-medium text-foreground">Generate Report</span>
+        </button>
+      </div>
+
+      {/* Pending Actions + Business Health */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Pending Actions */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">Pending Actions</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-center justify-between">
+              <div><p className="text-sm font-medium text-orange-900">KYC Expiring Soon</p><p className="text-xs text-orange-700 mt-1">5 FOs need attention</p></div>
+              <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-orange-600 text-white text-xs font-bold">5</span><button className="text-orange-600 hover:text-orange-700"><Eye className="w-4 h-4" /></button></div>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+              <div><p className="text-sm font-medium text-red-900">Settlements Overdue</p><p className="text-xs text-red-700 mt-1">Beyond T+1 SLA</p></div>
+              <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-bold">3</span><button className="text-red-600 hover:text-red-700"><Eye className="w-4 h-4" /></button></div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between">
+              <div><p className="text-sm font-medium text-amber-900">Low Incentive Pool</p><p className="text-xs text-amber-700 mt-1">Below 50% threshold</p></div>
+              <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-amber-600 text-white text-xs font-bold">1</span><button className="text-amber-600 hover:text-amber-700"><Eye className="w-4 h-4" /></button></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Business Health */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-foreground">Card Activation Rate</span>
+                <span className="text-lg font-bold text-green-600">89%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[89%] bg-green-600" /></div>
+              <p className="text-xs text-muted-foreground mt-2">Target: 90%</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-foreground">Settlement Success Rate</span>
+                <span className="text-lg font-bold text-green-600">98.5%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[98.5%] bg-green-600" /></div>
+              <p className="text-xs text-muted-foreground mt-2">Excellent performance</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-foreground">Incentive Utilization</span>
+                <span className="text-lg font-bold text-amber-600">42%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[42%] bg-amber-600" /></div>
+              <p className="text-xs text-muted-foreground mt-2">Moderate usage</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Settlement Status + Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Settlement Overview */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border p-5">
@@ -158,72 +233,6 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
         </div>
       </div>
 
-      {/* System Alerts */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-amber-800">System Alerts</h3>
-            <ul className="mt-2 space-y-1 text-sm text-amber-700">
-              <li>• Incentive fund balance below threshold (₹2L remaining) - <button className="underline font-medium">Top up now</button></li>
-              <li>• 3 settlements delayed beyond T+1 SLA - <button className="underline font-medium">Review</button></li>
-              <li>• 5 FO KYC documents expiring this week - <button className="underline font-medium">View list</button></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center"><Zap className="w-5 h-5 text-blue-600" /></div>
-          <span className="text-xs font-medium text-foreground">Process Settlement</span>
-        </button>
-        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
-          <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center"><Gift className="w-5 h-5 text-green-600" /></div>
-          <span className="text-xs font-medium text-foreground">Create Offer</span>
-        </button>
-        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
-          <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center"><Plus className="w-5 h-5 text-purple-600" /></div>
-          <span className="text-xs font-medium text-foreground">Add FO</span>
-        </button>
-        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
-          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center"><FileText className="w-5 h-5 text-amber-600" /></div>
-          <span className="text-xs font-medium text-foreground">Generate Report</span>
-        </button>
-      </div>
-
-      {/* Business Health */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">Card Activation Rate</span>
-              <span className="text-lg font-bold text-green-600">89%</span>
-            </div>
-            <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[89%] bg-green-600" /></div>
-            <p className="text-xs text-muted-foreground mt-2">Target: 90%</p>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">Settlement Success Rate</span>
-              <span className="text-lg font-bold text-green-600">98.5%</span>
-            </div>
-            <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[98.5%] bg-green-600" /></div>
-            <p className="text-xs text-muted-foreground mt-2">Excellent performance</p>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">Incentive Utilization</span>
-              <span className="text-lg font-bold text-amber-600">42%</span>
-            </div>
-            <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[42%] bg-amber-600" /></div>
-            <p className="text-xs text-muted-foreground mt-2">Moderate usage</p>
-          </div>
-        </div>
-      </div>
-
       {/* Top Performing FOs */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -250,21 +259,17 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
         </div>
       </div>
 
-      {/* Pending Actions */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3">Pending Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-center justify-between">
-            <div><p className="text-sm font-medium text-orange-900">KYC Expiring Soon</p><p className="text-xs text-orange-700 mt-1">5 FOs need attention</p></div>
-            <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-orange-600 text-white text-xs font-bold">5</span><button className="text-orange-600 hover:text-orange-700"><Eye className="w-4 h-4" /></button></div>
-          </div>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
-            <div><p className="text-sm font-medium text-red-900">Settlements Overdue</p><p className="text-xs text-red-700 mt-1">Beyond T+1 SLA</p></div>
-            <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-bold">3</span><button className="text-red-600 hover:text-red-700"><Eye className="w-4 h-4" /></button></div>
-          </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between">
-            <div><p className="text-sm font-medium text-amber-900">Low Incentive Pool</p><p className="text-xs text-amber-700 mt-1">Below 50% threshold</p></div>
-            <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-amber-600 text-white text-xs font-bold">1</span><button className="text-amber-600 hover:text-amber-700"><Eye className="w-4 h-4" /></button></div>
+      {/* System Alerts */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h3 className="font-semibold text-amber-800">System Alerts</h3>
+            <ul className="mt-2 space-y-1 text-sm text-amber-700">
+              <li>• Incentive fund balance below threshold (₹2L remaining) - <button className="underline font-medium">Top up now</button></li>
+              <li>• 3 settlements delayed beyond T+1 SLA - <button className="underline font-medium">Review</button></li>
+              <li>• 5 FO KYC documents expiring this week - <button className="underline font-medium">View list</button></li>
+            </ul>
           </div>
         </div>
       </div>
