@@ -58,6 +58,63 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
+      {/* Key Metrics */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <h3 className="font-semibold mb-4">Key Performance Indicators</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <p className="text-3xl font-bold text-foreground">89%</p>
+            <p className="text-xs text-muted-foreground mt-1">Card Activation Rate</p>
+          </div>
+          <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <p className="text-3xl font-bold text-foreground">₹45K</p>
+            <p className="text-xs text-muted-foreground mt-1">Avg Monthly Load/FO</p>
+          </div>
+          <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <p className="text-3xl font-bold text-foreground">98.5%</p>
+            <p className="text-xs text-muted-foreground mt-1">Settlement Success Rate</p>
+          </div>
+          <div className="text-center p-4 bg-muted/30 rounded-lg">
+            <p className="text-3xl font-bold text-foreground">4.2x</p>
+            <p className="text-xs text-muted-foreground mt-1">Incentive ROI</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Business Health */}
+      <div>
+        <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Card Activation Rate</p>
+              <p className="text-lg font-bold text-green-600">89%</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-green-500 h-2 rounded-full" style={{width: "89%"}} />
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Settlement Success Rate</p>
+              <p className="text-lg font-bold text-green-600">98.5%</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-green-500 h-2 rounded-full" style={{width: "98.5%"}} />
+            </div>
+          </div>
+          <div className="bg-card rounded-xl border border-border p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-foreground">Incentive Utilization</p>
+              <p className="text-lg font-bold text-amber-600">42%</p>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div className="bg-amber-500 h-2 rounded-full" style={{width: "42%"}} />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Transaction Trend (MoM) */}
       <div className="bg-card rounded-xl border border-border p-5">
         <div className="flex items-center justify-between mb-6">
@@ -207,63 +264,6 @@ export default function AdminAnalytics() {
               <tr className="border-t-2 border-border bg-muted/30"><td className="px-4 py-3 font-bold text-foreground">Total</td><td className="px-4 py-3 font-bold text-foreground">—</td><td className="px-4 py-3 text-center font-bold text-foreground">9,685</td><td className="px-4 py-3 text-center font-bold text-foreground">₹147.9L</td><td className="px-4 py-3 text-center font-bold text-foreground">63</td></tr>
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="bg-card rounded-xl border border-border p-5">
-        <h3 className="font-semibold mb-4">Key Performance Indicators</h3>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-3xl font-bold text-foreground">89%</p>
-            <p className="text-xs text-muted-foreground mt-1">Card Activation Rate</p>
-          </div>
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-3xl font-bold text-foreground">₹45K</p>
-            <p className="text-xs text-muted-foreground mt-1">Avg Monthly Load/FO</p>
-          </div>
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-3xl font-bold text-foreground">98.5%</p>
-            <p className="text-xs text-muted-foreground mt-1">Settlement Success Rate</p>
-          </div>
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-3xl font-bold text-foreground">4.2x</p>
-            <p className="text-xs text-muted-foreground mt-1">Incentive ROI</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Business Health */}
-      <div>
-        <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-foreground">Card Activation Rate</p>
-              <p className="text-lg font-bold text-green-600">89%</p>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{width: "89%"}} />
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-foreground">Settlement Success Rate</p>
-              <p className="text-lg font-bold text-green-600">98.5%</p>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{width: "98.5%"}} />
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium text-foreground">Incentive Utilization</p>
-              <p className="text-lg font-bold text-amber-600">42%</p>
-            </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="bg-amber-500 h-2 rounded-full" style={{width: "42%"}} />
-            </div>
-          </div>
         </div>
       </div>
 
