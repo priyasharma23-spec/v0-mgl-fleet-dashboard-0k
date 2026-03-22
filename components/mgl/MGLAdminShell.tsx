@@ -1,18 +1,19 @@
 "use client"
 
-
-
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
-import AdminUserManagement from "@/components/mgl/AdminUserManagement"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
-import { 
-  TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, Clock, CheckCircle, 
-  AlertTriangle, ArrowRight, Search, Filter, Download, ChevronRight, Eye,
-  Calendar, BarChart3, PieChart, Activity, Building2, ArrowRightLeft,
-  Play, Pause, Edit3, FileText, Settings, RefreshCw, AlertCircle, X, Check
-} from "lucide-react"
+import AdminDashboard from "@/components/mgl/admin/AdminDashboard"
+import AdminFODirectory from "@/components/mgl/admin/AdminFODirectory"
+import AdminCardsWallets from "@/components/mgl/admin/AdminCardsWallets"
+import AdminIncentives from "@/components/mgl/admin/AdminIncentives"
+import AdminTransactions from "@/components/mgl/admin/AdminTransactions"
+import AdminSettlements from "@/components/mgl/admin/AdminSettlements"
+import AdminReports from "@/components/mgl/admin/AdminReports"
+import AdminAnalytics from "@/components/mgl/admin/AdminAnalytics"
+import AdminConfig from "@/components/mgl/admin/AdminConfig"
+import AdminUserManagement from "@/components/mgl/admin/AdminUserManagement"
 
 interface Props {
   user: { name: string; role: "mgl-admin" }
