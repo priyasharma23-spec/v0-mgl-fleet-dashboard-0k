@@ -87,44 +87,144 @@ export default function AdminAnalytics() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* FO Registration Trend (MoM) */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">FO Growth Trend</h3>
-          <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
-            <div className="text-center">
-              <BarChart3 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Monthly FO registrations chart</p>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">FO Registration Trend (MoM)</h3>
+            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22%</span>
+          </div>
+          <div className="space-y-2">
+            {[{month: "Oct", value: 8}, {month: "Nov", value: 12}, {month: "Dec", value: 9}, {month: "Jan", value: 15}, {month: "Feb", value: 18}, {month: "Mar", value: 22}].map((item) => (
+              <div key={item.month}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">{item.month}</span>
+                  <span className="text-xs font-medium text-foreground">{item.value}</span>
+                </div>
+                <div className="w-full bg-muted rounded h-2">
+                  <div className="bg-green-500 h-2 rounded" style={{width: `${(item.value/22)*100}%`}} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Vehicle Registration Trend (MoM) */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Vehicle Registration Trend (MoM)</h3>
+            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18%</span>
+          </div>
+          <div className="space-y-2">
+            {[{month: "Oct", value: 45}, {month: "Nov", value: 62}, {month: "Dec", value: 58}, {month: "Jan", value: 78}, {month: "Feb", value: 95}, {month: "Mar", value: 112}].map((item) => (
+              <div key={item.month}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">{item.month}</span>
+                  <span className="text-xs font-medium text-foreground">{item.value}</span>
+                </div>
+                <div className="w-full bg-muted rounded h-2">
+                  <div className="bg-blue-500 h-2 rounded" style={{width: `${(item.value/112)*100}%`}} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Self vs Assisted FO Onboarding */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h3 className="font-semibold mb-4">Self vs Assisted FO Onboarding</h3>
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-foreground">Self Onboarded</span>
+                <span className="text-sm font-medium text-foreground">85 FOs (67%)</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div className="bg-green-500 h-3 rounded-full" style={{width: "67%"}} />
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-foreground">Assisted by MIC</span>
+                <span className="text-sm font-medium text-foreground">42 FOs (33%)</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div className="bg-blue-500 h-3 rounded-full" style={{width: "33%"}} />
+              </div>
             </div>
           </div>
         </div>
 
+        {/* Top MICs by New FO Registration */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">Wallet Utilization</h3>
-          <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
-            <div className="text-center">
-              <PieChart className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Card vs Incentive wallet usage</p>
-            </div>
+          <h3 className="font-semibold mb-4">Top MICs by New FO Registration</h3>
+          <div className="space-y-3">
+            {[{name: "Sneha Patil", count: 12}, {name: "Raj Kumar", count: 9}, {name: "Priya Joshi", count: 7}, {name: "Amit Shah", count: 5}].map((item) => (
+              <div key={item.name}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm text-foreground">{item.name}</span>
+                  <span className="text-sm font-medium text-foreground">{item.count}</span>
+                </div>
+                <div className="w-full bg-muted rounded h-2">
+                  <div className="bg-purple-500 h-2 rounded" style={{width: `${(item.count/12)*100}%`}} />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
+        {/* Top 5 Dealerships by Volume */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">Settlement Heatmap</h3>
-          <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
-            <div className="text-center">
-              <Activity className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Settlement delays by time of day</p>
-            </div>
+          <h3 className="font-semibold mb-4">Top 5 Dealerships by Volume</h3>
+          <div className="space-y-2">
+            {[{name: "ABC Motors", volume: "₹45.8L", txns: 156}, {name: "XYZ Auto", volume: "₹32.4L", txns: 112}, {name: "Prime Motors", volume: "₹28.6L", txns: 98}, {name: "Elite Autos", volume: "₹22.1L", txns: 76}, {name: "Metro Garage", volume: "₹18.5L", txns: 64}].map((item) => (
+              <div key={item.name} className="p-2 bg-muted/30 rounded">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">{item.name}</span>
+                  <span className="text-sm text-foreground">{item.volume}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{item.txns} transactions</p>
+              </div>
+            ))}
           </div>
         </div>
 
+        {/* Transaction Trend (MoM) */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">Incentive Redemption Rate</h3>
-          <div className="h-48 flex items-center justify-center bg-muted/30 rounded-lg">
-            <div className="text-center">
-              <TrendingUp className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Offer performance over time</p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Transaction Trend (MoM)</h3>
+            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15%</span>
           </div>
+          <div className="space-y-2">
+            {[{month: "Oct", value: 1240}, {month: "Nov", value: 1580}, {month: "Dec", value: 1320}, {month: "Jan", value: 1890}, {month: "Feb", value: 2150}, {month: "Mar", value: 2480}].map((item) => (
+              <div key={item.month}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">{item.month}</span>
+                  <span className="text-xs font-medium text-foreground">{item.value.toLocaleString()}</span>
+                </div>
+                <div className="w-full bg-muted rounded h-2">
+                  <div className="bg-purple-500 h-2 rounded" style={{width: `${(item.value/2480)*100}%`}} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Transaction Trend by Time of Day - Full Width */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <h3 className="font-semibold mb-4">Transaction Trend by Time of Day</h3>
+        <div className="space-y-3">
+          {[{period: "6AM-9AM", percentage: 15}, {period: "9AM-12PM", percentage: 28}, {period: "12PM-3PM", percentage: 22}, {period: "3PM-6PM", percentage: 25}, {period: "6PM-9PM", percentage: 10}].map((item) => (
+            <div key={item.period}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm text-foreground">{item.period}</span>
+                <span className="text-sm font-medium text-foreground">{item.percentage}%</span>
+              </div>
+              <div className="w-full bg-muted rounded h-2">
+                <div className="bg-amber-500 h-2 rounded" style={{width: `${item.percentage}%`}} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
