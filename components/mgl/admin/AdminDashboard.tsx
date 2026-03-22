@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw } from "lucide-react"
+import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2 } from "lucide-react"
 
 export default function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
   const kpis = [
@@ -9,6 +9,9 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
     { label: "Total Active Cards", value: "2,847", change: "+156", trend: "up", icon: CreditCard, color: "green" },
     { label: "Parent Wallet Balance", value: "₹4.2Cr", change: "+12%", trend: "up", icon: Wallet, color: "purple" },
     { label: "Incentive Pool Used", value: "₹18.5L", change: "42%", trend: "neutral", icon: Gift, color: "amber" },
+    { label: "Incentive Paid Today", value: "₹2.4L", change: "", trend: "neutral", icon: Gift, color: "green" },
+    { label: "Cashback Paid Today", value: "₹85,000", change: "", trend: "neutral", icon: Percent, color: "blue" },
+    { label: "Unused Card Balance", value: "₹1.2Cr", change: "", trend: "neutral", icon: CreditCard, color: "purple" },
   ]
 
   const recentActivity = [
@@ -44,7 +47,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {kpis.map((kpi, i) => (
           <div key={i} className="bg-card rounded-xl border border-border p-4">
             <div className="flex items-start justify-between">
@@ -78,47 +81,108 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
           </div>
         ))}
       </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center"><Zap className="w-5 h-5 text-blue-600" /></div>
+          <span className="text-xs font-medium text-foreground">Process Settlement</span>
+        </button>
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center"><Gift className="w-5 h-5 text-green-600" /></div>
+          <span className="text-xs font-medium text-foreground">Create Offer</span>
+        </button>
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center"><Plus className="w-5 h-5 text-purple-600" /></div>
+          <span className="text-xs font-medium text-foreground">Add FO</span>
+        </button>
+        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+          <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center"><FileText className="w-5 h-5 text-amber-600" /></div>
+          <span className="text-xs font-medium text-foreground">Generate Report</span>
+        </button>
+      </div>
+
+      {/* Pending Actions + Business Health */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Pending Actions */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">Pending Actions</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-center justify-between">
+              <div><p className="text-sm font-medium text-orange-900">KYC Expiring Soon</p><p className="text-xs text-orange-700 mt-1">5 FOs need attention</p></div>
+              <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-orange-600 text-white text-xs font-bold">5</span><button className="text-orange-600 hover:text-orange-700"><Eye className="w-4 h-4" /></button></div>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center justify-between">
+              <div><p className="text-sm font-medium text-red-900">Settlements Overdue</p><p className="text-xs text-red-700 mt-1">Beyond T+1 SLA</p></div>
+              <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-bold">3</span><button className="text-red-600 hover:text-red-700"><Eye className="w-4 h-4" /></button></div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between">
+              <div><p className="text-sm font-medium text-amber-900">Low Incentive Pool</p><p className="text-xs text-amber-700 mt-1">Below 50% threshold</p></div>
+              <div className="flex items-center gap-2"><span className="px-2.5 py-1 rounded-full bg-amber-600 text-white text-xs font-bold">1</span><button className="text-amber-600 hover:text-amber-700"><Eye className="w-4 h-4" /></button></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Business Health */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-foreground">Card Activation Rate</span>
+                <span className="text-lg font-bold text-green-600">89%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[89%] bg-green-600" /></div>
+              <p className="text-xs text-muted-foreground mt-2">Target: 90%</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-foreground">Settlement Success Rate</span>
+                <span className="text-lg font-bold text-green-600">98.5%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[98.5%] bg-green-600" /></div>
+              <p className="text-xs text-muted-foreground mt-2">Excellent performance</p>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-medium text-foreground">Incentive Utilization</span>
+                <span className="text-lg font-bold text-amber-600">42%</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[42%] bg-amber-600" /></div>
+              <p className="text-xs text-muted-foreground mt-2">Moderate usage</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Settlement Status + Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Settlement Overview */}
+        {/* Today's Settlement */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground">Settlement Status</h2>
+            <h2 className="font-semibold text-foreground">Today's Settlement</h2>
             <span className="text-xs text-muted-foreground">Today</span>
           </div>
           
           <div className="text-center mb-4">
-            <p className="text-3xl font-bold text-foreground">{settlementStatus.totalAmount}</p>
-            <p className="text-xs text-muted-foreground">Total Settlement Value</p>
+            <p className="text-3xl font-bold text-foreground">₹45.8L</p>
+            <p className="text-xs text-muted-foreground">Total Settlement Amount</p>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-sm text-muted-foreground">Pending</span>
+                <Receipt className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Transactions</span>
               </div>
-              <span className="text-sm font-medium">{settlementStatus.pending}</span>
+              <span className="text-sm font-medium">156</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-sm text-muted-foreground">Processing</span>
+                <Building2 className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Dealerships to be Paid</span>
               </div>
-              <span className="text-sm font-medium">{settlementStatus.processing}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-sm text-muted-foreground">Completed</span>
-              </div>
-              <span className="text-sm font-medium">{settlementStatus.completed}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-sm text-muted-foreground">Failed</span>
-              </div>
-              <span className="text-sm font-medium">{settlementStatus.failed}</span>
+              <span className="text-sm font-medium">12</span>
             </div>
           </div>
 
