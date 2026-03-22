@@ -93,14 +93,12 @@ export default function AdminAnalytics() {
             <h3 className="font-semibold text-foreground">FO Registration Trend</h3>
             <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22% MoM</span>
           </div>
-          <div className="flex items-end justify-between h-32 gap-2">
+          <div className="flex items-end gap-2 h-32">
             {[{month: "Oct", value: 8}, {month: "Nov", value: 12}, {month: "Dec", value: 9}, {month: "Jan", value: 15}, {month: "Feb", value: 18}, {month: "Mar", value: 22}].map((item) => (
-              <div key={item.month} className="flex flex-col items-center flex-1">
-                <span className="text-xs font-semibold text-foreground mb-1">{item.value}</span>
-                <div className="w-full flex flex-col items-center flex-1">
-                  <div className="w-full bg-green-500 rounded-t-sm" style={{height: `${(item.value/22)*100}%`}} />
-                </div>
-                <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
+              <div key={item.month} className="flex flex-col items-center flex-1 gap-1">
+                <span className="text-xs font-medium text-foreground">{item.value}</span>
+                <div className="w-full bg-green-500 rounded-t-sm" style={{height: `${(item.value/22)*100}%`}} />
+                <span className="text-xs text-muted-foreground">{item.month}</span>
               </div>
             ))}
           </div>
@@ -112,14 +110,12 @@ export default function AdminAnalytics() {
             <h3 className="font-semibold text-foreground">Vehicle Registration Trend</h3>
             <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18% MoM</span>
           </div>
-          <div className="flex items-end justify-between h-32 gap-2">
+          <div className="flex items-end gap-2 h-32">
             {[{month: "Oct", value: 45}, {month: "Nov", value: 62}, {month: "Dec", value: 58}, {month: "Jan", value: 78}, {month: "Feb", value: 95}, {month: "Mar", value: 112}].map((item) => (
-              <div key={item.month} className="flex flex-col items-center flex-1">
-                <span className="text-xs font-semibold text-foreground mb-1">{item.value}</span>
-                <div className="w-full flex flex-col items-center flex-1">
-                  <div className="w-full bg-blue-500 rounded-t-sm" style={{height: `${(item.value/112)*100}%`}} />
-                </div>
-                <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
+              <div key={item.month} className="flex flex-col items-center flex-1 gap-1">
+                <span className="text-xs font-medium text-foreground">{item.value}</span>
+                <div className="w-full bg-blue-500 rounded-t-sm" style={{height: `${(item.value/112)*100}%`}} />
+                <span className="text-xs text-muted-foreground">{item.month}</span>
               </div>
             ))}
           </div>
@@ -198,14 +194,12 @@ export default function AdminAnalytics() {
             <h3 className="font-semibold text-foreground">Transaction Trend</h3>
             <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15% MoM</span>
           </div>
-          <div className="flex items-end justify-between h-32 gap-2">
+          <div className="flex items-end gap-2 h-32">
             {[{month: "Oct", value: 1240}, {month: "Nov", value: 1580}, {month: "Dec", value: 1320}, {month: "Jan", value: 1890}, {month: "Feb", value: 2150}, {month: "Mar", value: 2480}].map((item) => (
-              <div key={item.month} className="flex flex-col items-center flex-1">
-                <span className="text-xs font-semibold text-foreground mb-1">{item.value.toLocaleString().slice(0, -1)}K</span>
-                <div className="w-full flex flex-col items-center flex-1">
-                  <div className="w-full bg-purple-500 rounded-t-sm" style={{height: `${(item.value/2480)*100}%`}} />
-                </div>
-                <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
+              <div key={item.month} className="flex flex-col items-center flex-1 gap-1">
+                <span className="text-xs font-medium text-foreground">{item.value.toLocaleString().slice(0, -1)}K</span>
+                <div className="w-full bg-purple-500 rounded-t-sm" style={{height: `${(item.value/2480)*100}%`}} />
+                <span className="text-xs text-muted-foreground">{item.month}</span>
               </div>
             ))}
           </div>
@@ -215,14 +209,12 @@ export default function AdminAnalytics() {
       {/* Transaction Trend by Time of Day - Full Width */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h3 className="font-semibold text-foreground mb-6">Transaction Trend by Time of Day</h3>
-        <div className="flex items-end justify-between h-40 gap-3">
+        <div className="flex items-end gap-3 h-40">
           {[{period: "6AM-9AM", percentage: 15, isPeak: false}, {period: "9AM-12PM", percentage: 28, isPeak: true}, {period: "12PM-3PM", percentage: 22, isPeak: false}, {period: "3PM-6PM", percentage: 25, isPeak: false}, {period: "6PM-9PM", percentage: 10, isPeak: false}].map((item) => (
-            <div key={item.period} className="flex flex-col items-center flex-1">
-              <span className="text-xs font-semibold text-foreground mb-2">{item.percentage}%</span>
-              <div className="w-full flex flex-col items-center flex-1">
-                <div className={`w-full rounded-t-sm ${item.isPeak ? "bg-amber-600" : "bg-amber-300"}`} style={{height: `${item.percentage * 1.25}%`}} />
-              </div>
-              <span className="text-xs text-muted-foreground mt-2 text-center">{item.period}</span>
+            <div key={item.period} className="flex flex-col items-center flex-1 gap-1">
+              <span className="text-xs font-medium text-foreground">{item.percentage}%</span>
+              <div className={`w-full rounded-t-sm ${item.isPeak ? "bg-amber-600" : "bg-amber-300"}`} style={{height: `${item.percentage * 1.25}%`}} />
+              <span className="text-xs text-muted-foreground text-center">{item.period}</span>
             </div>
           ))}
         </div>
