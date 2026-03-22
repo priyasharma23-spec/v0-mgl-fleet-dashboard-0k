@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3 } from "lucide-react"
+import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2 } from "lucide-react"
 
 export default function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
   const kpis = [
@@ -154,46 +154,44 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
 
       {/* Settlement Status + Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Settlement Overview */}
+        {/* Today's Settlement */}
         <div className="lg:col-span-1 bg-card rounded-xl border border-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground">Settlement Status</h2>
+            <h2 className="font-semibold text-foreground">Today's Settlement</h2>
             <span className="text-xs text-muted-foreground">Today</span>
           </div>
           
           <div className="text-center mb-4">
-            <p className="text-3xl font-bold text-foreground">{settlementStatus.totalAmount}</p>
-            <p className="text-xs text-muted-foreground">Total Settlement Value</p>
+            <p className="text-3xl font-bold text-foreground">₹45.8L</p>
+            <p className="text-xs text-muted-foreground">Total Settlement Amount</p>
           </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-sm text-muted-foreground">Pending</span>
+                <Receipt className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Transactions</span>
               </div>
-              <span className="text-sm font-medium">{settlementStatus.pending}</span>
+              <span className="text-sm font-medium">156</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-sm text-muted-foreground">Processing</span>
+                <Building2 className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Dealerships to be Paid</span>
               </div>
-              <span className="text-sm font-medium">{settlementStatus.processing}</span>
+              <span className="text-sm font-medium">12</span>
+            </div>
+            <div className="flex items-center justify-between border-t border-border pt-3">
+              <span className="text-sm text-muted-foreground">Incentive Paid Today</span>
+              <span className="text-sm font-medium text-green-600">₹2.4L</span>
             </div>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-sm text-muted-foreground">Completed</span>
-              </div>
-              <span className="text-sm font-medium">{settlementStatus.completed}</span>
+              <span className="text-sm text-muted-foreground">Cashback Paid Today</span>
+              <span className="text-sm font-medium text-blue-600">₹85,000</span>
             </div>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-sm text-muted-foreground">Failed</span>
-              </div>
-              <span className="text-sm font-medium">{settlementStatus.failed}</span>
+              <span className="text-sm text-muted-foreground">Total Unused Card Balance</span>
+              <span className="text-sm font-medium text-purple-600">₹1.2Cr</span>
             </div>
           </div>
 
@@ -256,6 +254,61 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
               <tr className="hover:bg-muted/30"><td className="px-4 py-3">Quick Move</td><td className="px-4 py-3 text-muted-foreground">Nashik</td><td className="px-4 py-3 text-center">1,203</td><td className="px-4 py-3 text-center">₹18.5L</td><td className="px-4 py-3 text-center"><span className="text-green-600 font-medium">3</span></td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Recently Added */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* New Fleet Operators */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">New Fleet Operators (Last 7 days)</h2>
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="divide-y divide-border">
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Swift Logistics</p>
+                  <p className="text-xs text-muted-foreground">Pune • Mar 20 • 8 vehicles</p>
+                </div>
+              </div>
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Express Fleet Co.</p>
+                  <p className="text-xs text-muted-foreground">Chennai • Mar 19 • 5 vehicles</p>
+                </div>
+              </div>
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Urban Movers Ltd.</p>
+                  <p className="text-xs text-muted-foreground">Delhi • Mar 18 • 12 vehicles</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* New Vehicles Registered */}
+        <div>
+          <h2 className="font-semibold text-foreground mb-3">New Vehicles Registered (Last 7 days)</h2>
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="divide-y divide-border">
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+                <p className="text-sm font-medium text-foreground">MH12AB1234</p>
+                <p className="text-xs text-muted-foreground">ABC Logistics • Card Active • Mar 21</p>
+              </div>
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+                <p className="text-sm font-medium text-foreground">KA05XY5678</p>
+                <p className="text-xs text-muted-foreground">Metro Freight • Card Pending • Mar 21</p>
+              </div>
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+                <p className="text-sm font-medium text-foreground">DL08CD9012</p>
+                <p className="text-xs text-muted-foreground">Urban Transport • Card Active • Mar 20</p>
+              </div>
+              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
+                <p className="text-sm font-medium text-foreground">TN03EF3456</p>
+                <p className="text-xs text-muted-foreground">City Express • Card Active • Mar 20</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
