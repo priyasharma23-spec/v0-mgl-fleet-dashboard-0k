@@ -360,6 +360,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     </div>
   );
 }
+}
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
