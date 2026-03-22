@@ -10,54 +10,6 @@ export default function AdminAnalytics() {
         <p className="text-sm text-muted-foreground">Usage trends, performance insights, and predictive analytics</p>
       </div>
 
-      {/* Recently Added */}
-      <div className="bg-card rounded-xl border border-border p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-foreground">Recently Added</h2>
-          <span className="text-xs text-muted-foreground">Last 7 days</span>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Fleet Operators <span className="text-primary ml-1">3 new</span></p>
-            <div className="divide-y divide-border">
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">Swift Logistics</p>
-                <p className="text-xs text-muted-foreground">Pune • Mar 20 • 8 vehicles</p>
-              </div>
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">Express Fleet Co.</p>
-                <p className="text-xs text-muted-foreground">Chennai • Mar 19 • 5 vehicles</p>
-              </div>
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">Urban Movers Ltd.</p>
-                <p className="text-xs text-muted-foreground">Delhi • Mar 18 • 12 vehicles</p>
-              </div>
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vehicles <span className="text-primary ml-1">4 new</span></p>
-            <div className="divide-y divide-border">
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="font-mono text-sm font-medium text-foreground">MH12AB1234</p>
-                <p className="text-xs text-muted-foreground">ABC Logistics • Card Active • Mar 21</p>
-              </div>
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="font-mono text-sm font-medium text-foreground">KA05XY5678</p>
-                <p className="text-xs text-muted-foreground">Metro Freight • Card Pending • Mar 21</p>
-              </div>
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="font-mono text-sm font-medium text-foreground">DL08CD9012</p>
-                <p className="text-xs text-muted-foreground">Urban Transport • Card Active • Mar 20</p>
-              </div>
-              <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
-                <p className="font-mono text-sm font-medium text-foreground">TN03EF3456</p>
-                <p className="text-xs text-muted-foreground">City Express • Card Active • Mar 20</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Key Metrics */}
       <div className="bg-card rounded-xl border border-border p-5">
         <h3 className="font-semibold mb-4">Key Performance Indicators</h3>
@@ -313,6 +265,51 @@ export default function AdminAnalytics() {
               </div>
             )
           })()}
+        </div>
+      </div>
+
+      {/* Recently Added - Split into two cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* New Fleet Operators */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h2 className="font-semibold text-foreground mb-4">New Fleet Operators (Last 7 days)</h2>
+          <div className="divide-y divide-border">
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="text-sm font-medium text-foreground">Swift Logistics</p>
+              <p className="text-xs text-muted-foreground">Pune • Mar 20 • 8 vehicles</p>
+            </div>
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="text-sm font-medium text-foreground">Express Fleet Co.</p>
+              <p className="text-xs text-muted-foreground">Chennai • Mar 19 • 5 vehicles</p>
+            </div>
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="text-sm font-medium text-foreground">Urban Movers Ltd.</p>
+              <p className="text-xs text-muted-foreground">Delhi • Mar 18 • 12 vehicles</p>
+            </div>
+          </div>
+        </div>
+
+        {/* New Vehicles Registered */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <h2 className="font-semibold text-foreground mb-4">New Vehicles Registered (Last 7 days)</h2>
+          <div className="divide-y divide-border">
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="font-mono text-sm font-medium text-foreground">MH12AB1234</p>
+              <p className="text-xs text-muted-foreground">ABC Logistics • Card Active • Mar 21</p>
+            </div>
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="font-mono text-sm font-medium text-foreground">KA05XY5678</p>
+              <p className="text-xs text-muted-foreground">Metro Freight • Card Pending • Mar 21</p>
+            </div>
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="font-mono text-sm font-medium text-foreground">DL08CD9012</p>
+              <p className="text-xs text-muted-foreground">Urban Transport • Card Active • Mar 20</p>
+            </div>
+            <div className="px-3 py-2 hover:bg-muted/30 transition-colors">
+              <p className="font-mono text-sm font-medium text-foreground">TN03EF3456</p>
+              <p className="text-xs text-muted-foreground">City Express • Card Active • Mar 20</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
