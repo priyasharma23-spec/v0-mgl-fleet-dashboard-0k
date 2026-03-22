@@ -257,61 +257,6 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
         </div>
       </div>
 
-      {/* Recently Added */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* New Fleet Operators */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">New Fleet Operators (Last 7 days)</h2>
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="divide-y divide-border">
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Swift Logistics</p>
-                  <p className="text-xs text-muted-foreground">Pune • Mar 20 • 8 vehicles</p>
-                </div>
-              </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Express Fleet Co.</p>
-                  <p className="text-xs text-muted-foreground">Chennai • Mar 19 • 5 vehicles</p>
-                </div>
-              </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Urban Movers Ltd.</p>
-                  <p className="text-xs text-muted-foreground">Delhi • Mar 18 • 12 vehicles</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* New Vehicles Registered */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">New Vehicles Registered (Last 7 days)</h2>
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="divide-y divide-border">
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">MH12AB1234</p>
-                <p className="text-xs text-muted-foreground">ABC Logistics • Card Active • Mar 21</p>
-              </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">KA05XY5678</p>
-                <p className="text-xs text-muted-foreground">Metro Freight • Card Pending • Mar 21</p>
-              </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">DL08CD9012</p>
-                <p className="text-xs text-muted-foreground">Urban Transport • Card Active • Mar 20</p>
-              </div>
-              <div className="px-4 py-3 hover:bg-muted/30 transition-colors">
-                <p className="text-sm font-medium text-foreground">TN03EF3456</p>
-                <p className="text-xs text-muted-foreground">City Express • Card Active • Mar 20</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* System Alerts */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
         <div className="flex items-start gap-3">
