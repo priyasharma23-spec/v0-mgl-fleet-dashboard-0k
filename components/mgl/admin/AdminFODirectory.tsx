@@ -142,36 +142,6 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
             </div>
           </div>
 
-          {/* Cards List */}
-          <div>
-            <h3 className="font-semibold text-sm mb-3">Card Wallets</h3>
-            <div className="space-y-2">
-              {cards.map((card, i) => (
-                <div key={i} className="p-3 border border-border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="font-medium text-sm">{card.vehicle}</p>
-                      <p className="text-xs text-muted-foreground">Card: {card.cardNo}</p>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      card.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}>{card.status}</span>
-                  </div>
-                  <div className="flex gap-4 text-xs">
-                    <div>
-                      <span className="text-muted-foreground">Card Wallet: </span>
-                      <span className="font-medium text-blue-600">{card.cardWallet}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Incentive: </span>
-                      <span className="font-medium text-green-600">{card.incentiveWallet}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Bank Account Details */}
           <div>
             <h3 className="font-semibold text-sm mb-3">Bank Account Details</h3>
@@ -238,6 +208,37 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
               </div>
             )}
           </div>
+
+          {/* Vehicle Cards */}
+          <div>
+            <h3 className="font-semibold text-sm mb-3">Vehicle Cards</h3>
+            <div className="space-y-2">
+              {cards.map((card, i) => (
+                <div key={i} className="p-3 border border-border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-sm">{card.vehicle}</p>
+                      <p className="text-xs text-muted-foreground">Card: {card.cardNo}</p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      card.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}>{card.status}</span>
+                  </div>
+                  <div className="flex gap-4 text-xs">
+                    <div>
+                      <span className="text-muted-foreground">Card Wallet: </span>
+                      <span className="font-medium text-blue-600">{card.cardWallet}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Incentive: </span>
+                      <span className="font-medium text-green-600">{card.incentiveWallet}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <button className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
             View Transaction History <ArrowRight className="w-4 h-4" />
           </button>
