@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2 } from "lucide-react"
+import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2, ArrowRightLeft } from "lucide-react"
 
 export default function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
   const kpis = [
@@ -12,6 +12,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
     { label: "Incentive Paid Today", value: "₹2.4L", change: "", trend: "neutral", icon: Gift, color: "green" },
     { label: "Cashback Paid Today", value: "₹85,000", change: "", trend: "neutral", icon: Percent, color: "blue" },
     { label: "Unused Card Balance", value: "₹1.2Cr", change: "", trend: "neutral", icon: CreditCard, color: "purple" },
+    { label: "Today's Settlement", value: "₹45.8L", change: "156 txns • 12 dealerships", trend: "neutral", icon: ArrowRightLeft, color: "green" },
   ]
 
   const recentActivity = [
@@ -37,49 +38,80 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
         <div>
           <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground">System overview and operations monitoring</p>
+          <div className="flex items-center gap-2 mt-2">
+            <Building2 className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-bold text-green-800">Available Balance: ₹4.2Cr</span>
+            <span className="text-xs text-muted-foreground">• Fetched at Mar 23, 2026 12:25 AM</span>
+            <button className="p-1 hover:bg-green-100 rounded-lg transition-colors">
+              <RefreshCw className="w-3.5 h-3.5 text-green-600" />
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">Last updated: 2 mins ago</span>
           <button className="p-2 rounded-lg border border-border hover:bg-muted transition-colors">
             <RefreshCw className="w-4 h-4 text-muted-foreground" />
           </button>
+          <span className="text-xs text-muted-foreground">Board refreshed 2 mins ago</span>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-        {kpis.map((kpi, i) => (
-          <div key={i} className="bg-card rounded-xl border border-border p-4">
-            <div className="flex items-start justify-between">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                kpi.color === "blue" ? "bg-blue-100" :
-                kpi.color === "green" ? "bg-green-100" :
-                kpi.color === "purple" ? "bg-purple-100" : "bg-amber-100"
-              }`}>
-                <kpi.icon className={`w-5 h-5 ${
-                  kpi.color === "blue" ? "text-blue-600" :
-                  kpi.color === "green" ? "text-green-600" :
-                  kpi.color === "purple" ? "text-purple-600" : "text-amber-600"
-                }`} />
-              </div>
-              {kpi.trend !== "neutral" && (
-                <div className={`flex items-center gap-1 text-xs font-medium ${
-                  kpi.trend === "up" ? "text-green-600" : "text-red-600"
-                }`}>
-                  {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                  {kpi.change}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+        {kpis.map((kpi, i) => {
+          if (kpi.label === "Today's Settlement") {
+            return (
+              <div key={i} className="bg-card rounded-xl border border-border p-4">
+                <div className="flex items-start justify-between">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <ArrowRightLeft className="w-5 h-5 text-green-600" />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">Today</span>
                 </div>
-              )}
-              {kpi.trend === "neutral" && (
-                <span className="text-xs font-medium text-amber-600">{kpi.change} used</span>
-              )}
+                <div className="mt-3">
+                  <p className="text-2xl font-bold text-foreground">₹45.8L</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Today's Settlement</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-green-600 font-medium">156 txns</span>
+                    <span className="text-xs text-muted-foreground">•</span>
+                    <span className="text-xs text-blue-600 font-medium">12 dealerships</span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <div key={i} className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-start justify-between">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  kpi.color === "blue" ? "bg-blue-100" :
+                  kpi.color === "green" ? "bg-green-100" :
+                  kpi.color === "purple" ? "bg-purple-100" : "bg-amber-100"
+                }`}>
+                  <kpi.icon className={`w-5 h-5 ${
+                    kpi.color === "blue" ? "text-blue-600" :
+                    kpi.color === "green" ? "text-green-600" :
+                    kpi.color === "purple" ? "text-purple-600" : "text-amber-600"
+                  }`} />
+                </div>
+                {kpi.trend !== "neutral" && (
+                  <div className={`flex items-center gap-1 text-xs font-medium ${
+                    kpi.trend === "up" ? "text-green-600" : "text-red-600"
+                  }`}>
+                    {kpi.trend === "up" ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {kpi.change}
+                  </div>
+                )}
+                {kpi.trend === "neutral" && (
+                  <span className="text-xs font-medium text-amber-600">{kpi.change}</span>
+                )}
+              </div>
+              <div className="mt-3">
+                <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+                <p className="text-xs text-muted-foreground">{kpi.label}</p>
+              </div>
             </div>
-            <div className="mt-3">
-              <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
-              <p className="text-xs text-muted-foreground">{kpi.label}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Quick Actions */}
@@ -122,103 +154,32 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
             </div>
           </div>
         </div>
-
-        {/* Business Health */}
-        <div>
-          <h2 className="font-semibold text-foreground mb-3">Business Health</h2>
-          <div className="grid grid-cols-1 gap-4">
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Card Activation Rate</span>
-                <span className="text-lg font-bold text-green-600">89%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[89%] bg-green-600" /></div>
-              <p className="text-xs text-muted-foreground mt-2">Target: 90%</p>
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Settlement Success Rate</span>
-                <span className="text-lg font-bold text-green-600">98.5%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[98.5%] bg-green-600" /></div>
-              <p className="text-xs text-muted-foreground mt-2">Excellent performance</p>
-            </div>
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-foreground">Incentive Utilization</span>
-                <span className="text-lg font-bold text-amber-600">42%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-muted overflow-hidden"><div className="h-full w-[42%] bg-amber-600" /></div>
-              <p className="text-xs text-muted-foreground mt-2">Moderate usage</p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Settlement Status + Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Today's Settlement */}
-        <div className="lg:col-span-1 bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground">Today's Settlement</h2>
-            <span className="text-xs text-muted-foreground">Today</span>
-          </div>
-          
-          <div className="text-center mb-4">
-            <p className="text-3xl font-bold text-foreground">₹45.8L</p>
-            <p className="text-xs text-muted-foreground">Total Settlement Amount</p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Transactions</span>
-              </div>
-              <span className="text-sm font-medium">156</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Dealerships to be Paid</span>
-              </div>
-              <span className="text-sm font-medium">12</span>
-            </div>
-          </div>
-
-          <button 
-            onClick={() => onViewChange("admin-transactions")}
-            className="w-full mt-4 py-2 text-sm text-primary font-medium border border-primary/30 rounded-lg hover:bg-primary/5 transition-colors flex items-center justify-center gap-1"
-          >
-            View All Transactions <ArrowRight className="w-4 h-4" />
-          </button>
+      {/* Recent Activity */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-foreground">Recent Activity</h2>
+          <button className="text-xs text-primary font-medium hover:underline">View All</button>
         </div>
 
-        {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-foreground">Recent Activity</h2>
-            <button className="text-xs text-primary font-medium hover:underline">View All</button>
-          </div>
-
-          <div className="space-y-3">
-            {recentActivity.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                  item.status === "success" ? "bg-green-100" :
-                  item.status === "warning" ? "bg-amber-100" : "bg-blue-100"
-                }`}>
-                  {item.status === "success" ? <CheckCircle className="w-4 h-4 text-green-600" /> :
-                   item.status === "warning" ? <AlertTriangle className="w-4 h-4 text-amber-600" /> :
-                   <Activity className="w-4 h-4 text-blue-600" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground">{item.desc}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{item.time}</p>
-                </div>
+        <div className="space-y-3">
+          {recentActivity.map((item, i) => (
+            <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                item.status === "success" ? "bg-green-100" :
+                item.status === "warning" ? "bg-amber-100" : "bg-blue-100"
+              }`}>
+                {item.status === "success" ? <CheckCircle className="w-4 h-4 text-green-600" /> :
+                 item.status === "warning" ? <AlertTriangle className="w-4 h-4 text-amber-600" /> :
+                 <Activity className="w-4 h-4 text-blue-600" />}
               </div>
-            ))}
-          </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-foreground">{item.desc}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{item.time}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
