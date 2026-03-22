@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2, ArrowRightLeft } from "lucide-react"
+import AdminSettlementFlow from "./AdminSettlementFlow"
 
 export default function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
+  const [showSettlementFlow, setShowSettlementFlow] = useState(false)
   const kpis = [
     { label: "Active Fleet Operators", value: "127", change: "+8", trend: "up", icon: Users, color: "blue" },
     { label: "Total Active Cards", value: "2,847", change: "+156", trend: "up", icon: CreditCard, color: "green" },
@@ -116,7 +118,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
 
       {/* Quick Actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <button className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
+        <button onClick={() => setShowSettlementFlow(true)} className="p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors flex flex-col items-center gap-2 text-center">
           <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center"><Zap className="w-5 h-5 text-blue-600" /></div>
           <span className="text-xs font-medium text-foreground">Process Settlement</span>
         </button>
@@ -197,6 +199,8 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
           </div>
         </div>
       </div>
+
+      {showSettlementFlow && <AdminSettlementFlow onClose={() => setShowSettlementFlow(false)} />}
     </div>
   )
 }

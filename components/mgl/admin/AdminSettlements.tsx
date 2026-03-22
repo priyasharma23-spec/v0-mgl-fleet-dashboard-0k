@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Eye, X, CheckCircle, Clock, PauseCircle, XCircle } from "lucide-react"
+import { Download, Eye, X, CheckCircle, Clock, PauseCircle, XCircle, Zap } from "lucide-react"
+import AdminSettlementFlow from "./AdminSettlementFlow"
 
 export default function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [statusFilter, setStatusFilter] = useState("all")
@@ -9,6 +10,7 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
   const [selectedSettlement, setSelectedSettlement] = useState<any>(null)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const [showTxns, setShowTxns] = useState(false)
+  const [showFlow, setShowFlow] = useState(false)
 
   const settlementData = [
     {
@@ -164,9 +166,14 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
           <h1 className="text-xl font-bold text-foreground">Settlements</h1>
           <p className="text-sm text-muted-foreground">Monitor settlement status and dealership-wise summary</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-          <Download className="w-4 h-4" /> Export
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowFlow(true)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Zap className="w-4 h-4" /> Start Settlement
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+            <Download className="w-4 h-4" /> Export
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -390,6 +397,8 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
           )}
         </div>
       )}
+
+      {showFlow && <AdminSettlementFlow onClose={() => setShowFlow(false)} />}
     </div>
   )
 }
