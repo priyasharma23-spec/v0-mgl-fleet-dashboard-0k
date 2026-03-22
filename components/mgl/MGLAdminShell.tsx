@@ -16,7 +16,7 @@ import AdminConfig from "@/components/mgl/admin/AdminConfig"
 import AdminUserManagement from "@/components/mgl/admin/AdminUserManagement"
 
 interface Props {
-  user: { name: string; role: "mgl-admin" }
+  user: { name: string; role: "mgl-admin"; department?: string }
   onLogout: () => void
 }
 
@@ -49,6 +49,7 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
           onViewChange={setActiveView}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          department={user.department}
         />
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           <MGLHeader
