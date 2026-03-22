@@ -52,9 +52,39 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
               <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Parent Wallet</p><p className="font-bold text-lg">{fo.parentWallet}</p><p className="text-xs text-amber-600">T+1 Pending: ₹15,000</p></div>
               <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Total Cards</p><p className="font-bold text-lg">{fo.cards}</p><p className="text-xs text-muted-foreground">{fo.vehicles} vehicles</p></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-green-50 border border-green-200 rounded-xl p-3"><p className="text-xs text-green-700">Incentive Wallet</p><p className="text-lg font-bold text-green-900">{fo.incentiveWallet}</p><p className="text-xs text-green-600">MGL Funded</p></div>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3"><p className="text-xs text-blue-700">Cashback Earned</p><p className="text-lg font-bold text-blue-900">{fo.cashback}</p><p className="text-xs text-blue-600">Lifetime</p></div>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-green-800">Incentive Wallet</p>
+                <p className="text-xl font-bold text-green-900">{fo.incentiveWallet}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-white/60 rounded-lg p-2">
+                  <p className="text-xs text-muted-foreground">Lifetime Issued</p>
+                  <p className="text-sm font-semibold text-foreground">{fo.incentiveLifetime}</p>
+                </div>
+                <div className="bg-white/60 rounded-lg p-2">
+                  <p className="text-xs text-muted-foreground">Unused Balance</p>
+                  <p className="text-sm font-semibold text-green-700">{fo.incentiveUnused}</p>
+                </div>
+              </div>
+              <p className="text-xs text-green-600 mt-3">MGL Funded</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-blue-800">Cashback Earned</p>
+                <p className="text-xl font-bold text-blue-900">{fo.cashback}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="bg-white/60 rounded-lg p-2">
+                  <p className="text-xs text-muted-foreground">Lifetime Earned</p>
+                  <p className="text-sm font-semibold text-foreground">{fo.cashbackLifetime}</p>
+                </div>
+                <div className="bg-white/60 rounded-lg p-2">
+                  <p className="text-xs text-muted-foreground">Unused Cashback</p>
+                  <p className="text-sm font-semibold text-blue-700">{fo.cashbackUnused}</p>
+                </div>
+              </div>
+              <p className="text-xs text-blue-600 mt-3">Across all vehicles</p>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-sm font-semibold">Bank Account Details</p>
@@ -96,11 +126,11 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
 
   const fleetOperators = [
-    { id: "FO001", name: "ABC Logistics Pvt. Ltd.", region: "Mumbai", status: "Active", vehicles: 15, cards: 12, parentWallet: "₹2.4L", kycStatus: "Verified", joinedDate: "Jan 2025", bankName: "HDFC Bank", accountNumber: "****4521", ifsc: "HDFC0001234", accountType: "Current", incentiveWallet: "₹2.4L", cashback: "₹12,500", transactions: [{ id: 'TXN001', date: 'Mar 21, 2024 10:30 AM', type: 'POS', amount: 50000, status: 'Successful' }, { id: 'TXN002', date: 'Mar 20, 2024 02:15 PM', type: 'Load', amount: 25000, status: 'Successful' }, { id: 'TXN003', date: 'Mar 19, 2024 11:00 AM', type: 'POS', amount: 15000, status: 'Failed' }, { id: 'TXN004', date: 'Mar 18, 2024 04:45 PM', type: 'POS', amount: 8000, status: 'Pending' }] },
-    { id: "FO002", name: "Metro Freight Solutions", region: "Pune", status: "Active", vehicles: 20, cards: 18, parentWallet: "₹5.1L", kycStatus: "Verified", joinedDate: "Mar 2025", bankName: "ICICI Bank", accountNumber: "****7890", ifsc: "ICIC0005678", accountType: "Savings", incentiveWallet: "₹3.8L", cashback: "₹28,900", transactions: [{ id: 'TXN101', date: 'Mar 21, 2024 09:00 AM', type: 'POS', amount: 75000, status: 'Successful' }, { id: 'TXN102', date: 'Mar 20, 2024 03:30 PM', type: 'Load', amount: 50000, status: 'Successful' }, { id: 'TXN103', date: 'Mar 19, 2024 01:15 PM', type: 'POS', amount: 30000, status: 'Pending' }] },
-    { id: "FO003", name: "Sunrise Transport Co.", region: "Thane", status: "Active", vehicles: 8, cards: 8, parentWallet: "₹1.2L", kycStatus: "Expiring", joinedDate: "Dec 2024", bankName: "Axis Bank", accountNumber: "****3456", ifsc: "UTIB0001111", accountType: "Current", incentiveWallet: "₹0.8L", cashback: "₹5,200", transactions: [{ id: 'TXN201', date: 'Mar 21, 2024 11:45 AM', type: 'POS', amount: 20000, status: 'Successful' }, { id: 'TXN202', date: 'Mar 20, 2024 05:20 PM', type: 'POS', amount: 10000, status: 'Failed' }] },
-    { id: "FO004", name: "Quick Move Logistics", region: "Navi Mumbai", status: "Suspended", vehicles: 5, cards: 3, parentWallet: "₹0", kycStatus: "Expired", joinedDate: "Nov 2024", bankName: "Kotak Bank", accountNumber: "****9012", ifsc: "KKBK0002222", accountType: "Savings", incentiveWallet: "₹0.2L", cashback: "₹1,800", transactions: [{ id: 'TXN301', date: 'Mar 21, 2024 02:10 PM', type: 'Load', amount: 5000, status: 'Failed' }] },
-    { id: "FO005", name: "City Express Carriers", region: "Mumbai", status: "Active", vehicles: 25, cards: 22, parentWallet: "₹8.3L", kycStatus: "Verified", joinedDate: "Feb 2025", bankName: "Yes Bank", accountNumber: "****5678", ifsc: "YESB0003333", accountType: "Current", incentiveWallet: "₹5.2L", cashback: "₹42,100", transactions: [{ id: 'TXN401', date: 'Mar 21, 2024 08:30 AM', type: 'POS', amount: 120000, status: 'Successful' }, { id: 'TXN402', date: 'Mar 20, 2024 04:00 PM', type: 'Load', amount: 80000, status: 'Successful' }, { id: 'TXN403', date: 'Mar 19, 2024 02:25 PM', type: 'POS', amount: 45000, status: 'Successful' }, { id: 'TXN404', date: 'Mar 18, 2024 06:15 PM', type: 'POS', amount: 35000, status: 'Pending' }] },
+    { id: "FO001", name: "ABC Logistics Pvt. Ltd.", region: "Mumbai", status: "Active", vehicles: 15, cards: 12, parentWallet: "₹2.4L", kycStatus: "Verified", joinedDate: "Jan 2025", bankName: "HDFC Bank", accountNumber: "****4521", ifsc: "HDFC0001234", accountType: "Current", incentiveWallet: "₹2.4L", cashback: "₹12,500", incentiveLifetime: "₹5.2L", incentiveUnused: "₹2.4L", cashbackLifetime: "₹18,500", cashbackUnused: "₹12,500", transactions: [{ id: 'TXN001', date: 'Mar 21, 2024 10:30 AM', type: 'POS', amount: 50000, status: 'Successful' }, { id: 'TXN002', date: 'Mar 20, 2024 02:15 PM', type: 'Load', amount: 25000, status: 'Successful' }, { id: 'TXN003', date: 'Mar 19, 2024 11:00 AM', type: 'POS', amount: 15000, status: 'Failed' }, { id: 'TXN004', date: 'Mar 18, 2024 04:45 PM', type: 'POS', amount: 8000, status: 'Pending' }] },
+    { id: "FO002", name: "Metro Freight Solutions", region: "Pune", status: "Active", vehicles: 20, cards: 18, parentWallet: "₹5.1L", kycStatus: "Verified", joinedDate: "Mar 2025", bankName: "ICICI Bank", accountNumber: "****7890", ifsc: "ICIC0005678", accountType: "Savings", incentiveWallet: "₹3.8L", cashback: "₹28,900", incentiveLifetime: "₹8.5L", incentiveUnused: "₹3.8L", cashbackLifetime: "₹42,100", cashbackUnused: "₹28,900", transactions: [{ id: 'TXN101', date: 'Mar 21, 2024 09:00 AM', type: 'POS', amount: 75000, status: 'Successful' }, { id: 'TXN102', date: 'Mar 20, 2024 03:30 PM', type: 'Load', amount: 50000, status: 'Successful' }, { id: 'TXN103', date: 'Mar 19, 2024 01:15 PM', type: 'POS', amount: 30000, status: 'Pending' }] },
+    { id: "FO003", name: "Sunrise Transport Co.", region: "Thane", status: "Active", vehicles: 8, cards: 8, parentWallet: "₹1.2L", kycStatus: "Expiring", joinedDate: "Dec 2024", bankName: "Axis Bank", accountNumber: "****3456", ifsc: "UTIB0001111", accountType: "Current", incentiveWallet: "₹0.8L", cashback: "₹5,200", incentiveLifetime: "₹2.1L", incentiveUnused: "₹0.8L", cashbackLifetime: "₹9,800", cashbackUnused: "₹5,200", transactions: [{ id: 'TXN201', date: 'Mar 21, 2024 11:45 AM', type: 'POS', amount: 20000, status: 'Successful' }, { id: 'TXN202', date: 'Mar 20, 2024 05:20 PM', type: 'POS', amount: 10000, status: 'Failed' }] },
+    { id: "FO004", name: "Quick Move Logistics", region: "Navi Mumbai", status: "Suspended", vehicles: 5, cards: 3, parentWallet: "₹0", kycStatus: "Expired", joinedDate: "Nov 2024", bankName: "Kotak Bank", accountNumber: "****9012", ifsc: "KKBK0002222", accountType: "Savings", incentiveWallet: "₹0.2L", cashback: "₹1,800", incentiveLifetime: "₹0.6L", incentiveUnused: "₹0.2L", cashbackLifetime: "₹3,200", cashbackUnused: "₹1,800", transactions: [{ id: 'TXN301', date: 'Mar 21, 2024 02:10 PM', type: 'Load', amount: 5000, status: 'Failed' }] },
+    { id: "FO005", name: "City Express Carriers", region: "Mumbai", status: "Active", vehicles: 25, cards: 22, parentWallet: "₹8.3L", kycStatus: "Verified", joinedDate: "Feb 2025", bankName: "Yes Bank", accountNumber: "****5678", ifsc: "YESB0003333", accountType: "Current", incentiveWallet: "₹5.2L", cashback: "₹42,100", incentiveLifetime: "₹12.8L", incentiveUnused: "₹5.2L", cashbackLifetime: "₹68,500", cashbackUnused: "₹42,100", transactions: [{ id: 'TXN401', date: 'Mar 21, 2024 08:30 AM', type: 'POS', amount: 120000, status: 'Successful' }, { id: 'TXN402', date: 'Mar 20, 2024 04:00 PM', type: 'Load', amount: 80000, status: 'Successful' }, { id: 'TXN403', date: 'Mar 19, 2024 02:25 PM', type: 'POS', amount: 45000, status: 'Successful' }, { id: 'TXN404', date: 'Mar 18, 2024 06:15 PM', type: 'POS', amount: 35000, status: 'Pending' }] },
   ]
 
   const getActiveFilterCount = () => {
