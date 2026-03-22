@@ -1,12 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Search, X } from "lucide-react"
+import { Search, Filter, X, Download } from "lucide-react"
 
 export default function AdminUserManagement() {
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
@@ -105,11 +108,26 @@ export default function AdminUserManagement() {
     }
   }
 
+  const getActiveFilterCount = () => {
+    let count = 0
+    if (roleFilter !== "all") count++
+    if (statusFilter !== "all") count++
+    if (fromDate) count++
+    if (toDate) count++
+    return count
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5">
-      <div>
-        <h1 className="text-xl font-bold text-foreground">User Management </h1>
-        <p className="text-sm text-muted-foreground">Manage MGL portal users and access control</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">User Management </h1>
+          <p className="text-sm text-muted-foreground">Manage MGL portal users and access control</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Download className="w-4 h-4" />
+          Export
+        </button>
       </div>
 
       {/* Summary Cards */}
@@ -136,53 +154,108 @@ export default function AdminUserManagement() {
         </div>
       </div>
 
-      {/* Search & Filters */}
-      <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-end">
-        <div className="flex-1">
-          <label className="text-xs font-medium text-muted-foreground">Search</label>
-          <div className="relative mt-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search by name, email, or emp ID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card"
-            />
-          </div>
+      {/* Search Row */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search by name, email, or emp ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card"
+          />
         </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Role</label>
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-40 mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-          >
-            <option value="all">All</option>
-            <option value="MIC">MIC</option>
-            <option value="ZIC">ZIC</option>
-            <option value="Admin">Admin</option>
-          </select>
-        </div>
-        <div>
-          <label className="text-xs font-medium text-muted-foreground">Status</label>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-40 mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-          >
-            <option value="all">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-            <option value="Pending">Pending</option>
-          </select>
-        </div>
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted relative">
+          <Filter className="w-4 h-4" />
+          Filters
+          {getActiveFilterCount() > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {getActiveFilterCount()}
+            </span>
+          )}
+        </button>
         <button 
           onClick={() => setShowAddModal(true)}
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
           + Add User
         </button>
       </div>
+
+      {/* Filter Panel - sibling, no shared wrapper */}
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">From Date</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">To Date</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Role</label>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="all">All</option>
+                <option value="MIC">MIC</option>
+                <option value="ZIC">ZIC</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="all">All</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Pending">Pending</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted"
+              onClick={() => {}}
+            >
+              Apply
+            </button>
+            <button
+              onClick={() => {
+                setRoleFilter("all")
+                setStatusFilter("all")
+                setFromDate("")
+                setToDate("")
+              }}
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted text-muted-foreground"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Users Table */}
       <div className="border border-border rounded-lg overflow-hidden">

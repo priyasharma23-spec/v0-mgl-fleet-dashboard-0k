@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Eye, X } from "lucide-react"
+import { Download, Eye, X, CheckCircle, Clock, PauseCircle, XCircle } from "lucide-react"
 
 export default function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [statusFilter, setStatusFilter] = useState("all")
@@ -88,21 +88,37 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-green-800">Settled</p>
-          <p className="text-lg font-bold text-green-900 mt-1">₹{(summaryStats.settled / 100000).toFixed(1)}L</p>
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle className="w-4 h-4 text-green-600" />
+            <p className="text-sm font-medium text-green-800">Today</p>
+          </div>
+          <p className="text-2xl font-bold text-green-900">₹{(summaryStats.settled / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-green-700 mt-1">{settlementData.filter(s => s.status === "Settled").length} dealerships</p>
         </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-amber-800">Upcoming</p>
-          <p className="text-lg font-bold text-amber-900 mt-1">₹{(summaryStats.upcoming / 100000).toFixed(1)}L</p>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="w-4 h-4 text-amber-600" />
+            <p className="text-sm font-medium text-amber-800">Upcoming</p>
+          </div>
+          <p className="text-2xl font-bold text-amber-900">₹{(summaryStats.upcoming / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-amber-700 mt-1">{settlementData.filter(s => s.status === "Pending" || s.status === "Processing").length} dealerships</p>
         </div>
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-orange-800">On Hold</p>
-          <p className="text-lg font-bold text-orange-900 mt-1">₹{(summaryStats.onHold / 100000).toFixed(1)}L</p>
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <PauseCircle className="w-4 h-4 text-orange-600" />
+            <p className="text-sm font-medium text-orange-800">On Hold</p>
+          </div>
+          <p className="text-2xl font-bold text-orange-900">₹{(summaryStats.onHold / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-orange-700 mt-1">{settlementData.filter(s => s.status === "On Hold").length} dealerships</p>
         </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-purple-800">Failed</p>
-          <p className="text-lg font-bold text-purple-900 mt-1">₹{(summaryStats.failed / 100000).toFixed(1)}L</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <XCircle className="w-4 h-4 text-red-600" />
+            <p className="text-sm font-medium text-red-800">Failed</p>
+          </div>
+          <p className="text-2xl font-bold text-red-900">₹{(summaryStats.failed / 100000).toFixed(1)}L</p>
+          <p className="text-xs text-red-700 mt-1">{settlementData.filter(s => s.status === "Failed").length} dealerships</p>
         </div>
       </div>
 
@@ -188,24 +204,55 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
           </div>
 
           <div className="p-4 space-y-4">
+            {/* Transaction Period */}
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold text-foreground">Transaction Period</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Transaction From:</span>
+                  <span className="font-semibold">{selectedSettlement.transactionFrom}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Transaction Till:</span>
+                  <span className="font-semibold">{selectedSettlement.transactionTill}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Settlement Information */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">Settlement Information</p>
               <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Settlement ID:</span>
+                  <span className="font-mono text-xs">{selectedSettlement.id}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedSettlement.status)}`}>
+                    {selectedSettlement.status}
+                  </span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Settlement Date:</span>
                   <span className="font-semibold">{selectedSettlement.settlementDate}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Bank UTR:</span>
-                  <span className="font-semibold font-mono">{selectedSettlement.bankUTR}</span>
+                  <span className="font-mono text-xs">{selectedSettlement.bankUTR}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account:</span>
-                  <span className="font-semibold font-mono">{selectedSettlement.bankAccount}</span>
+                  <span className="text-muted-foreground">Account Number:</span>
+                  <span className="font-mono text-xs">{selectedSettlement.bankAccount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Bank Name:</span>
+                  <span className="font-semibold">{selectedSettlement.bankName}</span>
                 </div>
               </div>
             </div>
 
+            {/* Net Amount Breakdown */}
             <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">Net Amount Breakdown</p>
               <div className="space-y-2 text-sm">
@@ -227,6 +274,31 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
                 </div>
               </div>
             </div>
+
+            {/* Transactions */}
+            {selectedSettlement.transactions && selectedSettlement.transactions.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-3">Transactions</p>
+                <div className="space-y-2">
+                  {selectedSettlement.transactions.map((txn: any) => (
+                    <button
+                      key={txn.txnId}
+                      onClick={() => setSelectedTransaction(txn)}
+                      className="w-full p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors text-left"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-mono text-xs font-semibold">{txn.txnId}</span>
+                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Success</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{txn.dateTime}</span>
+                        <span className="font-semibold">₹{txn.amount.toLocaleString()}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

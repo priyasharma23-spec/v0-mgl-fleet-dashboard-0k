@@ -1,10 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Eye, X } from "lucide-react"
+import { Download, Eye, X, Search, Filter, CheckCircle, Clock, XCircle, BarChart3 } from "lucide-react"
 
 export default function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [type, setType] = useState<"POS" | "Load">("POS")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
+  const [fromDate, setFromDate] = useState("")
+  const [toDate, setToDate] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
 
   const posTransactions = [
@@ -78,6 +83,14 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
     }
   }
 
+  const getActiveFilterCount = () => {
+    let count = 0
+    if (statusFilter !== "all") count++
+    if (fromDate) count++
+    if (toDate) count++
+    return count
+  }
+
   const successful = posTransactions.filter(t => t.status === "Successful")
   const pendingProcessing = posTransactions.filter(t => t.status === "Pending" || t.status === "Processing")
   const failed = posTransactions.filter(t => t.status === "Failed")
@@ -100,6 +113,102 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
         </button>
       </div>
 
+      {/* Search Row */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search transactions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-border rounded-lg text-sm bg-card"
+          />
+        </div>
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted relative">
+          <Filter className="w-4 h-4" />
+          Filters
+          {getActiveFilterCount() > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {getActiveFilterCount()}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Filter Panel - sibling, no shared wrapper */}
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 space-y-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">From Date</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">To Date</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="all">All</option>
+                <option value="successful">Successful</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Channel</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as "POS" | "Load")}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+              >
+                <option value="POS">POS</option>
+                <option value="Load">Load</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted"
+              onClick={() => {}}
+            >
+              Apply
+            </button>
+            <button
+              onClick={() => {
+                setStatusFilter("all")
+                setFromDate("")
+                setToDate("")
+              }}
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted text-muted-foreground"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-2 border-b border-border">
         <button
           onClick={() => setType("POS")}
@@ -118,25 +227,37 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       {type === "POS" && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-green-800">Successful</p>
-              <p className="text-lg font-bold text-green-900 mt-1">₹{(successful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-green-700 mt-0.5">{successful.length} transactions</p>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <p className="text-sm font-medium text-green-800">Successful</p>
+              </div>
+              <p className="text-2xl font-bold text-green-900">₹{(successful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-green-700 mt-1">{successful.length} transactions</p>
             </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-amber-800">Pending / Processing</p>
-              <p className="text-lg font-bold text-amber-900 mt-1">₹{(pendingProcessing.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-amber-700 mt-0.5">{pendingProcessing.length} transactions</p>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <p className="text-sm font-medium text-amber-800">Pending / Processing</p>
+              </div>
+              <p className="text-2xl font-bold text-amber-900">₹{(pendingProcessing.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-amber-700 mt-1">{pendingProcessing.length} transactions</p>
             </div>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-red-800">Failed</p>
-              <p className="text-lg font-bold text-red-900 mt-1">₹{(failed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-red-700 mt-0.5">{failed.length} transactions</p>
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <XCircle className="w-4 h-4 text-red-600" />
+                <p className="text-sm font-medium text-red-800">Failed</p>
+              </div>
+              <p className="text-2xl font-bold text-red-900">₹{(failed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-red-700 mt-1">{failed.length} transactions</p>
             </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-blue-800">Total</p>
-              <p className="text-lg font-bold text-blue-900 mt-1">₹{(totalAmount / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-blue-700 mt-0.5">{posTransactions.length} transactions</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+                <p className="text-sm font-medium text-blue-800">Total</p>
+              </div>
+              <p className="text-2xl font-bold text-blue-900">₹{(totalAmount / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-blue-700 mt-1">{posTransactions.length} transactions</p>
             </div>
           </div>
 
@@ -185,25 +306,37 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       {type === "Load" && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-blue-800">Total Load Attempted</p>
-              <p className="text-lg font-bold text-blue-900 mt-1">₹{(totalLoadAmount / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-blue-700 mt-0.5">{loadTransactions.length} transactions</p>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+                <p className="text-sm font-medium text-blue-800">Total Load Attempted</p>
+              </div>
+              <p className="text-2xl font-bold text-blue-900">₹{(totalLoadAmount / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-blue-700 mt-1">{loadTransactions.length} transactions</p>
             </div>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-green-800">Successful Load</p>
-              <p className="text-lg font-bold text-green-900 mt-1">₹{(lSuccessful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-green-700 mt-0.5">{lSuccessful.length} transactions</p>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <p className="text-sm font-medium text-green-800">Successful Load</p>
+              </div>
+              <p className="text-2xl font-bold text-green-900">₹{(lSuccessful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-green-700 mt-1">{lSuccessful.length} transactions</p>
             </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-yellow-800">Pending Load</p>
-              <p className="text-lg font-bold text-yellow-900 mt-1">₹{(lPending.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-yellow-700 mt-0.5">{lPending.length} transactions</p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Clock className="w-4 h-4 text-yellow-600" />
+                <p className="text-sm font-medium text-yellow-800">Pending Load</p>
+              </div>
+              <p className="text-2xl font-bold text-yellow-900">₹{(lPending.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-yellow-700 mt-1">{lPending.length} transactions</p>
             </div>
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-xs font-medium text-red-800">Failed Load</p>
-              <p className="text-lg font-bold text-red-900 mt-1">₹{(lFailed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-red-700 mt-0.5">{lFailed.length} transactions</p>
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <XCircle className="w-4 h-4 text-red-600" />
+                <p className="text-sm font-medium text-red-800">Failed Load</p>
+              </div>
+              <p className="text-2xl font-bold text-red-900">₹{(lFailed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
+              <p className="text-xs text-red-700 mt-1">{lFailed.length} transactions</p>
             </div>
           </div>
 
