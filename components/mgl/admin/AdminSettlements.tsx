@@ -204,24 +204,55 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
           </div>
 
           <div className="p-4 space-y-4">
+            {/* Transaction Period */}
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold text-foreground">Transaction Period</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Transaction From:</span>
+                  <span className="font-semibold">{selectedSettlement.transactionFrom}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Transaction Till:</span>
+                  <span className="font-semibold">{selectedSettlement.transactionTill}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Settlement Information */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">Settlement Information</p>
               <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Settlement ID:</span>
+                  <span className="font-mono text-xs">{selectedSettlement.id}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedSettlement.status)}`}>
+                    {selectedSettlement.status}
+                  </span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Settlement Date:</span>
                   <span className="font-semibold">{selectedSettlement.settlementDate}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Bank UTR:</span>
-                  <span className="font-semibold font-mono">{selectedSettlement.bankUTR}</span>
+                  <span className="font-mono text-xs">{selectedSettlement.bankUTR}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account:</span>
-                  <span className="font-semibold font-mono">{selectedSettlement.bankAccount}</span>
+                  <span className="text-muted-foreground">Account Number:</span>
+                  <span className="font-mono text-xs">{selectedSettlement.bankAccount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Bank Name:</span>
+                  <span className="font-semibold">{selectedSettlement.bankName}</span>
                 </div>
               </div>
             </div>
 
+            {/* Net Amount Breakdown */}
             <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <p className="text-sm font-semibold text-foreground">Net Amount Breakdown</p>
               <div className="space-y-2 text-sm">
@@ -243,6 +274,31 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
                 </div>
               </div>
             </div>
+
+            {/* Transactions */}
+            {selectedSettlement.transactions && selectedSettlement.transactions.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-3">Transactions</p>
+                <div className="space-y-2">
+                  {selectedSettlement.transactions.map((txn: any) => (
+                    <button
+                      key={txn.txnId}
+                      onClick={() => setSelectedTransaction(txn)}
+                      className="w-full p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors text-left"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-mono text-xs font-semibold">{txn.txnId}</span>
+                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Success</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{txn.dateTime}</span>
+                        <span className="font-semibold">₹{txn.amount.toLocaleString()}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
