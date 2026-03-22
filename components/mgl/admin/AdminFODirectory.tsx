@@ -7,6 +7,7 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
   const [editMode, setEditMode] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [showTransactions, setShowTransactions] = useState(false)
+  const [txnTab, setTxnTab] = useState<"POS"|"Load"|"All">("All")
   const fo = fleetOperators.find(f => f.id === foId)
   if (!fo) return null
 
@@ -28,19 +29,34 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
         {showTransactions ? (
           <div className="p-4 space-y-4">
             <button onClick={() => setShowTransactions(false)} className="flex items-center gap-2 text-sm text-primary hover:underline">← Back</button>
-            <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm">
-              <div><p className="text-xs text-muted-foreground">Total</p><p className="font-bold">{fo.transactions?.length || 0}</p></div>
-              <div><p className="text-xs text-muted-foreground">Amount</p><p className="font-bold">₹{(fo.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0).toLocaleString()}</p></div>
-            </div>
-            <div className="space-y-2">
-              {fo.transactions?.map((txn: any) => (
-                <div key={txn.id} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/50">
-                  <div className="flex-1"><p className="text-xs font-mono font-semibold">{txn.id}</p><p className="text-xs text-muted-foreground">{txn.date}</p></div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded ${txn.type === 'POS' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>{txn.type}</span>
-                  <div className="text-right"><p className="font-bold text-sm">₹{txn.amount.toLocaleString()}</p><p className={`text-xs ${txn.status === 'Successful' ? 'text-green-600' : txn.status === 'Failed' ? 'text-red-600' : 'text-amber-600'}`}>{txn.status}</p></div>
-                </div>
+            <div className="flex gap-1 border-b border-border">
+              {["All", "POS", "Load"].map(tab => (
+                <button key={tab} onClick={() => setTxnTab(tab as any)}
+                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${txnTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+                  {tab}
+                </button>
               ))}
             </div>
+            {(() => {
+              const filteredTxns = txnTab === "All" ? fo.transactions : fo.transactions?.filter((t: any) => t.type === txnTab)
+              return (
+                <>
+                  <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm">
+                    <div><p className="text-xs text-muted-foreground">Total</p><p className="font-bold">{filteredTxns?.length || 0}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Amount</p><p className="font-bold">₹{(filteredTxns?.reduce((s: number, t: any) => s + t.amount, 0) || 0).toLocaleString()}</p></div>
+                  </div>
+                  <div className="space-y-2">
+                    {filteredTxns?.map((txn: any) => (
+                      <div key={txn.id} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/50">
+                        <div className="flex-1"><p className="text-xs font-mono font-semibold">{txn.id}</p><p className="text-xs text-muted-foreground">{txn.date}</p></div>
+                        <span className={`px-2 py-1 text-xs font-medium rounded ${txn.type === 'POS' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>{txn.type}</span>
+                        <div className="text-right"><p className="font-bold text-sm">₹{txn.amount.toLocaleString()}</p><p className={`text-xs ${txn.status === 'Successful' ? 'text-green-600' : txn.status === 'Failed' ? 'text-red-600' : 'text-amber-600'}`}>{txn.status}</p></div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )
+            })()}
           </div>
         ) : (
           <div className="p-4 space-y-4">

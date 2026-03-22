@@ -8,10 +8,11 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSettlement, setSelectedSettlement] = useState<any>(null)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const [showTxns, setShowTxns] = useState(false)
 
   const settlementData = [
     {
-      id: "SETL001",
+      id: "SET001",
       dateTime: "Mar 21, 2024 10:30 AM",
       dealership: "ABC Motors",
       totalAmount: 152000,
@@ -26,12 +27,13 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
       bankAccount: "****4521",
       bankName: "HDFC Bank",
       transactions: [
-        { txnId: "TXN001", dateTime: "Mar 21, 2024 10:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 50000, fee: 500, taxes: 5000 },
-        { txnId: "TXN004", dateTime: "Mar 21, 2024 09:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 102000, fee: 1020, taxes: 10200 },
+        { txnId: "TXN001", dateTime: "Mar 21, 2024 10:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 50000, fee: 500, taxes: 5000, status: "Success" },
+        { txnId: "TXN004", dateTime: "Mar 21, 2024 09:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 75000, fee: 750, taxes: 7500, status: "Success" },
+        { txnId: "TXN007", dateTime: "Mar 21, 2024 14:15 PM", dealership: "ABC Motors", posId: "POS-001", amount: 27000, fee: 270, taxes: 2700, status: "Success" },
       ]
     },
     {
-      id: "SETL002",
+      id: "SET002",
       dateTime: "Mar 20, 2024 04:00 PM",
       dealership: "XYZ Auto",
       totalAmount: 87500,
@@ -46,8 +48,88 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
       bankAccount: "****8765",
       bankName: "ICICI Bank",
       transactions: [
-        { txnId: "TXN002", dateTime: "Mar 21, 2024 10:15 AM", dealership: "XYZ Auto", posId: "POS-002", amount: 15000, fee: 150, taxes: 1500 },
-        { txnId: "TXN006", dateTime: "Mar 20, 2024 04:00 PM", dealership: "XYZ Auto", posId: "POS-002", amount: 72500, fee: 725, taxes: 7250 },
+        { txnId: "TXN002", dateTime: "Mar 21, 2024 10:15 AM", dealership: "XYZ Auto", posId: "POS-002", amount: 15000, fee: 150, taxes: 1500, status: "Success" },
+        { txnId: "TXN006", dateTime: "Mar 20, 2024 04:00 PM", dealership: "XYZ Auto", posId: "POS-002", amount: 22500, fee: 225, taxes: 2250, status: "Success" },
+        { txnId: "TXN009", dateTime: "Mar 20, 2024 02:45 PM", dealership: "XYZ Auto", posId: "POS-002", amount: 50000, fee: 500, taxes: 5000, status: "Success" },
+      ]
+    },
+    {
+      id: "SET003",
+      dateTime: "Mar 19, 2024 02:30 PM",
+      dealership: "Prime Motors",
+      totalAmount: 13500,
+      totalFee: 135,
+      totalTaxes: 1350,
+      netAmount: 12015,
+      status: "Processing",
+      transactionFrom: "Mar 19, 2024 00:00",
+      transactionTill: "Mar 19, 2024 23:59",
+      settlementDate: "Mar 20, 2024",
+      bankUTR: "UTR555666777",
+      bankAccount: "****3456",
+      bankName: "Axis Bank",
+      transactions: [
+        { txnId: "TXN003", dateTime: "Mar 19, 2024 08:20 AM", dealership: "Prime Motors", posId: "POS-003", amount: 2500, fee: 25, taxes: 250, status: "Success" },
+        { txnId: "TXN008", dateTime: "Mar 19, 2024 02:30 PM", dealership: "Prime Motors", posId: "POS-003", amount: 11000, fee: 110, taxes: 1100, status: "Success" },
+      ]
+    },
+    {
+      id: "SET004",
+      dateTime: "Mar 18, 2024 03:15 PM",
+      dealership: "Elite Autos",
+      totalAmount: 77000,
+      totalFee: 770,
+      totalTaxes: 7700,
+      netAmount: 68530,
+      status: "On Hold",
+      transactionFrom: "Mar 18, 2024 00:00",
+      transactionTill: "Mar 18, 2024 23:59",
+      settlementDate: "Mar 19, 2024",
+      bankUTR: "UTR111222333",
+      bankAccount: "****9012",
+      bankName: "Kotak Bank",
+      transactions: [
+        { txnId: "TXN005", dateTime: "Mar 18, 2024 11:00 AM", dealership: "Elite Autos", posId: "POS-004", amount: 35000, fee: 350, taxes: 3500, status: "Success" },
+        { txnId: "TXN010", dateTime: "Mar 18, 2024 03:15 PM", dealership: "Elite Autos", posId: "POS-004", amount: 42000, fee: 420, taxes: 4200, status: "Success" },
+      ]
+    },
+    {
+      id: "SET005",
+      dateTime: "Mar 17, 2024 11:45 AM",
+      dealership: "ABC Motors",
+      totalAmount: 125000,
+      totalFee: 1250,
+      totalTaxes: 12500,
+      netAmount: 111250,
+      status: "Settled",
+      transactionFrom: "Mar 17, 2024 00:00",
+      transactionTill: "Mar 17, 2024 23:59",
+      settlementDate: "Mar 18, 2024",
+      bankUTR: "UTR444555666",
+      bankAccount: "****4521",
+      bankName: "HDFC Bank",
+      transactions: [
+        { txnId: "TXN011", dateTime: "Mar 17, 2024 09:30 AM", dealership: "ABC Motors", posId: "POS-001", amount: 80000, fee: 800, taxes: 8000, status: "Success" },
+        { txnId: "TXN012", dateTime: "Mar 17, 2024 11:45 AM", dealership: "ABC Motors", posId: "POS-001", amount: 45000, fee: 450, taxes: 4500, status: "Success" },
+      ]
+    },
+    {
+      id: "SET006",
+      dateTime: "Mar 16, 2024 05:20 PM",
+      dealership: "Metro Garage",
+      totalAmount: 45000,
+      totalFee: 450,
+      totalTaxes: 4500,
+      netAmount: 40050,
+      status: "Failed",
+      transactionFrom: "Mar 16, 2024 00:00",
+      transactionTill: "Mar 16, 2024 23:59",
+      settlementDate: "Mar 17, 2024",
+      bankUTR: "UTR777888999",
+      bankAccount: "****5678",
+      bankName: "Yes Bank",
+      transactions: [
+        { txnId: "TXN013", dateTime: "Mar 16, 2024 05:20 PM", dealership: "Metro Garage", posId: "POS-005", amount: 45000, fee: 450, taxes: 4500, status: "Success" },
       ]
     },
   ]
@@ -171,7 +253,7 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => { setSelectedSettlement(settlement); setSelectedTransaction(null); }}
+                      onClick={() => { setSelectedSettlement(settlement); setSelectedTransaction(null); setShowTxns(false); }}
                       className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
                     >
                       <Eye className="w-4 h-4" /> View
@@ -196,110 +278,116 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
           <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-foreground">Settlement Details</h2>
-              <button onClick={() => { setSelectedSettlement(null); setSelectedTransaction(null); }} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => { setSelectedSettlement(null); setSelectedTransaction(null); setShowTxns(false); }} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <span className="text-sm font-mono text-muted-foreground">{selectedSettlement.id}</span>
           </div>
 
-          <div className="p-4 space-y-4">
-            {/* Transaction Period */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-semibold text-foreground">Transaction Period</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Transaction From:</span>
-                  <span className="font-semibold">{selectedSettlement.transactionFrom}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Transaction Till:</span>
-                  <span className="font-semibold">{selectedSettlement.transactionTill}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Settlement Information */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-foreground">Settlement Information</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Settlement ID:</span>
-                  <span className="font-mono text-xs">{selectedSettlement.id}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Status:</span>
-                  <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedSettlement.status)}`}>
-                    {selectedSettlement.status}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Settlement Date:</span>
-                  <span className="font-semibold">{selectedSettlement.settlementDate}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bank UTR:</span>
-                  <span className="font-mono text-xs">{selectedSettlement.bankUTR}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account Number:</span>
-                  <span className="font-mono text-xs">{selectedSettlement.bankAccount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bank Name:</span>
-                  <span className="font-semibold">{selectedSettlement.bankName}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Net Amount Breakdown */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-foreground">Net Amount Breakdown</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total Amount:</span>
-                  <span className="font-semibold">₹{selectedSettlement.totalAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Fee:</span>
-                  <span className="font-semibold text-red-600">-₹{selectedSettlement.totalFee.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Taxes:</span>
-                  <span className="font-semibold text-red-600">-₹{selectedSettlement.totalTaxes.toLocaleString()}</span>
-                </div>
-                <div className="border-t border-border pt-3 mt-3 flex justify-between">
-                  <span className="text-muted-foreground">Net Amount:</span>
-                  <span className="text-lg font-bold text-green-600">₹{selectedSettlement.netAmount.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Transactions */}
-            {selectedSettlement.transactions && selectedSettlement.transactions.length > 0 && (
+          {showTxns ? (
+            <div className="p-4 space-y-4">
+              <button onClick={() => setShowTxns(false)} className="flex items-center gap-2 text-sm text-primary hover:underline">← Back</button>
               <div>
-                <p className="text-sm font-semibold text-foreground mb-3">Transactions</p>
-                <div className="space-y-2">
-                  {selectedSettlement.transactions.map((txn: any) => (
-                    <button
-                      key={txn.txnId}
-                      onClick={() => setSelectedTransaction(txn)}
-                      className="w-full p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors text-left"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-mono text-xs font-semibold">{txn.txnId}</span>
-                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Success</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{txn.dateTime}</span>
-                        <span className="font-semibold">₹{txn.amount.toLocaleString()}</span>
-                      </div>
-                    </button>
-                  ))}
+                <h3 className="font-bold text-foreground">Settlement Transactions</h3>
+                <p className="text-xs text-muted-foreground">{selectedSettlement.id}</p>
+              </div>
+              {(() => {
+                const successTxns = selectedSettlement.transactions?.filter((t: any) => t.status === 'Success') || []
+                return (
+                  <>
+                    <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm">
+                      <div><p className="text-xs text-muted-foreground">Successful</p><p className="font-bold">{successTxns.length}</p></div>
+                      <div><p className="text-xs text-muted-foreground">Total Amount</p><p className="font-bold">₹{(successTxns.reduce((s: number, t: any) => s + t.amount, 0) || 0).toLocaleString()}</p></div>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic">Showing successful transactions in this settlement cycle</p>
+                    <div className="space-y-2">
+                      {successTxns.map((txn: any) => (
+                        <div key={txn.txnId} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/50">
+                          <div className="flex-1"><p className="text-xs font-mono font-semibold">{txn.txnId}</p><p className="text-xs text-muted-foreground">{txn.dateTime}</p></div>
+                          <div className="text-right"><p className="font-bold text-sm">₹{txn.amount.toLocaleString()}</p><span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Success</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
+          ) : (
+            <div className="p-4 space-y-4">
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-sm font-semibold text-foreground">Transaction Period</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Transaction From:</span>
+                    <span className="font-semibold">{selectedSettlement.transactionFrom}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Transaction Till:</span>
+                    <span className="font-semibold">{selectedSettlement.transactionTill}</span>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-foreground">Settlement Information</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Settlement ID:</span>
+                    <span className="font-mono text-xs">{selectedSettlement.id}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Status:</span>
+                    <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedSettlement.status)}`}>
+                      {selectedSettlement.status}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Settlement Date:</span>
+                    <span className="font-semibold">{selectedSettlement.settlementDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bank UTR:</span>
+                    <span className="font-mono text-xs">{selectedSettlement.bankUTR}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Account Number:</span>
+                    <span className="font-mono text-xs">{selectedSettlement.bankAccount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bank Name:</span>
+                    <span className="font-semibold">{selectedSettlement.bankName}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-foreground">Net Amount Breakdown</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Amount:</span>
+                    <span className="font-semibold">₹{selectedSettlement.totalAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Fee:</span>
+                    <span className="font-semibold text-red-600">-₹{selectedSettlement.totalFee.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Taxes:</span>
+                    <span className="font-semibold text-red-600">-₹{selectedSettlement.totalTaxes.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-border pt-3 mt-3 flex justify-between">
+                    <span className="text-muted-foreground">Net Amount:</span>
+                    <span className="text-lg font-bold text-green-600">₹{selectedSettlement.netAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={() => setShowTxns(true)} className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors">
+                View Transactions ({selectedSettlement.transactions?.length || 0})
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
