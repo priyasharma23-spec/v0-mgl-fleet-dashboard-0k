@@ -52,39 +52,17 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
               <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Parent Wallet</p><p className="font-bold text-lg">{fo.parentWallet}</p><p className="text-xs text-amber-600">T+1 Pending: ₹15,000</p></div>
               <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Total Cards</p><p className="font-bold text-lg">{fo.cards}</p><p className="text-xs text-muted-foreground">{fo.vehicles} vehicles</p></div>
             </div>
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-green-800">Incentive Wallet</p>
-                <p className="text-xl font-bold text-green-900">{fo.incentiveWallet}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-xs text-muted-foreground">Incentive Wallet</p>
+                <p className="font-bold text-lg text-green-700">{fo.incentiveWallet}</p>
+                <p className="text-xs text-green-600">MGL Funded</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="bg-white/60 rounded-lg p-2">
-                  <p className="text-xs text-muted-foreground">Lifetime Issued</p>
-                  <p className="text-sm font-semibold text-foreground">{fo.incentiveLifetime}</p>
-                </div>
-                <div className="bg-white/60 rounded-lg p-2">
-                  <p className="text-xs text-muted-foreground">Unused Balance</p>
-                  <p className="text-sm font-semibold text-green-700">{fo.incentiveUnused}</p>
-                </div>
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-xs text-muted-foreground">Cashback Earned</p>
+                <p className="font-bold text-lg text-blue-700">{fo.cashback}</p>
+                <p className="text-xs text-blue-600">Lifetime</p>
               </div>
-              <p className="text-xs text-green-600 mt-3">MGL Funded</p>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-medium text-blue-800">Cashback Earned</p>
-                <p className="text-xl font-bold text-blue-900">{fo.cashback}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="bg-white/60 rounded-lg p-2">
-                  <p className="text-xs text-muted-foreground">Lifetime Earned</p>
-                  <p className="text-sm font-semibold text-foreground">{fo.cashbackLifetime}</p>
-                </div>
-                <div className="bg-white/60 rounded-lg p-2">
-                  <p className="text-xs text-muted-foreground">Unused Cashback</p>
-                  <p className="text-sm font-semibold text-blue-700">{fo.cashbackUnused}</p>
-                </div>
-              </div>
-              <p className="text-xs text-blue-600 mt-3">Across all vehicles</p>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-sm font-semibold">Bank Account Details</p>
