@@ -8,6 +8,7 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedSettlement, setSelectedSettlement] = useState<any>(null)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
+  const [showTxns, setShowTxns] = useState(false)
 
   const settlementData = [
     {
@@ -171,7 +172,7 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      onClick={() => { setSelectedSettlement(settlement); setSelectedTransaction(null); }}
+                      onClick={() => { setSelectedSettlement(settlement); setSelectedTransaction(null); setShowTxns(false); }}
                       className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium"
                     >
                       <Eye className="w-4 h-4" /> View
@@ -196,110 +197,116 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
           <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-foreground">Settlement Details</h2>
-              <button onClick={() => { setSelectedSettlement(null); setSelectedTransaction(null); }} className="text-muted-foreground hover:text-foreground">
+              <button onClick={() => { setSelectedSettlement(null); setSelectedTransaction(null); setShowTxns(false); }} className="text-muted-foreground hover:text-foreground">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <span className="text-sm font-mono text-muted-foreground">{selectedSettlement.id}</span>
           </div>
 
-          <div className="p-4 space-y-4">
-            {/* Transaction Period */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-semibold text-foreground">Transaction Period</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Transaction From:</span>
-                  <span className="font-semibold">{selectedSettlement.transactionFrom}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Transaction Till:</span>
-                  <span className="font-semibold">{selectedSettlement.transactionTill}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Settlement Information */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-foreground">Settlement Information</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Settlement ID:</span>
-                  <span className="font-mono text-xs">{selectedSettlement.id}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Status:</span>
-                  <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedSettlement.status)}`}>
-                    {selectedSettlement.status}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Settlement Date:</span>
-                  <span className="font-semibold">{selectedSettlement.settlementDate}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bank UTR:</span>
-                  <span className="font-mono text-xs">{selectedSettlement.bankUTR}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account Number:</span>
-                  <span className="font-mono text-xs">{selectedSettlement.bankAccount}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bank Name:</span>
-                  <span className="font-semibold">{selectedSettlement.bankName}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Net Amount Breakdown */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-foreground">Net Amount Breakdown</p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total Amount:</span>
-                  <span className="font-semibold">₹{selectedSettlement.totalAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Fee:</span>
-                  <span className="font-semibold text-red-600">-₹{selectedSettlement.totalFee.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Taxes:</span>
-                  <span className="font-semibold text-red-600">-₹{selectedSettlement.totalTaxes.toLocaleString()}</span>
-                </div>
-                <div className="border-t border-border pt-3 mt-3 flex justify-between">
-                  <span className="text-muted-foreground">Net Amount:</span>
-                  <span className="text-lg font-bold text-green-600">₹{selectedSettlement.netAmount.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Transactions */}
-            {selectedSettlement.transactions && selectedSettlement.transactions.length > 0 && (
+          {showTxns ? (
+            <div className="p-4 space-y-4">
+              <button onClick={() => setShowTxns(false)} className="flex items-center gap-2 text-sm text-primary hover:underline">← Back</button>
               <div>
-                <p className="text-sm font-semibold text-foreground mb-3">Transactions</p>
-                <div className="space-y-2">
-                  {selectedSettlement.transactions.map((txn: any) => (
-                    <button
-                      key={txn.txnId}
-                      onClick={() => setSelectedTransaction(txn)}
-                      className="w-full p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors text-left"
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-mono text-xs font-semibold">{txn.txnId}</span>
-                        <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Success</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{txn.dateTime}</span>
-                        <span className="font-semibold">₹{txn.amount.toLocaleString()}</span>
-                      </div>
-                    </button>
-                  ))}
+                <h3 className="font-bold text-foreground">Settlement Transactions</h3>
+                <p className="text-xs text-muted-foreground">{selectedSettlement.id}</p>
+              </div>
+              {(() => {
+                const successTxns = selectedSettlement.transactions?.filter((t: any) => t.status === 'Success') || []
+                return (
+                  <>
+                    <div className="flex gap-4 p-3 bg-muted/30 rounded-lg text-sm">
+                      <div><p className="text-xs text-muted-foreground">Successful</p><p className="font-bold">{successTxns.length}</p></div>
+                      <div><p className="text-xs text-muted-foreground">Total Amount</p><p className="font-bold">₹{(successTxns.reduce((s: number, t: any) => s + t.amount, 0) || 0).toLocaleString()}</p></div>
+                    </div>
+                    <p className="text-xs text-muted-foreground italic">Showing successful transactions in this settlement cycle</p>
+                    <div className="space-y-2">
+                      {successTxns.map((txn: any) => (
+                        <div key={txn.txnId} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/50">
+                          <div className="flex-1"><p className="text-xs font-mono font-semibold">{txn.txnId}</p><p className="text-xs text-muted-foreground">{txn.dateTime}</p></div>
+                          <div className="text-right"><p className="font-bold text-sm">₹{txn.amount.toLocaleString()}</p><span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Success</span></div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )
+              })()}
+            </div>
+          ) : (
+            <div className="p-4 space-y-4">
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-sm font-semibold text-foreground">Transaction Period</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Transaction From:</span>
+                    <span className="font-semibold">{selectedSettlement.transactionFrom}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Transaction Till:</span>
+                    <span className="font-semibold">{selectedSettlement.transactionTill}</span>
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-foreground">Settlement Information</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Settlement ID:</span>
+                    <span className="font-mono text-xs">{selectedSettlement.id}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Status:</span>
+                    <span className={`inline-block px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedSettlement.status)}`}>
+                      {selectedSettlement.status}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Settlement Date:</span>
+                    <span className="font-semibold">{selectedSettlement.settlementDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bank UTR:</span>
+                    <span className="font-mono text-xs">{selectedSettlement.bankUTR}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Account Number:</span>
+                    <span className="font-mono text-xs">{selectedSettlement.bankAccount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bank Name:</span>
+                    <span className="font-semibold">{selectedSettlement.bankName}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                <p className="text-sm font-semibold text-foreground">Net Amount Breakdown</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total Amount:</span>
+                    <span className="font-semibold">₹{selectedSettlement.totalAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Fee:</span>
+                    <span className="font-semibold text-red-600">-₹{selectedSettlement.totalFee.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Taxes:</span>
+                    <span className="font-semibold text-red-600">-₹{selectedSettlement.totalTaxes.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-border pt-3 mt-3 flex justify-between">
+                    <span className="text-muted-foreground">Net Amount:</span>
+                    <span className="text-lg font-bold text-green-600">₹{selectedSettlement.netAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={() => setShowTxns(true)} className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors">
+                View Transactions ({selectedSettlement.transactions?.length || 0})
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
