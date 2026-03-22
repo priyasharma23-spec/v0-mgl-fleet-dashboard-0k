@@ -89,20 +89,18 @@ export default function AdminAnalytics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* FO Registration Trend (MoM) */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">FO Registration Trend (MoM)</h3>
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22%</span>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-semibold text-foreground">FO Registration Trend</h3>
+            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+22% MoM</span>
           </div>
-          <div className="space-y-2">
+          <div className="flex items-end justify-between h-32 gap-2">
             {[{month: "Oct", value: 8}, {month: "Nov", value: 12}, {month: "Dec", value: 9}, {month: "Jan", value: 15}, {month: "Feb", value: 18}, {month: "Mar", value: 22}].map((item) => (
-              <div key={item.month}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground">{item.month}</span>
-                  <span className="text-xs font-medium text-foreground">{item.value}</span>
+              <div key={item.month} className="flex flex-col items-center flex-1">
+                <span className="text-xs font-semibold text-foreground mb-1">{item.value}</span>
+                <div className="w-full flex flex-col items-center flex-1">
+                  <div className="w-full bg-green-500 rounded-t-sm" style={{height: `${(item.value/22)*100}%`}} />
                 </div>
-                <div className="w-full bg-muted rounded h-2">
-                  <div className="bg-green-500 h-2 rounded" style={{width: `${(item.value/22)*100}%`}} />
-                </div>
+                <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
               </div>
             ))}
           </div>
@@ -110,20 +108,18 @@ export default function AdminAnalytics() {
 
         {/* Vehicle Registration Trend (MoM) */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Vehicle Registration Trend (MoM)</h3>
-            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18%</span>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-semibold text-foreground">Vehicle Registration Trend</h3>
+            <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">+18% MoM</span>
           </div>
-          <div className="space-y-2">
+          <div className="flex items-end justify-between h-32 gap-2">
             {[{month: "Oct", value: 45}, {month: "Nov", value: 62}, {month: "Dec", value: 58}, {month: "Jan", value: 78}, {month: "Feb", value: 95}, {month: "Mar", value: 112}].map((item) => (
-              <div key={item.month}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground">{item.month}</span>
-                  <span className="text-xs font-medium text-foreground">{item.value}</span>
+              <div key={item.month} className="flex flex-col items-center flex-1">
+                <span className="text-xs font-semibold text-foreground mb-1">{item.value}</span>
+                <div className="w-full flex flex-col items-center flex-1">
+                  <div className="w-full bg-blue-500 rounded-t-sm" style={{height: `${(item.value/112)*100}%`}} />
                 </div>
-                <div className="w-full bg-muted rounded h-2">
-                  <div className="bg-blue-500 h-2 rounded" style={{width: `${(item.value/112)*100}%`}} />
-                </div>
+                <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
               </div>
             ))}
           </div>
@@ -131,41 +127,42 @@ export default function AdminAnalytics() {
 
         {/* Self vs Assisted FO Onboarding */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">Self vs Assisted FO Onboarding</h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-foreground">Self Onboarded</span>
-                <span className="text-sm font-medium text-foreground">85 FOs (67%)</span>
+          <h3 className="font-semibold text-foreground mb-6">Self vs Assisted FO Onboarding</h3>
+          <div>
+            <div className="flex h-12 rounded-full overflow-hidden mb-4 border border-border">
+              <div className="flex-1 bg-green-500 flex items-center justify-center">
+                <span className="text-xs font-semibold text-white">67%</span>
               </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div className="bg-green-500 h-3 rounded-full" style={{width: "67%"}} />
+              <div className="flex-1 bg-blue-500 flex items-center justify-center">
+                <span className="text-xs font-semibold text-white">33%</span>
               </div>
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-foreground">Assisted by MIC</span>
-                <span className="text-sm font-medium text-foreground">42 FOs (33%)</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-3">
-                <div className="bg-blue-500 h-3 rounded-full" style={{width: "33%"}} />
-              </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">85 Self</span>
+              <span className="text-sm font-semibold text-foreground">42 Assisted</span>
             </div>
           </div>
         </div>
 
         {/* Top MICs by New FO Registration */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">Top MICs by New FO Registration</h3>
+          <h3 className="font-semibold text-foreground mb-4">Top MICs by New FO Registration</h3>
           <div className="space-y-3">
-            {[{name: "Sneha Patil", count: 12}, {name: "Raj Kumar", count: 9}, {name: "Priya Joshi", count: 7}, {name: "Amit Shah", count: 5}].map((item) => (
-              <div key={item.name}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-foreground">{item.name}</span>
-                  <span className="text-sm font-medium text-foreground">{item.count}</span>
+            {[{rank: 1, name: "Sneha Patil", count: 12}, {rank: 2, name: "Raj Kumar", count: 9}, {rank: 3, name: "Priya Joshi", count: 7}, {rank: 4, name: "Amit Shah", count: 5}].map((item) => (
+              <div key={item.name} className="flex items-center gap-3">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                  item.rank === 1 ? "bg-yellow-500" : item.rank === 2 ? "bg-gray-400" : item.rank === 3 ? "bg-orange-600" : "bg-gray-300"
+                }`}>
+                  {item.rank}
                 </div>
-                <div className="w-full bg-muted rounded h-2">
-                  <div className="bg-purple-500 h-2 rounded" style={{width: `${(item.count/12)*100}%`}} />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-foreground">{item.name}</span>
+                    <span className="text-sm font-bold text-foreground">{item.count}</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div className="bg-purple-500 h-2 rounded-full" style={{width: `${(item.count/12)*100}%`}} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -174,15 +171,22 @@ export default function AdminAnalytics() {
 
         {/* Top 5 Dealerships by Volume */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <h3 className="font-semibold mb-4">Top 5 Dealerships by Volume</h3>
-          <div className="space-y-2">
-            {[{name: "ABC Motors", volume: "₹45.8L", txns: 156}, {name: "XYZ Auto", volume: "₹32.4L", txns: 112}, {name: "Prime Motors", volume: "₹28.6L", txns: 98}, {name: "Elite Autos", volume: "₹22.1L", txns: 76}, {name: "Metro Garage", volume: "₹18.5L", txns: 64}].map((item) => (
-              <div key={item.name} className="p-2 bg-muted/30 rounded">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">{item.name}</span>
-                  <span className="text-sm text-foreground">{item.volume}</span>
+          <h3 className="font-semibold text-foreground mb-4">Top 5 Dealerships by Volume</h3>
+          <div className="space-y-3">
+            {[{rank: 1, name: "ABC Motors", volume: "₹45.8L", txns: 156}, {rank: 2, name: "XYZ Auto", volume: "₹32.4L", txns: 112}, {rank: 3, name: "Prime Motors", volume: "₹28.6L", txns: 98}, {rank: 4, name: "Elite Autos", volume: "₹22.1L", txns: 76}, {rank: 5, name: "Metro Garage", volume: "₹18.5L", txns: 64}].map((item) => (
+              <div key={item.name} className="flex items-center gap-3">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                  item.rank === 1 ? "bg-yellow-500" : item.rank === 2 ? "bg-gray-400" : item.rank === 3 ? "bg-orange-600" : "bg-gray-300"
+                }`}>
+                  {item.rank}
                 </div>
-                <p className="text-xs text-muted-foreground">{item.txns} transactions</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium text-foreground truncate">{item.name}</span>
+                    <span className="text-sm font-bold text-foreground ml-2">{item.volume}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{item.txns} transactions</p>
+                </div>
               </div>
             ))}
           </div>
@@ -190,20 +194,18 @@ export default function AdminAnalytics() {
 
         {/* Transaction Trend (MoM) */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold">Transaction Trend (MoM)</h3>
-            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15%</span>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-semibold text-foreground">Transaction Trend</h3>
+            <span className="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-1 rounded">+15% MoM</span>
           </div>
-          <div className="space-y-2">
+          <div className="flex items-end justify-between h-32 gap-2">
             {[{month: "Oct", value: 1240}, {month: "Nov", value: 1580}, {month: "Dec", value: 1320}, {month: "Jan", value: 1890}, {month: "Feb", value: 2150}, {month: "Mar", value: 2480}].map((item) => (
-              <div key={item.month}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground">{item.month}</span>
-                  <span className="text-xs font-medium text-foreground">{item.value.toLocaleString()}</span>
+              <div key={item.month} className="flex flex-col items-center flex-1">
+                <span className="text-xs font-semibold text-foreground mb-1">{item.value.toLocaleString().slice(0, -1)}K</span>
+                <div className="w-full flex flex-col items-center flex-1">
+                  <div className="w-full bg-purple-500 rounded-t-sm" style={{height: `${(item.value/2480)*100}%`}} />
                 </div>
-                <div className="w-full bg-muted rounded h-2">
-                  <div className="bg-purple-500 h-2 rounded" style={{width: `${(item.value/2480)*100}%`}} />
-                </div>
+                <span className="text-xs text-muted-foreground mt-2">{item.month}</span>
               </div>
             ))}
           </div>
@@ -212,19 +214,20 @@ export default function AdminAnalytics() {
 
       {/* Transaction Trend by Time of Day - Full Width */}
       <div className="bg-card rounded-xl border border-border p-5">
-        <h3 className="font-semibold mb-4">Transaction Trend by Time of Day</h3>
-        <div className="space-y-3">
-          {[{period: "6AM-9AM", percentage: 15}, {period: "9AM-12PM", percentage: 28}, {period: "12PM-3PM", percentage: 22}, {period: "3PM-6PM", percentage: 25}, {period: "6PM-9PM", percentage: 10}].map((item) => (
-            <div key={item.period}>
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm text-foreground">{item.period}</span>
-                <span className="text-sm font-medium text-foreground">{item.percentage}%</span>
+        <h3 className="font-semibold text-foreground mb-6">Transaction Trend by Time of Day</h3>
+        <div className="flex items-end justify-between h-40 gap-3">
+          {[{period: "6AM-9AM", percentage: 15, isPeak: false}, {period: "9AM-12PM", percentage: 28, isPeak: true}, {period: "12PM-3PM", percentage: 22, isPeak: false}, {period: "3PM-6PM", percentage: 25, isPeak: false}, {period: "6PM-9PM", percentage: 10, isPeak: false}].map((item) => (
+            <div key={item.period} className="flex flex-col items-center flex-1">
+              <span className="text-xs font-semibold text-foreground mb-2">{item.percentage}%</span>
+              <div className="w-full flex flex-col items-center flex-1">
+                <div className={`w-full rounded-t-sm ${item.isPeak ? "bg-amber-600" : "bg-amber-300"}`} style={{height: `${item.percentage * 1.25}%`}} />
               </div>
-              <div className="w-full bg-muted rounded h-2">
-                <div className="bg-amber-500 h-2 rounded" style={{width: `${item.percentage}%`}} />
-              </div>
+              <span className="text-xs text-muted-foreground mt-2 text-center">{item.period}</span>
             </div>
           ))}
+        </div>
+        <div className="mt-4 text-xs text-muted-foreground text-center">
+          <span className="inline-block w-3 h-3 bg-amber-600 rounded-sm mr-1" /> Peak: 9AM-12PM
         </div>
       </div>
 
