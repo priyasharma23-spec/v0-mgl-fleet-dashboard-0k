@@ -55,13 +55,13 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-muted/30 rounded-lg">
                 <p className="text-xs text-muted-foreground">Incentive Wallet</p>
-                <p className="font-bold text-lg text-green-700">{fo.incentiveWallet}</p>
-                <p className="text-xs text-green-600">MGL Funded</p>
+                <p className="font-bold text-lg">{fo.incentiveWallet}</p>
+                <p className="text-xs text-green-600">Unused: {fo.incentiveUnused}</p>
               </div>
               <div className="p-3 bg-muted/30 rounded-lg">
                 <p className="text-xs text-muted-foreground">Cashback Earned</p>
-                <p className="font-bold text-lg text-blue-700">{fo.cashback}</p>
-                <p className="text-xs text-blue-600">Lifetime</p>
+                <p className="font-bold text-lg">{fo.cashback}</p>
+                <p className="text-xs text-blue-600">Unused: {fo.cashbackUnused}</p>
               </div>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
