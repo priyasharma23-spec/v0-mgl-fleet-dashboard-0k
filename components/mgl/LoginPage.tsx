@@ -358,13 +358,6 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                         </button>
                       </>
                     )}
-
-                    <div className="pt-4 border-t border-border space-y-2 text-xs text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <span className="text-muted-foreground">Have an activation link?</span>
-                        <button className="text-primary hover:underline font-medium">Use activation link</button>
-                      </div>
-                    </div>
                   </div>
                 )}
 
