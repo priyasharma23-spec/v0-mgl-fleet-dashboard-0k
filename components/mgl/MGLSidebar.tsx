@@ -81,6 +81,14 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
   
   const roleLabel = role === "mgl-admin" ? "Admin Portal" : role === "mic" ? "MIC Portal" : role === "zic" ? "ZIC Portal" : "Fleet Portal";
 
+  const deptLabel =
+    role === "mgl-admin" ? (
+      department === "finance" ? "Finance & R&T" :
+      department === "marketing" ? "Marketing" :
+      department === "admin" ? "MGL Admin" :
+      "MGL Admin"
+    ) : roleLabel;
+
   return (
     <>
       {/* Mobile overlay */}
@@ -109,7 +117,7 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
           </div>
           <div>
             <p className="text-sidebar-foreground font-bold text-sm leading-tight">MGL Fleet</p>
-            <p className="text-sidebar-foreground/60 text-[10px]">{roleLabel}</p>
+            <p className="text-sidebar-foreground/60 text-[10px]">{deptLabel}</p>
           </div>
         </div>
 
