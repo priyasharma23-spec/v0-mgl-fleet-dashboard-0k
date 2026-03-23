@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ArrowRight, Smartphone, KeyRound, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Smartphone, KeyRound, Eye, EyeOff, Truck, Building2, ArrowLeft } from "lucide-react";
 import type { UserRole } from "@/lib/mgl-data";
 import type { ActivationData, FOOnboardingType } from "@/app/page";
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter";
@@ -14,17 +14,19 @@ interface LoginPageProps {
 }
 
 type LoginMethod = "mobile" | "email";
+type Portal = "" | "fo" | "mgl";
 
 const mockUsers = [
-  { mobile: "9999999999", email: "admin@mahanagargas.com", password: "admin123", name: "Arun Verma", role: "mgl-admin" as UserRole },
-  { mobile: "8888888888", email: "finance@mahanagargas.com", password: "fin123", name: "Priya Shah", role: "mgl-admin" as UserRole },
-  { mobile: "7777777777", email: "marketing@mahanagargas.com", password: "mkt123", name: "Rahul Mehta", role: "mgl-admin" as UserRole },
-  { mobile: "6666666666", email: "mic@mahanagargas.com", password: "mic123", name: "Sneha Patil", role: "mic" as UserRole },
-  { mobile: "5555555555", email: "zic@mahanagargas.com", password: "zic123", name: "Vikas Joshi", role: "zic" as UserRole },
-  { mobile: "4444444444", email: "fo@mahanagargas.com", password: "fo123", name: "Suresh Kumar", role: "fleet-operator" as UserRole },
+  { mobile: "9999999999", email: "admin@mgl.com", password: "admin123", name: "Arun Verma", role: "mgl-admin" as UserRole },
+  { mobile: "8888888888", email: "finance@mgl.com", password: "fin123", name: "Priya Shah", role: "mgl-admin" as UserRole },
+  { mobile: "7777777777", email: "marketing@mgl.com", password: "mkt123", name: "Rahul Mehta", role: "mgl-admin" as UserRole },
+  { mobile: "6666666666", email: "mic@mgl.com", password: "mic123", name: "Sneha Patil", role: "mic" as UserRole },
+  { mobile: "5555555555", email: "zic@mgl.com", password: "zic123", name: "Vikas Joshi", role: "zic" as UserRole },
 ];
 
 export default function LoginPage({ onLogin, activationData, showRegistration, onStartRegistration }: LoginPageProps) {
+  const [portal, setPortal] = useState<Portal>("");
+  const [foFlow, setFoFlow] = useState<"signin" | "register">("signin");
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("mobile");
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -93,7 +95,20 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     }
   };
 
-  const handleMobileLogin = async () => {
+  const handleFOLogin = async () => {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length !== 6) {
+      setOtpError("Please enter complete 6-digit OTP");
+      return;
+    }
+    
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 800));
+    onLogin("fleet-operator", "Suresh Kumar");
+    setLoading(false);
+  };
+
+  const handleMGLMobileLogin = async () => {
     const enteredOtp = otp.join("");
     if (enteredOtp.length !== 6) {
       setOtpError("Please enter complete 6-digit OTP");
@@ -112,7 +127,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     setLoading(false);
   };
 
-  const handleEmailLogin = async () => {
+  const handleMGLEmailLogin = async () => {
     if (!email || !password) {
       setEmailError("Please enter email and password");
       return;
@@ -137,6 +152,17 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     setOtpTimer(0);
     setOtpError("");
     setMobileError("");
+  };
+
+  const handleBackToPortals = () => {
+    setPortal("");
+    setFoFlow("signin");
+    setLoginMethod("mobile");
+    resetOtpState();
+    setEmail("");
+    setPassword("");
+    setShowPassword(false);
+    setEmailError("");
   };
 
   return (
@@ -165,202 +191,384 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
             </div>
           </div>
 
-          {/* Login Card */}
-          <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
-            <div className="p-6 border-b border-border">
-              <h2 className="text-lg font-semibold text-foreground">Sign In</h2>
-              <p className="text-sm text-muted-foreground mt-1">Access your portal with your credentials</p>
-            </div>
+          {/* Portal Selection */}
+          {!portal && (
+            <div className="space-y-4">
+              <div
+                onClick={() => setPortal("fo")}
+                className="cursor-pointer border-2 border-border rounded-xl p-6 hover:border-green-400 hover:bg-green-50 transition-all shadow-sm hover:shadow-md"
+              >
+                <Truck className="w-8 h-8 text-green-600 mb-3" />
+                <h3 className="font-bold text-lg text-foreground">Fleet Operator</h3>
+                <p className="text-sm text-muted-foreground mt-1">Sign in or register your fleet</p>
+              </div>
 
-            <div className="p-6">
-              {/* Login Method Toggle */}
-              <div className="flex items-center gap-2 p-1 bg-muted rounded-lg mb-6">
+              <div
+                onClick={() => setPortal("mgl")}
+                className="cursor-pointer border-2 border-border rounded-xl p-6 hover:border-purple-400 hover:bg-purple-50 transition-all shadow-sm hover:shadow-md"
+              >
+                <Building2 className="w-8 h-8 text-purple-600 mb-3" />
+                <h3 className="font-bold text-lg text-foreground">MGL Staff</h3>
+                <p className="text-sm text-muted-foreground mt-1">Admin, Finance, Marketing & Operations</p>
+              </div>
+            </div>
+          )}
+
+          {/* Fleet Operator Portal */}
+          {portal === "fo" && (
+            <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
+              <div className="p-6 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">Fleet Operator Portal</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Sign in or register</p>
+                </div>
                 <button
-                  onClick={() => { setLoginMethod("mobile"); resetOtpState(); setEmailError(""); }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                    loginMethod === "mobile" 
-                      ? "bg-card text-foreground shadow-sm" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  onClick={handleBackToPortals}
+                  className="p-2 hover:bg-muted rounded-lg transition-colors"
                 >
-                  <Smartphone className="w-4 h-4" />
-                  Mobile + OTP
-                </button>
-                <button
-                  onClick={() => { setLoginMethod("email"); resetOtpState(); setMobileError(""); }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                    loginMethod === "email" 
-                      ? "bg-card text-foreground shadow-sm" 
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <KeyRound className="w-4 h-4" />
-                  Email & Password
+                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
 
-              {/* Mobile + OTP Tab */}
-              {loginMethod === "mobile" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
-                    <div className="flex gap-2 mt-2">
-                      <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        maxLength={10}
-                        value={mobile}
-                        onChange={(e) => { 
-                          setMobile(e.target.value.replace(/\D/g, "")); 
-                          setMobileError("");
-                          if (otpSent) resetOtpState();
-                        }}
-                        placeholder="Enter 10-digit mobile"
-                        className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
-                          mobileError ? "border-destructive" : "border-border"
-                        }`}
-                      />
-                    </div>
-                    {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
-                  </div>
-
-                  {!otpSent ? (
-                    <button
-                      onClick={handleSendOtp}
-                      disabled={loading || mobile.length !== 10}
-                      className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
-                    >
-                      {loading ? (
-                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <>Send OTP <ArrowRight className="w-4 h-4" /></>
-                      )}
-                    </button>
-                  ) : (
-                    <>
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <label className="text-xs font-medium text-muted-foreground">Enter OTP</label>
-                          <span className="text-xs text-muted-foreground">
-                            Sent to +91 {mobile}
-                          </span>
-                        </div>
-                        <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
-                          {otp.map((digit, i) => (
-                            <input
-                              key={i}
-                              ref={(el) => { otpRefs.current[i] = el; }}
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={1}
-                              value={digit}
-                              onChange={(e) => handleOtpChange(i, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                              className={`w-10 h-12 text-center text-lg font-bold rounded-lg border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
-                                otpError ? "border-destructive" : "border-border"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        {otpError && <p className="text-xs text-destructive mt-2 text-center">{otpError}</p>}
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">
-                          {otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Didn't receive OTP?"}
+              <div className="p-6">
+                {foFlow === "signin" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                      <div className="flex gap-2 mt-2">
+                        <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
+                          +91
                         </span>
-                        <button
-                          onClick={handleSendOtp}
-                          disabled={otpTimer > 0}
-                          className="text-primary hover:underline font-medium disabled:opacity-50"
-                        >
-                          Resend
-                        </button>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          value={mobile}
+                          onChange={(e) => {
+                            setMobile(e.target.value.replace(/\D/g, ""));
+                            setMobileError("");
+                            if (otpSent) resetOtpState();
+                          }}
+                          placeholder="Enter 10-digit mobile"
+                          className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                            mobileError ? "border-destructive" : "border-border"
+                          }`}
+                        />
                       </div>
+                      {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
+                    </div>
 
+                    {!otpSent ? (
                       <button
-                        onClick={handleMobileLogin}
-                        disabled={loading || otp.join("").length !== 6}
-                        className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+                        onClick={handleSendOtp}
+                        disabled={loading || mobile.length !== 10}
+                        className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
                       >
                         {loading ? (
-                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
-                          "Verify & Sign In"
+                          <>Send OTP <ArrowRight className="w-4 h-4" /></>
                         )}
                       </button>
-                    </>
-                  )}
-                </div>
-              )}
+                    ) : (
+                      <>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-xs font-medium text-muted-foreground">Enter OTP</label>
+                            <span className="text-xs text-muted-foreground">Sent to +91 {mobile}</span>
+                          </div>
+                          <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
+                            {otp.map((digit, i) => (
+                              <input
+                                key={i}
+                                ref={(el) => {
+                                  otpRefs.current[i] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleOtpChange(i, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                className={`w-10 h-12 text-center text-lg font-bold rounded-lg border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                                  otpError ? "border-destructive" : "border-border"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          {otpError && <p className="text-xs text-destructive mt-2 text-center">{otpError}</p>}
+                        </div>
 
-              {/* Email & Password Tab */}
-              {loginMethod === "email" && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Email Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
-                      placeholder="Enter your email"
-                      className={`w-full mt-2 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
-                        emailError ? "border-destructive" : "border-border"
-                      }`}
-                    />
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">
+                            {otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Didn't receive OTP?"}
+                          </span>
+                          <button
+                            onClick={handleSendOtp}
+                            disabled={otpTimer > 0}
+                            className="text-primary hover:underline font-medium disabled:opacity-50"
+                          >
+                            Resend
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={handleFOLogin}
+                          disabled={loading || otp.join("").length !== 6}
+                          className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+                        >
+                          {loading ? (
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                          ) : (
+                            "Verify & Sign In"
+                          )}
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      onClick={() => setFoFlow("register")}
+                      className="w-full py-2.5 border border-border text-foreground rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
+                    >
+                      Register New Fleet
+                    </button>
                   </div>
+                )}
 
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Password</label>
-                    <div className="relative mt-2">
+                {foFlow === "register" && (
+                  <div className="text-center space-y-4">
+                    <p className="text-sm text-foreground">Start your fleet registration</p>
+                    <button
+                      onClick={() => onStartRegistration?.()}
+                      className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
+                    >
+                      Begin Registration
+                    </button>
+                    <button
+                      onClick={() => setFoFlow("signin")}
+                      className="w-full py-2.5 border border-border text-foreground rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
+                    >
+                      Back to Sign In
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* MGL Staff Portal */}
+          {portal === "mgl" && (
+            <div className="bg-card rounded-2xl border border-border shadow-xl overflow-hidden">
+              <div className="p-6 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">MGL Staff Portal</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Access your operations portal</p>
+                </div>
+                <button
+                  onClick={handleBackToPortals}
+                  className="p-2 hover:bg-muted rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                {/* Login Method Toggle */}
+                <div className="flex items-center gap-2 p-1 bg-muted rounded-lg mb-6">
+                  <button
+                    onClick={() => {
+                      setLoginMethod("mobile");
+                      resetOtpState();
+                      setEmailError("");
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                      loginMethod === "mobile" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Smartphone className="w-4 h-4" />
+                    Mobile + OTP
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLoginMethod("email");
+                      resetOtpState();
+                      setMobileError("");
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
+                      loginMethod === "email" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    Email & Password
+                  </button>
+                </div>
+
+                {/* Mobile + OTP Tab */}
+                {loginMethod === "mobile" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                      <div className="flex gap-2 mt-2">
+                        <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
+                          +91
+                        </span>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          value={mobile}
+                          onChange={(e) => {
+                            setMobile(e.target.value.replace(/\D/g, ""));
+                            setMobileError("");
+                            if (otpSent) resetOtpState();
+                          }}
+                          placeholder="Enter 10-digit mobile"
+                          className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                            mobileError ? "border-destructive" : "border-border"
+                          }`}
+                        />
+                      </div>
+                      {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
+                    </div>
+
+                    {!otpSent ? (
+                      <button
+                        onClick={handleSendOtp}
+                        disabled={loading || mobile.length !== 10}
+                        className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
+                      >
+                        {loading ? (
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>Send OTP <ArrowRight className="w-4 h-4" /></>
+                        )}
+                      </button>
+                    ) : (
+                      <>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-xs font-medium text-muted-foreground">Enter OTP</label>
+                            <span className="text-xs text-muted-foreground">Sent to +91 {mobile}</span>
+                          </div>
+                          <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
+                            {otp.map((digit, i) => (
+                              <input
+                                key={i}
+                                ref={(el) => {
+                                  otpRefs.current[i] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleOtpChange(i, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                className={`w-10 h-12 text-center text-lg font-bold rounded-lg border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                                  otpError ? "border-destructive" : "border-border"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          {otpError && <p className="text-xs text-destructive mt-2 text-center">{otpError}</p>}
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">
+                            {otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Didn't receive OTP?"}
+                          </span>
+                          <button
+                            onClick={handleSendOtp}
+                            disabled={otpTimer > 0}
+                            className="text-primary hover:underline font-medium disabled:opacity-50"
+                          >
+                            Resend
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={handleMGLMobileLogin}
+                          disabled={loading || otp.join("").length !== 6}
+                          className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+                        >
+                          {loading ? (
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                          ) : (
+                            "Verify & Sign In"
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* Email & Password Tab */}
+                {loginMethod === "email" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Email Address</label>
                       <input
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => { setPassword(e.target.value); setEmailError(""); }}
-                        placeholder="Enter your password"
-                        className={`w-full px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                        type="email"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailError("");
+                        }}
+                        placeholder="Enter your email"
+                        className={`w-full mt-2 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
                           emailError ? "border-destructive" : "border-border"
                         }`}
                       />
-                      <button
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
-                      </button>
                     </div>
+
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Password</label>
+                      <div className="relative mt-2">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            setEmailError("");
+                          }}
+                          placeholder="Enter your password"
+                          className={`w-full px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                            emailError ? "border-destructive" : "border-border"
+                          }`}
+                        />
+                        <button
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {emailError && <p className="text-xs text-destructive text-center">{emailError}</p>}
+
+                    <button
+                      onClick={handleMGLEmailLogin}
+                      disabled={loading || !email || !password}
+                      className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+                    >
+                      {loading ? (
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                      ) : (
+                        "Sign In"
+                      )}
+                    </button>
                   </div>
-
-                  {emailError && <p className="text-xs text-destructive text-center">{emailError}</p>}
-
-                  <button
-                    onClick={handleEmailLogin}
-                    disabled={loading || !email || !password}
-                    className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
-                  >
-                    {loading ? (
-                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-                    ) : (
-                      "Sign In"
-                    )}
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Demo Credentials Note */}
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-            <p className="text-xs text-blue-700">
-              <span className="font-medium">Demo Mode:</span> Use mobile 9999999999 or email admin@mahanagargas.com / password admin123
-            </p>
-          </div>
+          {portal === "mgl" && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+              <p className="text-xs text-blue-700">
+                <span className="font-medium">Demo:</span> Mobile 9999999999 or email admin@mgl.com / password admin123
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
