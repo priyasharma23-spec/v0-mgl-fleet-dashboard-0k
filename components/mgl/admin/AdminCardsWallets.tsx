@@ -107,7 +107,7 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">₹45.2L</p>
-              <p className="text-xs text-muted-foreground">Incentive Wallet (MGL)</p>
+              <p className="text-xs text-muted-foreground">Total Incentive Unutilised</p>
             </div>
           </div>
         </div>
