@@ -72,6 +72,9 @@ export default function Page() {
 
   function handleStartRegistration() {
     setShowRegistration(true)
+    setFoOnboardingType("SELF_SERVICE")
+    setRole("fleet-operator")
+    setUser({ name: "New User", role: "fleet-operator" })
   }
 
   if (!role || !user) {
