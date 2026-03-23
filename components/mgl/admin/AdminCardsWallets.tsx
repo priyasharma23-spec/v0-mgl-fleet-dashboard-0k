@@ -1,14 +1,14 @@
 "use client"
 
-import { CreditCard, CheckCircle, XCircle, Wallet, Gift, Percent } from "lucide-react"
+import { CreditCard, CheckCircle, XCircle, Wallet, Gift, Percent, AlertCircle, Lock } from "lucide-react"
 
 export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: string) => void }) {
   const topFOs = [
-    { name: "ABC Logistics", allocated: 15, issued: 12, active: 11, balance: "₹12,500", cashback: "₹2,100" },
-    { name: "Metro Freight", allocated: 18, issued: 16, active: 15, balance: "₹18,200", cashback: "₹3,450" },
-    { name: "City Express", allocated: 22, issued: 20, active: 19, balance: "₹22,800", cashback: "₹4,200" },
-    { name: "Sunrise Transport", allocated: 8, issued: 7, active: 6, balance: "₹8,900", cashback: "₹1,650" },
-    { name: "Quick Move", allocated: 12, issued: 10, active: 9, balance: "₹11,200", cashback: "₹2,050" },
+    { name: "ABC Logistics", allocated: 15, issued: 12, active: 11, inactive: 0, blocked: 1, locked: 0, balance: "₹12,500", cashback: "₹2,100" },
+    { name: "Metro Freight", allocated: 18, issued: 16, active: 15, inactive: 0, blocked: 1, locked: 0, balance: "₹18,200", cashback: "₹3,450" },
+    { name: "City Express", allocated: 22, issued: 20, active: 19, inactive: 0, blocked: 1, locked: 0, balance: "₹22,800", cashback: "₹4,200" },
+    { name: "Sunrise Transport", allocated: 8, issued: 7, active: 6, inactive: 0, blocked: 1, locked: 0, balance: "₹8,900", cashback: "₹1,650" },
+    { name: "Quick Move", allocated: 12, issued: 10, active: 9, inactive: 0, blocked: 1, locked: 0, balance: "₹11,200", cashback: "₹2,050" },
   ]
 
   return (
@@ -63,12 +63,38 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
         {/* Total Inactive */}
         <div className="bg-card rounded-xl border border-border p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-              <XCircle className="w-5 h-5 text-red-600" />
+            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+              <XCircle className="w-5 h-5 text-gray-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">193</p>
               <p className="text-xs text-muted-foreground">Total Inactive</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Total Blocked */}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">156</p>
+              <p className="text-xs text-muted-foreground">Total Blocked</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Total Locked */}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+              <Lock className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-foreground">89</p>
+              <p className="text-xs text-muted-foreground">Total Locked</p>
             </div>
           </div>
         </div>
@@ -118,17 +144,27 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
         <h2 className="font-semibold text-foreground mb-4">Cards by Status</h2>
         <div>
           <div className="flex h-8 rounded-full overflow-hidden border border-border">
-            <div className="bg-green-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '93.2%'}}>Active</div>
-            <div className="bg-red-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '6.8%'}}>Inactive</div>
+            <div className="bg-green-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '76.5%'}}>Active</div>
+            <div className="bg-gray-400 flex items-center justify-center text-white text-xs font-bold" style={{width: '5.6%'}}>Inactive</div>
+            <div className="bg-red-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '4.5%'}}>Blocked</div>
+            <div className="bg-amber-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '2.6%'}}>Locked</div>
           </div>
-          <div className="flex gap-6 mt-3 text-sm">
+          <div className="flex gap-4 mt-3 text-sm flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-foreground">Active: <span className="font-bold">2,654 (93.2%)</span></span>
+              <span className="text-foreground">Active: <span className="font-bold">2,654 (76.5%)</span></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-gray-400" />
+              <span className="text-foreground">Inactive: <span className="font-bold">193 (5.6%)</span></span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-foreground">Inactive/Blocked: <span className="font-bold">193 (6.8%)</span></span>
+              <span className="text-foreground">Blocked: <span className="font-bold">156 (4.5%)</span></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-amber-500" />
+              <span className="text-foreground">Locked: <span className="font-bold">89 (2.6%)</span></span>
             </div>
           </div>
         </div>
@@ -145,8 +181,10 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
                 <th className="text-center px-4 py-3 font-semibold text-foreground">Allocated</th>
                 <th className="text-center px-4 py-3 font-semibold text-foreground">Issued</th>
                 <th className="text-center px-4 py-3 font-semibold text-foreground">Active</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Inactive</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Issues</th>
                 <th className="text-right px-4 py-3 font-semibold text-foreground">Balance</th>
-                <th className="text-right px-4 py-3 font-semibold text-foreground">Cashback Unutilised</th>
+                <th className="text-right px-4 py-3 font-semibold text-foreground">Cashback</th>
               </tr>
             </thead>
             <tbody>
@@ -156,6 +194,8 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
                   <td className="px-4 py-3 text-center text-muted-foreground">{fo.allocated}</td>
                   <td className="px-4 py-3 text-center text-muted-foreground">{fo.issued}</td>
                   <td className="px-4 py-3 text-center text-green-600 font-medium">{fo.active}</td>
+                  <td className="px-4 py-3 text-center text-gray-600 font-medium">{fo.inactive}</td>
+                  <td className="px-4 py-3 text-center text-red-600 font-medium">{fo.blocked + fo.locked}</td>
                   <td className="px-4 py-3 text-right text-foreground">{fo.balance}</td>
                   <td className="px-4 py-3 text-right text-amber-600 font-medium">{fo.cashback}</td>
                 </tr>
