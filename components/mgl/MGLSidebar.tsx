@@ -70,7 +70,7 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
   let navItems = role === "mgl-admin" ? adminNavItems : role === "mic" ? micNavItems : role === "zic" ? zicNavItems : foNavItems;
   
   if (role === "mgl-admin" && department) {
-    const financeItems = ["Dashboard", "Settlements", "Transactions", "Cards & Wallets", "MIS & Reports", "Analytics"];
+    const financeItems = ["Dashboard", "Settlements", "Transactions", "Cards & Wallets", "MIS & Reports"];
     const marketingItems = ["Dashboard", "Fleet Operators", "Transactions", "Settlements", "Cards & Wallets", "Incentives & Offers", "MIS & Reports", "Analytics"];
     const allowedItems = department === "finance" ? financeItems : department === "marketing" ? marketingItems : [];
     
