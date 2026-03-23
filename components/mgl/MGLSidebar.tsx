@@ -79,11 +79,12 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
     }
   }
   
-  const roleLabel = role === "mgl-admin" ? "Admin Portal" : role === "mic" ? "MIC Portal" : role === "zic" ? "ZIC Portal" : "Fleet Portal";
-
   const deptLabel =
     department === "finance" ? "Finance & R&T" :
     department === "marketing" ? "Marketing" :
+    department === "mic" ? "MIC Portal" :
+    department === "zic" ? "ZIC Portal" :
+    role === "fleet-operator" ? "Fleet Portal" :
     "Admin Portal";
 
   return (
