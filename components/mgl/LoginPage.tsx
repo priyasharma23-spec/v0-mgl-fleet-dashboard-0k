@@ -39,6 +39,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
   const [otpError, setOtpError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [acceptTnC, setAcceptTnC] = useState(false);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // OTP Timer countdown
@@ -454,15 +455,22 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                           </button>
                         </div>
 
+                        <div className="flex items-start gap-2">
+                          <input type="checkbox" id="tnc" checked={acceptTnC} onChange={e => setAcceptTnC(e.target.checked)} className="mt-0.5 accent-primary" />
+                          <label htmlFor="tnc" className="text-xs text-muted-foreground">
+                            I agree to the <span className="text-primary font-medium cursor-pointer">Terms & Conditions</span> and <span className="text-primary font-medium cursor-pointer">Privacy Policy</span> of Mahanagar Gas Limited
+                          </label>
+                        </div>
+
                         <button
                           onClick={() => onStartRegistration?.()}
-                          disabled={loading || otp.join("").length !== 6}
+                          disabled={loading || otp.join("").length !== 6 || !acceptTnC}
                           className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
                         >
                           {loading ? (
                             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
                           ) : (
-                            "Continue Registration"
+                            "Create Account"
                           )}
                         </button>
                       </>
