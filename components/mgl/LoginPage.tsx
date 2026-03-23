@@ -7,7 +7,7 @@ import type { ActivationData, FOOnboardingType } from "@/app/page";
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter";
 
 interface LoginPageProps {
-  onLogin: (role: UserRole, name: string, onboardingType?: FOOnboardingType) => void;
+  onLogin: (role: UserRole, name: string, onboardingType?: FOOnboardingType, department?: string) => void;
   activationData?: ActivationData | null;
   showRegistration?: boolean;
   onStartRegistration?: () => void;
@@ -17,11 +17,11 @@ type LoginMethod = "mobile" | "email";
 type Portal = "" | "fo" | "mgl";
 
 const mockUsers = [
-  { mobile: "9999999999", email: "admin@mgl.com", password: "admin123", name: "Arun Verma", role: "mgl-admin" as UserRole },
-  { mobile: "8888888888", email: "finance@mgl.com", password: "fin123", name: "Priya Shah", role: "mgl-admin" as UserRole },
-  { mobile: "7777777777", email: "marketing@mgl.com", password: "mkt123", name: "Rahul Mehta", role: "mgl-admin" as UserRole },
-  { mobile: "6666666666", email: "mic@mgl.com", password: "mic123", name: "Sneha Patil", role: "mic" as UserRole },
-  { mobile: "5555555555", email: "zic@mgl.com", password: "zic123", name: "Vikas Joshi", role: "zic" as UserRole },
+  { mobile: "9999999999", email: "admin@mgl.com", password: "admin123", name: "Arun Verma", role: "mgl-admin" as UserRole, department: "admin" },
+  { mobile: "8888888888", email: "finance@mgl.com", password: "fin123", name: "Priya Shah", role: "mgl-admin" as UserRole, department: "finance" },
+  { mobile: "7777777777", email: "marketing@mgl.com", password: "mkt123", name: "Rahul Mehta", role: "mgl-admin" as UserRole, department: "marketing" },
+  { mobile: "6666666666", email: "mic@mgl.com", password: "mic123", name: "Sneha Patil", role: "mic" as UserRole, department: "mic" },
+  { mobile: "5555555555", email: "zic@mgl.com", password: "zic123", name: "Vikas Joshi", role: "zic" as UserRole, department: "zic" },
 ];
 
 export default function LoginPage({ onLogin, activationData, showRegistration, onStartRegistration }: LoginPageProps) {
@@ -121,7 +121,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     
     const user = mockUsers.find(u => u.mobile === mobile);
     if (user) {
-      onLogin(user.role, user.name);
+      onLogin(user.role, user.name, undefined, user.department);
     } else {
       setOtpError("Invalid OTP or mobile number");
     }
@@ -140,7 +140,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     
     const user = mockUsers.find(u => u.email === email && u.password === password);
     if (user) {
-      onLogin(user.role, user.name);
+      onLogin(user.role, user.name, undefined, user.department);
     } else {
       setEmailError("Invalid credentials");
     }
