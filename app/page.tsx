@@ -25,7 +25,7 @@ export interface ActivationData {
 
 export default function Page() {
   const [role, setRole] = useState<UserRole | null>(null)
-  const [user, setUser] = useState<{ name: string; role: UserRole } | null>(null)
+  const [user, setUser] = useState<{ name: string; role: UserRole; department?: string } | null>(null)
   const [foOnboardingType, setFoOnboardingType] = useState<FOOnboardingType | null>(null)
   const [activationData, setActivationData] = useState<ActivationData | null>(null)
   const [showRegistration, setShowRegistration] = useState(false)
@@ -50,11 +50,11 @@ export default function Page() {
     }
   }, [])
 
-  function handleLogin(selectedRole: UserRole, name: string, onboardingType?: FOOnboardingType) {
-    setRole(selectedRole)
-    setUser({ name, role: selectedRole })
-    if (selectedRole === "fleet-operator" && onboardingType) {
-      setFoOnboardingType(onboardingType)
+  function handleLogin(role: UserRole, name: string, onboardingType?: FOOnboardingType, department?: string) {
+    setRole(role)
+    setUser({ name, role, department })
+    if (role === "fleet-operator") {
+      setFoOnboardingType(onboardingType || "SELF_SERVICE")
     }
   }
 
@@ -88,7 +88,7 @@ export default function Page() {
     )
   }
   
-  if (role === "mgl-admin") return <MGLAdminShell user={{ name: user.name, role: "mgl-admin" }} onLogout={handleLogout} />
+  if (role === "mgl-admin") return <MGLAdminShell user={{ name: user.name, role: "mgl-admin", department: user.department }} onLogout={handleLogout} />
   if (role === "mic") return <MICShell user={{ name: user.name, role: "mic" }} onLogout={handleLogout} />
   if (role === "zic") return <ZICShell user={{ name: user.name, role: "zic" }} onLogout={handleLogout} />
   

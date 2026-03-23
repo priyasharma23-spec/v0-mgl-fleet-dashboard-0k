@@ -69,8 +69,8 @@ interface MGLSidebarProps {
 export default function MGLSidebar({ role, activeView, onViewChange, open, onClose, department }: MGLSidebarProps) {
   let navItems = role === "mgl-admin" ? adminNavItems : role === "mic" ? micNavItems : role === "zic" ? zicNavItems : foNavItems;
   
-  if (role === "mgl-admin" && department) {
-    const financeItems = ["Dashboard", "Settlements", "Transactions", "Cards & Wallets", "MIS & Reports"];
+  if (role === "mgl-admin" && department && department !== "admin") {
+    const financeItems = ["Dashboard", "Transactions", "Settlements", "Cards & Wallets", "MIS & Reports"];
     const marketingItems = ["Dashboard", "Fleet Operators", "Transactions", "Settlements", "Cards & Wallets", "Incentives & Offers", "MIS & Reports", "Analytics"];
     const allowedItems = department === "finance" ? financeItems : department === "marketing" ? marketingItems : [];
     
@@ -79,7 +79,13 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
     }
   }
   
-  const roleLabel = role === "mgl-admin" ? "Admin Portal" : role === "mic" ? "MIC Portal" : role === "zic" ? "ZIC Portal" : "Fleet Portal";
+  const deptLabel =
+    department === "finance" ? "Finance & R&T" :
+    department === "marketing" ? "Marketing" :
+    department === "mic" ? "MIC Portal" :
+    department === "zic" ? "ZIC Portal" :
+    role === "fleet-operator" ? "Fleet Portal" :
+    "Admin Portal";
 
   return (
     <>
@@ -109,7 +115,7 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
           </div>
           <div>
             <p className="text-sidebar-foreground font-bold text-sm leading-tight">MGL Fleet</p>
-            <p className="text-sidebar-foreground/60 text-[10px]">{roleLabel}</p>
+            <p className="text-sidebar-foreground/60 text-[10px]">{deptLabel}</p>
           </div>
         </div>
 

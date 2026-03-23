@@ -11,6 +11,7 @@ interface MGLHeaderProps {
   onLogout: () => void;
   onMenuToggle?: () => void;
   sidebarOpen?: boolean;
+  department?: string;
 }
 
 // MGL Fleet Connect Logo Component
@@ -35,7 +36,7 @@ function MGLLogo() {
   );
 }
 
-export default function MGLHeader({ role, userName, onLogout, onMenuToggle, sidebarOpen }: MGLHeaderProps) {
+export default function MGLHeader({ role, userName, onLogout, onMenuToggle, sidebarOpen, department }: MGLHeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -46,6 +47,12 @@ export default function MGLHeader({ role, userName, onLogout, onMenuToggle, side
 
   const roleLabel = role === "mgl-admin" ? "MGL Admin" : role === "mic" ? "Marketing In-Charge (MIC)" : role === "zic" ? "Zone In-Charge (ZIC)" : "Fleet Operator";
   const roleBadgeColor = role === "mgl-admin" ? "bg-purple-100 text-purple-700" : role === "mic" ? "bg-blue-100 text-blue-700" : role === "zic" ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700";
+
+  const deptLabel =
+    department === "finance" ? "Finance & R&T" :
+    department === "marketing" ? "Marketing" :
+    department === "admin" ? "MGL Admin" :
+    "MGL Admin";
 
   return (
     <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 gap-4 shrink-0 z-30 relative">
@@ -131,7 +138,7 @@ export default function MGLHeader({ role, userName, onLogout, onMenuToggle, side
             <div className="absolute right-0 top-11 w-44 bg-card border border-border rounded-xl shadow-xl z-50">
               <div className="p-3 border-b border-border">
                 <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-muted-foreground">{roleLabel}</p>
+                <p className="text-xs text-muted-foreground">{role === "mgl-admin" ? deptLabel : roleLabel}</p>
               </div>
               <button
                 onClick={onLogout}
