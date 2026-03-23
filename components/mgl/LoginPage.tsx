@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { ArrowRight, Smartphone, KeyRound, Eye, EyeOff, Truck, Building2, ArrowLeft } from "lucide-react";
+import { ArrowRight, Smartphone, KeyRound, Eye, EyeOff, Truck, Building2, ArrowLeft, KeyRound as KeyIcon, UserPlus } from "lucide-react";
 import type { UserRole } from "@/lib/mgl-data";
 import type { ActivationData, FOOnboardingType } from "@/app/page";
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter";
@@ -231,6 +231,39 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
               </div>
 
               <div className="p-6">
+                {/* Tab Switcher */}
+                <div className="flex items-center gap-2 p-1 bg-muted rounded-full mb-6 inline-flex">
+                  <button
+                    onClick={() => {
+                      setFoFlow("signin");
+                      resetOtpState();
+                    }}
+                    className={`flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-all ${
+                      foFlow === "signin" 
+                        ? "bg-card text-foreground shadow-sm" 
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <KeyIcon className="w-4 h-4" />
+                    Sign In
+                  </button>
+                  <button
+                    onClick={() => {
+                      setFoFlow("register");
+                      resetOtpState();
+                    }}
+                    className={`flex items-center justify-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-all ${
+                      foFlow === "register" 
+                        ? "bg-card text-foreground shadow-sm" 
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    New Registration
+                  </button>
+                </div>
+
+                {/* Sign In Tab */}
                 {foFlow === "signin" && (
                   <div className="space-y-4">
                     <div>
@@ -325,30 +358,122 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                       </>
                     )}
 
-                    <button
-                      onClick={() => setFoFlow("register")}
-                      className="w-full py-2.5 border border-border text-foreground rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
-                    >
-                      Register New Fleet
-                    </button>
+                    <div className="pt-4 border-t border-border space-y-2 text-xs text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="text-muted-foreground">Have an activation link?</span>
+                        <button className="text-primary hover:underline font-medium">Use activation link</button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
+                {/* New Registration Tab */}
                 {foFlow === "register" && (
-                  <div className="text-center space-y-4">
-                    <p className="text-sm text-foreground">Start your fleet registration</p>
-                    <button
-                      onClick={() => onStartRegistration?.()}
-                      className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
-                    >
-                      Begin Registration
-                    </button>
-                    <button
-                      onClick={() => setFoFlow("signin")}
-                      className="w-full py-2.5 border border-border text-foreground rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
-                    >
-                      Back to Sign In
-                    </button>
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-800">
+                        <span className="font-semibold">Self-Service Registration</span> — Create your Fleet Operator account. After verification, you'll complete the KYB registration process.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                      <div className="flex gap-2 mt-2">
+                        <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
+                          +91
+                        </span>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          value={mobile}
+                          onChange={(e) => {
+                            setMobile(e.target.value.replace(/\D/g, ""));
+                            setMobileError("");
+                            if (otpSent) resetOtpState();
+                          }}
+                          placeholder="Enter 10-digit mobile"
+                          className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                            mobileError ? "border-destructive" : "border-border"
+                          }`}
+                        />
+                      </div>
+                      {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
+                    </div>
+
+                    {!otpSent ? (
+                      <button
+                        onClick={handleSendOtp}
+                        disabled={loading || mobile.length !== 10}
+                        className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
+                      >
+                        {loading ? (
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>Send OTP <ArrowRight className="w-4 h-4" /></>
+                        )}
+                      </button>
+                    ) : (
+                      <>
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-xs font-medium text-muted-foreground">Enter OTP</label>
+                            <span className="text-xs text-muted-foreground">Sent to +91 {mobile}</span>
+                          </div>
+                          <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
+                            {otp.map((digit, i) => (
+                              <input
+                                key={i}
+                                ref={(el) => {
+                                  otpRefs.current[i] = el;
+                                }}
+                                type="text"
+                                inputMode="numeric"
+                                maxLength={1}
+                                value={digit}
+                                onChange={(e) => handleOtpChange(i, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                className={`w-10 h-12 text-center text-lg font-bold rounded-lg border bg-input focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                                  otpError ? "border-destructive" : "border-border"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          {otpError && <p className="text-xs text-destructive mt-2 text-center">{otpError}</p>}
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">
+                            {otpTimer > 0 ? `Resend OTP in ${otpTimer}s` : "Didn't receive OTP?"}
+                          </span>
+                          <button
+                            onClick={handleSendOtp}
+                            disabled={otpTimer > 0}
+                            className="text-primary hover:underline font-medium disabled:opacity-50"
+                          >
+                            Resend
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => onStartRegistration?.()}
+                          disabled={loading || otp.join("").length !== 6}
+                          className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+                        >
+                          {loading ? (
+                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                          ) : (
+                            "Continue Registration"
+                          )}
+                        </button>
+                      </>
+                    )}
+
+                    <div className="pt-4 border-t border-border space-y-2 text-xs text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="text-muted-foreground">Already have an account?</span>
+                        <button onClick={() => setFoFlow("signin")} className="text-primary hover:underline font-medium">Sign in here</button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
