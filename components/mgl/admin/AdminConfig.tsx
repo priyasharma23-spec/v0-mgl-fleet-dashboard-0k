@@ -1,6 +1,12 @@
 "use client"
 
+import { useState } from "react"
+import { Plus } from "lucide-react"
+import { ApprovalProcessList, CreateWorkflowTray } from "@/components/mgl/admin/AdminApprovals"
+
 export default function AdminConfig() {
+  const [showApprovalProcesses, setShowApprovalProcesses] = useState(false)
+  const [showCreateWorkflow, setShowCreateWorkflow] = useState(false)
   return (
     <div className="flex flex-col gap-5 p-5">
       <div>
@@ -91,6 +97,41 @@ export default function AdminConfig() {
           ))}
         </div>
       </div>
+
+      {/* Approval Workflows */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-foreground">Approval Workflows</h3>
+            <p className="text-sm text-muted-foreground">Configure and manage approval processes across modules</p>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={() => setShowApprovalProcesses(!showApprovalProcesses)} className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              {showApprovalProcesses ? "Hide Processes" : "View Processes"}
+            </button>
+            <button onClick={() => setShowCreateWorkflow(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+              <Plus className="w-4 h-4" /> New Workflow
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-green-900">6</p>
+            <p className="text-xs text-green-700">Active Workflows</p>
+          </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-blue-900">14</p>
+            <p className="text-xs text-blue-700">Total Stages</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-amber-900">11</p>
+            <p className="text-xs text-amber-700">Active Rules</p>
+          </div>
+        </div>
+        {showApprovalProcesses && <ApprovalProcessList />}
+      </div>
+
+      {showCreateWorkflow && <CreateWorkflowTray onClose={() => setShowCreateWorkflow(false)} />}
     </div>
   )
 }
