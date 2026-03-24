@@ -33,10 +33,10 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
         
         {/* Stacked bar with rounded ends and spacing */}
         <div className="flex gap-1 h-4 mb-5">
-          <div className="bg-green-500 transition-all rounded-sm" style={{width: '76.5%'}} />
-          <div className="bg-gray-300 transition-all rounded-sm" style={{width: '5.6%'}} />
-          <div className="bg-red-500 transition-all rounded-sm" style={{width: '4.5%'}} />
-          <div className="bg-amber-400 transition-all rounded-l-sm rounded-r-none" style={{width: '2.6%'}} />
+          <div className="bg-green-500 transition-all" style={{width: '76.5%'}} />
+          <div className="bg-gray-300 transition-all" style={{width: '5.6%'}} />
+          <div className="bg-red-500 transition-all" style={{width: '4.5%'}} />
+          <div className="bg-amber-400 transition-all" style={{width: '2.6%'}} />
         </div>
 
         {/* 4 stat cards below the bar */}
@@ -157,10 +157,10 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           <span className="text-sm font-bold text-foreground">₹1.2Cr</span>
         </div>
         <div className="flex gap-1 h-3 mb-4">
-          <div className="bg-blue-500 rounded-sm" style={{width:'71.2%'}} />
-          <div className="bg-green-500 rounded-sm" style={{width:'15.2%'}} />
-          <div className="bg-red-500 rounded-sm" style={{width:'5.3%'}} />
-          <div className="bg-amber-400 rounded-l-sm rounded-r-none" style={{width:'8.3%'}} />
+          <div className="bg-blue-500" style={{width:'71.2%'}} />
+          <div className="bg-green-500" style={{width:'15.2%'}} />
+          <div className="bg-red-500" style={{width:'5.3%'}} />
+          <div className="bg-amber-400" style={{width:'8.3%'}} />
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -205,9 +205,9 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           <span className="text-sm font-bold text-foreground">₹18.5L</span>
         </div>
         <div className="flex gap-1 h-3 mb-3">
-          <div className="bg-green-500 rounded-sm" style={{width:'67%'}} />
-          <div className="bg-amber-400 rounded-sm" style={{width:'22.7%'}} />
-          <div className="bg-red-500 rounded-l-sm rounded-r-none" style={{width:'10.3%'}} />
+          <div className="bg-green-500" style={{width:'67%'}} />
+          <div className="bg-amber-400" style={{width:'22.7%'}} />
+          <div className="bg-red-500" style={{width:'10.3%'}} />
         </div>
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-green-500" /><span className="text-sm text-muted-foreground">Earned unused</span><span className="text-sm font-bold text-green-700">₹12.4L</span><span className="text-xs text-muted-foreground">(67%)</span></div>
@@ -223,9 +223,9 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           <span className="text-sm font-bold text-foreground">₹45.2L</span>
         </div>
         <div className="flex gap-1 h-3 mb-3">
-          <div className="bg-purple-500 rounded-sm" style={{width:'71%'}} />
-          <div className="bg-amber-400 rounded-sm" style={{width:'19%'}} />
-          <div className="bg-gray-400 rounded-l-sm rounded-r-none" style={{width:'10%'}} />
+          <div className="bg-purple-500" style={{width:'71%'}} />
+          <div className="bg-amber-400" style={{width:'19%'}} />
+          <div className="bg-gray-400" style={{width:'10%'}} />
         </div>
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-sm text-muted-foreground">Active</span><span className="text-sm font-bold text-purple-700">₹32.1L</span><span className="text-xs text-muted-foreground">(71%)</span></div>
