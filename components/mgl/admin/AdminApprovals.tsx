@@ -226,13 +226,9 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
                 <div className="space-y-4">
                   {formData.stages.map((stage, idx) => (
                     <div key={stage.id} className="bg-muted/30 rounded-xl p-4 border border-border space-y-3">
-                      <div className="flex gap-3 items-end">
-                        <div className="flex-1"><label className="text-xs font-medium">Stage Name</label>
-                          <input type="text" value={stage.name} onChange={e => { const updated = [...formData.stages]; updated[idx].name = e.target.value; setFormData({...formData, stages: updated}); }} placeholder="e.g. L1 Approval" className="w-full mt-1 px-3 py-1.5 border border-border rounded-lg text-sm bg-background" />
-                        </div>
-                        <div className="w-20"><label className="text-xs font-medium">Order</label>
-                          <input type="number" value={stage.order} onChange={e => { const updated = [...formData.stages]; updated[idx].order = parseInt(e.target.value); setFormData({...formData, stages: updated}); }} className="w-full mt-1 px-3 py-1.5 border border-border rounded-lg text-sm bg-background" />
-                        </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">{idx + 1}</span>
+                        <input type="text" value={stage.name} onChange={e => { const updated = [...formData.stages]; updated[idx].name = e.target.value; setFormData({...formData, stages: updated}); }} placeholder="e.g. L1 Approval" className="flex-1 px-3 py-1.5 border border-border rounded-lg text-sm bg-background" />
                         <button onClick={() => { const updated = formData.stages.filter((_, i) => i !== idx); setFormData({...formData, stages: updated}); }} className="p-2 hover:bg-red-100 rounded-lg text-red-600"><Trash2 className="w-4 h-4" /></button>
                       </div>
                       <div className="flex gap-2">
@@ -266,7 +262,7 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
                       </div>
                     </div>
                   ))}
-                  <button onClick={() => { const newStage = { id: Date.now(), name: "", order: formData.stages.length + 1, type: "Serial", levels: [{ id: Date.now(), role: "", required: 1 }] }; setFormData({...formData, stages: [...formData.stages, newStage]}); }} className="text-sm text-primary font-medium hover:underline">+ Add Stage</button>
+                  <button onClick={() => { const newStage = { id: Date.now(), name: "", type: "Serial", levels: [{ id: Date.now(), role: "", required: 1 }] }; setFormData({...formData, stages: [...formData.stages, newStage]}); }} className="text-sm text-primary font-medium hover:underline">+ Add Stage</button>
                 </div>
               )}
 
@@ -275,7 +271,7 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
                 <div className="space-y-4">
                   {formData.stages.map((stage, stageIdx) => (
                     <div key={stage.id} className="border border-border rounded-lg p-3 bg-muted/20">
-                      <p className="text-xs font-semibold mb-3">{stage.name || `Stage ${stage.order}`}</p>
+                      <p className="text-xs font-semibold mb-3">{stage.name || `Stage ${stageIdx + 1}`}</p>
                       {rules.filter(r => r.stageId === stage.id).map((rule, ruleIdx) => (
                         <div key={rule.id} className={`mb-3 rounded-lg p-3 border ${rule.type === 'ESCALATE' ? 'bg-amber-50 border-amber-200' : rule.type === 'AUTO_APPROVE' ? 'bg-green-50 border-green-200' : rule.type === 'SKIP_LEVEL' ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
                           <div className="flex gap-2 items-end mb-2">
