@@ -19,10 +19,14 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
   ]
 
   const pendingApprovals = [
-    { id: "APR-001", fo: "ABC Logistics", type: "FO Onboarding", requestedBy: "Priya Singh", requestDate: "Mar 24 2026 10:30", currentApprover: "Rahul Kumar", priority: "High", status: "Pending", desc: "Onboarding request for new FO" },
-    { id: "APR-002", fo: "Metro Freight", type: "Vehicle Registration", requestedBy: "Vikram Patel", requestDate: "Mar 24 2026 09:15", currentApprover: "Ananya Sharma", priority: "Normal", status: "Pending", desc: "CNG retrofit vehicle approval needed" },
-    { id: "APR-003", fo: "Sunrise Transport", type: "Card Issuance", requestedBy: "Arjun Desai", requestDate: "Mar 23 2026 14:45", currentApprover: "Deepak Reddy", priority: "Low", status: "Pending", desc: "Additional card request for FO" },
-    { id: "APR-004", fo: "Quick Move", type: "Fund Load", requestedBy: "Neha Gupta", requestDate: "Mar 23 2026 11:20", currentApprover: "Compliance Team", priority: "High", status: "Pending", desc: "Large fund load request - compliance review" },
+    { id: "REQ-001", fo: "ABC Logistics", type: "FO Onboarding", stage: "Document Verification — L1", requestDate: "Mar 24 2026 10:30", currentApprover: "Rahul Kumar", status: "Pending", desc: "Onboarding request for new FO" },
+    { id: "REQ-002", fo: "Metro Freight", type: "Vehicle Registration", stage: "KYC Verification — L2", requestDate: "Mar 24 2026 09:15", currentApprover: "Ananya Sharma", status: "Pending", desc: "CNG retrofit vehicle approval needed" },
+    { id: "REQ-003", fo: "Sunrise Transport", type: "Card Issuance", stage: "Allocation Approval — L1", requestDate: "Mar 23 2026 14:45", currentApprover: "Deepak Reddy", status: "Pending", desc: "Additional card request for FO" },
+    { id: "REQ-004", fo: "Quick Move", type: "Fund Load", stage: "Fleet Ops Approval — L1", requestDate: "Mar 23 2026 11:20", currentApprover: "Compliance Team", status: "Pending", desc: "Large fund load request - compliance review" },
+    { id: "REQ-005", fo: "Express Cargo", type: "FO Onboarding", stage: "Finance Approval — L2", requestDate: "Mar 22 2026 15:10", currentApprover: "Finance Exec", status: "Pending", desc: "New FO onboarding with credit limit" },
+    { id: "REQ-006", fo: "Global Logistics", type: "Vehicle Registration", stage: "Final Audit — L1", requestDate: "Mar 22 2026 13:45", currentApprover: "Audit Team", status: "Pending", desc: "Bulk vehicle registration approval" },
+    { id: "REQ-007", fo: "Premium Transport", type: "Fund Load", stage: "Finance Validation — L1", requestDate: "Mar 21 2026 16:30", currentApprover: "Finance Manager", status: "Pending", desc: "Fund load validation pending" },
+    { id: "REQ-008", fo: "Swift Cargo", type: "Card Issuance", stage: "Ops Audit — L1", requestDate: "Mar 21 2026 14:20", currentApprover: "Ops Lead", status: "Pending", desc: "Card issuance audit check" },
   ]
 
   const approvalHistory = [
@@ -135,10 +139,9 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
               <thead><tr className="border-b border-border bg-muted/30">
                 <th className="px-4 py-3 text-left font-semibold">FO</th>
                 <th className="px-4 py-3 text-left font-semibold">Type</th>
-                <th className="px-4 py-3 text-left font-semibold">Requested By</th>
+                <th className="px-4 py-3 text-left font-semibold">Approval Stage</th>
                 <th className="px-4 py-3 text-left font-semibold">Current Approver</th>
                 <th className="px-4 py-3 text-left font-semibold">Requested</th>
-                <th className="px-4 py-3 text-left font-semibold">Priority</th>
                 <th className="px-4 py-3 text-center font-semibold">Action</th>
               </tr></thead>
               <tbody className="divide-y divide-border">
@@ -146,10 +149,9 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
                   <tr key={p.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium">{p.fo}</td>
                     <td className="px-4 py-3">{p.type}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-sm">{p.requestedBy}</td>
+                    <td className="px-4 py-3 text-muted-foreground text-sm">{p.stage}</td>
                     <td className="px-4 py-3 text-muted-foreground text-sm">{p.currentApprover}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{p.requestDate}</td>
-                    <td className="px-4 py-3"><span className={priorityBadge(p.priority)}>{p.priority}</span></td>
                     <td className="px-4 py-3 text-center"><button onClick={() => setSelectedEntity(p)} className="text-primary hover:underline text-xs font-medium flex items-center justify-center gap-1"><Eye className="w-3 h-3" /></button></td>
                   </tr>
                 ))}
