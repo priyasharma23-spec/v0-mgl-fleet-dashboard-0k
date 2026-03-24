@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, X, Truck, CheckCircle, XCircle, Clock, AlertTriangle, Eye } from "lucide-react"
+import { Search, Filter, X, Truck, CheckCircle, Clock, AlertTriangle, Eye, Users } from "lucide-react"
 
 export default function AdminVehicles() {
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
@@ -40,24 +40,30 @@ export default function AdminVehicles() {
   )
 
   const summaryCards = [
-    { label: "Total Vehicles", value: "3,200", color: "bg-gray-100 text-gray-900", icon: Truck },
-    { label: "Active", value: "2,654", color: "bg-green-100 text-green-900", icon: CheckCircle },
-    { label: "Inactive", value: "193", color: "bg-gray-100 text-gray-900", icon: Clock },
-    { label: "Blocked", value: "156", color: "bg-red-100 text-red-900", icon: XCircle },
-    { label: "Pending Approval", value: "45", color: "bg-amber-100 text-amber-900", icon: AlertTriangle },
+    { label: "Total Vehicles", value: "3,200", icon: Truck, iconBg: "bg-gray-100", iconColor: "text-gray-600" },
+    { label: "Active", value: "2,654", icon: CheckCircle, iconBg: "bg-green-100", iconColor: "text-green-600" },
+    { label: "Inactive", value: "193", icon: Clock, iconBg: "bg-gray-100", iconColor: "text-gray-600" },
+    { label: "Drivers", value: "2,847", icon: Users, iconBg: "bg-blue-100", iconColor: "text-blue-600" },
+    { label: "Pending Approval", value: "45", icon: AlertTriangle, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
   ]
 
   return (
     <div className="p-6 space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {summaryCards.map((card, idx) => {
           const Icon = card.icon
           return (
-            <div key={idx} className={`${card.color} rounded-lg p-4 text-center`}>
-              <Icon className="w-6 h-6 mx-auto mb-2" />
-              <p className="text-2xl font-bold">{card.value}</p>
-              <p className="text-xs font-medium">{card.label}</p>
+            <div key={idx} className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-start justify-between">
+                <div className={`${card.iconBg} rounded-lg p-2`}>
+                  <Icon className={`w-5 h-5 ${card.iconColor}`} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <p className="text-2xl font-bold text-foreground">{card.value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+              </div>
             </div>
           )
         })}
