@@ -158,12 +158,14 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
         </div>
         <div className="flex rounded-full overflow-hidden h-3 mb-3">
           <div className="bg-blue-500" style={{width:'71.2%'}} />
-          <div className="bg-purple-500" style={{width:'20.5%'}} />
+          <div className="bg-green-500" style={{width:'15.2%'}} />
+          <div className="bg-red-500" style={{width:'5.3%'}} />
           <div className="bg-amber-400" style={{width:'8.3%'}} />
         </div>
         <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-sm text-muted-foreground">FO Funded</span><span className="text-sm font-bold text-blue-700">₹85.4L</span><span className="text-xs text-muted-foreground">(71.2%)</span></div>
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-sm text-muted-foreground">MGL Incentive</span><span className="text-sm font-bold text-purple-700">₹24.6L</span><span className="text-xs text-muted-foreground">(20.5%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-sm text-muted-foreground">FO Loaded</span><span className="text-sm font-bold text-blue-700">₹85.4L</span><span className="text-xs text-muted-foreground">(71.2%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-green-500" /><span className="text-sm text-muted-foreground">Incentive (Active)</span><span className="text-sm font-bold text-green-700">₹18.2L</span><span className="text-xs text-muted-foreground">(15.2%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-sm text-muted-foreground">Incentive (Expired)</span><span className="text-sm font-bold text-red-700">₹6.4L</span><span className="text-xs text-muted-foreground">(5.3%)</span></div>
           <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-sm text-muted-foreground">Cashback</span><span className="text-sm font-bold text-amber-700">₹10.0L</span><span className="text-xs text-muted-foreground">(8.3%)</span></div>
         </div>
       </div>
