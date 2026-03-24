@@ -7,6 +7,11 @@ export default function AdminFundManagement() {
   const [showLoadModal, setShowLoadModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [showFOFilters, setShowFOFilters] = useState(false)
+  const [showPGFilters, setShowPGFilters] = useState(false)
+  const [showT1Filters, setShowT1Filters] = useState(false)
+  const [showLedgerFilters, setShowLedgerFilters] = useState(false)
+  const [showRefundFilters, setShowRefundFilters] = useState(false)
   const [loadForm, setLoadForm] = useState({ fo: "", amount: "", source: "", reference: "", remarks: "" })
 
   const foAccounts = [
@@ -103,68 +108,177 @@ export default function AdminFundManagement() {
 
       {/* FO Accounts Tab */}
       {activeTab === "fo-accounts" && (
-        <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="p-4 border-b border-border flex items-center gap-3">
-            <div className="relative flex-1"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" /><input placeholder="Search FO..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+        <div className="space-y-4">
+          {/* Search Row */}
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input placeholder="Search by FO name or account ID..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+            </div>
+            <button onClick={() => setShowFOFilters(!showFOFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
           </div>
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-border bg-muted/30">
-              <th className="px-4 py-3 text-left font-semibold">FO Name</th>
-              <th className="px-4 py-3 text-left font-semibold">Parent A/C ID</th>
-              <th className="px-4 py-3 text-left font-semibold">Parent Balance</th>
-              <th className="px-4 py-3 text-left font-semibold">Last Load</th>
-              <th className="px-4 py-3 text-left font-semibold">Amount</th>
-              <th className="px-4 py-3 text-left font-semibold">Source</th>
-              <th className="px-4 py-3 text-left font-semibold">T+1 Pending</th>
-              <th className="px-4 py-3 text-left font-semibold">Status</th>
-              <th className="px-4 py-3 text-left font-semibold">Action</th>
-            </tr></thead>
-            <tbody>{foAccounts.map(fo => (
-              <tr key={fo.id} className="border-b border-border hover:bg-muted/30">
-                <td className="px-4 py-3 font-medium">{fo.name}</td>
-                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{fo.parentAccountId}</td>
-                <td className="px-4 py-3 font-bold">{fo.balance}</td>
-                <td className="px-4 py-3 text-muted-foreground">{fo.lastLoad}</td>
-                <td className="px-4 py-3">{fo.lastLoadAmt}</td>
-                <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{fo.source}</span></td>
-                <td className="px-4 py-3 text-amber-600 font-medium">{fo.t1Pending}</td>
-                <td className="px-4 py-3"><span className={statusBadge(fo.status)}>{fo.status}</span></td>
-                <td className="px-4 py-3"><button onClick={() => { setLoadForm(f => ({...f, fo: fo.name})); setShowForm(true) }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium"><Plus className="w-3 h-3" /> Load</button></td>
-              </tr>
-            ))}</tbody>
-          </table>
+
+          {/* Filter Panel - sibling, no shared wrapper */}
+          {showFOFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All</option><option>Active</option><option>Inactive</option><option>Blocked</option>
+                  </select>
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">Last Load Source</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All</option><option>NEFT</option><option>RTGS</option><option>IMPS</option><option>FT</option><option>Third-party PG</option>
+                  </select>
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-3 text-left font-semibold">FO Name</th>
+                <th className="px-4 py-3 text-left font-semibold">Parent A/C ID</th>
+                <th className="px-4 py-3 text-left font-semibold">Parent Balance</th>
+                <th className="px-4 py-3 text-left font-semibold">Last Load</th>
+                <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                <th className="px-4 py-3 text-left font-semibold">Source</th>
+                <th className="px-4 py-3 text-left font-semibold">T+1 Pending</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
+                <th className="px-4 py-3 text-left font-semibold">Action</th>
+              </tr></thead>
+              <tbody>{foAccounts.map(fo => (
+                <tr key={fo.id} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 font-medium">{fo.name}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{fo.parentAccountId}</td>
+                  <td className="px-4 py-3 font-bold">{fo.balance}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{fo.lastLoad}</td>
+                  <td className="px-4 py-3">{fo.lastLoadAmt}</td>
+                  <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{fo.source}</span></td>
+                  <td className="px-4 py-3 text-amber-600 font-medium">{fo.t1Pending}</td>
+                  <td className="px-4 py-3"><span className={statusBadge(fo.status)}>{fo.status}</span></td>
+                  <td className="px-4 py-3"><button onClick={() => { setLoadForm(f => ({...f, fo: fo.name})); setShowForm(true) }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium"><Plus className="w-3 h-3" /> Load</button></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* PG Collections Tab */}
       {activeTab === "pg-collections" && (
-        <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-border bg-muted/30">
-              <th className="px-4 py-3 text-left font-semibold">PG Ref</th>
-              <th className="px-4 py-3 text-left font-semibold">FO Name</th>
-              <th className="px-4 py-3 text-left font-semibold">Amount</th>
-              <th className="px-4 py-3 text-left font-semibold">Collection Time</th>
-              <th className="px-4 py-3 text-left font-semibold">Credit Date</th>
-              <th className="px-4 py-3 text-left font-semibold">Status</th>
-            </tr></thead>
-            <tbody>{pgCollections.map(pg => (
-              <tr key={pg.id} className="border-b border-border hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">{pg.pgRef}</td>
-                <td className="px-4 py-3 font-medium">{pg.fo}</td>
-                <td className="px-4 py-3 font-bold">{pg.amount}</td>
-                <td className="px-4 py-3 text-muted-foreground">{pg.time}</td>
-                <td className="px-4 py-3">{pg.creditDate}</td>
-                <td className="px-4 py-3"><span className={statusBadge(pg.status)}>{pg.status}</span></td>
-              </tr>
-            ))}</tbody>
-          </table>
+        <div className="space-y-4">
+          {/* Search Row */}
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input placeholder="Search by FO name or PG reference..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+            </div>
+            <button onClick={() => setShowPGFilters(!showPGFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
+          </div>
+
+          {/* Filter Panel */}
+          {showPGFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All</option><option>Success</option><option>Pending</option><option>Failed</option>
+                  </select>
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">FO Name</label>
+                  <input type="text" placeholder="Search FO..." className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-3 text-left font-semibold">PG Ref</th>
+                <th className="px-4 py-3 text-left font-semibold">FO Name</th>
+                <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                <th className="px-4 py-3 text-left font-semibold">Collection Time</th>
+                <th className="px-4 py-3 text-left font-semibold">Credit Date</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
+              </tr></thead>
+              <tbody>{pgCollections.map(pg => (
+                <tr key={pg.id} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">{pg.pgRef}</td>
+                  <td className="px-4 py-3 font-medium">{pg.fo}</td>
+                  <td className="px-4 py-3 font-bold">{pg.amount}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{pg.time}</td>
+                  <td className="px-4 py-3">{pg.creditDate}</td>
+                  <td className="px-4 py-3"><span className={statusBadge(pg.status)}>{pg.status}</span></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
         </div>
       )}
 
       {/* T+1 Pending Tab */}
       {activeTab === "t1-pending" && (
         <div className="space-y-4">
+          {/* Search Row */}
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input placeholder="Search by FO name..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+            </div>
+            <button onClick={() => setShowT1Filters(!showT1Filters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
+          </div>
+
+          {/* Filter Panel */}
+          {showT1Filters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">FO Name</label>
+                  <input type="text" placeholder="Search FO..." className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
+
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
             <p className="text-sm text-amber-800 font-medium">₹12.4L pending — will be credited to FO parent wallets on Mar 24, 2026 by 10:00 AM</p>
           </div>
@@ -203,6 +317,47 @@ export default function AdminFundManagement() {
                 <Plus className="w-4 h-4" /> Load Funds
               </button>
             </div>
+
+            {/* Search Row */}
+            <div className="p-4 border-b border-border flex gap-3 items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input placeholder="Search by FO name or reference..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+              </div>
+              <button onClick={() => setShowLedgerFilters(!showLedgerFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                <Filter className="w-4 h-4" /> Filters
+              </button>
+            </div>
+
+            {/* Filter Panel */}
+            {showLedgerFilters && (
+              <div className="p-4 border-b border-border bg-muted/30">
+                <div className="grid grid-cols-2 gap-4">
+                  <div><label className="text-xs font-medium text-muted-foreground">FO Name</label>
+                    <input type="text" placeholder="Search FO..." className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                  </div>
+                  <div><label className="text-xs font-medium text-muted-foreground">Source</label>
+                    <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                      <option>All</option><option>NEFT</option><option>RTGS</option><option>IMPS</option><option>FT</option><option>Third-party PG</option>
+                    </select>
+                  </div>
+                  <div><label className="text-xs font-medium text-muted-foreground">From Date</label>
+                    <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                  </div>
+                  <div><label className="text-xs font-medium text-muted-foreground">To Date</label>
+                    <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                  </div>
+                  <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Loaded By</label>
+                    <input type="text" placeholder="Search user..." className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                  </div>
+                </div>
+                <div className="flex gap-3 justify-end mt-3">
+                  <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                  <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+                </div>
+              </div>
+            )}
+
             <table className="w-full text-sm">
               <thead><tr className="border-b border-border bg-muted/30">
                 <th className="px-4 py-3 text-left font-semibold">FO</th>
@@ -229,34 +384,73 @@ export default function AdminFundManagement() {
 
       {/* Refunds Tab */}
       {activeTab === "refunds" && (
-        <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-border bg-muted/30">
-              <th className="px-4 py-3 text-left font-semibold">Ref ID</th>
-              <th className="px-4 py-3 text-left font-semibold">FO Name</th>
-              <th className="px-4 py-3 text-left font-semibold">Amount</th>
-              <th className="px-4 py-3 text-left font-semibold">Reason</th>
-              <th className="px-4 py-3 text-left font-semibold">Date</th>
-              <th className="px-4 py-3 text-left font-semibold">Status</th>
-              <th className="px-4 py-3 text-left font-semibold">Action</th>
-            </tr></thead>
-            <tbody>{refunds.map(r => (
-              <tr key={r.id} className="border-b border-border hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">{r.id}</td>
-                <td className="px-4 py-3 font-medium">{r.fo}</td>
-                <td className="px-4 py-3 font-bold">{r.amount}</td>
-                <td className="px-4 py-3 text-muted-foreground">{r.reason}</td>
-                <td className="px-4 py-3">{r.date}</td>
-                <td className="px-4 py-3"><span className={statusBadge(r.status)}>{r.status}</span></td>
-                <td className="px-4 py-3">
-                  {r.status === "Pending" && <div className="flex gap-2">
-                    <button className="px-2 py-1 bg-green-600 text-white rounded text-xs font-medium">Approve</button>
-                    <button className="px-2 py-1 bg-red-600 text-white rounded text-xs font-medium">Reject</button>
-                  </div>}
-                </td>
-              </tr>
-            ))}</tbody>
-          </table>
+        <div className="space-y-4">
+          {/* Search Row */}
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input placeholder="Search by FO name or refund ID..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+            </div>
+            <button onClick={() => setShowRefundFilters(!showRefundFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
+          </div>
+
+          {/* Filter Panel */}
+          {showRefundFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">FO Name</label>
+                  <input type="text" placeholder="Search FO..." className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All</option><option>Pending</option><option>Approved</option><option>Rejected</option>
+                  </select>
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label>
+                  <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-3 text-left font-semibold">Ref ID</th>
+                <th className="px-4 py-3 text-left font-semibold">FO Name</th>
+                <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                <th className="px-4 py-3 text-left font-semibold">Reason</th>
+                <th className="px-4 py-3 text-left font-semibold">Date</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
+                <th className="px-4 py-3 text-left font-semibold">Action</th>
+              </tr></thead>
+              <tbody>{refunds.map(r => (
+                <tr key={r.id} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 font-mono text-xs">{r.id}</td>
+                  <td className="px-4 py-3 font-medium">{r.fo}</td>
+                  <td className="px-4 py-3 font-bold">{r.amount}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.reason}</td>
+                  <td className="px-4 py-3">{r.date}</td>
+                  <td className="px-4 py-3"><span className={statusBadge(r.status)}>{r.status}</span></td>
+                  <td className="px-4 py-3">
+                    {r.status === "Pending" && <div className="flex gap-2">
+                      <button className="px-2 py-1 bg-green-600 text-white rounded text-xs font-medium">Approve</button>
+                      <button className="px-2 py-1 bg-red-600 text-white rounded text-xs font-medium">Reject</button>
+                    </div>}
+                  </td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
         </div>
       )}
 
