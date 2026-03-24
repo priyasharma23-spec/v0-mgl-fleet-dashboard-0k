@@ -12,8 +12,8 @@ export default function AdminFundManagement() {
   const foAccounts = [
     { id: "FO001", name: "ABC Logistics", parentAccountId: "PA-2024-001", balance: "₹2.4L", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹50,000", source: "NEFT", t1Pending: "₹15,000", status: "Active" },
     { id: "FO002", name: "Metro Freight", parentAccountId: "PA-2024-002", balance: "₹5.1L", lastLoad: "Mar 22, 2026", lastLoadAmt: "₹1,00,000", source: "PG", t1Pending: "₹28,000", status: "Active" },
-    { id: "FO003", name: "Sunrise Transport", parentAccountId: "PA-2024-003", balance: "₹12,500", lastLoad: "Mar 20, 2026", lastLoadAmt: "₹25,000", source: "RTGS", t1Pending: "₹0", status: "Low Balance" },
-    { id: "FO004", name: "City Express", parentAccountId: "PA-2024-004", balance: "₹3,200", lastLoad: "Mar 18, 2026", lastLoadAmt: "₹10,000", source: "IMPS", t1Pending: "₹0", status: "Critical" },
+    { id: "FO003", name: "Sunrise Transport", parentAccountId: "PA-2024-003", balance: "₹12,500", lastLoad: "Mar 20, 2026", lastLoadAmt: "₹25,000", source: "RTGS", t1Pending: "₹0", status: "Active" },
+    { id: "FO004", name: "City Express", parentAccountId: "PA-2024-004", balance: "₹3,200", lastLoad: "Mar 18, 2026", lastLoadAmt: "₹10,000", source: "IMPS", t1Pending: "₹0", status: "Blocked" },
     { id: "FO005", name: "Quick Move", parentAccountId: "PA-2024-005", balance: "₹98,000", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹75,000", source: "FT", t1Pending: "₹42,000", status: "Active" },
   ]
 
