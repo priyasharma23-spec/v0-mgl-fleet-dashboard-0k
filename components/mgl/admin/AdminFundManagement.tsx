@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { Search, Filter, Download, Plus, CheckCircle, Clock, XCircle, AlertTriangle, Banknote, CreditCard, RefreshCw, ArrowRightLeft } from "lucide-react"
+import { Search, Filter, Download, Plus, CheckCircle, Clock, XCircle, AlertTriangle, Banknote, CreditCard, RefreshCw, ArrowRightLeft, X } from "lucide-react"
 
 export default function AdminFundManagement() {
   const [activeTab, setActiveTab] = useState("fo-accounts")
@@ -194,43 +194,44 @@ export default function AdminFundManagement() {
       {/* Manual Fund Load Tab */}
       {activeTab === "manual-load" && (
         <>
-          {!showForm ? (
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              <div className="p-4 border-b border-border flex items-center justify-between">
-                <h3 className="font-semibold">Manual Load Ledger</h3>
-                <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-                  <Plus className="w-4 h-4" /> Load Funds
-                </button>
-              </div>
-              <table className="w-full text-sm">
-                <thead><tr className="border-b border-border bg-muted/30">
-                  <th className="px-4 py-3 text-left font-semibold">FO</th>
-                  <th className="px-4 py-3 text-left font-semibold">Amount</th>
-                  <th className="px-4 py-3 text-left font-semibold">Source</th>
-                  <th className="px-4 py-3 text-left font-semibold">Date</th>
-                  <th className="px-4 py-3 text-left font-semibold">By</th>
-                  <th className="px-4 py-3 text-left font-semibold">Status</th>
-                </tr></thead>
-                <tbody>{manualLedger.map(ml => (
-                  <tr key={ml.id} className="border-b border-border hover:bg-muted/30">
-                    <td className="px-4 py-3 font-medium">{ml.fo}</td>
-                    <td className="px-4 py-3 font-bold text-green-700">{ml.amount}</td>
-                    <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
-                    <td className="px-4 py-3 text-xs">{ml.by}</td>
-                    <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="p-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-semibold">Manual Load Ledger</h3>
+              <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                <Plus className="w-4 h-4" /> Load Funds
+              </button>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <div className="bg-card rounded-xl border border-border p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold">Load Funds to FO Parent Account</h3>
-                  <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground text-lg font-medium">✕</button>
+            <table className="w-full text-sm">
+              <thead><tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-3 text-left font-semibold">FO</th>
+                <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                <th className="px-4 py-3 text-left font-semibold">Source</th>
+                <th className="px-4 py-3 text-left font-semibold">Date</th>
+                <th className="px-4 py-3 text-left font-semibold">By</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
+              </tr></thead>
+              <tbody>{manualLedger.map(ml => (
+                <tr key={ml.id} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 font-medium">{ml.fo}</td>
+                  <td className="px-4 py-3 font-bold text-green-700">{ml.amount}</td>
+                  <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
+                  <td className="px-4 py-3 text-xs">{ml.by}</td>
+                  <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+
+          {showForm && (
+            <>
+              <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowForm(false)} />
+              <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+                <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+                  <h3 className="font-semibold text-lg">Load Funds to FO Parent Account</h3>
+                  <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
                 </div>
-                <div className="space-y-4">
+                <div className="p-5 space-y-4">
                   <div><label className="text-sm font-medium">Fleet Operator <span className="text-red-500">*</span></label>
                     <select value={loadForm.fo} onChange={e => setLoadForm(f => ({...f, fo: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
                       <option value="">Select FO</option>
@@ -257,30 +258,7 @@ export default function AdminFundManagement() {
                   </button>
                 </div>
               </div>
-              <div className="bg-card rounded-xl border border-border overflow-hidden">
-                <div className="p-4 border-b border-border"><h3 className="font-semibold">Manual Load Ledger</h3></div>
-                <table className="w-full text-sm">
-                  <thead><tr className="border-b border-border bg-muted/30">
-                    <th className="px-4 py-3 text-left font-semibold">FO</th>
-                    <th className="px-4 py-3 text-left font-semibold">Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold">Source</th>
-                    <th className="px-4 py-3 text-left font-semibold">Date</th>
-                    <th className="px-4 py-3 text-left font-semibold">By</th>
-                    <th className="px-4 py-3 text-left font-semibold">Status</th>
-                  </tr></thead>
-                  <tbody>{manualLedger.map(ml => (
-                    <tr key={ml.id} className="border-b border-border hover:bg-muted/30">
-                      <td className="px-4 py-3 font-medium">{ml.fo}</td>
-                      <td className="px-4 py-3 font-bold text-green-700">{ml.amount}</td>
-                      <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
-                      <td className="px-4 py-3 text-xs">{ml.by}</td>
-                      <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>
-            </div>
+            </>
           )}
         </>
       )}
