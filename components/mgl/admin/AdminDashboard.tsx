@@ -121,13 +121,13 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
             </div>
           </div>
           <div className="mt-3">
-            <p className="text-2xl font-bold text-foreground">3,200</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Total Vehicles</p>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mb-1">
               <span className="text-xs text-green-600 font-medium">2,840 New</span>
               <span className="text-xs text-muted-foreground">•</span>
               <span className="text-xs text-blue-600 font-medium">360 Retrofitment</span>
             </div>
+            <p className="text-2xl font-bold text-foreground">3,200</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Total Vehicles</p>
           </div>
         </div>
       </div>
