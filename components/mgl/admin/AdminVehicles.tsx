@@ -15,19 +15,19 @@ export default function AdminVehicles() {
     { id: "MH12AB1234", fo: "ABC Logistics", foId: "FO-2026-0088", driver: "Ramesh Kumar", driverMobile: "+91 98765 43210", fuel: "CNG", card: "****4521", cardStatus: "Active", status: "Active", lastTxn: "Mar 23 2026", lastTxnAmt: "₹2,450", txnCount: 127, regDate: "Jan 15 2026", approval: "Approved" },
     { id: "MH12CD5678", fo: "Metro Freight", foId: "FO-2026-0091", driver: "Suresh Patil", driverMobile: "+91 98765 43211", fuel: "CNG", card: "****4522", cardStatus: "Active", status: "Active", lastTxn: "Mar 22 2026", lastTxnAmt: "₹3,100", txnCount: 94, regDate: "Feb 10 2026", approval: "Approved" },
     { id: "KA05XY5678", fo: "Metro Freight", foId: "FO-2026-0091", driver: "Vikram Singh", driverMobile: "+91 98765 43212", fuel: "CNG", card: "****3175", cardStatus: "Active", status: "Active", lastTxn: "Mar 23 2026", lastTxnAmt: "₹1,890", txnCount: 156, regDate: "Jan 22 2026", approval: "Approved" },
-    { id: "DL08CD9012", fo: "Urban Transport", foId: "FO-2026-0150", driver: "Amit Sharma", driverMobile: "+91 98765 43213", fuel: "CNG", card: "****2891", cardStatus: "Inactive", status: "Inactive", lastTxn: "Mar 20 2026", lastTxnAmt: "₹1,200", txnCount: 45, regDate: "Mar 01 2026", approval: "Approved" },
+    { id: "DL08CD9012", fo: "Urban Transport", foId: "FO-2026-0150", driver: "Amit Sharma", driverMobile: "+91 98765 43213", fuel: "CNG", card: "****2891", cardStatus: "Inactive", status: "Approval Pending", lastTxn: "Mar 20 2026", lastTxnAmt: "₹1,200", txnCount: 45, regDate: "Mar 01 2026", approval: "Approved" },
     { id: "TN03EF3456", fo: "City Express", foId: "FO-2026-0201", driver: "Rajan Kumar", driverMobile: "+91 98765 43214", fuel: "CNG", card: "****1654", cardStatus: "Active", status: "Active", lastTxn: "Mar 23 2026", lastTxnAmt: "₹2,750", txnCount: 89, regDate: "Feb 28 2026", approval: "Approved" },
     { id: "MH47BY2770", fo: "ABC Logistics", foId: "FO-2026-0088", driver: "Deepak Nair", driverMobile: "+91 98765 43215", fuel: "CNG", card: "****1138", cardStatus: "Active", status: "Active", lastTxn: "Mar 23 2026", lastTxnAmt: "₹2,100", txnCount: 203, regDate: "Jan 05 2026", approval: "Approved" },
-    { id: "MH47BY1688", fo: "ABC Logistics", foId: "FO-2026-0088", driver: "Pradeep Rao", driverMobile: "+91 98765 43216", fuel: "CNG", card: "****3175", cardStatus: "Blocked", status: "Active", lastTxn: "Mar 21 2026", lastTxnAmt: "₹1,650", txnCount: 112, regDate: "Jan 28 2026", approval: "Approved" },
-    { id: "KA09ZZ0021", fo: "Quick Move", foId: "FO-2026-0315", driver: "Sunil Mehta", driverMobile: "+91 98765 43217", fuel: "CNG", card: "****9901", cardStatus: "Active", status: "Pending", lastTxn: "Mar 18 2026", lastTxnAmt: "₹890", txnCount: 12, regDate: "Mar 15 2026", approval: "Pending Approval" },
+    { id: "MH47BY1688", fo: "ABC Logistics", foId: "FO-2026-0088", driver: "Pradeep Rao", driverMobile: "+91 98765 43216", fuel: "CNG", card: "****3175", cardStatus: "Blocked", status: "Under Review", lastTxn: "Mar 21 2026", lastTxnAmt: "₹1,650", txnCount: 112, regDate: "Jan 28 2026", approval: "Approved" },
+    { id: "KA09ZZ0021", fo: "Quick Move", foId: "FO-2026-0315", driver: "Sunil Mehta", driverMobile: "+91 98765 43217", fuel: "CNG", card: "****9901", cardStatus: "Active", status: "Approval Pending", lastTxn: "Mar 18 2026", lastTxnAmt: "₹890", txnCount: 12, regDate: "Mar 15 2026", approval: "Pending Approval" },
   ]
 
   const statusBadge = (status: string) => {
     const map: Record<string, string> = {
       Active: "bg-green-100 text-green-700",
-      Inactive: "bg-gray-100 text-gray-700",
-      Blocked: "bg-red-100 text-red-700",
-      Pending: "bg-amber-100 text-amber-700",
+      "Approval Pending": "bg-amber-100 text-amber-700",
+      "Under Review": "bg-blue-100 text-blue-700",
+      Rejected: "bg-red-100 text-red-700",
     }
     return map[status] || "bg-gray-100 text-gray-700"
   }
@@ -94,7 +94,7 @@ export default function AdminVehicles() {
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Status</label>
                 <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                  <option value="All">All</option><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Blocked">Blocked</option><option value="Pending">Pending</option>
+                  <option value="All">All</option><option value="Active">Active</option><option value="Approval Pending">Approval Pending</option><option value="Under Review">Under Review</option><option value="Rejected">Rejected</option>
                 </select>
               </div>
               <div>
