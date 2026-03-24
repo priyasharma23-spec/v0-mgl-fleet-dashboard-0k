@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Search, X, Eye, CheckCircle, FileText, XCircle, Gift } from "lucide-react"
+import { Download, Search, X, Eye, CheckCircle, FileText, XCircle, Gift, Filter } from "lucide-react"
 
 export default function AdminIncentives({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [activeTab, setActiveTab] = useState("programs")
@@ -9,6 +9,7 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
   const [categoryFilter, setCategoryFilter] = useState("All")
+  const [showFilters, setShowFilters] = useState(false)
 
   const programs = [
     { id: "INC-001", code: "INC-001", name: "Assisted Onboarding Incentive", category: "Incentive", subtype: "One-time", trigger: "Onboarding Complete", postingMode: "Immediate", validUntil: "Mar 31 2026", status: "Active", desc: "Incentive for new FOs completing onboarding", walletRouting: "Same wallet", capPerEvent: "₹5,000", capPerBeneficiary: "₹5,000", capPerProgram: "₹50L" },
@@ -164,10 +165,33 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search programs..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-              <option>All</option><option>Active</option><option>Draft</option><option>Inactive</option><option>Expired</option><option>Exhausted</option>
-            </select>
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option value="All">All</option><option value="Active">Active</option><option value="Draft">Draft</option><option value="Inactive">Inactive</option><option value="Expired">Expired</option><option value="Exhausted">Exhausted</option>
+                  </select>
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">Category</label>
+                  <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option value="All">All</option><option value="Incentive">Incentive</option><option value="Cashback">Cashback</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -212,13 +236,33 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by beneficiary or program..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-              <option>All</option><option>Incentive</option><option>Cashback</option>
-            </select>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-              <option>All</option><option>Credited</option><option>Pending</option><option>Expired</option><option>Reversed</option>
-            </select>
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option value="All">All</option><option value="Credited">Credited</option><option value="Pending">Pending</option><option value="Expired">Expired</option><option value="Reversed">Reversed</option>
+                  </select>
+                </div>
+                <div><label className="text-xs font-medium text-muted-foreground">Category</label>
+                  <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option value="All">All</option><option value="Incentive">Incentive</option><option value="Cashback">Cashback</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -258,10 +302,33 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
 
       {activeTab === "beneficiary-view" && (
         <>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by FO name or ID..." />
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by FO name or ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            </div>
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="bg-card rounded-xl border border-border p-4">
               <p className="text-xs text-muted-foreground">Total Incentive</p>
@@ -318,7 +385,30 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search ledger..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Status</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All Status</option>
+                    <option>Active</option>
+                    <option>Consumed</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -361,7 +451,33 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search audit log..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
+            </button>
           </div>
+
+          {showFilters && (
+            <div className="border border-border rounded-lg p-4 bg-muted/30">
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Action</label>
+                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                    <option>All Actions</option>
+                    <option>Viewed Program</option>
+                    <option>Inactivated Program</option>
+                    <option>Manual Adjustment</option>
+                    <option>Reward Credited</option>
+                    <option>Expiry Processed</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 justify-end mt-3">
+                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+              </div>
+            </div>
+          )}
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

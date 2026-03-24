@@ -267,8 +267,7 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                 <thead className="bg-muted border-b border-border">
                   <tr>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">TXN ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-foreground">Time</th>
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">Date & Time</th>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">Card</th>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">Vehicle</th>
                     <th className="px-4 py-3 text-left font-semibold text-foreground">Amount</th>
@@ -280,8 +279,10 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                   {posTransactions.map(txn => (
                     <tr key={txn.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3 font-medium">{txn.id}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{txn.date}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{txn.time}</td>
+                      <td className="px-4 py-3">
+                        <p className="text-sm">{txn.date}</p>
+                        <p className="text-xs text-muted-foreground">{txn.time}</p>
+                      </td>
                       <td className="px-4 py-3 font-mono text-xs">{txn.card}</td>
                       <td className="px-4 py-3">{txn.vehicle}</td>
                       <td className="px-4 py-3 font-semibold">₹{txn.amount.toLocaleString()}</td>
@@ -357,7 +358,10 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                   {loadTransactions.map(txn => (
                     <tr key={txn.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3 font-medium">{txn.id}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{txn.dateTime}</td>
+                      <td className="px-4 py-3">
+                        <p className="text-sm">{txn.dateTime.split(' ').slice(0, 3).join(' ')}</p>
+                        <p className="text-xs text-muted-foreground">{txn.dateTime.split(' ').slice(3).join(' ')}</p>
+                      </td>
                       <td className="px-4 py-3">{txn.fo}</td>
                       <td className="px-4 py-3 font-semibold">{txn.amount}</td>
                       <td className="px-4 py-3">
