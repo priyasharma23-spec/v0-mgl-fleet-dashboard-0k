@@ -161,6 +161,7 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
 
 
       {/* Pending Approvals Tab */}
+      {activeTab === "pending-approvals" && (
         <>
           <div className="flex gap-3 items-center">
             <div className="relative flex-1">
