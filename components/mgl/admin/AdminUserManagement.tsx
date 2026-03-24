@@ -310,7 +310,7 @@ export default function AdminUserManagement() {
       )}
 
       {selectedUser && (
-        <div className="fixed bottom-0 right-0 top-0 z-50 w-96 bg-card h-full overflow-y-auto shadow-xl border-l border-border">
+        <div className="fixed bottom-0 right-0 top-0 z-50 w-full max-w-lg bg-card h-full overflow-y-auto shadow-xl border-l border-border">
           {/* Sticky Header */}
           <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
             <div className="flex items-center justify-between">

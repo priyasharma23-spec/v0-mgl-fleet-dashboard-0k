@@ -334,12 +334,155 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
       {selectedTimeline && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedTimeline(null)} />
-          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+          <div className="fixed top-0 right-0 bottom-0 w-full max-w-lg bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold">Activity Timeline</h3>
+                <p className="text-xs text-muted-foreground">{selectedTimeline.fo} — {selectedTimeline.type}</p>
+              </div>
+              <button onClick={() => setSelectedTimeline(null)} className="p-2 hover:bg-muted rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              {(() => {
+                const timeline = foTimelines.find(t => t.name.includes(selectedTimeline.fo) || selectedTimeline.fo.includes(t.name.split(' ')[0]))
+                if (!timeline) {
+                  return <p className="text-sm text-muted-foreground">No activity recorded yet for this request.</p>
+                }
+                return (
+                  <div className="space-y-4">
+                    {timeline.entries.map((entry, idx) => (
+                      <div key={idx} className="flex gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full ${
+                            entry.type === 'approved' ? 'bg-green-600' :
+                            entry.type === 'rejected' ? 'bg-red-600' :
+                            entry.type === 'escalated' ? 'bg-amber-600' :
+                            entry.type === 'submitted' ? 'bg-blue-600' :
+                            'bg-gray-600'
+                          }`} />
+                          {idx < timeline.entries.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
+                        </div>
+                        <div className="pb-2 flex-1">
+                          <p className="text-xs text-muted-foreground">{entry.timestamp}</p>
+                          <p className="text-sm font-medium text-foreground">{entry.action}</p>
+                          <p className="text-xs text-muted-foreground">{entry.actor}</p>
+                          {entry.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry.comment}"</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
 
-      {selectedTimeline && (
-        <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedTimeline(null)} />
-          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+export function ApprovalProcessList() {
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("All")
+  const [showFilters, setShowFilters] = useState(false)
+  const [selectedEntity, setSelectedEntity] = useState<any>(null)
+
+  const processConfig = [
+    { id: "PC-001", module: "FO Onboarding", process: "L1 Approval", approvers: 2, avgTime: "2.5h", lastModified: "Mar 20 2026", status: "Active", desc: "Two-level approval for new FO registration" },
+    { id: "PC-002", module: "Vehicle Registration", process: "L1 + L2", approvers: 3, avgTime: "4.2h", lastModified: "Mar 18 2026", status: "Active", desc: "Three-level approval with final review" },
+    { id: "PC-003", module: "Card Issuance", process: "L1 Approval", approvers: 1, avgTime: "1.5h", lastModified: "Mar 15 2026", status: "Active", desc: "Single-level approval for card requests" },
+    { id: "PC-004", module: "Fund Load", process: "L1 + Compliance", approvers: 2, avgTime: "3.1h", lastModified: "Mar 22 2026", status: "Active", desc: "Dual approval with compliance check" },
+    { id: "PC-005", module: "Dispute Settlement", process: "L1 + L2 + Manager", approvers: 3, avgTime: "5.5h", lastModified: "Mar 10 2026", status: "Draft", desc: "Multi-level approval for dispute cases" },
+  ]
+
+  const statusBadgeColor = (status: string) => {
+    const map: Record<string, string> = {
+      Active: "bg-green-100 text-green-700", Draft: "bg-gray-100 text-gray-700", Pending: "bg-amber-100 text-amber-700",
+      Approved: "bg-green-100 text-green-700", Rejected: "bg-red-100 text-red-700", Credited: "bg-blue-100 text-blue-700",
+      "Approved with conditions": "bg-yellow-100 text-yellow-700",
+    }
+    return map[status] || "bg-gray-100 text-gray-700"
+  }
+
+  const filteredConfig = processConfig.filter(p => (searchTerm === "" || p.module.toLowerCase().includes(searchTerm.toLowerCase()) || p.process.toLowerCase().includes(searchTerm.toLowerCase())) && (statusFilter === "All" || p.status === statusFilter))
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search processes..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+        </div>
+        <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Filter className="w-4 h-4" /> Filters
+        </button>
+      </div>
+
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className="text-xs font-medium text-muted-foreground">Module</label><input type="text" placeholder="Filter by module" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+            <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                <option value="All">All</option><option value="Active">Active</option><option value="Draft">Draft</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 justify-end mt-3">
+            <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead><tr className="border-b border-border bg-muted/30">
+            <th className="px-4 py-3 text-left font-semibold">Module</th>
+            <th className="px-4 py-3 text-left font-semibold">Process</th>
+            <th className="px-4 py-3 text-left font-semibold">Approvers</th>
+            <th className="px-4 py-3 text-left font-semibold">Avg Time</th>
+            <th className="px-4 py-3 text-left font-semibold">Last Modified</th>
+            <th className="px-4 py-3 text-left font-semibold">Status</th>
+            <th className="px-4 py-3 text-center font-semibold">Action</th>
+          </tr></thead>
+          <tbody className="divide-y divide-border">
+            {filteredConfig.map(p => (
+              <tr key={p.id} className="hover:bg-muted/30">
+                <td className="px-4 py-3 font-medium">{p.module}</td>
+                <td className="px-4 py-3 text-muted-foreground">{p.process}</td>
+                <td className="px-4 py-3 text-sm">{p.approvers}</td>
+                <td className="px-4 py-3 text-muted-foreground">{p.avgTime}</td>
+                <td className="px-4 py-3 text-muted-foreground text-xs">{p.lastModified}</td>
+                <td className="px-4 py-3"><span className={statusBadgeColor(p.status)}>{p.status}</span></td>
+                <td className="px-4 py-3 text-center"><button onClick={() => setSelectedEntity(p)} className="text-primary hover:underline text-xs font-medium flex items-center justify-center gap-1"><Eye className="w-3 h-3" /></button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+export function CreateWorkflowTray({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(1)
+  const [formData, setFormData] = useState({ processName: "", module: "", description: "", status: "Draft", stages: [{ id: 1, name: "", type: "Serial", levels: [{ id: 1, role: "", required: 1 }] }] })
+  const [rules, setRules] = useState<any[]>([])
+
+  const handleClose = () => {
+    onClose()
+    setStep(1)
+    setFormData({ processName: "", module: "", description: "", status: "Draft", stages: [{ id: 1, name: "", type: "Serial", levels: [{ id: 1, role: "", required: 1 }] }] })
+    setRules([])
+  }
+
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/40 z-40" onClick={handleClose} />
+      <div className="fixed top-0 right-0 bottom-0 w-full max-w-xl bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
           <h3 className="font-semibold text-lg">Create Approval Workflow</h3>
           <button onClick={handleClose} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
