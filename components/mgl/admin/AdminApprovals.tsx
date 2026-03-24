@@ -275,72 +275,8 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
 
       {/* Audit Log Tab */}
       {activeTab === "audit-log" && (
-        <div className="space-y-4">
-          <div className="flex gap-3 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by FO/Vehicle name or ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            {[
-              { id: "fleet-operators", label: "Fleet Operators" },
-              { id: "vehicles", label: "Vehicles" }
-            ].map(et => (
-              <button key={et.id} onClick={() => setEntityType(et.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${entityType === et.id ? 'bg-primary text-primary-foreground' : 'border border-border hover:bg-muted'}`}>
-                {et.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-3">
-            {filteredAudit.map(timeline => (
-              <div key={timeline.id} className="bg-card rounded-xl border border-border overflow-hidden">
-                <button onClick={() => setExpandedTimeline(expandedTimeline === timeline.id ? null : timeline.id)} className="w-full p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3 flex-1 text-left">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-mono text-sm font-bold text-foreground">{timeline.id}</span>
-                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${timeline.status === 'Completed' ? 'bg-green-100 text-green-700' : timeline.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
-                          {timeline.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{timeline.name}</p>
-                    </div>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expandedTimeline === timeline.id ? 'rotate-180' : ''}`} />
-                </button>
-
-                {expandedTimeline === timeline.id && (
-                  <div className="px-4 py-3 border-t border-border bg-muted/10">
-                    <div className="space-y-4">
-                      {timeline.entries.map((entry, idx) => (
-                        <div key={idx} className="flex gap-3">
-                          <div className="flex flex-col items-center">
-                            <div className={`w-3 h-3 rounded-full ${
-                              entry.type === 'approved' ? 'bg-green-600' :
-                              entry.type === 'rejected' ? 'bg-red-600' :
-                              entry.type === 'escalated' ? 'bg-amber-600' :
-                              entry.type === 'submitted' ? 'bg-blue-600' :
-                              'bg-gray-600'
-                            }`} />
-                            {idx < timeline.entries.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
-                          </div>
-                          <div className="pb-2 flex-1">
-                            <p className="text-xs text-muted-foreground">{entry.timestamp}</p>
-                            <p className="text-sm font-medium text-foreground">{entry.action}</p>
-                            <p className="text-xs text-muted-foreground">{entry.actor}</p>
-                            {entry.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry.comment}"</p>}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="bg-muted/30 rounded-xl border border-border p-8 text-center">
+          <p className="text-sm text-muted-foreground">Activity timelines are now available directly from the Pending Approvals tab.</p>
         </div>
       )}
 
