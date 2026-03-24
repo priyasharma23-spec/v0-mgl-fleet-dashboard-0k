@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Eye, X, CheckCircle, Clock, PauseCircle, XCircle, Zap } from "lucide-react"
+import { Download, Eye, X, CheckCircle, Clock, PauseCircle, XCircle, Zap, Search, Filter } from "lucide-react"
 import AdminSettlementFlow from "./AdminSettlementFlow"
 
 export default function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void }) {
@@ -11,6 +11,7 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const [showTxns, setShowTxns] = useState(false)
   const [showFlow, setShowFlow] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
 
   const settlementData = [
     {
@@ -211,23 +212,38 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
         </div>
       </div>
 
+      {/* Search Row */}
       <div className="flex gap-3 items-center">
-        <input
-          type="text"
-          placeholder="Search by dealership or settlement ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground"
-        />
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-background text-foreground">
-          <option value="all">All Status</option>
-          <option value="settled">Settled</option>
-          <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="on hold">On Hold</option>
-          <option value="failed">Failed</option>
-        </select>
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input type="text" placeholder="Search by dealership or settlement ID..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+        </div>
+        <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Filter className="w-4 h-4" /> Filters
+        </button>
       </div>
+
+      {/* Filter Panel - sibling, no shared wrapper */}
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+            <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+            <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                <option>All</option><option>Settled</option><option>Pending</option><option>Processing</option><option>Hold</option><option>Failed</option>
+              </select>
+            </div>
+            <div><label className="text-xs font-medium text-muted-foreground">Dealership</label>
+              <input type="text" placeholder="Filter by dealership" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+            </div>
+          </div>
+          <div className="flex gap-3 justify-end mt-3">
+            <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+          </div>
+        </div>
+      )}
 
       <div className="border border-border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
