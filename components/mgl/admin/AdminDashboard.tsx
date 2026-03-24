@@ -123,13 +123,13 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
           <div className="mt-3">
             <p className="text-2xl font-bold text-foreground">3,200</p>
             <p className="text-xs text-muted-foreground mt-0.5">Total Vehicles</p>
-            <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border">
+            <div className="grid grid-cols-2 gap-2 mt-2">
               <div>
                 <p className="text-xs text-muted-foreground">New</p>
                 <p className="text-sm font-bold text-green-600">2,840</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Retrofitment</p>
+                <p className="text-xs text-muted-foreground">Retrofitted</p>
                 <p className="text-sm font-bold text-blue-600">360</p>
               </div>
             </div>
