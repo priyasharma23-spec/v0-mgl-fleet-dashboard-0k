@@ -267,6 +267,60 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           </div>
         </div>
       </div>
+
+      {/* Total Balance on Cards */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-foreground">Total Balance on Cards</h3>
+          <span className="text-sm font-bold text-foreground">₹1.2Cr</span>
+        </div>
+        <div className="flex rounded-full overflow-hidden h-3 mb-3">
+          <div className="bg-blue-500" style={{width:'71.2%'}} />
+          <div className="bg-purple-500" style={{width:'20.5%'}} />
+          <div className="bg-amber-400" style={{width:'8.3%'}} />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /><span className="text-sm text-muted-foreground">FO Funded</span><span className="text-sm font-bold text-blue-700">₹85.4L</span><span className="text-xs text-muted-foreground">(71.2%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-sm text-muted-foreground">MGL Incentive</span><span className="text-sm font-bold text-purple-700">₹24.6L</span><span className="text-xs text-muted-foreground">(20.5%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-sm text-muted-foreground">Cashback</span><span className="text-sm font-bold text-amber-700">₹10.0L</span><span className="text-xs text-muted-foreground">(8.3%)</span></div>
+        </div>
+      </div>
+
+      {/* Total Cashback Unutilised */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-foreground">Total Cashback Unutilised</h3>
+          <span className="text-sm font-bold text-foreground">₹18.5L</span>
+        </div>
+        <div className="flex rounded-full overflow-hidden h-3 mb-3">
+          <div className="bg-green-500" style={{width:'67%'}} />
+          <div className="bg-amber-400" style={{width:'22.7%'}} />
+          <div className="bg-red-500" style={{width:'10.3%'}} />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-green-500" /><span className="text-sm text-muted-foreground">Earned unused</span><span className="text-sm font-bold text-green-700">₹12.4L</span><span className="text-xs text-muted-foreground">(67%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-sm text-muted-foreground">Expiring 30d</span><span className="text-sm font-bold text-amber-700">₹4.2L</span><span className="text-xs text-muted-foreground">(22.7%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-sm text-muted-foreground">Expired</span><span className="text-sm font-bold text-red-700">₹1.9L</span><span className="text-xs text-muted-foreground">(10.3%)</span></div>
+        </div>
+      </div>
+
+      {/* Total Incentive Unutilised */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-foreground">Total Incentive Unutilised</h3>
+          <span className="text-sm font-bold text-foreground">₹45.2L</span>
+        </div>
+        <div className="flex rounded-full overflow-hidden h-3 mb-3">
+          <div className="bg-purple-500" style={{width:'71%'}} />
+          <div className="bg-amber-400" style={{width:'19%'}} />
+          <div className="bg-gray-400" style={{width:'10%'}} />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-sm text-muted-foreground">Active</span><span className="text-sm font-bold text-purple-700">₹32.1L</span><span className="text-xs text-muted-foreground">(71%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-sm text-muted-foreground">Expiring 30d</span><span className="text-sm font-bold text-amber-700">₹8.6L</span><span className="text-xs text-muted-foreground">(19%)</span></div>
+          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-gray-400" /><span className="text-sm text-muted-foreground">Pending</span><span className="text-sm font-bold text-gray-700">₹4.5L</span><span className="text-xs text-muted-foreground">(10%)</span></div>
+        </div>
+      </div>
     </div>
   )
 }
