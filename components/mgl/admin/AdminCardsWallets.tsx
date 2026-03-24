@@ -151,40 +151,21 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           <div className="bg-amber-400 transition-all" style={{width: '2.6%'}} />
         </div>
 
-        {/* 4 stat cards below the bar */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
-              <p className="text-xs text-green-700 font-medium">Active</p>
+        {/* Inline legend row */}
+        <div className="flex items-center gap-6 mt-3 flex-wrap">
+          {[
+            { label: 'Active', count: '2,654', pct: '76.5%', color: 'bg-green-500', text: 'text-green-700' },
+            { label: 'Inactive', count: '193', pct: '5.6%', color: 'bg-gray-400', text: 'text-gray-600' },
+            { label: 'Blocked', count: '156', pct: '4.5%', color: 'bg-red-500', text: 'text-red-700' },
+            { label: 'Locked', count: '89', pct: '2.6%', color: 'bg-amber-400', text: 'text-amber-700' },
+          ].map(s => (
+            <div key={s.label} className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${s.color}`} />
+              <span className="text-sm text-muted-foreground">{s.label}</span>
+              <span className={`text-sm font-bold ${s.text}`}>{s.count}</span>
+              <span className="text-xs text-muted-foreground">({s.pct})</span>
             </div>
-            <p className="text-xl font-bold text-green-900">2,654</p>
-            <p className="text-xs text-green-600 mt-0.5">76.5% of total</p>
-          </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-gray-400" />
-              <p className="text-xs text-gray-600 font-medium">Inactive</p>
-            </div>
-            <p className="text-xl font-bold text-gray-800">193</p>
-            <p className="text-xs text-gray-500 mt-0.5">5.6% of total</p>
-          </div>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-              <p className="text-xs text-red-700 font-medium">Blocked</p>
-            </div>
-            <p className="text-xl font-bold text-red-900">156</p>
-            <p className="text-xs text-red-600 mt-0.5">4.5% of total</p>
-          </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-              <p className="text-xs text-amber-700 font-medium">Locked</p>
-            </div>
-            <p className="text-xl font-bold text-amber-900">89</p>
-            <p className="text-xs text-amber-600 mt-0.5">2.6% of total</p>
-          </div>
+          ))}
         </div>
       </div>
 
