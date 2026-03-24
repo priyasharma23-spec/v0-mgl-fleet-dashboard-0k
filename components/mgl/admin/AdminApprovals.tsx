@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Search, X, Eye, Filter, CheckCircle, Clock, AlertCircle, Plus, Trash2, ChevronDown } from "lucide-react"
+import { Download, Search, X, Eye, Filter, CheckCircle, Clock, AlertCircle, Plus, Trash2, ChevronDown, History } from "lucide-react"
 
 export default function AdminApprovals({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [activeTab, setActiveTab] = useState("pending-approvals")
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
+  const [selectedTimeline, setSelectedTimeline] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
   const [showFilters, setShowFilters] = useState(false)
@@ -202,7 +203,7 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
                     <td className="px-4 py-3 text-muted-foreground text-sm">{p.stage}</td>
                     <td className="px-4 py-3 text-muted-foreground text-sm">{p.currentApprover}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{p.requestDate}</td>
-                    <td className="px-4 py-3 text-center"><button onClick={() => setSelectedEntity(p)} className="text-primary hover:underline text-xs font-medium flex items-center justify-center gap-1"><Eye className="w-3 h-3" /></button></td>
+                    <td className="px-4 py-3 text-center"><div className="flex items-center justify-center gap-1"><button onClick={() => setSelectedEntity(p)} className="text-primary hover:underline text-xs font-medium"><Eye className="w-3 h-3" /></button><button onClick={() => setSelectedTimeline(p)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary"><History className="w-3.5 h-3.5" /></button></div></td>
                   </tr>
                 ))}
               </tbody>
@@ -341,6 +342,56 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
             ))}
           </div>
         </div>
+      )}
+
+      {/* Timeline Right Tray */}
+      {selectedTimeline && (
+        <>
+          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedTimeline(null)} />
+          <div className="fixed top-0 right-0 bottom-0 w-full max-w-lg bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold">Activity Timeline</h3>
+                <p className="text-xs text-muted-foreground">{selectedTimeline.fo} — {selectedTimeline.type}</p>
+              </div>
+              <button onClick={() => setSelectedTimeline(null)} className="p-2 hover:bg-muted rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-4">
+              {(() => {
+                const timeline = foTimelines.find(t => t.name.includes(selectedTimeline.fo) || selectedTimeline.fo.includes(t.name.split(' ')[0]))
+                if (!timeline) {
+                  return <p className="text-sm text-muted-foreground">No activity recorded yet for this request.</p>
+                }
+                return (
+                  <div className="space-y-4">
+                    {timeline.entries.map((entry, idx) => (
+                      <div key={idx} className="flex gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full ${
+                            entry.type === 'approved' ? 'bg-green-600' :
+                            entry.type === 'rejected' ? 'bg-red-600' :
+                            entry.type === 'escalated' ? 'bg-amber-600' :
+                            entry.type === 'submitted' ? 'bg-blue-600' :
+                            'bg-gray-600'
+                          }`} />
+                          {idx < timeline.entries.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
+                        </div>
+                        <div className="pb-2 flex-1">
+                          <p className="text-xs text-muted-foreground">{entry.timestamp}</p>
+                          <p className="text-sm font-medium text-foreground">{entry.action}</p>
+                          <p className="text-xs text-muted-foreground">{entry.actor}</p>
+                          {entry.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry.comment}"</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
