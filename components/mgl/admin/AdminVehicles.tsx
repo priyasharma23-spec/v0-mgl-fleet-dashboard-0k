@@ -42,7 +42,6 @@ export default function AdminVehicles() {
   const summaryCards = [
     { label: "Total Vehicles", value: "3,200", icon: Truck, iconBg: "bg-gray-100", iconColor: "text-gray-600" },
     { label: "Active", value: "2,654", icon: CheckCircle, iconBg: "bg-green-100", iconColor: "text-green-600" },
-    { label: "Inactive", value: "193", icon: Clock, iconBg: "bg-gray-100", iconColor: "text-gray-600" },
     { label: "Drivers", value: "2,847", icon: Users, iconBg: "bg-blue-100", iconColor: "text-blue-600" },
     { label: "Pending Approval", value: "45", icon: AlertTriangle, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
   ]
@@ -50,7 +49,7 @@ export default function AdminVehicles() {
   return (
     <div className="p-6 space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {summaryCards.map((card, idx) => {
           const Icon = card.icon
           return (
