@@ -6,6 +6,7 @@ import MGLSidebar from "@/components/mgl/MGLSidebar"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import AdminDashboard from "@/components/mgl/admin/AdminDashboard"
 import AdminFODirectory from "@/components/mgl/admin/AdminFODirectory"
+import AdminVehicles from "@/components/mgl/admin/AdminVehicles"
 import AdminCardsWallets from "@/components/mgl/admin/AdminCardsWallets"
 import AdminIncentives from "@/components/mgl/admin/AdminIncentives"
 import AdminTransactions from "@/components/mgl/admin/AdminTransactions"
@@ -15,6 +16,7 @@ import AdminAnalytics from "@/components/mgl/admin/AdminAnalytics"
 import AdminConfig from "@/components/mgl/admin/AdminConfig"
 import AdminUserManagement from "@/components/mgl/admin/AdminUserManagement"
 import AdminFundManagement from "@/components/mgl/admin/AdminFundManagement"
+import AdminApprovals from "@/components/mgl/admin/AdminApprovals"
 
 interface Props {
   user: { name: string; role: "mgl-admin"; department?: string }
@@ -29,11 +31,13 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
     switch (activeView) {
       case "admin-dashboard": return <AdminDashboard onViewChange={setActiveView} />
       case "admin-fo-directory": return <AdminFODirectory onViewChange={setActiveView} />
+      case "admin-vehicles": return <AdminVehicles />
       case "admin-users": return <AdminUserManagement />
       case "admin-cards": return <AdminCardsWallets onViewChange={setActiveView} />
       case "admin-incentives": return <AdminIncentives onViewChange={setActiveView} />
       case "admin-transactions": return <AdminTransactions onViewChange={setActiveView} />
       case "admin-settlements": return <AdminSettlements onViewChange={setActiveView} />
+      case "admin-approvals": return <AdminApprovals onViewChange={setActiveView} />
       case "admin-funds": return <AdminFundManagement />
       case "admin-reports": return <AdminReports />
       case "admin-analytics": return <AdminAnalytics />

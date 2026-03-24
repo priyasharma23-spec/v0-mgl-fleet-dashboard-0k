@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Truck, CreditCard, CheckSquare, Clock,
   BarChart2, Settings, HelpCircle, LogOut, ChevronRight, FileText,
   MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet, Gift, 
-  ArrowRightLeft, FileSpreadsheet, Activity, Building2, Banknote
+  ArrowRightLeft, FileSpreadsheet, Activity, Building2, Banknote, GitBranch
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -47,12 +47,14 @@ const foNavItems: NavItem[] = [
 const adminNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", view: "admin-dashboard" },
   { icon: Building2, label: "Fleet Operators", view: "admin-fo-directory" },
+  { icon: Truck, label: "Vehicles", view: "admin-vehicles" },
   { icon: Users, label: "User Management", view: "admin-users" },
   { icon: CreditCard, label: "Cards & Wallets", view: "admin-cards" },
   { icon: Gift, label: "Incentives & Offers", view: "admin-incentives" },
   { icon: ArrowRightLeft, label: "Transactions", view: "admin-transactions", badge: 3 },
   { icon: Banknote, label: "Fund Management", view: "admin-funds" },
   { icon: FileSpreadsheet, label: "Settlements", view: "admin-settlements" },
+  { icon: GitBranch, label: "Approvals", view: "admin-approvals" },
   { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
   { icon: Activity, label: "Analytics", view: "admin-analytics" },
   { icon: Settings, label: "Configuration", view: "admin-config" },
