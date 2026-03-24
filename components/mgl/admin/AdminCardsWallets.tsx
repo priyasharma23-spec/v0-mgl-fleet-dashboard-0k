@@ -141,31 +141,49 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
 
       {/* Cards by Status */}
       <div className="bg-card rounded-xl border border-border p-5">
-        <h2 className="font-semibold text-foreground mb-4">Cards by Status</h2>
-        <div>
-          <div className="flex h-8 rounded-full overflow-hidden border border-border">
-            <div className="bg-green-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '76.5%'}}>Active</div>
-            <div className="bg-gray-400 flex items-center justify-center text-white text-xs font-bold" style={{width: '5.6%'}}>Inactive</div>
-            <div className="bg-red-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '4.5%'}}>Blocked</div>
-            <div className="bg-amber-500 flex items-center justify-center text-white text-xs font-bold" style={{width: '2.6%'}}>Locked</div>
+        <h3 className="font-semibold text-foreground mb-4">Cards by Status</h3>
+        
+        {/* Stacked bar with rounded ends and spacing */}
+        <div className="flex rounded-full overflow-hidden h-4 gap-0.5 mb-5">
+          <div className="bg-green-500 transition-all" style={{width: '76.5%'}} />
+          <div className="bg-gray-300 transition-all" style={{width: '5.6%'}} />
+          <div className="bg-red-500 transition-all" style={{width: '4.5%'}} />
+          <div className="bg-amber-400 transition-all" style={{width: '2.6%'}} />
+        </div>
+
+        {/* 4 stat cards below the bar */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              <p className="text-xs text-green-700 font-medium">Active</p>
+            </div>
+            <p className="text-xl font-bold text-green-900">2,654</p>
+            <p className="text-xs text-green-600 mt-0.5">76.5% of total</p>
           </div>
-          <div className="flex gap-4 mt-3 text-sm flex-wrap">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="text-foreground">Active: <span className="font-bold">2,654 (76.5%)</span></span>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-gray-400" />
+              <p className="text-xs text-gray-600 font-medium">Inactive</p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-gray-400" />
-              <span className="text-foreground">Inactive: <span className="font-bold">193 (5.6%)</span></span>
+            <p className="text-xl font-bold text-gray-800">193</p>
+            <p className="text-xs text-gray-500 mt-0.5">5.6% of total</p>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+              <p className="text-xs text-red-700 font-medium">Blocked</p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-foreground">Blocked: <span className="font-bold">156 (4.5%)</span></span>
+            <p className="text-xl font-bold text-red-900">156</p>
+            <p className="text-xs text-red-600 mt-0.5">4.5% of total</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+              <p className="text-xs text-amber-700 font-medium">Locked</p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <span className="text-foreground">Locked: <span className="font-bold">89 (2.6%)</span></span>
-            </div>
+            <p className="text-xl font-bold text-amber-900">89</p>
+            <p className="text-xs text-amber-600 mt-0.5">2.6% of total</p>
           </div>
         </div>
       </div>
