@@ -55,7 +55,7 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">2,654</p>
-              <p className="text-xs text-muted-foreground">Total Active</p>
+              <p className="text-xs text-muted-foreground">Total Active Cards</p>
             </div>
           </div>
         </div>
