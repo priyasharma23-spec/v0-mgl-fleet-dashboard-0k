@@ -14,6 +14,7 @@ import AdminReports from "@/components/mgl/admin/AdminReports"
 import AdminAnalytics from "@/components/mgl/admin/AdminAnalytics"
 import AdminConfig from "@/components/mgl/admin/AdminConfig"
 import AdminUserManagement from "@/components/mgl/admin/AdminUserManagement"
+import AdminFundManagement from "@/components/mgl/admin/AdminFundManagement"
 
 interface Props {
   user: { name: string; role: "mgl-admin"; department?: string }
@@ -33,6 +34,7 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
       case "admin-incentives": return <AdminIncentives onViewChange={setActiveView} />
       case "admin-transactions": return <AdminTransactions onViewChange={setActiveView} />
       case "admin-settlements": return <AdminSettlements onViewChange={setActiveView} />
+      case "admin-funds": return <AdminFundManagement />
       case "admin-reports": return <AdminReports />
       case "admin-analytics": return <AdminAnalytics />
       case "admin-config": return <AdminConfig />
