@@ -76,80 +76,6 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
         </div>
       </div>
 
-      {/* Cards by FO Table */}
-      <div className="bg-card rounded-xl border border-border p-5">
-        <h2 className="font-semibold text-foreground mb-4">Cards by FO (Top 5)</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left px-4 py-3 font-semibold text-foreground">FO Name</th>
-                <th className="text-center px-4 py-3 font-semibold text-foreground">Allocated</th>
-                <th className="text-center px-4 py-3 font-semibold text-foreground">Issued</th>
-                <th className="text-center px-4 py-3 font-semibold text-foreground">Active</th>
-                <th className="text-center px-4 py-3 font-semibold text-foreground">Inactive</th>
-                <th className="text-center px-4 py-3 font-semibold text-foreground">Issues</th>
-                <th className="text-right px-4 py-3 font-semibold text-foreground">Balance</th>
-                <th className="text-right px-4 py-3 font-semibold text-foreground">Cashback</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topFOs.map((fo, i) => (
-                <tr key={i} className="border-b border-border hover:bg-muted/30">
-                  <td className="px-4 py-3 text-foreground font-medium">{fo.name}</td>
-                  <td className="px-4 py-3 text-center text-muted-foreground">{fo.allocated}</td>
-                  <td className="px-4 py-3 text-center text-muted-foreground">{fo.issued}</td>
-                  <td className="px-4 py-3 text-center text-green-600 font-medium">{fo.active}</td>
-                  <td className="px-4 py-3 text-center text-gray-600 font-medium">{fo.inactive}</td>
-                  <td className="px-4 py-3 text-center text-red-600 font-medium">{fo.blocked + fo.locked}</td>
-                  <td className="px-4 py-3 text-right text-foreground">{fo.balance}</td>
-                  <td className="px-4 py-3 text-right text-amber-600 font-medium">{fo.cashback}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Wallet Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Card Wallets (FO Funded) */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <h2 className="font-semibold text-foreground mb-4">Card Wallets (FO Funded)</h2>
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Total Balance</p>
-            <p className="text-3xl font-bold text-foreground mb-4">₹1.2Cr</p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-xs text-blue-700"><span className="font-medium">Admin read-only access:</span> View wallet balances and transaction history only.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Incentive Wallets (MGL Funded) */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <h2 className="font-semibold text-foreground mb-4">Incentive Wallets (MGL Funded)</h2>
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs text-muted-foreground mb-1">Total</p>
-              <p className="text-2xl font-bold text-foreground">₹45.2L</p>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Utilised</span>
-                <span className="font-medium text-foreground">₹26.7L</span>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div className="bg-green-500 h-2 rounded-full" style={{width: '59%'}} />
-              </div>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Unutilised</span>
-              <span className="font-medium text-amber-600">₹18.5L</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Total Balance on Cards */}
       <div className="bg-card rounded-xl border border-border p-5">
         <div className="flex items-center justify-between mb-4">
@@ -257,6 +183,43 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           </div>
         </div>
       </div>
+
+      {/* Cards by FO Table */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <h2 className="font-semibold text-foreground mb-4">Cards by FO (Top 5)</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left px-4 py-3 font-semibold text-foreground">FO Name</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Allocated</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Issued</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Active</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Inactive</th>
+                <th className="text-center px-4 py-3 font-semibold text-foreground">Issues</th>
+                <th className="text-right px-4 py-3 font-semibold text-foreground">Balance</th>
+                <th className="text-right px-4 py-3 font-semibold text-foreground">Cashback</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topFOs.map((fo, i) => (
+                <tr key={i} className="border-b border-border hover:bg-muted/30">
+                  <td className="px-4 py-3 text-foreground font-medium">{fo.name}</td>
+                  <td className="px-4 py-3 text-center text-muted-foreground">{fo.allocated}</td>
+                  <td className="px-4 py-3 text-center text-muted-foreground">{fo.issued}</td>
+                  <td className="px-4 py-3 text-center text-green-600 font-medium">{fo.active}</td>
+                  <td className="px-4 py-3 text-center text-gray-600 font-medium">{fo.inactive}</td>
+                  <td className="px-4 py-3 text-center text-red-600 font-medium">{fo.blocked + fo.locked}</td>
+                  <td className="px-4 py-3 text-right text-foreground">{fo.balance}</td>
+                  <td className="px-4 py-3 text-right text-amber-600 font-medium">{fo.cashback}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Wallet Summary */}
     </div>
   )
 }
