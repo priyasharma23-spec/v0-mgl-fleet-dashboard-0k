@@ -12,7 +12,7 @@ export default function AdminFundManagement() {
   const foAccounts = [
     { id: "FO001", name: "ABC Logistics", balance: "₹2.4L", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹50,000", source: "NEFT", t1Pending: "₹15,000", status: "Active" },
     { id: "FO002", name: "Metro Freight", balance: "₹5.1L", lastLoad: "Mar 22, 2026", lastLoadAmt: "₹1,00,000", source: "PG", t1Pending: "₹28,000", status: "Active" },
-    { id: "FO003", name: "Sunrise Transport", balance: "₹12,500", lastLoad: "Mar 20, 2026", lastLoadAmt: "₹25,000", source: "RTGS", t1Pending: "₹0", status: "Low" },
+    { id: "FO003", name: "Sunrise Transport", balance: "₹12,500", lastLoad: "Mar 20, 2026", lastLoadAmt: "₹25,000", source: "RTGS", t1Pending: "₹0", status: "Low Balance" },
     { id: "FO004", name: "City Express", balance: "₹3,200", lastLoad: "Mar 18, 2026", lastLoadAmt: "₹10,000", source: "IMPS", t1Pending: "₹0", status: "Critical" },
     { id: "FO005", name: "Quick Move", balance: "₹98,000", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹75,000", source: "FT", t1Pending: "₹42,000", status: "Active" },
   ]
@@ -39,8 +39,8 @@ export default function AdminFundManagement() {
 
   const statusBadge = (status: string) => {
     const map: Record<string, string> = {
-      Active: "bg-green-100 text-green-700", Low: "bg-amber-100 text-amber-700",
-      Critical: "bg-red-100 text-red-700", Pending: "bg-amber-100 text-amber-700",
+      Active: "bg-green-100 text-green-700", "Low Balance": "bg-amber-100 text-amber-700",
+      Critical: "bg-red-100 text-red-700", Suspended: "bg-gray-100 text-gray-700", Pending: "bg-amber-100 text-amber-700",
       Success: "bg-green-100 text-green-700", Failed: "bg-red-100 text-red-700",
       Approved: "bg-green-100 text-green-700", Rejected: "bg-red-100 text-red-700",
     }
@@ -127,7 +127,7 @@ export default function AdminFundManagement() {
                 <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{fo.source}</span></td>
                 <td className="px-4 py-3 text-amber-600 font-medium">{fo.t1Pending}</td>
                 <td className="px-4 py-3"><span className={statusBadge(fo.status)}>{fo.status}</span></td>
-                <td className="px-4 py-3"><button onClick={() => { setLoadForm(f => ({...f, fo: fo.name})); setShowLoadModal(true) }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium"><Plus className="w-3 h-3" /> Load</button></td>
+                <td className="px-4 py-3"><button onClick={() => { setLoadForm(f => ({...f, fo: fo.name})); setShowForm(true) }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium"><Plus className="w-3 h-3" /> Load</button></td>
               </tr>
             ))}</tbody>
           </table>
@@ -222,44 +222,6 @@ export default function AdminFundManagement() {
               ))}</tbody>
             </table>
           </div>
-
-          {showForm && (
-            <>
-              <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowForm(false)} />
-              <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
-                <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-                  <h3 className="font-semibold text-lg">Load Funds to FO Parent Account</h3>
-                  <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
-                </div>
-                <div className="p-5 space-y-4">
-                  <div><label className="text-sm font-medium">Fleet Operator <span className="text-red-500">*</span></label>
-                    <select value={loadForm.fo} onChange={e => setLoadForm(f => ({...f, fo: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
-                      <option value="">Select FO</option>
-                      {foAccounts.map(fo => <option key={fo.id} value={fo.name}>{fo.name}</option>)}
-                    </select></div>
-                  <div><label className="text-sm font-medium">Amount (₹) <span className="text-red-500">*</span></label>
-                    <input type="number" value={loadForm.amount} onChange={e => setLoadForm(f => ({...f, amount: e.target.value}))} placeholder="Enter amount" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
-                  <div><label className="text-sm font-medium">Source <span className="text-red-500">*</span></label>
-                    <select value={loadForm.source} onChange={e => setLoadForm(f => ({...f, source: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
-                      <option value="">Select source</option>
-                      <option value="Third-party PG">Third-party PG</option>
-                      <option value="IMPS">FO Bank Account — IMPS</option>
-                      <option value="NEFT">FO Bank Account — NEFT</option>
-                      <option value="RTGS">FO Bank Account — RTGS</option>
-                      <option value="FT">Fund Transfer (FT)</option>
-                    </select></div>
-                  <div><label className="text-sm font-medium">Reference Number (UTR/Txn ID) <span className="text-red-500">*</span></label>
-                    <input value={loadForm.reference} onChange={e => setLoadForm(f => ({...f, reference: e.target.value}))} placeholder="Enter UTR or transaction ID" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
-                  <div><label className="text-sm font-medium">Remarks</label>
-                    <input value={loadForm.remarks} onChange={e => setLoadForm(f => ({...f, remarks: e.target.value}))} placeholder="Optional remarks" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
-                  <button onClick={() => setShowConfirmModal(true)} disabled={!loadForm.fo || !loadForm.amount || !loadForm.source || !loadForm.reference}
-                    className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50">
-                    Load Funds
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
         </>
       )}
 
@@ -296,7 +258,44 @@ export default function AdminFundManagement() {
         </div>
       )}
 
-      {/* Confirm Load Modal */}
+      {/* Right Tray Overlay - Global */}
+      {showForm && (
+        <>
+          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowForm(false)} />
+          <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <h3 className="font-semibold text-lg">Load Funds to FO Parent Account</h3>
+              <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div><label className="text-sm font-medium">Fleet Operator <span className="text-red-500">*</span></label>
+                <select value={loadForm.fo} onChange={e => setLoadForm(f => ({...f, fo: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
+                  <option value="">Select FO</option>
+                  {foAccounts.map(fo => <option key={fo.id} value={fo.name}>{fo.name}</option>)}
+                </select></div>
+              <div><label className="text-sm font-medium">Amount (₹) <span className="text-red-500">*</span></label>
+                <input type="number" value={loadForm.amount} onChange={e => setLoadForm(f => ({...f, amount: e.target.value}))} placeholder="Enter amount" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
+              <div><label className="text-sm font-medium">Source <span className="text-red-500">*</span></label>
+                <select value={loadForm.source} onChange={e => setLoadForm(f => ({...f, source: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
+                  <option value="">Select source</option>
+                  <option value="Third-party PG">Third-party PG</option>
+                  <option value="IMPS">FO Bank Account — IMPS</option>
+                  <option value="NEFT">FO Bank Account — NEFT</option>
+                  <option value="RTGS">FO Bank Account — RTGS</option>
+                  <option value="FT">Fund Transfer (FT)</option>
+                </select></div>
+              <div><label className="text-sm font-medium">Reference Number (UTR/Txn ID) <span className="text-red-500">*</span></label>
+                <input value={loadForm.reference} onChange={e => setLoadForm(f => ({...f, reference: e.target.value}))} placeholder="Enter UTR or transaction ID" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
+              <div><label className="text-sm font-medium">Remarks</label>
+                <input value={loadForm.remarks} onChange={e => setLoadForm(f => ({...f, remarks: e.target.value}))} placeholder="Optional remarks" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
+              <button onClick={() => setShowConfirmModal(true)} disabled={!loadForm.fo || !loadForm.amount || !loadForm.source || !loadForm.reference}
+                className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50">
+                Load Funds
+              </button>
+            </div>
+          </div>
+        </>
+      )}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-2xl border border-border w-full max-w-md p-6 shadow-xl">
