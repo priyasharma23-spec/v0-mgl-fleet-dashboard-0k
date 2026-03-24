@@ -392,7 +392,7 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       )}
 
       {selectedTransaction && (
-        <div className={`fixed bottom-0 right-0 top-0 z-[61] w-full max-w-lg bg-card h-full overflow-y-auto shadow-xl border-l border-border border-t-4 transform transition-transform duration-300 ${getStatusBorderColor(selectedTransaction.status)}`}>
+        <div className={`fixed bottom-0 right-0 top-0 z-[61] w-full w-96 bg-card h-full overflow-y-auto shadow-xl border-l border-border border-t-4 transform transition-transform duration-300 ${getStatusBorderColor(selectedTransaction.status)}`}>
           <div className="sticky top-0 bg-card border-b border-border p-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-foreground">Transaction Details</h2>

@@ -512,7 +512,7 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
       {selectedEntity && (
         <>
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSelectedEntity(null)} />
-          <div className="fixed bottom-0 right-0 top-0 z-50 w-full max-w-lg bg-card border-l border-border shadow-xl overflow-y-auto">
+          <div className="fixed bottom-0 right-0 top-0 z-50 w-full w-96 bg-card border-l border-border shadow-xl overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <h2 className="font-semibold text-lg">{selectedEntity.name || selectedEntity.program || selectedEntity.action} Details</h2>
               <button onClick={() => setSelectedEntity(null)}><X className="w-5 h-5" /></button>
