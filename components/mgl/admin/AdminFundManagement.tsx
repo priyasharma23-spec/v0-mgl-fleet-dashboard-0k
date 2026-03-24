@@ -264,7 +264,7 @@ export default function AdminFundManagement() {
       {showForm && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setShowForm(false)} />
-          <div className="fixed top-0 right-0 bottom-0 w-full w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <h3 className="font-semibold text-lg">Load Funds to FO Parent Account</h3>
               <button onClick={() => setShowForm(false)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>

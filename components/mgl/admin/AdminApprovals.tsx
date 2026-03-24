@@ -334,7 +334,7 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
       {selectedTimeline && (
         <>
           <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedTimeline(null)} />
-          <div className="fixed top-0 right-0 bottom-0 w-full w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
               <div>
                 <h3 className="font-semibold">Activity Timeline</h3>
@@ -482,7 +482,7 @@ export function CreateWorkflowTray({ onClose }: { onClose: () => void }) {
   return (
     <>
       <div className="fixed inset-0 bg-black/40 z-40" onClick={handleClose} />
-        <div className="fixed top-0 right-0 bottom-0 w-full w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
+        <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
           <h3 className="font-semibold text-lg">Create Approval Workflow</h3>
           <button onClick={handleClose} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
