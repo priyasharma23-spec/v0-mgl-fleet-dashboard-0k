@@ -102,61 +102,10 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
 
       {/* Process Configuration Tab */}
       {activeTab === "process-config" && (
-        <>
-          <div className="flex gap-3 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search processes..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-            </div>
-            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-              <Filter className="w-4 h-4" /> Filters
-            </button>
-          </div>
-
-          {showFilters && (
-            <div className="border border-border rounded-lg p-4 bg-muted/30">
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-xs font-medium text-muted-foreground">Module</label><input type="text" placeholder="Filter by module" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
-                <div><label className="text-xs font-medium text-muted-foreground">Status</label>
-                  <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                    <option value="All">All</option><option value="Active">Active</option><option value="Draft">Draft</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-3 justify-end mt-3">
-                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
-              </div>
-            </div>
-          )}
-
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-border bg-muted/30">
-                <th className="px-4 py-3 text-left font-semibold">Module</th>
-                <th className="px-4 py-3 text-left font-semibold">Process</th>
-                <th className="px-4 py-3 text-left font-semibold">Approvers</th>
-                <th className="px-4 py-3 text-left font-semibold">Avg Time</th>
-                <th className="px-4 py-3 text-left font-semibold">Last Modified</th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                <th className="px-4 py-3 text-center font-semibold">Action</th>
-              </tr></thead>
-              <tbody className="divide-y divide-border">
-                {filteredConfig.map(p => (
-                  <tr key={p.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3 font-medium">{p.module}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.process}</td>
-                    <td className="px-4 py-3 text-sm">{p.approvers}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{p.avgTime}</td>
-                    <td className="px-4 py-3 text-muted-foreground text-xs">{p.lastModified}</td>
-                    <td className="px-4 py-3"><span className={statusBadgeColor(p.status)}>{p.status}</span></td>
-                    <td className="px-4 py-3 text-center"><button onClick={() => setSelectedEntity(p)} className="text-primary hover:underline text-xs font-medium flex items-center justify-center gap-1"><Eye className="w-3 h-3" /></button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
+        <div className="bg-muted/30 rounded-xl border border-border p-8 text-center">
+          <p className="text-sm text-muted-foreground">Process configuration is managed from the Configuration page.</p>
+          <button onClick={() => {}} className="mt-3 text-sm text-primary font-medium hover:underline">Go to Configuration →</button>
+        </div>
       )}
 
 
