@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Search, X, Eye, Filter, CheckCircle, Clock, AlertCircle, Plus, Trash2 } from "lucide-react"
+import { Download, Search, X, Eye, Filter, CheckCircle, Clock, AlertCircle, Plus, Trash2, ChevronDown } from "lucide-react"
 
 export default function AdminApprovals({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [activeTab, setActiveTab] = useState("pending-approvals")
@@ -9,6 +9,8 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
   const [showFilters, setShowFilters] = useState(false)
+  const [entityType, setEntityType] = useState("fleet-operators")
+  const [expandedTimeline, setExpandedTimeline] = useState<string | null>(null)
 
   const processConfig = [
     { id: "PC-001", module: "FO Onboarding", process: "L1 Approval", approvers: 2, avgTime: "2.5h", lastModified: "Mar 20 2026", status: "Active", desc: "Two-level approval for new FO registration" },
@@ -37,12 +39,60 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
     { id: "HST-005", fo: "Peak Freight", type: "Fund Load", approvers: "Compliance Team", requestDate: "Mar 20 2026", completionDate: "Mar 20 2026 12:00", totalTime: "2h 10m", status: "Approved", outcome: "Approved" },
   ]
 
-  const auditLog = [
-    { timestamp: "2026-03-24 15:45:20", actor: "rahul.kumar@mgl.com", action: "Request Approved", entity: "APR-001 (FO Onboarding)", details: "Approved onboarding request for ABC Logistics", ip: "192.168.1.50" },
-    { timestamp: "2026-03-24 14:30:15", actor: "system@mgl.com", action: "Escalation", entity: "APR-004 (Fund Load)", details: "Auto-escalated after 8 hours pending", ip: "10.0.0.1" },
-    { timestamp: "2026-03-24 12:20:08", actor: "ananya.sharma@mgl.com", action: "Request Rejected", entity: "HST-004 (Dispute)", details: "Rejected Swift Logistics dispute - insufficient documentation", ip: "192.168.1.75" },
-    { timestamp: "2026-03-24 11:15:33", actor: "system@mgl.com", action: "Reminder Sent", entity: "APR-002 (Vehicle Reg)", details: "Sent reminder notification to approver", ip: "10.0.0.1" },
-    { timestamp: "2026-03-24 09:50:42", actor: "deepak.reddy@mgl.com", action: "Process Config Updated", entity: "PC-002", details: "Updated approval chain for vehicle registration", ip: "192.168.1.100" },
+  const foTimelines = [
+    {
+      id: "FO-2026-0088",
+      name: "ABC Logistics Pvt. Ltd.",
+      status: "Completed",
+      entries: [
+        { timestamp: "Mar 23 11:30 AM", action: "FO Registration Submitted", actor: "Rajesh Kumar (MIC)", type: "submitted", comment: null },
+        { timestamp: "Mar 23 02:15 PM", action: "KYC Verification L1 Approved", actor: "Sneha Patil (Ops Executive)", type: "approved", comment: "Documents verified" },
+        { timestamp: "Mar 23 04:00 PM", action: "KYC Verification L2 Approved", actor: "Vikas Joshi (Territory Manager)", type: "approved", comment: "Approved" },
+        { timestamp: "Mar 23 05:30 PM", action: "Finance Validation Approved", actor: "Priya Shah (Finance Exec)", type: "approved", comment: "Credit line within limit" },
+        { timestamp: "Mar 24 09:00 AM", action: "FO Registration Completed", actor: "System", type: "system", comment: null },
+      ]
+    },
+    {
+      id: "FO-2026-0091",
+      name: "Metro Freight Solutions",
+      status: "Completed",
+      entries: [
+        { timestamp: "Mar 22 10:00 AM", action: "FO Registration Submitted", actor: "Raj Kumar (MIC)", type: "submitted", comment: null },
+        { timestamp: "Mar 22 11:30 AM", action: "KYC Verification L1 Approved", actor: "Sneha Patil (Ops Executive)", type: "approved", comment: null },
+        { timestamp: "Mar 22 03:00 PM", action: "Finance Validation ESCALATED to Finance Manager", actor: "System", type: "escalated", comment: null },
+        { timestamp: "Mar 23 10:00 AM", action: "Finance Validation Approved", actor: "Priya Shah (Finance Manager)", type: "approved", comment: null },
+        { timestamp: "Mar 23 11:00 AM", action: "FO Registration Completed", actor: "System", type: "system", comment: null },
+      ]
+    }
+  ]
+
+  const vehicleTimelines = [
+    {
+      id: "VEH-MH12AB1234",
+      name: "ABC Logistics",
+      status: "Completed",
+      entries: [
+        { timestamp: "Mar 21 09:00 AM", action: "Vehicle Registration Submitted", actor: "ABC Logistics Admin", type: "submitted", comment: null },
+        { timestamp: "Mar 21 10:30 AM", action: "Document Verification L1 Approved", actor: "Sneha Patil (Ops Executive)", type: "approved", comment: "All docs complete" },
+        { timestamp: "Mar 21 12:00 PM", action: "Document Verification L2 Approved", actor: "Raj Kumar (Fleet Supervisor)", type: "approved", comment: null },
+        { timestamp: "Mar 21 02:00 PM", action: "Fleet Ops Approval Approved", actor: "Vikas Joshi (Territory Manager)", type: "approved", comment: null },
+        { timestamp: "Mar 21 03:00 PM", action: "Vehicle Registration Completed", actor: "System", type: "system", comment: null },
+      ]
+    },
+    {
+      id: "VEH-KA05XY5678",
+      name: "Metro Freight",
+      status: "Completed",
+      entries: [
+        { timestamp: "Mar 20 11:00 AM", action: "Vehicle Registration Submitted", actor: "System", type: "submitted", comment: null },
+        { timestamp: "Mar 20 02:00 PM", action: "Document Verification L1 Approved", actor: "Sneha Patil", type: "approved", comment: null },
+        { timestamp: "Mar 20 04:00 PM", action: "Document Verification L2 REJECTED", actor: "Raj Kumar", type: "rejected", comment: "Insurance document missing" },
+        { timestamp: "Mar 21 09:00 AM", action: "Document Verification L2 Resubmitted", actor: "System", type: "submitted", comment: null },
+        { timestamp: "Mar 21 11:00 AM", action: "Document Verification L2 Approved", actor: "Raj Kumar", type: "approved", comment: null },
+        { timestamp: "Mar 21 03:00 PM", action: "Fleet Ops Approval Approved", actor: "Vikas Joshi", type: "approved", comment: null },
+        { timestamp: "Mar 21 05:00 PM", action: "Vehicle Registration Completed", actor: "System", type: "system", comment: null },
+      ]
+    }
   ]
 
   const statusBadgeColor = (status: string) => {
@@ -75,7 +125,7 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
     return matchSearch && matchStatus
   })
 
-  const filteredAudit = auditLog.filter(a => searchTerm === "" || a.actor.toLowerCase().includes(searchTerm.toLowerCase()) || a.action.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredAudit = (entityType === "fleet-operators" ? foTimelines : vehicleTimelines).filter(t => searchTerm === "" || t.name.toLowerCase().includes(searchTerm.toLowerCase()) || t.id.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
     <div className="flex flex-col gap-5 p-5">
@@ -224,60 +274,73 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
 
       {/* Audit Log Tab */}
       {activeTab === "audit-log" && (
-        <>
+        <div className="space-y-4">
           <div className="flex gap-3 items-center">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search audit log..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by FO/Vehicle name or ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-              <Filter className="w-4 h-4" /> Filters
-            </button>
           </div>
 
-          {showFilters && (
-            <div className="border border-border rounded-lg p-4 bg-muted/30">
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
-                <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
-                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Action</label>
-                  <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                    <option>All Actions</option><option>Request Approved</option><option>Request Rejected</option><option>Escalation</option><option>Reminder Sent</option><option>Process Config Updated</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex gap-3 justify-end mt-3">
-                <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
-              </div>
-            </div>
-          )}
-
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-border bg-muted/30">
-                <th className="px-4 py-3 text-left font-semibold">Timestamp</th>
-                <th className="px-4 py-3 text-left font-semibold">Actor</th>
-                <th className="px-4 py-3 text-left font-semibold">Action</th>
-                <th className="px-4 py-3 text-left font-semibold">Entity</th>
-                <th className="px-4 py-3 text-left font-semibold">Details</th>
-                <th className="px-4 py-3 text-left font-semibold">IP Address</th>
-              </tr></thead>
-              <tbody className="divide-y divide-border">
-                {filteredAudit.map((a, i) => (
-                  <tr key={i} className="hover:bg-muted/30">
-                    <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{a.timestamp}</td>
-                    <td className="px-4 py-3 text-xs">{a.actor}</td>
-                    <td className="px-4 py-3 text-sm font-medium">{a.action}</td>
-                    <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{a.entity}</td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{a.details}</td>
-                    <td className="px-4 py-3 text-xs font-mono">{a.ip}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex gap-2">
+            {[
+              { id: "fleet-operators", label: "Fleet Operators" },
+              { id: "vehicles", label: "Vehicles" }
+            ].map(et => (
+              <button key={et.id} onClick={() => setEntityType(et.id)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${entityType === et.id ? 'bg-primary text-primary-foreground' : 'border border-border hover:bg-muted'}`}>
+                {et.label}
+              </button>
+            ))}
           </div>
-        </>
+
+          <div className="space-y-3">
+            {filteredAudit.map(timeline => (
+              <div key={timeline.id} className="bg-card rounded-xl border border-border overflow-hidden">
+                <button onClick={() => setExpandedTimeline(expandedTimeline === timeline.id ? null : timeline.id)} className="w-full p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3 flex-1 text-left">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-mono text-sm font-bold text-foreground">{timeline.id}</span>
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${timeline.status === 'Completed' ? 'bg-green-100 text-green-700' : timeline.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                          {timeline.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{timeline.name}</p>
+                    </div>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${expandedTimeline === timeline.id ? 'rotate-180' : ''}`} />
+                </button>
+
+                {expandedTimeline === timeline.id && (
+                  <div className="px-4 py-3 border-t border-border bg-muted/10">
+                    <div className="space-y-4">
+                      {timeline.entries.map((entry, idx) => (
+                        <div key={idx} className="flex gap-3">
+                          <div className="flex flex-col items-center">
+                            <div className={`w-3 h-3 rounded-full ${
+                              entry.type === 'approved' ? 'bg-green-600' :
+                              entry.type === 'rejected' ? 'bg-red-600' :
+                              entry.type === 'escalated' ? 'bg-amber-600' :
+                              entry.type === 'submitted' ? 'bg-blue-600' :
+                              'bg-gray-600'
+                            }`} />
+                            {idx < timeline.entries.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
+                          </div>
+                          <div className="pb-2 flex-1">
+                            <p className="text-xs text-muted-foreground">{entry.timestamp}</p>
+                            <p className="text-sm font-medium text-foreground">{entry.action}</p>
+                            <p className="text-xs text-muted-foreground">{entry.actor}</p>
+                            {entry.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry.comment}"</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )
