@@ -204,15 +204,27 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           <h3 className="font-semibold text-foreground">Total Cashback Unutilised</h3>
           <span className="text-sm font-bold text-foreground">₹18.5L</span>
         </div>
-        <div className="flex gap-1 h-3 mb-3">
+        <div className="flex gap-1 h-3 mb-4">
           <div className="bg-green-500 rounded-l-sm" style={{width:'67%'}} />
           <div className="bg-amber-400" style={{width:'22.7%'}} />
           <div className="bg-red-500" style={{width:'10.3%'}} />
         </div>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-green-500" /><span className="text-sm text-muted-foreground">Earned unused</span><span className="text-sm font-bold text-green-700">₹12.4L</span><span className="text-xs text-muted-foreground">(67%)</span></div>
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-sm text-muted-foreground">Expiring 30d</span><span className="text-sm font-bold text-amber-700">₹4.2L</span><span className="text-xs text-muted-foreground">(22.7%)</span></div>
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><span className="text-sm text-muted-foreground">Expired</span><span className="text-sm font-bold text-red-700">₹1.9L</span><span className="text-xs text-muted-foreground">(10.3%)</span></div>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1"><div className="w-2.5 h-2.5 rounded-full bg-green-500" /><p className="text-xs text-green-700 font-medium">Earned Unused</p></div>
+            <p className="text-xl font-bold text-green-900">₹12.4L</p>
+            <p className="text-xs text-green-600 mt-0.5">67% of total</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><p className="text-xs text-amber-700 font-medium">Expiring in 30d</p></div>
+            <p className="text-xl font-bold text-amber-900">₹4.2L</p>
+            <p className="text-xs text-amber-600 mt-0.5">22.7% of total</p>
+          </div>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1"><div className="w-2.5 h-2.5 rounded-full bg-red-500" /><p className="text-xs text-red-700 font-medium">Expired</p></div>
+            <p className="text-xl font-bold text-red-900">₹1.9L</p>
+            <p className="text-xs text-red-600 mt-0.5">10.3% of total</p>
+          </div>
         </div>
       </div>
 
@@ -222,15 +234,27 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
           <h3 className="font-semibold text-foreground">Total Incentive Unutilised</h3>
           <span className="text-sm font-bold text-foreground">₹45.2L</span>
         </div>
-        <div className="flex gap-1 h-3 mb-3">
+        <div className="flex gap-1 h-3 mb-4">
           <div className="bg-purple-500 rounded-l-sm" style={{width:'71%'}} />
           <div className="bg-amber-400" style={{width:'19%'}} />
           <div className="bg-gray-400" style={{width:'10%'}} />
         </div>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><span className="text-sm text-muted-foreground">Active</span><span className="text-sm font-bold text-purple-700">₹32.1L</span><span className="text-xs text-muted-foreground">(71%)</span></div>
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><span className="text-sm text-muted-foreground">Expiring 30d</span><span className="text-sm font-bold text-amber-700">₹8.6L</span><span className="text-xs text-muted-foreground">(19%)</span></div>
-          <div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-full bg-gray-400" /><span className="text-sm text-muted-foreground">Pending</span><span className="text-sm font-bold text-gray-700">₹4.5L</span><span className="text-xs text-muted-foreground">(10%)</span></div>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1"><div className="w-2.5 h-2.5 rounded-full bg-purple-500" /><p className="text-xs text-purple-700 font-medium">Active</p></div>
+            <p className="text-xl font-bold text-purple-900">₹32.1L</p>
+            <p className="text-xs text-purple-600 mt-0.5">71% of total</p>
+          </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /><p className="text-xs text-amber-700 font-medium">Expiring in 30d</p></div>
+            <p className="text-xl font-bold text-amber-900">₹8.6L</p>
+            <p className="text-xs text-amber-600 mt-0.5">19% of total</p>
+          </div>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1"><div className="w-2.5 h-2.5 rounded-full bg-gray-400" /><p className="text-xs text-gray-700 font-medium">Pending</p></div>
+            <p className="text-xl font-bold text-gray-900">₹4.5L</p>
+            <p className="text-xs text-gray-600 mt-0.5">10% of total</p>
+          </div>
         </div>
       </div>
     </div>
