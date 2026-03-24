@@ -6,6 +6,7 @@ import MGLSidebar from "@/components/mgl/MGLSidebar"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import AdminDashboard from "@/components/mgl/admin/AdminDashboard"
 import AdminFODirectory from "@/components/mgl/admin/AdminFODirectory"
+import AdminVehicles from "@/components/mgl/admin/AdminVehicles"
 import AdminCardsWallets from "@/components/mgl/admin/AdminCardsWallets"
 import AdminIncentives from "@/components/mgl/admin/AdminIncentives"
 import AdminTransactions from "@/components/mgl/admin/AdminTransactions"
@@ -30,6 +31,7 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
     switch (activeView) {
       case "admin-dashboard": return <AdminDashboard onViewChange={setActiveView} />
       case "admin-fo-directory": return <AdminFODirectory onViewChange={setActiveView} />
+      case "admin-vehicles": return <AdminVehicles />
       case "admin-users": return <AdminUserManagement />
       case "admin-cards": return <AdminCardsWallets onViewChange={setActiveView} />
       case "admin-incentives": return <AdminIncentives onViewChange={setActiveView} />
