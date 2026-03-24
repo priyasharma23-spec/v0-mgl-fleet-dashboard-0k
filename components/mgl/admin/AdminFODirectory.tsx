@@ -13,7 +13,7 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex justify-end" onClick={onClose}>
-      <div className="w-full max-w-lg bg-card h-full overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="w-96 bg-card h-full overflow-y-auto shadow-xl" onClick={e => e.stopPropagation()}>
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between z-10">
           <div>
             <h2 className="font-semibold text-foreground">{showTransactions ? "Transaction History" : "Fleet Operator Details"}</h2>
