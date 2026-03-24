@@ -119,7 +119,7 @@ export default function AdminVehicles() {
       </div>
 
       {/* Vehicles Table */}
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/30">
@@ -131,7 +131,7 @@ export default function AdminVehicles() {
               <th className="px-4 py-3 text-left font-semibold">Card Status</th>
               <th className="px-4 py-3 text-left font-semibold">Vehicle Status</th>
               <th className="px-4 py-3 text-left font-semibold">Last Transaction</th>
-              <th className="px-4 py-3 text-center font-semibold">Action</th>
+              <th className="px-4 py-3 text-center font-semibold sticky right-0 bg-muted/30">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -145,7 +145,7 @@ export default function AdminVehicles() {
                 <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.cardStatus)}`}>{v.cardStatus}</span></td>
                 <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.status)}`}>{v.status}</span></td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">{v.lastTxn}</td>
-                <td className="px-4 py-3 text-center"><button onClick={() => setSelectedEntity(v)} className="text-primary hover:underline text-xs font-medium"><Eye className="w-3.5 h-3.5 inline" /></button></td>
+                <td className="px-4 py-3 text-center sticky right-0 bg-card"><button onClick={() => setSelectedEntity(v)} className="text-primary hover:underline text-xs font-medium"><Eye className="w-3.5 h-3.5 inline" /></button></td>
               </tr>
             ))}
           </tbody>
