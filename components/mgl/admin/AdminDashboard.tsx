@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2, ArrowRightLeft } from "lucide-react"
+import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2, ArrowRightLeft, Truck } from "lucide-react"
 import AdminSettlementFlow from "./AdminSettlementFlow"
 
 export default function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
@@ -58,7 +58,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-9 gap-4">
         {kpis.map((kpi, i) => {
           if (kpi.label === "Today's Settlement") {
             return (
@@ -114,6 +114,22 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
             </div>
           );
         })}
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Truck className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-2xl font-bold text-foreground">3,200</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Total Vehicles</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs text-green-600 font-medium">2,840 New</span>
+              <span className="text-xs text-muted-foreground">•</span>
+              <span className="text-xs text-blue-600 font-medium">360 Retrofitment</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
