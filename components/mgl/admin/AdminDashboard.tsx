@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2, ArrowRightLeft, Truck } from "lucide-react"
+import { TrendingUp, TrendingDown, Users, CreditCard, Wallet, Gift, AlertTriangle, ArrowRight, Activity, CheckCircle, RefreshCw, Zap, Percent, Eye, FileText, Plus, BarChart3, Receipt, Building2, ArrowRightLeft, Truck, Clock } from "lucide-react"
 import AdminSettlementFlow from "./AdminSettlementFlow"
 
 export default function AdminDashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
@@ -58,7 +58,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-9 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-10 gap-4">
         {kpis.map((kpi, i) => {
           if (kpi.label === "Today's Settlement") {
             return (
@@ -131,6 +131,27 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
               <div>
                 <p className="text-xs text-muted-foreground">Retrofitted</p>
                 <p className="text-sm font-bold text-blue-600">360</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-start justify-between">
+            <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+              <Clock className="w-5 h-5 text-amber-600" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <p className="text-2xl font-bold text-foreground">57</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Vehicles Awaiting</p>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              <div>
+                <p className="text-xs text-muted-foreground">Pending Approval</p>
+                <p className="text-sm font-bold text-amber-600">45</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Under Review</p>
+                <p className="text-sm font-bold text-blue-600">12</p>
               </div>
             </div>
           </div>
