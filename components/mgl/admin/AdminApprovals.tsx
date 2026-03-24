@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Download, Search, X, Eye, Filter, CheckCircle, Clock, AlertCircle, Plus, Trash2 } from "lucide-react"
 
 export default function AdminApprovals({ onViewChange }: { onViewChange: (v: string) => void }) {
-  const [activeTab, setActiveTab] = useState("process-config")
+  const [activeTab, setActiveTab] = useState("pending-approvals")
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
@@ -88,7 +88,6 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
       {/* Tab Switcher */}
       <div className="flex gap-1 border-b border-border">
         {[
-          { id: "process-config", label: "Process Configuration" },
           { id: "pending-approvals", label: "Pending Approvals" },
           { id: "approval-history", label: "Approval History" },
           { id: "audit-log", label: "Audit Log" }
@@ -99,14 +98,6 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
           </button>
         ))}
       </div>
-
-      {/* Process Configuration Tab */}
-      {activeTab === "process-config" && (
-        <div className="bg-muted/30 rounded-xl border border-border p-8 text-center">
-          <p className="text-sm text-muted-foreground">Process configuration is managed from the Configuration page.</p>
-          <button onClick={() => {}} className="mt-3 text-sm text-primary font-medium hover:underline">Go to Configuration →</button>
-        </div>
-      )}
 
 
       {/* Pending Approvals Tab */}
