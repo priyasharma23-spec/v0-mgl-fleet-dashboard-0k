@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Truck, CreditCard, CheckSquare, Clock,
   BarChart2, Settings, HelpCircle, LogOut, ChevronRight, FileText,
   MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet, Gift, 
-  ArrowRightLeft, FileSpreadsheet, Activity, Building2, Banknote
+  ArrowRightLeft, FileSpreadsheet, Activity, Building2, Banknote, GitBranch
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -53,6 +53,7 @@ const adminNavItems: NavItem[] = [
   { icon: ArrowRightLeft, label: "Transactions", view: "admin-transactions", badge: 3 },
   { icon: Banknote, label: "Fund Management", view: "admin-funds" },
   { icon: FileSpreadsheet, label: "Settlements", view: "admin-settlements" },
+  { icon: GitBranch, label: "Approvals", view: "admin-approvals" },
   { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
   { icon: Activity, label: "Analytics", view: "admin-analytics" },
   { icon: Settings, label: "Configuration", view: "admin-config" },
