@@ -164,8 +164,18 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search programs..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-              <option>All</option><option>Active</option><option>Draft</option><option>Inactive</option><option>Expired</option><option>Exhausted</option>
+            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option value="All">All Categories</option>
+              <option value="Incentive">Incentive</option>
+              <option value="Cashback">Cashback</option>
+            </select>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option value="All">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Draft">Draft</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Expired">Expired</option>
+              <option value="Exhausted">Exhausted</option>
             </select>
           </div>
           <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -212,11 +222,17 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by beneficiary or program..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-              <option>All</option><option>Incentive</option><option>Cashback</option>
+            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option value="All">All Categories</option>
+              <option value="Incentive">Incentive</option>
+              <option value="Cashback">Cashback</option>
             </select>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-              <option>All</option><option>Credited</option><option>Pending</option><option>Expired</option><option>Reversed</option>
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option value="All">All Status</option>
+              <option value="Credited">Credited</option>
+              <option value="Pending">Pending</option>
+              <option value="Expired">Expired</option>
+              <option value="Reversed">Reversed</option>
             </select>
           </div>
           <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -258,9 +274,14 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
 
       {activeTab === "beneficiary-view" && (
         <>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by FO name or ID..." />
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by FO name or ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+            </div>
+            <select className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option>All Status</option>
+            </select>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="bg-card rounded-xl border border-border p-4">
@@ -318,6 +339,11 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search ledger..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
+            <select className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option>All Status</option>
+              <option>Active</option>
+              <option>Consumed</option>
+            </select>
           </div>
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
@@ -361,6 +387,14 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search audit log..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
+            <select className="px-3 py-2 border border-border rounded-lg text-sm bg-card w-40">
+              <option>All Actions</option>
+              <option>Viewed Program</option>
+              <option>Inactivated Program</option>
+              <option>Manual Adjustment</option>
+              <option>Reward Credited</option>
+              <option>Expiry Processed</option>
+            </select>
           </div>
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <div className="overflow-x-auto">
