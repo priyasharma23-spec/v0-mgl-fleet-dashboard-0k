@@ -9,10 +9,6 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
   const [showFilters, setShowFilters] = useState(false)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [step, setStep] = useState(1)
-  const [formData, setFormData] = useState({ processName: "", module: "", description: "", status: "Draft", stages: [{ id: 1, name: "", order: 1, type: "Serial", levels: [{ id: 1, role: "", required: 1 }] }] })
-  const [rules, setRules] = useState<any[]>([])
 
   const processConfig = [
     { id: "PC-001", module: "FO Onboarding", process: "L1 Approval", approvers: 2, avgTime: "2.5h", lastModified: "Mar 20 2026", status: "Active", desc: "Two-level approval for new FO registration" },
@@ -107,18 +103,13 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
       {/* Process Configuration Tab */}
       {activeTab === "process-config" && (
         <>
-          <div className="flex gap-3 items-center justify-between">
-            <div className="flex gap-3 items-center flex-1">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search processes..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-              </div>
-              <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-                <Filter className="w-4 h-4" /> Filters
-              </button>
+          <div className="flex gap-3 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search processes..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
             </div>
-            <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-              <Plus className="w-4 h-4" /> New Workflow
+            <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+              <Filter className="w-4 h-4" /> Filters
             </button>
           </div>
 
@@ -168,153 +159,8 @@ export default function AdminApprovals({ onViewChange }: { onViewChange: (v: str
         </>
       )}
 
-      {/* Create Workflow Tray */}
-      {showCreateForm && (
-        <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => { setShowCreateForm(false); setStep(1); setFormData({ processName: "", module: "", description: "", status: "Draft", stages: [{ id: 1, name: "", order: 1, type: "Serial", levels: [{ id: 1, role: "", required: 1 }] }] }); setRules([]); }} />
-          <div className="fixed top-0 right-0 bottom-0 w-full max-w-xl bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-              <h3 className="font-semibold text-lg">Create Approval Workflow</h3>
-              <button onClick={() => { setShowCreateForm(false); setStep(1); }} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
-            </div>
 
-            <div className="p-5 space-y-5">
-              {/* Step Indicator */}
-              <div className="flex items-center justify-between">
-                {[1, 2, 3].map(s => (
-                  <div key={s} className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${s < step ? 'bg-green-100 text-green-700' : s === step ? 'bg-primary text-primary-foreground' : 'bg-gray-100 text-gray-700'}`}>{s}</div>
-                    {s < 3 && <div className={`h-1 w-8 ${s < step ? 'bg-green-100' : 'bg-gray-100'}`}></div>}
-                  </div>
-                ))}
-              </div>
-
-              {/* Step 1: Basic Info */}
-              {step === 1 && (
-                <div className="space-y-4">
-                  <div><label className="text-sm font-medium">Process Name <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.processName} onChange={e => setFormData({...formData, processName: e.target.value})} placeholder="e.g. L1 Approval for FO Onboarding" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-background" />
-                  </div>
-                  <div><label className="text-sm font-medium">Module <span className="text-red-500">*</span></label>
-                    <select value={formData.module} onChange={e => setFormData({...formData, module: e.target.value})} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-background">
-                      <option value="">Select Module</option>
-                      <option value="Vehicle Registration">Vehicle Registration</option>
-                      <option value="FO Registration">FO Registration</option>
-                      <option value="Card Allocation">Card Allocation</option>
-                      <option value="Issuance">Issuance</option>
-                      <option value="Incentive Calculation">Incentive Calculation</option>
-                      <option value="Credit Approval">Credit Approval</option>
-                      <option value="Custom">Custom</option>
-                    </select>
-                  </div>
-                  <div><label className="text-sm font-medium">Description</label>
-                    <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe the purpose and flow" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-background h-20" />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <label className="text-sm font-medium">Status</label>
-                    <div className="flex gap-2">
-                      {['Draft', 'Active'].map(s => (
-                        <button key={s} onClick={() => setFormData({...formData, status: s})} className={`px-3 py-1 rounded-lg text-xs font-medium ${formData.status === s ? 'bg-primary text-primary-foreground' : 'border border-border hover:bg-muted'}`}>{s}</button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Stages & Levels */}
-              {step === 2 && (
-                <div className="space-y-4">
-                  {formData.stages.map((stage, idx) => (
-                    <div key={stage.id} className="bg-muted/30 rounded-xl p-4 border border-border space-y-3">
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">{idx + 1}</span>
-                        <input type="text" value={stage.name} onChange={e => { const updated = [...formData.stages]; updated[idx].name = e.target.value; setFormData({...formData, stages: updated}); }} placeholder="e.g. L1 Approval" className="flex-1 px-3 py-1.5 border border-border rounded-lg text-sm bg-background" />
-                        <button onClick={() => { const updated = formData.stages.filter((_, i) => i !== idx); setFormData({...formData, stages: updated}); }} className="p-2 hover:bg-red-100 rounded-lg text-red-600"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                      <div className="flex gap-2">
-                        {['Serial', 'Parallel'].map(t => (
-                          <button key={t} onClick={() => { const updated = [...formData.stages]; updated[idx].type = t; setFormData({...formData, stages: updated}); }} className={`px-3 py-1 rounded-lg text-xs font-medium ${stage.type === t ? 'bg-primary text-primary-foreground' : 'border border-border hover:bg-muted'}`}>{t}</button>
-                        ))}
-                      </div>
-                      <div className="space-y-2">
-                        {stage.levels.map((level, lvlIdx) => (
-                          <div key={level.id} className="flex gap-3 items-center p-3 bg-background rounded-lg border border-border">
-                            <span className="text-xs font-medium text-muted-foreground w-6">L{lvlIdx + 1}</span>
-                            <select value={level.role} onChange={e => { const updated = [...formData.stages]; updated[idx].levels[lvlIdx].role = e.target.value; setFormData({...formData, stages: updated}); }} className="flex-1 px-2 py-1.5 border border-border rounded-lg text-xs bg-card">
-                              <option value="">Select Role</option>
-                              <option value="Ops Executive">Ops Executive</option>
-                              <option value="Territory Manager">Territory Manager</option>
-                              <option value="Finance Exec">Finance Exec</option>
-                              <option value="Finance Manager">Finance Manager</option>
-                              <option value="Ops Supervisor">Ops Supervisor</option>
-                              <option value="Ops Lead">Ops Lead</option>
-                              <option value="Compliance">Compliance</option>
-                              <option value="Zonal Head">Zonal Head</option>
-                              <option value="Head of Business">Head of Business</option>
-                              <option value="Sr. Finance">Sr. Finance</option>
-                              <option value="Credit Analyst">Credit Analyst</option>
-                            </select>
-                            <input type="number" min="1" value={level.required} onChange={e => { const updated = [...formData.stages]; updated[idx].levels[lvlIdx].required = parseInt(e.target.value); setFormData({...formData, stages: updated}); }} className="w-16 px-2 py-1.5 border border-border rounded-lg text-xs bg-card" placeholder="Req" />
-                            <button onClick={() => { const updated = [...formData.stages]; updated[idx].levels.splice(lvlIdx, 1); setFormData({...formData, stages: updated}); }} className="p-1.5 hover:bg-red-100 rounded text-red-600"><X className="w-3 h-3" /></button>
-                          </div>
-                        ))}
-                        <button onClick={() => { const updated = [...formData.stages]; const newLevel = { id: Date.now(), role: "", required: 1 }; updated[idx].levels.push(newLevel); setFormData({...formData, stages: updated}); }} className="text-xs text-primary font-medium hover:underline">+ Add Level</button>
-                      </div>
-                    </div>
-                  ))}
-                  <button onClick={() => { const newStage = { id: Date.now(), name: "", type: "Serial", levels: [{ id: Date.now(), role: "", required: 1 }] }; setFormData({...formData, stages: [...formData.stages, newStage]}); }} className="text-sm text-primary font-medium hover:underline">+ Add Stage</button>
-                </div>
-              )}
-
-              {/* Step 3: Rules */}
-              {step === 3 && (
-                <div className="space-y-4">
-                  {formData.stages.map((stage, stageIdx) => (
-                    <div key={stage.id} className="border border-border rounded-lg p-3 bg-muted/20">
-                      <p className="text-xs font-semibold mb-3">{stage.name || `Stage ${stageIdx + 1}`}</p>
-                      {rules.filter(r => r.stageId === stage.id).map((rule, ruleIdx) => (
-                        <div key={rule.id} className={`mb-3 rounded-lg p-3 border ${rule.type === 'ESCALATE' ? 'bg-amber-50 border-amber-200' : rule.type === 'AUTO_APPROVE' ? 'bg-green-50 border-green-200' : rule.type === 'SKIP_LEVEL' ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}>
-                          <div className="flex gap-2 items-end mb-2">
-                            <select value={rule.type} onChange={e => { const updated = [...rules]; updated[ruleIdx].type = e.target.value; setRules(updated); }} className="flex-1 px-2 py-1 border border-border rounded text-xs bg-card">
-                              <option value="AUTO_APPROVE">AUTO_APPROVE</option>
-                              <option value="ESCALATE">ESCALATE</option>
-                              <option value="SKIP_LEVEL">SKIP_LEVEL</option>
-                              <option value="NOTIFY">NOTIFY</option>
-                              <option value="MANDATORY_COMMENT">MANDATORY_COMMENT</option>
-                            </select>
-                            <button onClick={() => setRules(rules.filter((_, i) => i !== ruleIdx))} className="p-1.5 hover:bg-red-100 rounded text-red-600"><X className="w-3 h-3" /></button>
-                          </div>
-                          <div className="space-y-2">
-                            <input type="text" value={rule.condition} onChange={e => { const updated = [...rules]; updated[ruleIdx].condition = e.target.value; setRules(updated); }} placeholder="Condition key (e.g. vehicleValue)" className="w-full px-2 py-1 border border-border rounded text-xs bg-card" />
-                            <div className="flex gap-2">
-                              <select value={rule.operator} onChange={e => { const updated = [...rules]; updated[ruleIdx].operator = e.target.value; setRules(updated); }} className="w-24 px-2 py-1 border border-border rounded text-xs bg-card">
-                                <option value="eq">eq</option><option value="ne">ne</option><option value="gt">gt</option><option value="lt">lt</option><option value="gte">gte</option><option value="lte">lte</option><option value="in">in</option><option value="notIn">notIn</option>
-                              </select>
-                              <input type="text" value={rule.value} onChange={e => { const updated = [...rules]; updated[ruleIdx].value = e.target.value; setRules(updated); }} placeholder="Value" className="flex-1 px-2 py-1 border border-border rounded text-xs bg-card" />
-                            </div>
-                            {rule.type === 'ESCALATE' && <select className="w-full px-2 py-1 border border-border rounded text-xs bg-card"><option>Select role to escalate</option></select>}
-                            {rule.type === 'SKIP_LEVEL' && <input type="number" min="1" placeholder="Skip level" className="w-full px-2 py-1 border border-border rounded text-xs bg-card" />}
-                            {rule.type === 'MANDATORY_COMMENT' && <label className="flex items-center gap-2 text-xs"><input type="checkbox" defaultChecked /> Require comment</label>}
-                          </div>
-                        </div>
-                      ))}
-                      <button onClick={() => setRules([...rules, { id: Date.now(), stageId: stage.id, type: 'AUTO_APPROVE', condition: '', operator: 'eq', value: '', action: {} }])} className="text-xs text-primary font-medium hover:underline">+ Add Rule</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div className="flex gap-3 justify-end mt-6 pt-4 border-t border-border">
-                {step > 1 && <button onClick={() => setStep(step - 1)} className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">Back</button>}
-                {step < 3 && <button onClick={() => setStep(step + 1)} disabled={step === 1 && (!formData.processName || !formData.module)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50">Next</button>}
-                {step === 3 && <button onClick={() => { setShowCreateForm(false); setStep(1); alert("Workflow created successfully!"); }} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">Create Workflow</button>}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-      {activeTab === "pending-approvals" && (
+      {/* Pending Approvals Tab */}
         <>
           <div className="flex gap-3 items-center">
             <div className="relative flex-1">
