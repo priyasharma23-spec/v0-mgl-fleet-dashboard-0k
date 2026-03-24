@@ -10,11 +10,11 @@ export default function AdminFundManagement() {
   const [loadForm, setLoadForm] = useState({ fo: "", amount: "", source: "", reference: "", remarks: "" })
 
   const foAccounts = [
-    { id: "FO001", name: "ABC Logistics", balance: "₹2.4L", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹50,000", source: "NEFT", t1Pending: "₹15,000", status: "Active" },
-    { id: "FO002", name: "Metro Freight", balance: "₹5.1L", lastLoad: "Mar 22, 2026", lastLoadAmt: "₹1,00,000", source: "PG", t1Pending: "₹28,000", status: "Active" },
-    { id: "FO003", name: "Sunrise Transport", balance: "₹12,500", lastLoad: "Mar 20, 2026", lastLoadAmt: "₹25,000", source: "RTGS", t1Pending: "₹0", status: "Low Balance" },
-    { id: "FO004", name: "City Express", balance: "₹3,200", lastLoad: "Mar 18, 2026", lastLoadAmt: "₹10,000", source: "IMPS", t1Pending: "₹0", status: "Critical" },
-    { id: "FO005", name: "Quick Move", balance: "₹98,000", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹75,000", source: "FT", t1Pending: "₹42,000", status: "Active" },
+    { id: "FO001", name: "ABC Logistics", parentAccountId: "PA-2024-001", balance: "₹2.4L", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹50,000", source: "NEFT", t1Pending: "₹15,000", status: "Active" },
+    { id: "FO002", name: "Metro Freight", parentAccountId: "PA-2024-002", balance: "₹5.1L", lastLoad: "Mar 22, 2026", lastLoadAmt: "₹1,00,000", source: "PG", t1Pending: "₹28,000", status: "Active" },
+    { id: "FO003", name: "Sunrise Transport", parentAccountId: "PA-2024-003", balance: "₹12,500", lastLoad: "Mar 20, 2026", lastLoadAmt: "₹25,000", source: "RTGS", t1Pending: "₹0", status: "Low Balance" },
+    { id: "FO004", name: "City Express", parentAccountId: "PA-2024-004", balance: "₹3,200", lastLoad: "Mar 18, 2026", lastLoadAmt: "₹10,000", source: "IMPS", t1Pending: "₹0", status: "Critical" },
+    { id: "FO005", name: "Quick Move", parentAccountId: "PA-2024-005", balance: "₹98,000", lastLoad: "Mar 23, 2026", lastLoadAmt: "₹75,000", source: "FT", t1Pending: "₹42,000", status: "Active" },
   ]
 
   const pgCollections = [
@@ -110,6 +110,7 @@ export default function AdminFundManagement() {
           <table className="w-full text-sm">
             <thead><tr className="border-b border-border bg-muted/30">
               <th className="px-4 py-3 text-left font-semibold">FO Name</th>
+              <th className="px-4 py-3 text-left font-semibold">Parent A/C ID</th>
               <th className="px-4 py-3 text-left font-semibold">Parent Balance</th>
               <th className="px-4 py-3 text-left font-semibold">Last Load</th>
               <th className="px-4 py-3 text-left font-semibold">Amount</th>
@@ -121,6 +122,7 @@ export default function AdminFundManagement() {
             <tbody>{foAccounts.map(fo => (
               <tr key={fo.id} className="border-b border-border hover:bg-muted/30">
                 <td className="px-4 py-3 font-medium">{fo.name}</td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{fo.parentAccountId}</td>
                 <td className="px-4 py-3 font-bold">{fo.balance}</td>
                 <td className="px-4 py-3 text-muted-foreground">{fo.lastLoad}</td>
                 <td className="px-4 py-3">{fo.lastLoadAmt}</td>
