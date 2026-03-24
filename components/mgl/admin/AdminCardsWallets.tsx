@@ -141,7 +141,13 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
 
       {/* Cards by Status */}
       <div className="bg-card rounded-xl border border-border p-5">
-        <h3 className="font-semibold text-foreground mb-4">Cards by Status</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-foreground">Cards by Status</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Total Cards:</span>
+            <span className="text-sm font-bold text-foreground">3,465</span>
+          </div>
+        </div>
         
         {/* Stacked bar with rounded ends and spacing */}
         <div className="flex rounded-full overflow-hidden h-4 gap-0.5 mb-5">
