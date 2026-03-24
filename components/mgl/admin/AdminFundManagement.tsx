@@ -6,6 +6,7 @@ export default function AdminFundManagement() {
   const [activeTab, setActiveTab] = useState("fo-accounts")
   const [showLoadModal, setShowLoadModal] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+  const [showForm, setShowForm] = useState(false)
   const [loadForm, setLoadForm] = useState({ fo: "", amount: "", source: "", reference: "", remarks: "" })
 
   const foAccounts = [
@@ -192,60 +193,96 @@ export default function AdminFundManagement() {
 
       {/* Manual Fund Load Tab */}
       {activeTab === "manual-load" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="bg-card rounded-xl border border-border p-5">
-            <h3 className="font-semibold mb-4">Load Funds to FO Parent Account</h3>
-            <div className="space-y-4">
-              <div><label className="text-sm font-medium">Fleet Operator <span className="text-red-500">*</span></label>
-                <select value={loadForm.fo} onChange={e => setLoadForm(f => ({...f, fo: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
-                  <option value="">Select FO</option>
-                  {foAccounts.map(fo => <option key={fo.id} value={fo.name}>{fo.name}</option>)}
-                </select></div>
-              <div><label className="text-sm font-medium">Amount (₹) <span className="text-red-500">*</span></label>
-                <input type="number" value={loadForm.amount} onChange={e => setLoadForm(f => ({...f, amount: e.target.value}))} placeholder="Enter amount" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
-              <div><label className="text-sm font-medium">Source <span className="text-red-500">*</span></label>
-                <select value={loadForm.source} onChange={e => setLoadForm(f => ({...f, source: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
-                  <option value="">Select source</option>
-                  <option value="Third-party PG">Third-party PG</option>
-                  <option value="IMPS">FO Bank Account — IMPS</option>
-                  <option value="NEFT">FO Bank Account — NEFT</option>
-                  <option value="RTGS">FO Bank Account — RTGS</option>
-                  <option value="FT">Fund Transfer (FT)</option>
-                </select></div>
-              <div><label className="text-sm font-medium">Reference Number (UTR/Txn ID) <span className="text-red-500">*</span></label>
-                <input value={loadForm.reference} onChange={e => setLoadForm(f => ({...f, reference: e.target.value}))} placeholder="Enter UTR or transaction ID" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
-              <div><label className="text-sm font-medium">Remarks</label>
-                <input value={loadForm.remarks} onChange={e => setLoadForm(f => ({...f, remarks: e.target.value}))} placeholder="Optional remarks" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
-              <button onClick={() => setShowConfirmModal(true)} disabled={!loadForm.fo || !loadForm.amount || !loadForm.source || !loadForm.reference}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50">
-                Load Funds
-              </button>
+        <>
+          {!showForm ? (
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h3 className="font-semibold">Manual Load Ledger</h3>
+                <button onClick={() => setShowForm(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                  <Plus className="w-4 h-4" /> Load Funds
+                </button>
+              </div>
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border bg-muted/30">
+                  <th className="px-4 py-3 text-left font-semibold">FO</th>
+                  <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                  <th className="px-4 py-3 text-left font-semibold">Source</th>
+                  <th className="px-4 py-3 text-left font-semibold">Date</th>
+                  <th className="px-4 py-3 text-left font-semibold">By</th>
+                  <th className="px-4 py-3 text-left font-semibold">Status</th>
+                </tr></thead>
+                <tbody>{manualLedger.map(ml => (
+                  <tr key={ml.id} className="border-b border-border hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium">{ml.fo}</td>
+                    <td className="px-4 py-3 font-bold text-green-700">{ml.amount}</td>
+                    <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
+                    <td className="px-4 py-3 text-xs">{ml.by}</td>
+                    <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
+                  </tr>
+                ))}</tbody>
+              </table>
             </div>
-          </div>
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="p-4 border-b border-border"><h3 className="font-semibold">Manual Load Ledger</h3></div>
-            <table className="w-full text-sm">
-              <thead><tr className="border-b border-border bg-muted/30">
-                <th className="px-4 py-3 text-left font-semibold">FO</th>
-                <th className="px-4 py-3 text-left font-semibold">Amount</th>
-                <th className="px-4 py-3 text-left font-semibold">Source</th>
-                <th className="px-4 py-3 text-left font-semibold">Date</th>
-                <th className="px-4 py-3 text-left font-semibold">By</th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-              </tr></thead>
-              <tbody>{manualLedger.map(ml => (
-                <tr key={ml.id} className="border-b border-border hover:bg-muted/30">
-                  <td className="px-4 py-3 font-medium">{ml.fo}</td>
-                  <td className="px-4 py-3 font-bold text-green-700">{ml.amount}</td>
-                  <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
-                  <td className="px-4 py-3 text-xs">{ml.by}</td>
-                  <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <div className="bg-card rounded-xl border border-border p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold">Load Funds to FO Parent Account</h3>
+                  <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground text-lg font-medium">✕</button>
+                </div>
+                <div className="space-y-4">
+                  <div><label className="text-sm font-medium">Fleet Operator <span className="text-red-500">*</span></label>
+                    <select value={loadForm.fo} onChange={e => setLoadForm(f => ({...f, fo: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
+                      <option value="">Select FO</option>
+                      {foAccounts.map(fo => <option key={fo.id} value={fo.name}>{fo.name}</option>)}
+                    </select></div>
+                  <div><label className="text-sm font-medium">Amount (₹) <span className="text-red-500">*</span></label>
+                    <input type="number" value={loadForm.amount} onChange={e => setLoadForm(f => ({...f, amount: e.target.value}))} placeholder="Enter amount" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
+                  <div><label className="text-sm font-medium">Source <span className="text-red-500">*</span></label>
+                    <select value={loadForm.source} onChange={e => setLoadForm(f => ({...f, source: e.target.value}))} className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
+                      <option value="">Select source</option>
+                      <option value="Third-party PG">Third-party PG</option>
+                      <option value="IMPS">FO Bank Account — IMPS</option>
+                      <option value="NEFT">FO Bank Account — NEFT</option>
+                      <option value="RTGS">FO Bank Account — RTGS</option>
+                      <option value="FT">Fund Transfer (FT)</option>
+                    </select></div>
+                  <div><label className="text-sm font-medium">Reference Number (UTR/Txn ID) <span className="text-red-500">*</span></label>
+                    <input value={loadForm.reference} onChange={e => setLoadForm(f => ({...f, reference: e.target.value}))} placeholder="Enter UTR or transaction ID" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
+                  <div><label className="text-sm font-medium">Remarks</label>
+                    <input value={loadForm.remarks} onChange={e => setLoadForm(f => ({...f, remarks: e.target.value}))} placeholder="Optional remarks" className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card" /></div>
+                  <button onClick={() => setShowConfirmModal(true)} disabled={!loadForm.fo || !loadForm.amount || !loadForm.source || !loadForm.reference}
+                    className="w-full py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50">
+                    Load Funds
+                  </button>
+                </div>
+              </div>
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="p-4 border-b border-border"><h3 className="font-semibold">Manual Load Ledger</h3></div>
+                <table className="w-full text-sm">
+                  <thead><tr className="border-b border-border bg-muted/30">
+                    <th className="px-4 py-3 text-left font-semibold">FO</th>
+                    <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                    <th className="px-4 py-3 text-left font-semibold">Source</th>
+                    <th className="px-4 py-3 text-left font-semibold">Date</th>
+                    <th className="px-4 py-3 text-left font-semibold">By</th>
+                    <th className="px-4 py-3 text-left font-semibold">Status</th>
+                  </tr></thead>
+                  <tbody>{manualLedger.map(ml => (
+                    <tr key={ml.id} className="border-b border-border hover:bg-muted/30">
+                      <td className="px-4 py-3 font-medium">{ml.fo}</td>
+                      <td className="px-4 py-3 font-bold text-green-700">{ml.amount}</td>
+                      <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
+                      <td className="px-4 py-3 text-xs">{ml.by}</td>
+                      <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Refunds Tab */}
