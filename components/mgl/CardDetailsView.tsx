@@ -434,7 +434,7 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
                   </button>
                   <button
                     onClick={() => setAllocationStep("review")}
-                    disabled={!allocateAmount || parseInt(allocateAmount) || 0 <= 0 || parseInt(allocateAmount) || 0 > parentWalletBalance}
+                    disabled={!allocateAmount || (parseInt(allocateAmount) || 0) <= 0 || (parseInt(allocateAmount) || 0) > parentWalletBalance}
                     className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     Review <ArrowRight className="w-4 h-4" />
