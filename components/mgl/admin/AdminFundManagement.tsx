@@ -1,7 +1,6 @@
 "use client"
 import { useState } from "react"
 import { Search, Filter, Download, Plus, CheckCircle, Clock, XCircle, AlertTriangle, Banknote, CreditCard, RefreshCw, ArrowRightLeft, X } from "lucide-react"
-import { FOStatusBadge } from "@/components/mgl/StatusBadge"
 
 export default function AdminFundManagement() {
   const [activeTab, setActiveTab] = useState("fo-accounts")
@@ -50,6 +49,8 @@ export default function AdminFundManagement() {
       Success: "bg-green-100 text-green-700", Failed: "bg-red-100 text-red-700",
       Approved: "bg-green-100 text-green-700", Rejected: "bg-red-100 text-red-700",
     }
+    return `inline-block px-2.5 py-1 rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-700"}`
+  }
     return `inline-block px-2.5 py-1 rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-700"}`
   }
     const map: Record<string, string> = {
@@ -179,7 +180,7 @@ export default function AdminFundManagement() {
                   <td className="px-4 py-3">{fo.lastLoadAmt}</td>
                   <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{fo.source}</span></td>
                   <td className="px-4 py-3 text-amber-600 font-medium">{fo.t1Pending}</td>
-                  <td className="px-4 py-3"><FOStatusBadge status={fo.status as any} /></td>
+                  <td className="px-4 py-3"><span className={statusBadge(fo.status)}>{fo.status}</span></td>
                   <td className="px-4 py-3"><button onClick={() => { setLoadForm(f => ({...f, fo: fo.name})); setShowForm(true) }} className="flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium"><Plus className="w-3 h-3" /> Load</button></td>
                 </tr>
               ))}</tbody>
@@ -245,7 +246,7 @@ export default function AdminFundManagement() {
                   <td className="px-4 py-3 font-bold">{pg.amount}</td>
                   <td className="px-4 py-3 text-muted-foreground">{pg.time}</td>
                   <td className="px-4 py-3">{pg.creditDate}</td>
-                  <td className="px-4 py-3"><FOStatusBadge status={pg.status as any} /></td>
+                  <td className="px-4 py-3"><span className={statusBadge(pg.status)}>{pg.status}</span></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -308,7 +309,7 @@ export default function AdminFundManagement() {
                   <td className="px-4 py-3 font-mono text-xs">{pg.pgRef}</td>
                   <td className="px-4 py-3 text-muted-foreground">{pg.time}</td>
                   <td className="px-4 py-3">{pg.creditDate}</td>
-                  <td className="px-4 py-3"><FOStatusBadge status="Pending" /></td>
+                  <td className="px-4 py-3"><span className={statusBadge("Pending")}>Pending Credit</span></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -383,7 +384,7 @@ export default function AdminFundManagement() {
                   <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">{ml.source}</span></td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">{ml.date}</td>
                   <td className="px-4 py-3 text-xs">{ml.by}</td>
-                  <td className="px-4 py-3"><FOStatusBadge status={ml.status as any} /></td>
+                  <td className="px-4 py-3"><span className={statusBadge(ml.status)}>{ml.status}</span></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -449,7 +450,7 @@ export default function AdminFundManagement() {
                   <td className="px-4 py-3 font-bold">{r.amount}</td>
                   <td className="px-4 py-3 text-muted-foreground">{r.reason}</td>
                   <td className="px-4 py-3">{r.date}</td>
-                  <td className="px-4 py-3"><FOStatusBadge status={r.status as any} /></td>
+                  <td className="px-4 py-3"><span className={statusBadge(r.status)}>{r.status}</span></td>
                   <td className="px-4 py-3">
                     {r.status === "Pending" && <div className="flex gap-2">
                       <button className="px-2 py-1 bg-green-600 text-white rounded text-xs font-medium">Approve</button>

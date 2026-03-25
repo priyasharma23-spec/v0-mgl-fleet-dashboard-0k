@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Search, Filter, X, Truck, CheckCircle, Clock, AlertTriangle, Eye, Users } from "lucide-react"
-import { VehicleStatusBadge } from "@/components/mgl/StatusBadge"
 
 export default function AdminVehicles() {
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
@@ -31,14 +30,6 @@ export default function AdminVehicles() {
       Rejected: "bg-red-100 text-red-700",
       Inactive: "bg-gray-100 text-gray-700",
       Blocked: "bg-red-100 text-red-700"
-    }
-    return map[status] || "bg-gray-100 text-gray-700"
-  }
-    const map: Record<string, string> = {
-      Active: "bg-green-100 text-green-700",
-      "Approval Pending": "bg-amber-100 text-amber-700",
-      "Under Review": "bg-blue-100 text-blue-700",
-      Rejected: "bg-red-100 text-red-700",
     }
     return map[status] || "bg-gray-100 text-gray-700"
   }
@@ -153,8 +144,8 @@ export default function AdminVehicles() {
                 <td className="px-4 py-3 text-sm">{v.driver}</td>
                 <td className="px-4 py-3 text-sm">{v.fuel}</td>
                 <td className="px-4 py-3 font-mono text-sm">{v.card}</td>
-                <td className="px-4 py-3"><VehicleStatusBadge status={v.cardStatus as any} /></td>
-                <td className="px-4 py-3"><VehicleStatusBadge status={v.status as any} /></td>
+                <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.cardStatus)}`}>{v.cardStatus}</span></td>
+                <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.status)}`}>{v.status}</span></td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">{v.lastTxn}</td>
                 <td className="px-4 py-3 text-center sticky right-0 bg-card"><button onClick={() => setSelectedEntity(v)} className="text-primary hover:underline text-xs font-medium"><Eye className="w-3.5 h-3.5 inline" /></button></td>
               </tr>
@@ -175,7 +166,7 @@ export default function AdminVehicles() {
             <div className="p-4 space-y-4">
               <div>
                 <p className="font-mono text-2xl font-bold">{selectedEntity.id}</p>
-                <span className="inline-block mt-2"><VehicleStatusBadge status={selectedEntity.status as any} /></span>
+                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${statusBadge(selectedEntity.status)}`}>{selectedEntity.status}</span>
               </div>
               <div className="space-y-2 text-sm">
                 <div><p className="text-muted-foreground">FO Name</p><p className="font-medium">{selectedEntity.fo}</p></div>
@@ -190,7 +181,7 @@ export default function AdminVehicles() {
                 <p className="text-xs font-semibold mb-3">Card Information</p>
                 <div className="space-y-2 text-sm">
                   <div><p className="text-muted-foreground">Card Number</p><p className="font-mono">{selectedEntity.card}</p></div>
-                  <div><p className="text-muted-foreground">Card Status</p><VehicleStatusBadge status={selectedEntity.cardStatus as any} /></div>
+                  <div><p className="text-muted-foreground">Card Status</p><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(selectedEntity.cardStatus)}`}>{selectedEntity.cardStatus}</span></div>
                   <div><p className="text-muted-foreground">Wallet Balance</p><p className="font-medium">₹5,200</p></div>
                 </div>
               </div>
