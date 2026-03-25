@@ -28,8 +28,6 @@ export default function AdminVehicles() {
       "Approval Pending": "bg-amber-100 text-amber-700",
       "Under Review": "bg-blue-100 text-blue-700",
       Rejected: "bg-red-100 text-red-700",
-      Inactive: "bg-gray-100 text-gray-700",
-      Blocked: "bg-red-100 text-red-700"
     }
     return map[status] || "bg-gray-100 text-gray-700"
   }

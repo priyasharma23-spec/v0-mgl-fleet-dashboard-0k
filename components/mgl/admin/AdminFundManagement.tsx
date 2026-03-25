@@ -51,16 +51,6 @@ export default function AdminFundManagement() {
     }
     return `inline-block px-2.5 py-1 rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-700"}`
   }
-    return `inline-block px-2.5 py-1 rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-700"}`
-  }
-    const map: Record<string, string> = {
-      Active: "bg-green-100 text-green-700", "Low Balance": "bg-amber-100 text-amber-700",
-      Critical: "bg-red-100 text-red-700", Suspended: "bg-gray-100 text-gray-700", Pending: "bg-amber-100 text-amber-700",
-      Success: "bg-green-100 text-green-700", Failed: "bg-red-100 text-red-700",
-      Approved: "bg-green-100 text-green-700", Rejected: "bg-red-100 text-red-700",
-    }
-    return `inline-block px-2.5 py-1 rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-700"}`
-  }
 
   const tabs = [
     { id: "fo-accounts", label: "FO Accounts" },
