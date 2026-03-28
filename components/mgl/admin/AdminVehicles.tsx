@@ -25,13 +25,16 @@ export default function AdminVehicles() {
     { id: "KA09ZZ0021", fo: "Quick Move", foId: "FO-2026-0315", driver: "Sunil Mehta", driverMobile: "+91 98765 43217", fuel: "CNG", card: "****9901", cardStatus: "Active", status: "Approval Pending", lastTxn: "Mar 18 2026", lastTxnAmt: "₹890", txnCount: 12, regDate: "Mar 15 2026", approval: "Pending Approval" },
   ]
 
-  const incentiveHistory = [
-    { id: "INC-2026-001", type: "New Vehicle", amount: "₹3,500", tds: "₹350", net: "₹3,150", creditDate: "Mar 21, 2026", expiryDate: "Mar 21, 2027", status: "Active" },
-    { id: "INC-2026-002", type: "New Vehicle", amount: "₹2,100", tds: "₹210", net: "₹1,890", creditDate: "Feb 15, 2026", expiryDate: "Feb 15, 2027", status: "Active" },
-    { id: "INC-2025-089", type: "New Vehicle", amount: "₹2,800", tds: "₹280", net: "₹2,520", creditDate: "Dec 10, 2025", expiryDate: "Dec 10, 2026", status: "Active" },
-    { id: "INC-2025-045", type: "Retrofitment", amount: "₹1,500", tds: "₹150", net: "₹1,350", creditDate: "Sep 05, 2025", expiryDate: "Sep 05, 2026", status: "Exhausted" },
-    { id: "INC-2025-012", type: "New Vehicle", amount: "₹2,000", tds: "₹200", net: "₹1,800", creditDate: "Jun 01, 2025", expiryDate: "Jun 01, 2026", status: "Expired" },
-  ]
+  const vehicleIncentive = {
+    id: "INC-2026-001",
+    type: "New Vehicle",
+    amount: "₹3,500",
+    tds: "₹350",
+    net: "₹3,150",
+    creditDate: "Mar 21, 2026",
+    expiryDate: "Mar 21, 2027",
+    status: "Active"
+  }
 
   useEffect(() => {
     if (selectedEntity) {
@@ -178,7 +181,7 @@ export default function AdminVehicles() {
         footer={
           showIncentiveHistory ? null : (
             <button onClick={() => setShowIncentiveHistory(true)} className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
-              <Gift className="w-4 h-4" /> View Incentive History
+              <Gift className="w-4 h-4" /> View Incentive Details
             </button>
           )
         }
@@ -189,26 +192,24 @@ export default function AdminVehicles() {
               ← Back to Vehicle Details
             </button>
             <div className="space-y-3">
-              {incentiveHistory.map((inc, i) => (
-                <div key={i} className="bg-muted/30 rounded-xl p-4 space-y-2 border border-border">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-foreground">{inc.id}</span>
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      inc.status === "Active" ? "bg-green-100 text-green-700" :
-                      inc.status === "Expired" ? "bg-red-100 text-red-700" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>{inc.status}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <div><p className="text-xs text-muted-foreground">Type</p><p className="font-medium">{inc.type}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Amount</p><p className="font-medium">{inc.amount}</p></div>
-                    <div><p className="text-xs text-muted-foreground">TDS</p><p className="font-medium text-red-600">-{inc.tds}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Net Incentive</p><p className="font-medium text-green-700">{inc.net}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Credit Date</p><p className="font-medium">{inc.creditDate}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Expiry Date</p><p className="font-medium">{inc.expiryDate}</p></div>
-                  </div>
+              <div className="bg-muted/30 rounded-xl p-4 space-y-3 border border-border">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-mono font-semibold text-foreground">{vehicleIncentive.id}</span>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                    vehicleIncentive.status === "Active" ? "bg-green-100 text-green-700" :
+                    vehicleIncentive.status === "Expired" ? "bg-red-100 text-red-700" :
+                    "bg-gray-100 text-gray-600"
+                  }`}>{vehicleIncentive.status}</span>
                 </div>
-              ))}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div><p className="text-xs text-muted-foreground">Incentive Type</p><p className="text-sm font-medium">{vehicleIncentive.type}</p></div>
+                  <div><p className="text-xs text-muted-foreground">Gross Amount</p><p className="text-sm font-medium">{vehicleIncentive.amount}</p></div>
+                  <div><p className="text-xs text-muted-foreground">TDS Deducted</p><p className="text-sm font-medium text-red-600">-{vehicleIncentive.tds}</p></div>
+                  <div><p className="text-xs text-muted-foreground">Net Incentive</p><p className="text-sm font-bold text-green-700">{vehicleIncentive.net}</p></div>
+                  <div><p className="text-xs text-muted-foreground">Credit Date</p><p className="text-sm font-medium">{vehicleIncentive.creditDate}</p></div>
+                  <div><p className="text-xs text-muted-foreground">Expiry Date</p><p className="text-sm font-medium">{vehicleIncentive.expiryDate}</p></div>
+                </div>
+              </div>
             </div>
           </>
         ) : (
