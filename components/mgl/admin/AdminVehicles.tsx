@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { Truck, CheckCircle, Users, AlertTriangle, Eye } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Truck, CheckCircle, Users, AlertTriangle, Eye, Gift } from "lucide-react"
 import { RightTray, TraySection, TrayRow } from "@/components/mgl/shared"
 import { FilterPanel, FilterField, FilterSelect, FilterActions } from "@/components/mgl/shared"
 import { PageHeader } from "@/components/mgl/shared"
 
 export default function AdminVehicles() {
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
+  const [showIncentiveHistory, setShowIncentiveHistory] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [foFilter, setFoFilter] = useState("all")
@@ -23,6 +24,23 @@ export default function AdminVehicles() {
     { id: "MH47BY1688", fo: "ABC Logistics", foId: "FO-2026-0088", driver: "Pradeep Rao", driverMobile: "+91 98765 43216", fuel: "CNG", card: "****3175", cardStatus: "Blocked", status: "Under Review", lastTxn: "Mar 21 2026", lastTxnAmt: "₹1,650", txnCount: 112, regDate: "Jan 28 2026", approval: "Approved" },
     { id: "KA09ZZ0021", fo: "Quick Move", foId: "FO-2026-0315", driver: "Sunil Mehta", driverMobile: "+91 98765 43217", fuel: "CNG", card: "****9901", cardStatus: "Active", status: "Approval Pending", lastTxn: "Mar 18 2026", lastTxnAmt: "₹890", txnCount: 12, regDate: "Mar 15 2026", approval: "Pending Approval" },
   ]
+
+  const vehicleIncentive = {
+    id: "INC-2026-001",
+    type: "New Vehicle",
+    amount: "₹3,500",
+    tds: "₹350",
+    net: "₹3,150",
+    creditDate: "Mar 21, 2026",
+    expiryDate: "Mar 21, 2027",
+    status: "Active"
+  }
+
+  useEffect(() => {
+    if (selectedEntity) {
+      setShowIncentiveHistory(false)
+    }
+  }, [selectedEntity])
 
   const statusBadge = (status: string) => {
     const map: Record<string, string> = {
@@ -157,54 +175,94 @@ export default function AdminVehicles() {
       <RightTray
         open={!!selectedEntity}
         onClose={() => setSelectedEntity(null)}
-        title={selectedEntity?.id ?? ""}
-        subtitle={selectedEntity?.fo}
-        badge={selectedEntity ? vehicleStatusBadge(selectedEntity.status) : undefined}
+        title={showIncentiveHistory ? "Incentive History" : (selectedEntity?.id ?? "")}
+        subtitle={showIncentiveHistory ? selectedEntity?.id : selectedEntity?.fo}
+        badge={!showIncentiveHistory && selectedEntity ? vehicleStatusBadge(selectedEntity.status) : undefined}
+        footer={
+          showIncentiveHistory ? null : (
+            <button onClick={() => setShowIncentiveHistory(true)} className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
+              <Gift className="w-4 h-4" /> View Incentive Details
+            </button>
+          )
+        }
       >
-        {selectedEntity && (
+        {showIncentiveHistory ? (
           <>
-            <TraySection title="Vehicle Details">
-              <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
-              <TrayRow label="FO ID" value={selectedEntity.foId} mono />
-              <TrayRow label="Fuel Type" value={selectedEntity.fuel} />
-              <TrayRow label="Registration Date" value={selectedEntity.regDate} />
-              <TrayRow label="Vehicle Type" value={selectedEntity.fuel} />
-              <TrayRow label="OEM / Manufacturer" value="Tata Motors" />
-              <TrayRow label="Vehicle Category" value="LCV" />
-              <TrayRow label="Booking Receipt No" value="BKG-2026-00234" mono />
-            </TraySection>
-            <TraySection title="Driver">
-              <TrayRow label="Driver Name" value={selectedEntity.driver || "—"} />
-              <TrayRow label="Mobile" value={selectedEntity.driverMobile} />
-            </TraySection>
-            <TraySection title="Card Details">
-              <TrayRow label="Card Status" value={selectedEntity.cardStatus} />
-              <TrayRow label="Card Wallet" value="₹12,500" />
-              <TrayRow label="Incentive Wallet" value="₹2,100" />
-            </TraySection>
-            <TraySection title="Uploaded Documents">
-              {[
-                { name: "Vehicle Registration Certificate", status: "Verified" },
-                { name: "Insurance Certificate", status: "Verified" },
-                { name: "PUC Certificate", status: "Pending" },
-                { name: "Vehicle Photo (Front)", status: "Verified" },
-                { name: "Booking Receipt", status: "Verified" },
-              ].map((doc, i) => (
-                <div key={i} className="flex items-center justify-between py-1">
-                  <span className="text-sm text-foreground">{doc.name}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${doc.status === "Verified" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{doc.status}</span>
-                </div>
-              ))}
-            </TraySection>
-            <TraySection title="Transaction Summary">
-              <TrayRow label="Last Transaction" value={selectedEntity.lastTxn} />
-              <TrayRow label="Amount" value={selectedEntity.lastTxnAmt} />
-              <TrayRow label="Total Transactions" value={selectedEntity.txnCount} />
-            </TraySection>
-            <TraySection title="Approval Status">
-              <TrayRow label="Status" value={selectedEntity.approval} />
+            <button onClick={() => setShowIncentiveHistory(false)} className="flex items-center gap-1 text-sm text-primary font-medium mb-4 hover:text-primary/80 transition-colors">
+              ← Back to Vehicle Details
+            </button>
+            <TraySection title={`Incentive Details — ${vehicleIncentive.id}`}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground">Status</span>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                  vehicleIncentive.status === "Active" ? "bg-green-100 text-green-700" :
+                  vehicleIncentive.status === "Expired" ? "bg-red-100 text-red-700" :
+                  "bg-gray-100 text-gray-600"
+                }`}>{vehicleIncentive.status}</span>
+              </div>
+              <TrayRow label="Incentive Type" value={vehicleIncentive.type} />
+              <TrayRow label="Gross Amount" value={vehicleIncentive.amount} />
+              <TrayRow label="TDS Deducted" value={vehicleIncentive.tds} />
+              <TrayRow label="Net Incentive" value={vehicleIncentive.net} />
+              <TrayRow label="Credit Date" value={vehicleIncentive.creditDate} />
+              <TrayRow label="Expiry Date" value={vehicleIncentive.expiryDate} />
             </TraySection>
           </>
+        ) : (
+          selectedEntity && (
+            <>
+              <TraySection title="Vehicle Details">
+                <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
+                <TrayRow label="FO ID" value={selectedEntity.foId} mono />
+                <TrayRow label="Fuel Type" value={selectedEntity.fuel} />
+                <TrayRow label="Registration Date" value={selectedEntity.regDate} />
+                <TrayRow label="Vehicle Type" value={selectedEntity.fuel} />
+                <TrayRow label="OEM / Manufacturer" value="Tata Motors" />
+                <TrayRow label="Vehicle Category" value="LCV" />
+                <TrayRow label="Booking Receipt No" value="BKG-2026-00234" mono />
+              </TraySection>
+              <TraySection title="Driver">
+                <TrayRow label="Driver Name" value={selectedEntity.driver || "—"} />
+                <TrayRow label="Mobile" value={selectedEntity.driverMobile} />
+              </TraySection>
+              <TraySection title="Card Details">
+                <TrayRow label="Card Status" value={selectedEntity.cardStatus} />
+                <TrayRow label="Card Wallet" value="₹12,500" />
+                <TrayRow label="Incentive Wallet" value="₹2,100" />
+              </TraySection>
+              <TraySection title="Uploaded Documents">
+                {[
+                  { name: "Vehicle Registration Certificate", status: "Verified" },
+                  { name: "Insurance Certificate", status: "Verified" },
+                  { name: "PUC Certificate", status: "Pending" },
+                  { name: "Vehicle Photo (Front)", status: "Verified" },
+                  { name: "Booking Receipt", status: "Verified" },
+                ].map((doc, i) => (
+                  <div key={i} className="flex items-center justify-between py-1">
+                    <span className="text-sm text-foreground">{doc.name}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${doc.status === "Verified" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{doc.status}</span>
+                  </div>
+                ))}
+              </TraySection>
+              <TraySection title="Incentive & Cashback">
+                <TrayRow label="Incentive Wallet" value="₹2,100" />
+                <TrayRow label="Lifetime Incentive Earned" value="₹8,400" />
+                <TrayRow label="Incentive Unused" value="₹2,100" />
+                <TrayRow label="Cashback Earned (Lifetime)" value="₹1,250" />
+                <TrayRow label="Cashback Unused" value="₹850" />
+                <TrayRow label="Last Incentive Credit" value="Mar 21, 2026" />
+                <TrayRow label="Incentive Program" value="Monthly CNG Cashback" />
+              </TraySection>
+              <TraySection title="Transaction Summary">
+                <TrayRow label="Last Transaction" value={selectedEntity.lastTxn} />
+                <TrayRow label="Amount" value={selectedEntity.lastTxnAmt} />
+                <TrayRow label="Total Transactions" value={selectedEntity.txnCount} />
+              </TraySection>
+              <TraySection title="Approval Status">
+                <TrayRow label="Status" value={selectedEntity.approval} />
+              </TraySection>
+            </>
+          )
         )}
       </RightTray>
     </div>

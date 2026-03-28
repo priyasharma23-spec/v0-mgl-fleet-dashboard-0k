@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check } from "lucide-react"
+import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet } from "lucide-react"
+import { KPICard } from "@/components/mgl/shared"
 
 function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClose: () => void; fleetOperators: any[] }) {
   const [editMode, setEditMode] = useState(false)
@@ -154,6 +155,15 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
           <Download className="w-4 h-4" />
           Export
         </button>
+      </div>
+
+      {/* KPI Summary Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <KPICard label="Total FOs" value="127" icon={Users} iconBg="bg-blue-100" iconColor="text-blue-600" />
+        <KPICard label="Active" value="118" icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600" />
+        <KPICard label="KYC Expiring" value="8" icon={AlertTriangle} iconBg="bg-amber-100" iconColor="text-amber-600" subtitle="Within 30 days" subtitleColor="text-amber-600" />
+        <KPICard label="Total Cards" value="2,847" icon={CreditCard} iconBg="bg-purple-100" iconColor="text-purple-600" />
+        <KPICard label="Total Wallet Balance" value="₹4.2Cr" icon={Wallet} iconBg="bg-green-100" iconColor="text-green-600" />
       </div>
 
       {/* Search Row */}
