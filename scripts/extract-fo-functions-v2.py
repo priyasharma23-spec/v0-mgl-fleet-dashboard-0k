@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 import os
+import sys
 
-# Read the FleetOperatorShell.tsx file from the project root
+# Navigate up from scripts directory to project root
+os.chdir('..')
+
+# Read the FleetOperatorShell.tsx file
 with open('components/mgl/FleetOperatorShell.tsx', 'r') as f:
     content = f.read()
 
