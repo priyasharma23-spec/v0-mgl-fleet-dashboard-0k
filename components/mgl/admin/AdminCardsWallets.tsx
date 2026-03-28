@@ -2,9 +2,12 @@
 
 import { useState } from "react"
 import { CreditCard, CheckCircle, XCircle, Wallet, Gift, Percent, AlertCircle, Lock, Search } from "lucide-react"
+import { FilterPanel, FilterField, FilterSelect, FilterActions } from "@/components/mgl/shared"
 
 export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [activeTab, setActiveTab] = useState("overview")
+  const [cardSearch, setCardSearch] = useState("")
+  const [cardStatus, setCardStatus] = useState("all")
   const topFOs = [
     { name: "ABC Logistics", allocated: 15, issued: 12, active: 11, inactive: 0, blocked: 1, locked: 0, balance: "₹12,500", cashback: "₹2,100" },
     { name: "Metro Freight", allocated: 18, issued: 16, active: 15, inactive: 0, blocked: 1, locked: 0, balance: "₹18,200", cashback: "₹3,450" },
@@ -236,20 +239,34 @@ export default function AdminCardsWallets({ onViewChange }: { onViewChange: (v: 
       {/* Issued Cards Tab */}
       {activeTab === "issued-cards" && (
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="p-4 border-b border-border flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-foreground">Issued Cards</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">All cards issued across fleet operators</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input placeholder="Search by card, vehicle or FO..." className="pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card w-72" />
+          <div className="p-4 border-b border-border">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-semibold text-foreground">Issued Cards</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">All cards issued across fleet operators</p>
               </div>
-              <select className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                <option>All Status</option><option>Active</option><option>Inactive</option><option>Blocked</option><option>Locked</option>
-              </select>
             </div>
+            <FilterPanel
+              searchPlaceholder="Search by card, vehicle or FO..."
+              searchValue={cardSearch}
+              onSearchChange={setCardSearch}
+              activeFilterCount={cardStatus !== "all" ? 1 : 0}
+            >
+              <FilterField label="Status">
+                <FilterSelect
+                  value={cardStatus}
+                  onChange={setCardStatus}
+                  options={[
+                    { label: "All Status", value: "all" },
+                    { label: "Active", value: "Active" },
+                    { label: "Inactive", value: "Inactive" },
+                    { label: "Blocked", value: "Blocked" },
+                    { label: "Locked", value: "Locked" },
+                  ]}
+                />
+              </FilterField>
+              <FilterActions onClear={() => { setCardStatus("all") }} onApply={() => {}} />
+            </FilterPanel>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
