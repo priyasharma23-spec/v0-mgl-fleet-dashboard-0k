@@ -58,7 +58,7 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-10 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {kpis.map((kpi, i) => {
           if (kpi.label === "Today's Settlement") {
             return (
