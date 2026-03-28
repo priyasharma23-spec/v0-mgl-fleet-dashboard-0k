@@ -71,7 +71,7 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Card Visual - Left */}
           <div className="lg:col-span-1">
-            <div className="bg-linear-to-br from-green-400 via-teal-400 to-blue-500 rounded-2xl p-6 text-white h-56 flex flex-col justify-between relative overflow-hidden">
+            <div className="bg-gradient-to-br from-green-400 via-teal-400 to-blue-500 rounded-2xl p-6 text-white h-56 flex flex-col justify-between relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-16 translate-x-16" />
               <div className="relative z-10">
                 <p className="text-xs font-bold uppercase tracking-wider">MGL</p>
@@ -225,6 +225,9 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
                 </tr>
               </thead>
               <tbody>
+                {recentTransactions.length === 0 && (
+                  <tr><td colSpan={5} className="px-4 py-4"><p className="text-xs text-muted-foreground text-center">No transactions yet</p></td></tr>
+                )}
                 {recentTransactions.map((txn) => {
                   const { date, time } = formatDate(txn.date);
                   return (
@@ -253,6 +256,9 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-2 p-4">
+            {recentTransactions.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">No transactions yet</p>
+            )}
             {recentTransactions.map((txn) => {
               const { date, time } = formatDate(txn.date);
               const isExpanded = expandedTxn === txn.id;
@@ -416,15 +422,19 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
 
                 {/* Buttons */}
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowAllocateModal(false)}
-                    className="flex-1 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
-                  >
+                <button
+                  onClick={() => {
+                    setShowAllocateModal(false);
+                    setAllocateAmount("");
+                    setAllocationStep("input");
+                  }}
+                  className="flex-1 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted transition-colors"
+                >
                     Cancel
                   </button>
                   <button
                     onClick={() => setAllocationStep("review")}
-                    disabled={!allocateAmount || parseInt(allocateAmount) <= 0 || parseInt(allocateAmount) > parentWalletBalance}
+                    disabled={!allocateAmount || (parseInt(allocateAmount) || 0) <= 0 || (parseInt(allocateAmount) || 0) > parentWalletBalance}
                     className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     Review <ArrowRight className="w-4 h-4" />
@@ -446,7 +456,7 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Transfer Amount</span>
-                    <span className="text-lg font-bold text-green-600">₹{parseInt(allocateAmount).toLocaleString()}</span>
+                    <span className="text-lg font-bold text-green-600">₹{(parseInt(allocateAmount) || 0).toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Processing Fee</span>
@@ -454,7 +464,7 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
                   </div>
                   <div className="pt-2 border-t border-border flex items-center justify-between">
                     <span className="text-sm font-semibold text-foreground">Total Debit</span>
-                    <span className="text-lg font-bold text-foreground">₹{parseInt(allocateAmount).toLocaleString()}</span>
+                    <span className="text-lg font-bold text-foreground">₹{(parseInt(allocateAmount) || 0).toLocaleString()}</span>
                   </div>
                 </div>
 
@@ -476,7 +486,7 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
                       setTimeout(() => {
                         setIsAllocating(false);
                         setAllocationStep("success");
-                        setParentWalletBalance(parentWalletBalance - parseInt(allocateAmount));
+                        setParentWalletBalance(parentWalletBalance - (parseInt(allocateAmount) || 0));
                       }, 1500);
                     }}
                     disabled={isAllocating}
@@ -493,19 +503,23 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
               <div className="text-center">
                 <div className="text-5xl mb-4">✓</div>
                 <h3 className="text-lg font-bold text-green-600 mb-2">Transfer Successful!</h3>
-                <p className="text-sm text-muted-foreground mb-4">₹{parseInt(allocateAmount).toLocaleString()} has been loaded to {vehicle.vehicleNumber}'s Card Wallet.</p>
+                <p className="text-sm text-muted-foreground mb-4">₹{(parseInt(allocateAmount) || 0).toLocaleString()} has been loaded to {vehicle.vehicleNumber}'s Card Wallet.</p>
                 
                 <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-left">
                   <p className="text-xs text-green-700 font-semibold mb-2">✓ Transfer Details</p>
                   <div className="space-y-1 text-xs text-green-700">
                     <p>Status: <span className="font-semibold">Completed</span></p>
-                    <p>Amount: <span className="font-semibold">₹{parseInt(allocateAmount).toLocaleString()}</span></p>
+                    <p>Amount: <span className="font-semibold">₹{(parseInt(allocateAmount) || 0).toLocaleString()}</span></p>
                     <p>To: <span className="font-semibold">{vehicle.vehicleNumber} Card Wallet</span></p>
                   </div>
                 </div>
 
                 <button
-                  onClick={() => setShowAllocateModal(false)}
+                  onClick={() => {
+                    setShowAllocateModal(false);
+                    setAllocateAmount("");
+                    setAllocationStep("input");
+                  }}
                   className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90"
                 >
                   Done
@@ -516,7 +530,11 @@ export default function CardDetailsView({ vehicle, onBack, onActionModal }: Card
             {/* Close Button */}
             {allocationStep !== "success" && (
               <button
-                onClick={() => setShowAllocateModal(false)}
+                onClick={() => {
+                  setShowAllocateModal(false);
+                  setAllocateAmount("");
+                  setAllocationStep("input");
+                }}
                 className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
               >
                 ✕
