@@ -163,12 +163,10 @@ export default function AdminVehicles() {
         onClose={() => setSelectedEntity(null)}
         title={selectedEntity?.id ?? ""}
         subtitle={selectedEntity?.fo}
+        badge={selectedEntity ? vehicleStatusBadge(selectedEntity.status) : undefined}
       >
         {selectedEntity && (
           <>
-            <div className="flex items-center gap-2 pb-2">
-              {vehicleStatusBadge(selectedEntity.status)}
-            </div>
             <TraySection title="Vehicle Details">
               <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
               <TrayRow label="FO ID" value={selectedEntity.foId} mono />

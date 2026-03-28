@@ -9,10 +9,11 @@ interface RightTrayProps {
   subtitle?: string
   children: ReactNode
   footer?: ReactNode
+  badge?: ReactNode
   zIndex?: string
 }
 
-export function RightTray({ open, onClose, title, subtitle, children, footer, zIndex = "z-50" }: RightTrayProps) {
+export function RightTray({ open, onClose, title, subtitle, children, footer, badge, zIndex = "z-50" }: RightTrayProps) {
   if (!open) return null
   return (
     <>
@@ -20,7 +21,10 @@ export function RightTray({ open, onClose, title, subtitle, children, footer, zI
       <div className={`fixed bottom-0 right-0 top-0 w-96 bg-card border-l border-border shadow-xl flex flex-col ${zIndex}`}>
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between shrink-0">
           <div>
-            <h2 className="font-semibold text-foreground">{title}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold text-foreground">{title}</h2>
+              {badge}
+            </div>
             {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg transition-colors">
