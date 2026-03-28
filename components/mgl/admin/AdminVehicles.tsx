@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { Truck, CheckCircle, Users, AlertTriangle, Eye } from "lucide-react"
 import { RightTray, TraySection, TrayRow } from "@/components/mgl/shared"
-import { VehicleStatusBadge } from "@/components/mgl/shared"
 import { FilterPanel, FilterField, FilterSelect, FilterActions } from "@/components/mgl/shared"
 import { PageHeader } from "@/components/mgl/shared"
 
@@ -33,6 +32,26 @@ export default function AdminVehicles() {
       Rejected: "bg-red-100 text-red-700",
     }
     return map[status] || "bg-gray-100 text-gray-700"
+  }
+
+  const vehicleStatusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      "Active": "bg-green-100 text-green-700",
+      "Approval Pending": "bg-amber-100 text-amber-700",
+      "Under Review": "bg-blue-100 text-blue-700",
+      "Rejected": "bg-red-100 text-red-700",
+    }
+    return <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${map[status] ?? "bg-gray-100 text-gray-600"}`}>{status}</span>
+  }
+
+  const cardStatusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      "Active": "bg-green-100 text-green-700",
+      "Inactive": "bg-gray-100 text-gray-600",
+      "Blocked": "bg-red-100 text-red-700",
+      "Locked": "bg-orange-100 text-orange-700",
+    }
+    return <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${map[status] ?? "bg-gray-100 text-gray-600"}`}>{status}</span>
   }
 
   const filteredVehicles = vehicles.filter(v => 
@@ -148,8 +167,8 @@ export default function AdminVehicles() {
         {selectedEntity && (
           <>
             <div className="flex items-center gap-2 mb-4">
-              <VehicleStatusBadge status={selectedEntity.status.toLowerCase().replace(" ", "-") as any} />
-              <VehicleStatusBadge status={selectedEntity.cardStatus.toLowerCase() as any} />
+              {vehicleStatusBadge(selectedEntity.status)}
+              {cardStatusBadge(selectedEntity.cardStatus)}
             </div>
             <TraySection title="Vehicle Details">
               <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
