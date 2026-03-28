@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, X, Truck, CheckCircle, Clock, AlertTriangle, Eye, Users } from "lucide-react"
+import { Truck, CheckCircle, Users, AlertTriangle, Eye } from "lucide-react"
+import { RightTray, TraySection, TrayRow } from "@/components/mgl/shared"
+import { FilterPanel, FilterField, FilterSelect, FilterActions } from "@/components/mgl/shared"
+import { PageHeader } from "@/components/mgl/shared"
 
 export default function AdminVehicles() {
   const [selectedEntity, setSelectedEntity] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("All")
-  const [foFilter, setFoFilter] = useState("All")
-  const [fuelFilter, setFuelFilter] = useState("All")
-  const [showFilters, setShowFilters] = useState(false)
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [foFilter, setFoFilter] = useState("all")
+  const [fuelFilter, setFuelFilter] = useState("all")
 
   const vehicles = [
     { id: "MH12AB1234", fo: "ABC Logistics", foId: "FO-2026-0088", driver: "Ramesh Kumar", driverMobile: "+91 98765 43210", fuel: "CNG", card: "****4521", cardStatus: "Active", status: "Active", lastTxn: "Mar 23 2026", lastTxnAmt: "₹2,450", txnCount: 127, regDate: "Jan 15 2026", approval: "Approved" },
@@ -32,11 +34,31 @@ export default function AdminVehicles() {
     return map[status] || "bg-gray-100 text-gray-700"
   }
 
+  const vehicleStatusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      "Active": "bg-green-100 text-green-700",
+      "Approval Pending": "bg-amber-100 text-amber-700",
+      "Under Review": "bg-blue-100 text-blue-700",
+      "Rejected": "bg-red-100 text-red-700",
+    }
+    return <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${map[status] ?? "bg-gray-100 text-gray-600"}`}>{status}</span>
+  }
+
+  const cardStatusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      "Active": "bg-green-100 text-green-700",
+      "Inactive": "bg-gray-100 text-gray-600",
+      "Blocked": "bg-red-100 text-red-700",
+      "Locked": "bg-orange-100 text-orange-700",
+    }
+    return <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${map[status] ?? "bg-gray-100 text-gray-600"}`}>{status}</span>
+  }
+
   const filteredVehicles = vehicles.filter(v => 
     (searchTerm === "" || v.id.toLowerCase().includes(searchTerm.toLowerCase()) || v.driver.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (statusFilter === "All" || v.status === statusFilter) &&
-    (foFilter === "All" || v.fo === foFilter) &&
-    (fuelFilter === "All" || v.fuel === fuelFilter)
+    (statusFilter === "all" || v.status === statusFilter) &&
+    (foFilter === "all" || v.fo === foFilter) &&
+    (fuelFilter === "all" || v.fuel === fuelFilter)
   )
 
   const summaryCards = [
@@ -48,6 +70,12 @@ export default function AdminVehicles() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Page Header */}
+      <PageHeader
+        title="Vehicles"
+        subtitle="View and manage all registered vehicles"
+      />
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {summaryCards.map((card, idx) => {
@@ -69,54 +97,31 @@ export default function AdminVehicles() {
       </div>
 
       {/* Search & Filters */}
-      <div className="space-y-3">
-        <div className="flex gap-3 items-center">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" placeholder="Search by vehicle number or driver..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-          </div>
-          <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-            <Filter className="w-4 h-4" /> Filters
-          </button>
-        </div>
-
-        {showFilters && (
-          <div className="border border-border rounded-lg p-4 bg-muted/30 space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">From Date</label>
-                <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">To Date</label>
-                <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">Status</label>
-                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                  <option value="All">All</option><option value="Active">Active</option><option value="Approval Pending">Approval Pending</option><option value="Under Review">Under Review</option><option value="Rejected">Rejected</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">FO Name</label>
-                <select value={foFilter} onChange={e => setFoFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                  <option value="All">All</option><option value="ABC Logistics">ABC Logistics</option><option value="Metro Freight">Metro Freight</option><option value="Sunrise Transport">Sunrise Transport</option><option value="City Express">City Express</option><option value="Quick Move">Quick Move</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground">Fuel Type</label>
-                <select value={fuelFilter} onChange={e => setFuelFilter(e.target.value)} className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
-                  <option value="All">All</option><option value="CNG">CNG</option><option value="Diesel">Diesel</option><option value="Electric">Electric</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => { setStatusFilter("All"); setFoFilter("All"); setFuelFilter("All"); }} className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
-              <button onClick={() => setShowFilters(false)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
-            </div>
-          </div>
-        )}
-      </div>
+      <FilterPanel
+        searchPlaceholder="Search by vehicle number, FO or driver..."
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        activeFilterCount={[statusFilter, foFilter, fuelFilter].filter(f => f !== "all").length}
+      >
+        <FilterField label="Status">
+          <FilterSelect value={statusFilter} onChange={setStatusFilter} options={[
+            { label: "All", value: "all" },
+            { label: "Active", value: "Active" },
+            { label: "Approval Pending", value: "Approval Pending" },
+            { label: "Under Review", value: "Under Review" },
+            { label: "Rejected", value: "Rejected" },
+          ]} />
+        </FilterField>
+        <FilterField label="Fuel Type">
+          <FilterSelect value={fuelFilter} onChange={setFuelFilter} options={[
+            { label: "All", value: "all" },
+            { label: "CNG", value: "CNG" },
+            { label: "Diesel", value: "Diesel" },
+            { label: "Electric", value: "Electric" },
+          ]} />
+        </FilterField>
+        <FilterActions onClear={() => { setStatusFilter("all"); setFuelFilter("all"); setSearchTerm("") }} onApply={() => {}} />
+      </FilterPanel>
 
       {/* Vehicles Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden overflow-x-auto">
@@ -125,12 +130,10 @@ export default function AdminVehicles() {
             <tr className="border-b border-border bg-muted/30">
               <th className="px-4 py-3 text-left font-semibold">Vehicle No</th>
               <th className="px-4 py-3 text-left font-semibold">FO Name</th>
-              <th className="px-4 py-3 text-left font-semibold">Driver</th>
               <th className="px-4 py-3 text-left font-semibold">Fuel Type</th>
               <th className="px-4 py-3 text-left font-semibold">Card Number</th>
               <th className="px-4 py-3 text-left font-semibold">Card Status</th>
               <th className="px-4 py-3 text-left font-semibold">Vehicle Status</th>
-              <th className="px-4 py-3 text-left font-semibold">Last Transaction</th>
               <th className="px-4 py-3 text-center font-semibold sticky right-0 bg-muted/30">Action</th>
             </tr>
           </thead>
@@ -139,12 +142,10 @@ export default function AdminVehicles() {
               <tr key={v.id} className="hover:bg-muted/30">
                 <td className="px-4 py-3 font-mono font-medium">{v.id}</td>
                 <td className="px-4 py-3">{v.fo}</td>
-                <td className="px-4 py-3 text-sm">{v.driver}</td>
                 <td className="px-4 py-3 text-sm">{v.fuel}</td>
                 <td className="px-4 py-3 font-mono text-sm">{v.card}</td>
                 <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.cardStatus)}`}>{v.cardStatus}</span></td>
                 <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.status)}`}>{v.status}</span></td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{v.lastTxn}</td>
                 <td className="px-4 py-3 text-center sticky right-0 bg-card"><button onClick={() => setSelectedEntity(v)} className="text-primary hover:underline text-xs font-medium"><Eye className="w-3.5 h-3.5 inline" /></button></td>
               </tr>
             ))}
@@ -153,52 +154,59 @@ export default function AdminVehicles() {
       </div>
 
       {/* Right Tray */}
-      {selectedEntity && (
-        <>
-          <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedEntity(null)} />
-          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-              <h3 className="font-semibold">Vehicle Details</h3>
-              <button onClick={() => setSelectedEntity(null)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <p className="font-mono text-2xl font-bold">{selectedEntity.id}</p>
-                <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${statusBadge(selectedEntity.status)}`}>{selectedEntity.status}</span>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div><p className="text-muted-foreground">FO Name</p><p className="font-medium">{selectedEntity.fo}</p></div>
-                <div><p className="text-muted-foreground">FO ID</p><p className="font-mono text-xs">{selectedEntity.foId}</p></div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div><p className="text-muted-foreground">Driver Name</p><p className="font-medium">{selectedEntity.driver}</p></div>
-                <div><p className="text-muted-foreground">Mobile</p><p className="font-mono">{selectedEntity.driverMobile}</p></div>
-              </div>
-              <div><span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${selectedEntity.fuel === 'CNG' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>{selectedEntity.fuel}</span></div>
-              <div className="border-t border-border pt-4">
-                <p className="text-xs font-semibold mb-3">Card Information</p>
-                <div className="space-y-2 text-sm">
-                  <div><p className="text-muted-foreground">Card Number</p><p className="font-mono">{selectedEntity.card}</p></div>
-                  <div><p className="text-muted-foreground">Card Status</p><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(selectedEntity.cardStatus)}`}>{selectedEntity.cardStatus}</span></div>
-                  <div><p className="text-muted-foreground">Wallet Balance</p><p className="font-medium">₹5,200</p></div>
+      <RightTray
+        open={!!selectedEntity}
+        onClose={() => setSelectedEntity(null)}
+        title={selectedEntity?.id ?? ""}
+        subtitle={selectedEntity?.fo}
+        badge={selectedEntity ? vehicleStatusBadge(selectedEntity.status) : undefined}
+      >
+        {selectedEntity && (
+          <>
+            <TraySection title="Vehicle Details">
+              <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
+              <TrayRow label="FO ID" value={selectedEntity.foId} mono />
+              <TrayRow label="Fuel Type" value={selectedEntity.fuel} />
+              <TrayRow label="Registration Date" value={selectedEntity.regDate} />
+              <TrayRow label="Vehicle Type" value={selectedEntity.fuel} />
+              <TrayRow label="OEM / Manufacturer" value="Tata Motors" />
+              <TrayRow label="Vehicle Category" value="LCV" />
+              <TrayRow label="Booking Receipt No" value="BKG-2026-00234" mono />
+            </TraySection>
+            <TraySection title="Driver">
+              <TrayRow label="Driver Name" value={selectedEntity.driver || "—"} />
+              <TrayRow label="Mobile" value={selectedEntity.driverMobile} />
+            </TraySection>
+            <TraySection title="Card Details">
+              <TrayRow label="Card Status" value={selectedEntity.cardStatus} />
+              <TrayRow label="Card Wallet" value="₹12,500" />
+              <TrayRow label="Incentive Wallet" value="₹2,100" />
+            </TraySection>
+            <TraySection title="Uploaded Documents">
+              {[
+                { name: "Vehicle Registration Certificate", status: "Verified" },
+                { name: "Insurance Certificate", status: "Verified" },
+                { name: "PUC Certificate", status: "Pending" },
+                { name: "Vehicle Photo (Front)", status: "Verified" },
+                { name: "Booking Receipt", status: "Verified" },
+              ].map((doc, i) => (
+                <div key={i} className="flex items-center justify-between py-1">
+                  <span className="text-sm text-foreground">{doc.name}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${doc.status === "Verified" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{doc.status}</span>
                 </div>
-              </div>
-              <div className="border-t border-border pt-4">
-                <p className="text-xs font-semibold mb-3">Vehicle Details</p>
-                <div className="space-y-2 text-sm">
-                  <div><p className="text-muted-foreground">Registration Date</p><p>{selectedEntity.regDate}</p></div>
-                  <div><p className="text-muted-foreground">Last Transaction</p><p>{selectedEntity.lastTxn} • {selectedEntity.lastTxnAmt}</p></div>
-                  <div><p className="text-muted-foreground">Total Transactions</p><p className="font-medium">{selectedEntity.txnCount}</p></div>
-                </div>
-              </div>
-              <div className="border-t border-border pt-4">
-                <p className="text-xs font-semibold mb-3">Approval Status</p>
-                <p className="text-sm">{selectedEntity.approval}</p>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+              ))}
+            </TraySection>
+            <TraySection title="Transaction Summary">
+              <TrayRow label="Last Transaction" value={selectedEntity.lastTxn} />
+              <TrayRow label="Amount" value={selectedEntity.lastTxnAmt} />
+              <TrayRow label="Total Transactions" value={selectedEntity.txnCount} />
+            </TraySection>
+            <TraySection title="Approval Status">
+              <TrayRow label="Status" value={selectedEntity.approval} />
+            </TraySection>
+          </>
+        )}
+      </RightTray>
     </div>
   )
 }
