@@ -130,12 +130,10 @@ export default function AdminVehicles() {
             <tr className="border-b border-border bg-muted/30">
               <th className="px-4 py-3 text-left font-semibold">Vehicle No</th>
               <th className="px-4 py-3 text-left font-semibold">FO Name</th>
-              <th className="px-4 py-3 text-left font-semibold">Driver</th>
               <th className="px-4 py-3 text-left font-semibold">Fuel Type</th>
               <th className="px-4 py-3 text-left font-semibold">Card Number</th>
               <th className="px-4 py-3 text-left font-semibold">Card Status</th>
               <th className="px-4 py-3 text-left font-semibold">Vehicle Status</th>
-              <th className="px-4 py-3 text-left font-semibold">Last Transaction</th>
               <th className="px-4 py-3 text-center font-semibold sticky right-0 bg-muted/30">Action</th>
             </tr>
           </thead>
@@ -144,12 +142,10 @@ export default function AdminVehicles() {
               <tr key={v.id} className="hover:bg-muted/30">
                 <td className="px-4 py-3 font-mono font-medium">{v.id}</td>
                 <td className="px-4 py-3">{v.fo}</td>
-                <td className="px-4 py-3 text-sm">{v.driver}</td>
                 <td className="px-4 py-3 text-sm">{v.fuel}</td>
                 <td className="px-4 py-3 font-mono text-sm">{v.card}</td>
                 <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.cardStatus)}`}>{v.cardStatus}</span></td>
                 <td className="px-4 py-3"><span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusBadge(v.status)}`}>{v.status}</span></td>
-                <td className="px-4 py-3 text-xs text-muted-foreground">{v.lastTxn}</td>
                 <td className="px-4 py-3 text-center sticky right-0 bg-card"><button onClick={() => setSelectedEntity(v)} className="text-primary hover:underline text-xs font-medium"><Eye className="w-3.5 h-3.5 inline" /></button></td>
               </tr>
             ))}
