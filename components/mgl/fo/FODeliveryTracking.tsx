@@ -2,7 +2,7 @@
 
 import { MapPin, Calendar, Truck } from "lucide-react"
 
-export function FODeliveryTracking({ onViewChange }: { onViewChange: (v: string) => void }) {
+export default function FODeliveryTracking({ onViewChange }: { onViewChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-5 p-5">
       <div>

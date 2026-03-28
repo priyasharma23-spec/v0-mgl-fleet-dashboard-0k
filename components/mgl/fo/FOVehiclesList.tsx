@@ -4,7 +4,7 @@ import { Truck, CreditCard, AlertCircle } from "lucide-react"
 import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/shared"
 import { myVehicles } from "@/data/mock"
 
-export function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void }) {
+export default function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-5 p-5">
       <div className="flex items-center justify-between">

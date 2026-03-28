@@ -8,7 +8,7 @@ interface FODashboardProps {
   onViewChange: (view: string) => void
 }
 
-export function FODashboard({ onViewChange }: FODashboardProps) {
+export default function FODashboard({ onViewChange }: FODashboardProps) {
   const recentTransactions = [
     { vehicle: "MH12AB1234", station: "CNG Station, Thane", amount: "₹1,200", time: "2:45 PM", status: "Success" },
     { vehicle: "MH12CD5678", station: "Shell Station, Mumbai", amount: "₹1,890", time: "1:30 PM", status: "Success" },

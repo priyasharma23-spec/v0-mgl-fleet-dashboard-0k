@@ -28,7 +28,7 @@ interface FormData {
   driverLicenseFile: File | null
 }
 
-export function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
+export default function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
   const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit">("new_purchase")

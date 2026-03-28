@@ -2,7 +2,7 @@
 
 import { Bell, CheckCircle, AlertCircle, Info } from "lucide-react"
 
-export function FONotificationsView({ onViewChange }: { onViewChange: (v: string) => void }) {
+export default function FONotificationsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-5 p-5 h-full">
       <div>

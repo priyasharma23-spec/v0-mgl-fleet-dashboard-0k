@@ -2,7 +2,7 @@
 
 import { TrendingUp, Wallet, CreditCard } from "lucide-react"
 
-export function FOFundManagement({ onViewChange }: { onViewChange: (v: string) => void }) {
+export default function FOFundManagement({ onViewChange }: { onViewChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-5 p-5">
       <div>

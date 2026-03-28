@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { CreditCard, Lock, AlertCircle } from "lucide-react"
 
-export function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
+export default function FOCardsView({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [activeTab, setActiveTab] = useState<"vehicles" | "cards">("vehicles")
 
   return (
