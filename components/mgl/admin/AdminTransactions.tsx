@@ -228,54 +228,23 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       {type === "POS" && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <KPICard
-              variant="split"
-              label="Successful"
-              value="₹0.2L"
-              icon={CheckCircle}
-              iconBg="bg-green-100"
-              iconColor="text-green-600"
-              breakdown={[
-                { label: "Transactions", value: "2", color: "text-green-700" },
-                { label: "Avg Value", value: "₹10,000", color: "text-muted-foreground" }
-              ]}
-            />
-            <KPICard
-              variant="split"
-              label="Pending / Processing"
-              value="₹0.0L"
-              icon={Clock}
-              iconBg="bg-amber-100"
-              iconColor="text-amber-600"
-              breakdown={[
-                { label: "Transactions", value: "0", color: "text-amber-700" },
-                { label: "Oldest", value: "—", color: "text-muted-foreground" }
-              ]}
-            />
-            <KPICard
-              variant="split"
-              label="Failed"
-              value="₹0.0L"
-              icon={XCircle}
-              iconBg="bg-red-100"
-              iconColor="text-red-600"
-              breakdown={[
-                { label: "Transactions", value: "0", color: "text-red-700" },
-                { label: "Retry Pending", value: "0", color: "text-muted-foreground" }
-              ]}
-            />
-            <KPICard
-              variant="split"
-              label="Total"
-              value="₹0.2L"
-              icon={BarChart3}
-              iconBg="bg-blue-100"
-              iconColor="text-blue-600"
-              breakdown={[
-                { label: "Transactions", value: "2", color: "text-blue-700" },
-                { label: "Success Rate", value: "100%", color: "text-green-600" }
-              ]}
-            />
+            {[
+              { label: "Successful", value: "₹0.2L", count: "2 txns", icon: CheckCircle, iconBg: "bg-green-100", iconColor: "text-green-600", countColor: "text-green-600" },
+              { label: "Pending / Processing", value: "₹0.0L", count: "0 txns", icon: Clock, iconBg: "bg-amber-100", iconColor: "text-amber-600", countColor: "text-amber-600" },
+              { label: "Failed", value: "₹0.0L", count: "0 txns", icon: XCircle, iconBg: "bg-red-100", iconColor: "text-red-600", countColor: "text-red-600" },
+              { label: "Total", value: "₹0.2L", count: "2 txns", icon: BarChart3, iconBg: "bg-blue-100", iconColor: "text-blue-600", countColor: "text-blue-600" },
+            ].map((card, i) => (
+              <div key={i} className="bg-card rounded-xl border border-border p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-8 h-8 rounded-lg ${card.iconBg} flex items-center justify-center shrink-0`}>
+                    <card.icon className={`w-4 h-4 ${card.iconColor}`} />
+                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
+                </div>
+                <p className="text-xl font-bold text-foreground">{card.value}</p>
+                <p className={`text-xs font-medium mt-0.5 ${card.countColor}`}>{card.count}</p>
+              </div>
+            ))}
           </div>
 
           <div className="border border-border rounded-lg overflow-hidden">
@@ -324,14 +293,23 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       {type === "Load" && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <KPICard variant="split" label="Total Attempted" value="₹0.0L" icon={BarChart3} iconBg="bg-blue-100" iconColor="text-blue-600"
-              breakdown={[{ label: "Loads", value: "0", color: "text-blue-700" }, { label: "FOs", value: "0", color: "text-muted-foreground" }]} />
-            <KPICard variant="split" label="Successful" value="₹0.0L" icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600"
-              breakdown={[{ label: "Loads", value: "0", color: "text-green-700" }, { label: "Avg Value", value: "—", color: "text-muted-foreground" }]} />
-            <KPICard variant="split" label="Pending" value="₹0.0L" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600"
-              breakdown={[{ label: "Loads", value: "0", color: "text-amber-700" }, { label: "Oldest", value: "—", color: "text-muted-foreground" }]} />
-            <KPICard variant="split" label="Failed" value="₹0.0L" icon={XCircle} iconBg="bg-red-100" iconColor="text-red-600"
-              breakdown={[{ label: "Loads", value: "0", color: "text-red-700" }, { label: "Retry Pending", value: "0", color: "text-muted-foreground" }]} />
+            {[
+              { label: "Total Attempted", value: "₹0.0L", count: "0 loads", icon: BarChart3, iconBg: "bg-blue-100", iconColor: "text-blue-600", countColor: "text-blue-600" },
+              { label: "Successful", value: "₹0.0L", count: "0 loads", icon: CheckCircle, iconBg: "bg-green-100", iconColor: "text-green-600", countColor: "text-green-600" },
+              { label: "Pending", value: "₹0.0L", count: "0 loads", icon: Clock, iconBg: "bg-amber-100", iconColor: "text-amber-600", countColor: "text-amber-600" },
+              { label: "Failed", value: "₹0.0L", count: "0 loads", icon: XCircle, iconBg: "bg-red-100", iconColor: "text-red-600", countColor: "text-red-600" },
+            ].map((card, i) => (
+              <div key={i} className="bg-card rounded-xl border border-border p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`w-8 h-8 rounded-lg ${card.iconBg} flex items-center justify-center shrink-0`}>
+                    <card.icon className={`w-4 h-4 ${card.iconColor}`} />
+                  </div>
+                  <p className="text-xs font-medium text-muted-foreground">{card.label}</p>
+                </div>
+                <p className="text-xl font-bold text-foreground">{card.value}</p>
+                <p className={`text-xs font-medium mt-0.5 ${card.countColor}`}>{card.count}</p>
+              </div>
+            ))}
           </div>
 
           <div className="border border-border rounded-lg overflow-hidden">
