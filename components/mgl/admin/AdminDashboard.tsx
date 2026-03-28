@@ -146,11 +146,11 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
             <p className="text-xs text-muted-foreground mt-0.5">Vehicles Awaiting</p>
             <div className="grid grid-cols-2 gap-2 mt-2">
               <div>
-                <p className="text-xs text-muted-foreground">Pending Approval</p>
+                <p className="text-xs text-muted-foreground">Pending</p>
                 <p className="text-sm font-bold text-amber-600">45</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Under Review</p>
+                <p className="text-xs text-muted-foreground">Review</p>
                 <p className="text-sm font-bold text-blue-600">12</p>
               </div>
             </div>
