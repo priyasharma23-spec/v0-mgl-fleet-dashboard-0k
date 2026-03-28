@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Download, Eye, X, CheckCircle, Clock, PauseCircle, XCircle, Zap, Search, Filter } from "lucide-react"
+import { Download, Eye, X, CheckCircle, Clock, PauseCircle, Building2, Zap, Search, Filter } from "lucide-react"
 import AdminSettlementFlow from "./AdminSettlementFlow"
+import { KPICard } from "@/components/mgl/shared"
 
 export default function AdminSettlements({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [statusFilter, setStatusFilter] = useState("all")
@@ -178,38 +179,10 @@ export default function AdminSettlements({ onViewChange }: { onViewChange: (v: s
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <p className="text-sm font-medium text-green-800">Today</p>
-          </div>
-          <p className="text-2xl font-bold text-green-900">₹{(summaryStats.settled / 100000).toFixed(1)}L</p>
-          <p className="text-xs text-green-700 mt-1">{settlementData.filter(s => s.status === "Settled").length} dealerships</p>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="w-4 h-4 text-amber-600" />
-            <p className="text-sm font-medium text-amber-800">Upcoming</p>
-          </div>
-          <p className="text-2xl font-bold text-amber-900">₹{(summaryStats.upcoming / 100000).toFixed(1)}L</p>
-          <p className="text-xs text-amber-700 mt-1">{settlementData.filter(s => s.status === "Pending" || s.status === "Processing").length} dealerships</p>
-        </div>
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <PauseCircle className="w-4 h-4 text-orange-600" />
-            <p className="text-sm font-medium text-orange-800">On Hold</p>
-          </div>
-          <p className="text-2xl font-bold text-orange-900">₹{(summaryStats.onHold / 100000).toFixed(1)}L</p>
-          <p className="text-xs text-orange-700 mt-1">{settlementData.filter(s => s.status === "On Hold").length} dealerships</p>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <XCircle className="w-4 h-4 text-red-600" />
-            <p className="text-sm font-medium text-red-800">Failed</p>
-          </div>
-          <p className="text-2xl font-bold text-red-900">₹{(summaryStats.failed / 100000).toFixed(1)}L</p>
-          <p className="text-xs text-red-700 mt-1">{settlementData.filter(s => s.status === "Failed").length} dealerships</p>
-        </div>
+        <KPICard label="Today" value={`₹${(summaryStats.settled / 100000).toFixed(1)}L`} icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600" subtitle="Settled" subtitleColor="text-green-600" />
+        <KPICard label="Upcoming" value={`₹${(summaryStats.upcoming / 100000).toFixed(1)}L`} icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" subtitle="Pending + Processing" subtitleColor="text-amber-600" />
+        <KPICard label="On Hold" value={`₹${(summaryStats.onHold / 100000).toFixed(1)}L`} icon={PauseCircle} iconBg="bg-orange-100" iconColor="text-orange-600" />
+        <KPICard label="Total Dealerships" value="12" icon={Building2} iconBg="bg-purple-100" iconColor="text-purple-600" />
       </div>
 
       {/* Search Row */}

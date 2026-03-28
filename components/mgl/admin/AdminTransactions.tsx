@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Download, Eye, X, Search, Filter, CheckCircle, Clock, XCircle, BarChart3 } from "lucide-react"
+import { KPICard } from "@/components/mgl/shared"
 
 export default function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [type, setType] = useState<"POS" | "Load">("POS")
@@ -227,38 +228,10 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       {type === "POS" && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                <p className="text-sm font-medium text-green-800">Successful</p>
-              </div>
-              <p className="text-2xl font-bold text-green-900">₹{(successful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-green-700 mt-1">{successful.length} transactions</p>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-4 h-4 text-amber-600" />
-                <p className="text-sm font-medium text-amber-800">Pending / Processing</p>
-              </div>
-              <p className="text-2xl font-bold text-amber-900">₹{(pendingProcessing.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-amber-700 mt-1">{pendingProcessing.length} transactions</p>
-            </div>
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <XCircle className="w-4 h-4 text-red-600" />
-                <p className="text-sm font-medium text-red-800">Failed</p>
-              </div>
-              <p className="text-2xl font-bold text-red-900">₹{(failed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-red-700 mt-1">{failed.length} transactions</p>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <BarChart3 className="w-4 h-4 text-blue-600" />
-                <p className="text-sm font-medium text-blue-800">Total</p>
-              </div>
-              <p className="text-2xl font-bold text-blue-900">₹{(totalAmount / 100000).toFixed(1)}L</p>
-              <p className="text-xs text-blue-700 mt-1">{posTransactions.length} transactions</p>
-            </div>
+            <KPICard label="Successful" value={`₹${(successful.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L`} icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600" subtitle={`${successful.length} transactions`} />
+            <KPICard label="Pending / Processing" value={`₹${(pendingProcessing.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L`} icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" subtitle={`${pendingProcessing.length} transactions`} />
+            <KPICard label="Failed" value={`₹${(failed.reduce((s, t) => s + parseAmount(t.amount), 0) / 100000).toFixed(1)}L`} icon={XCircle} iconBg="bg-red-100" iconColor="text-red-600" subtitle={`${failed.length} transactions`} />
+            <KPICard label="Total" value={`₹${(totalAmount / 100000).toFixed(1)}L`} icon={BarChart3} iconBg="bg-blue-100" iconColor="text-blue-600" subtitle={`${posTransactions.length} transactions`} />
           </div>
 
           <div className="border border-border rounded-lg overflow-hidden">

@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
-import { Search, Filter, Download, Plus, CheckCircle, Clock, XCircle, AlertTriangle, Banknote, CreditCard, RefreshCw, ArrowRightLeft, X } from "lucide-react"
+import { Search, Filter, Download, Plus, CheckCircle, Clock, Banknote, CreditCard, RefreshCw, ArrowRightLeft, X } from "lucide-react"
+import { KPICard } from "@/components/mgl/shared"
 
 export default function AdminFundManagement() {
   const [activeTab, setActiveTab] = useState("fo-accounts")
@@ -74,26 +75,10 @@ export default function AdminFundManagement() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2"><CreditCard className="w-4 h-4 text-blue-600" /><p className="text-xs text-blue-700 font-medium">PG Collections Today</p></div>
-          <p className="text-2xl font-bold text-blue-900">₹45.8L</p>
-          <p className="text-xs text-blue-600 mt-1">3 transactions pending</p>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2"><Clock className="w-4 h-4 text-amber-600" /><p className="text-xs text-amber-700 font-medium">Pending T+1 Credits</p></div>
-          <p className="text-2xl font-bold text-amber-900">₹12.4L</p>
-          <p className="text-xs text-amber-600 mt-1">Credits tomorrow</p>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2"><Banknote className="w-4 h-4 text-green-600" /><p className="text-xs text-green-700 font-medium">Manual Loads Today</p></div>
-          <p className="text-2xl font-bold text-green-900">₹3.2L</p>
-          <p className="text-xs text-green-600 mt-1">3 transactions</p>
-        </div>
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2"><RefreshCw className="w-4 h-4 text-red-600" /><p className="text-xs text-red-700 font-medium">Pending Refunds</p></div>
-          <p className="text-2xl font-bold text-red-900">₹1.1L</p>
-          <p className="text-xs text-red-600 mt-1">1 awaiting approval</p>
-        </div>
+        <KPICard label="PG Collections Today" value="₹45.8L" icon={CreditCard} iconBg="bg-blue-100" iconColor="text-blue-600" subtitle="3 transactions pending" />
+        <KPICard label="Pending T+1 Credits" value="₹12.4L" icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" subtitle="Credits tomorrow" />
+        <KPICard label="Manual Loads Today" value="₹3.2L" icon={Banknote} iconBg="bg-green-100" iconColor="text-green-600" subtitle="3 transactions" />
+        <KPICard label="Pending Refunds" value="₹1.1L" icon={RefreshCw} iconBg="bg-red-100" iconColor="text-red-600" subtitle="1 awaiting approval" />
       </div>
 
       {/* Tabs */}

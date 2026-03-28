@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Filter, X, Download } from "lucide-react"
+import { Search, Filter, X, Download, Users, CheckCircle, Clock, Shield } from "lucide-react"
+import { KPICard } from "@/components/mgl/shared"
 
 export default function AdminUserManagement() {
   const [search, setSearch] = useState("")
@@ -132,26 +133,10 @@ export default function AdminUserManagement() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-lg p-3">
-          <p className="text-xs font-medium text-muted-foreground">Total Users</p>
-          <p className="text-lg font-bold text-foreground mt-1">{users.length}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">All users</p>
-        </div>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-green-800">Active</p>
-          <p className="text-lg font-bold text-green-900 mt-1">{activeCount}</p>
-          <p className="text-xs text-green-700 mt-0.5">Active users</p>
-        </div>
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-amber-800">Pending Activation</p>
-          <p className="text-lg font-bold text-amber-900 mt-1">{pendingCount}</p>
-          <p className="text-xs text-amber-700 mt-0.5">Pending & Inactive</p>
-        </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-          <p className="text-xs font-medium text-purple-800">Roles</p>
-          <p className="text-lg font-bold text-purple-900 mt-1">{uniqueRoles}</p>
-          <p className="text-xs text-purple-700 mt-0.5">Unique roles</p>
-        </div>
+        <KPICard label="Total Users" value={users.length} icon={Users} iconBg="bg-gray-100" iconColor="text-gray-600" />
+        <KPICard label="Active" value={activeCount} icon={CheckCircle} iconBg="bg-green-100" iconColor="text-green-600" />
+        <KPICard label="Pending Activation" value={pendingCount} icon={Clock} iconBg="bg-amber-100" iconColor="text-amber-600" />
+        <KPICard label="Roles" value={uniqueRoles} icon={Shield} iconBg="bg-purple-100" iconColor="text-purple-600" />
       </div>
 
       {/* Search Row */}
