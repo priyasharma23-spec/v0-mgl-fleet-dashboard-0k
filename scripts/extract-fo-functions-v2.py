@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 
-# Read the FleetOperatorShell.tsx file from current working directory
+# Read the FleetOperatorShell.tsx file from the project root
 with open('components/mgl/FleetOperatorShell.tsx', 'r') as f:
     content = f.read()
 
@@ -19,6 +19,9 @@ functions_to_extract = [
 
 # Split content into lines
 lines = content.split('\n')
+
+# Create directory if it doesn't exist
+os.makedirs('components/mgl/fo', exist_ok=True)
 
 # Extract each function
 for func_name, start_line, end_line in functions_to_extract:
@@ -38,9 +41,6 @@ for func_name, start_line, end_line in functions_to_extract:
     new_file_content += 'import type { VehicleCategory, VehicleStatus } from "@/types"\n\n'
     new_file_content += func_content + '\n'
     
-    # Create directory if it doesn't exist
-    os.makedirs('components/mgl/fo', exist_ok=True)
-    
     # Write the new file
     file_path = f'components/mgl/fo/{func_name}.tsx'
     with open(file_path, 'w') as f:
@@ -49,3 +49,4 @@ for func_name, start_line, end_line in functions_to_extract:
     print(f'Created {file_path}')
 
 print('Extraction complete!')
+
