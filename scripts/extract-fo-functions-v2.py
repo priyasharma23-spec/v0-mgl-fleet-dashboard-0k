@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import re
 import os
 
-# Read the FleetOperatorShell.tsx file
-with open('/vercel/share/v0-project/components/mgl/FleetOperatorShell.tsx', 'r') as f:
+# Read the FleetOperatorShell.tsx file from current working directory
+with open('components/mgl/FleetOperatorShell.tsx', 'r') as f:
     content = f.read()
 
 # Define functions to extract with their line ranges
@@ -27,32 +26,23 @@ for func_name, start_line, end_line in functions_to_extract:
     func_lines = lines[start_line - 1:end_line]
     func_content = '\n'.join(func_lines)
     
-    # Find the imports used in FleetOperatorShell
-    # Extract the import section from the original file
-    import_section = '\n'.join(lines[0:15])
-    
     # Create the new file with "use client" and imports
-    new_file_content = f'''\"use client\"
-
-import {{ useState }} from \"react\"
-import {{ Image }} from \"next/image\"
-import {{ Truck, CreditCard, Clock, AlertCircle, ChevronRight, MapPin, Bell, Eye, EyeOff, Upload, CheckCircle, XCircle, BarChart3, RefreshCw, Smartphone, Package, Briefcase, AlertTriangle, TrendingUp }} from \"lucide-react\"
-import {{ ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend }} from \"recharts\"
-import {{ VehicleStatusBadge, WorkflowStepper }} from \"@/components/mgl/shared\"
-import {{ myVehicles, myFO, oems, retrofitters }} from \"@/data/mock\"
-import {{ getDealersByOEM, getCategoriesByOEM, getModelsByOEMAndCategory, calculateVehicleAge }} from \"@/lib/vehicle-utils\"
-import type {{ VehicleCategory, VehicleStatus }} from \"@/types\"
-
-export default function {func_name}(props: any) {{
-{func_content.split('\\n').map(line => line if line.startswith('function') else '  ' + line if line.strip() else line).join('\\n').replace(f'function {func_name}(', '')}
-
-export default {func_name}
-'''
+    new_file_content = '"use client"\n\n'
+    new_file_content += 'import { useState } from "react"\n'
+    new_file_content += 'import Image from "next/image"\n'
+    new_file_content += 'import { Truck, CreditCard, Clock, AlertCircle, ChevronRight, MapPin, Bell, Eye, EyeOff, Upload, CheckCircle, XCircle, BarChart3, RefreshCw, Smartphone, Package, Briefcase, AlertTriangle, TrendingUp } from "lucide-react"\n'
+    new_file_content += 'import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Legend } from "recharts"\n'
+    new_file_content += 'import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/shared"\n'
+    new_file_content += 'import { myVehicles, myFO, oems, retrofitters } from "@/data/mock"\n'
+    new_file_content += 'import { getDealersByOEM, getCategoriesByOEM, getModelsByOEMAndCategory, calculateVehicleAge } from "@/lib/vehicle-utils"\n'
+    new_file_content += 'import type { VehicleCategory, VehicleStatus } from "@/types"\n\n'
+    new_file_content += func_content + '\n'
+    
+    # Create directory if it doesn't exist
+    os.makedirs('components/mgl/fo', exist_ok=True)
     
     # Write the new file
-    file_path = f'/vercel/share/v0-project/components/mgl/fo/{func_name}.tsx'
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    
+    file_path = f'components/mgl/fo/{func_name}.tsx'
     with open(file_path, 'w') as f:
         f.write(new_file_content)
     
