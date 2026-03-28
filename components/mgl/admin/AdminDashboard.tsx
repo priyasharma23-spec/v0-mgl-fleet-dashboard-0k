@@ -72,10 +72,15 @@ export default function AdminDashboard({ onViewChange }: { onViewChange: (v: str
                 <div className="mt-3">
                   <p className="text-2xl font-bold text-foreground">₹45.8L</p>
                   <p className="text-xs text-muted-foreground mt-0.5">Today's Settlement</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-green-600 font-medium">156 txns</span>
-                    <span className="text-xs text-muted-foreground">•</span>
-                    <span className="text-xs text-blue-600 font-medium">12 dealerships</span>
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Txns</p>
+                      <p className="text-sm font-bold text-green-600">156</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Dealerships</p>
+                      <p className="text-sm font-bold text-blue-600">12</p>
+                    </div>
                   </div>
                 </div>
               </div>
