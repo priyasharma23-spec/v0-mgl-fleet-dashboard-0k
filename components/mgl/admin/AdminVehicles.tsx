@@ -166,10 +166,6 @@ export default function AdminVehicles() {
       >
         {selectedEntity && (
           <>
-            <div className="flex items-center gap-2 mb-4">
-              {vehicleStatusBadge(selectedEntity.status)}
-              {cardStatusBadge(selectedEntity.cardStatus)}
-            </div>
             <TraySection title="Vehicle Details">
               <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
               <TrayRow label="FO ID" value={selectedEntity.foId} mono />
