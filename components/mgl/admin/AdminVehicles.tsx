@@ -166,20 +166,41 @@ export default function AdminVehicles() {
       >
         {selectedEntity && (
           <>
+            <div className="flex items-center gap-2 pb-2">
+              {vehicleStatusBadge(selectedEntity.status)}
+            </div>
             <TraySection title="Vehicle Details">
               <TrayRow label="Vehicle Number" value={selectedEntity.id} mono />
               <TrayRow label="FO ID" value={selectedEntity.foId} mono />
               <TrayRow label="Fuel Type" value={selectedEntity.fuel} />
               <TrayRow label="Registration Date" value={selectedEntity.regDate} />
+              <TrayRow label="Vehicle Type" value={selectedEntity.fuel} />
+              <TrayRow label="OEM / Manufacturer" value="Tata Motors" />
+              <TrayRow label="Vehicle Category" value="LCV" />
+              <TrayRow label="Booking Receipt No" value="BKG-2026-00234" mono />
             </TraySection>
             <TraySection title="Driver">
               <TrayRow label="Driver Name" value={selectedEntity.driver || "—"} />
               <TrayRow label="Mobile" value={selectedEntity.driverMobile} />
             </TraySection>
             <TraySection title="Card Details">
-              <TrayRow label="Card Number" value={selectedEntity.card} mono />
               <TrayRow label="Card Status" value={selectedEntity.cardStatus} />
-              <TrayRow label="Wallet Balance" value="₹5,200" />
+              <TrayRow label="Card Wallet" value="₹12,500" />
+              <TrayRow label="Incentive Wallet" value="₹2,100" />
+            </TraySection>
+            <TraySection title="Uploaded Documents">
+              {[
+                { name: "Vehicle Registration Certificate", status: "Verified" },
+                { name: "Insurance Certificate", status: "Verified" },
+                { name: "PUC Certificate", status: "Pending" },
+                { name: "Vehicle Photo (Front)", status: "Verified" },
+                { name: "Booking Receipt", status: "Verified" },
+              ].map((doc, i) => (
+                <div key={i} className="flex items-center justify-between py-1">
+                  <span className="text-sm text-foreground">{doc.name}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${doc.status === "Verified" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{doc.status}</span>
+                </div>
+              ))}
             </TraySection>
             <TraySection title="Transaction Summary">
               <TrayRow label="Last Transaction" value={selectedEntity.lastTxn} />
