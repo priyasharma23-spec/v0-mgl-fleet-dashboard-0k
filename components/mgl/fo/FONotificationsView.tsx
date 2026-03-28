@@ -1,36 +1,5 @@
 "use client"
-// Fleet Operator Shell - Restored from v54
-import { useState } from "react"
-import {
-  Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
-  CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw
-} from "lucide-react"
-import Image from "next/image"
-import MGLHeader from "@/components/mgl/MGLHeader"
-import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
-import MGLSidebar from "@/components/mgl/MGLSidebar"
-import FOWalletView from "@/components/mgl/FOWalletView"
-import CardDetailsView from "@/components/mgl/CardDetailsView"
-import {
-  mockVehicles, mockFleetOperators,
-  oems, dealers, retrofitters,
-  getDealersByOEM, getCategoriesByOEM, getModelsByOEMAndCategory,
-  calculateVehicleAge,
-  type VehicleCategory
-} from "@/lib/mgl-data"
-import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/StatusBadge"
-import type { VehicleStatus } from "@/lib/mgl-data"
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
-} from "recharts"
-type FOOnboardingType = "MIC_ASSISTED" | "SELF_SERVICE"
-interface Props {
-  user: { name: string; role: "fleet-operator" }
-  onLogout: () => void
-  onboardingType?: FOOnboardingType
-  isNewRegistration?: boolean
-}
+
 export default function FONotificationsView() {
   const notifs = [
     { title: "Document Rejected — Action Required", message: "Vehicle MH04EF9012 L1 documents rejected. Reason: Booking receipt is unclear. Please resubmit.", type: "error", time: "2 hrs ago", read: false },
