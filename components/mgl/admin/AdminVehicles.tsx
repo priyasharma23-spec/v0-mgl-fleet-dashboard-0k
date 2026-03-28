@@ -191,26 +191,22 @@ export default function AdminVehicles() {
             <button onClick={() => setShowIncentiveHistory(false)} className="flex items-center gap-1 text-sm text-primary font-medium mb-4 hover:text-primary/80 transition-colors">
               ← Back to Vehicle Details
             </button>
-            <div className="space-y-3">
-              <div className="bg-muted/30 rounded-xl p-4 space-y-3 border border-border">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono font-semibold text-foreground">{vehicleIncentive.id}</span>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    vehicleIncentive.status === "Active" ? "bg-green-100 text-green-700" :
-                    vehicleIncentive.status === "Expired" ? "bg-red-100 text-red-700" :
-                    "bg-gray-100 text-gray-600"
-                  }`}>{vehicleIncentive.status}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                  <div><p className="text-xs text-muted-foreground">Incentive Type</p><p className="text-sm font-medium">{vehicleIncentive.type}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Gross Amount</p><p className="text-sm font-medium">{vehicleIncentive.amount}</p></div>
-                  <div><p className="text-xs text-muted-foreground">TDS Deducted</p><p className="text-sm font-medium text-red-600">-{vehicleIncentive.tds}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Net Incentive</p><p className="text-sm font-bold text-green-700">{vehicleIncentive.net}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Credit Date</p><p className="text-sm font-medium">{vehicleIncentive.creditDate}</p></div>
-                  <div><p className="text-xs text-muted-foreground">Expiry Date</p><p className="text-sm font-medium">{vehicleIncentive.expiryDate}</p></div>
-                </div>
+            <TraySection title={`Incentive Details — ${vehicleIncentive.id}`}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-muted-foreground">Status</span>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                  vehicleIncentive.status === "Active" ? "bg-green-100 text-green-700" :
+                  vehicleIncentive.status === "Expired" ? "bg-red-100 text-red-700" :
+                  "bg-gray-100 text-gray-600"
+                }`}>{vehicleIncentive.status}</span>
               </div>
-            </div>
+              <TrayRow label="Incentive Type" value={vehicleIncentive.type} />
+              <TrayRow label="Gross Amount" value={vehicleIncentive.amount} />
+              <TrayRow label="TDS Deducted" value={vehicleIncentive.tds} />
+              <TrayRow label="Net Incentive" value={vehicleIncentive.net} />
+              <TrayRow label="Credit Date" value={vehicleIncentive.creditDate} />
+              <TrayRow label="Expiry Date" value={vehicleIncentive.expiryDate} />
+            </TraySection>
           </>
         ) : (
           selectedEntity && (
