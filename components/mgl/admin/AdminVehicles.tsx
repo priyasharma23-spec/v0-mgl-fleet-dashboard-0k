@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Truck, CheckCircle, Users, AlertTriangle, Eye } from "lucide-react"
+import { Truck, CheckCircle, Users, AlertTriangle, Eye, Gift } from "lucide-react"
 import { RightTray, TraySection, TrayRow } from "@/components/mgl/shared"
 import { FilterPanel, FilterField, FilterSelect, FilterActions } from "@/components/mgl/shared"
 import { PageHeader } from "@/components/mgl/shared"
@@ -160,6 +160,11 @@ export default function AdminVehicles() {
         title={selectedEntity?.id ?? ""}
         subtitle={selectedEntity?.fo}
         badge={selectedEntity ? vehicleStatusBadge(selectedEntity.status) : undefined}
+        footer={
+          <button className="w-full py-2.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-2">
+            <Gift className="w-4 h-4" /> View Incentive History
+          </button>
+        }
       >
         {selectedEntity && (
           <>
@@ -195,6 +200,15 @@ export default function AdminVehicles() {
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${doc.status === "Verified" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{doc.status}</span>
                 </div>
               ))}
+            </TraySection>
+            <TraySection title="Incentive & Cashback">
+              <TrayRow label="Incentive Wallet" value="₹2,100" />
+              <TrayRow label="Lifetime Incentive Earned" value="₹8,400" />
+              <TrayRow label="Incentive Unused" value="₹2,100" />
+              <TrayRow label="Cashback Earned (Lifetime)" value="₹1,250" />
+              <TrayRow label="Cashback Unused" value="₹850" />
+              <TrayRow label="Last Incentive Credit" value="Mar 21, 2026" />
+              <TrayRow label="Incentive Program" value="Monthly CNG Cashback" />
             </TraySection>
             <TraySection title="Transaction Summary">
               <TrayRow label="Last Transaction" value={selectedEntity.lastTxn} />
