@@ -591,6 +591,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     driverLicense: "",
     deliveryAddress: "",
     bookingReceipt: null as File | null,
+    retrofitBookingReceipt: null as File | null,
     deliveryChallan: null as File | null,
     rcBook: null as File | null,
     cngCert: null as File | null,
@@ -780,9 +781,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
               </div>
             ) : (
-              /* Retrofit flow */
+              {/* Retrofit flow */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Retrofitter Selection */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Retrofitter Name <span className="text-destructive">*</span></label>
                   <select
@@ -797,7 +797,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                   </select>
                 </div>
 
-                {/* Vehicle Category */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
                   <select
@@ -813,11 +812,20 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                   </select>
                 </div>
 
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Vehicle Model <span className="text-destructive">*</span></label>
+                  <input
+                    type="text"
+                    placeholder="Enter vehicle model"
+                    value={form.retrofitModel}
+                    onChange={(e) => setForm({ ...form, retrofitModel: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+
                 <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" required />
                 <Field label="Vehicle Registration Date" name="registrationDate" type="date" required />
-                
-                <Field label="Vehicle Model" name="retrofitModel" placeholder="e.g., Tata 407" required />
-                <Field label="CNG Kit Booking Date" name="bookingDate" type="date" required />
+                <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
 
                 {vehicleAge && (
                   <div className="sm:col-span-2 p-3 bg-muted/50 rounded-lg">
@@ -826,13 +834,10 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                   </div>
                 )}
 
-                {/* Retrofit L1 Documents */}
-                <div className="sm:col-span-2 pt-3 border-t border-border">
-                  <p className="text-xs font-medium text-muted-foreground mb-3">Booking Documents (L1)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
-                    <FileField label="RC Book" fieldName="rcBook" required />
-                  </div>
+                <div className="sm:col-span-2 space-y-3 pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground">L1 Documents</p>
+                  <FileField label="RC Book" fieldName="rcBook" required />
+                  <FileField label="Vehicle Booking Receipt" fieldName="retrofitBookingReceipt" required />
                 </div>
               </div>
             )}
@@ -869,54 +874,59 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {step === 4 && (
           <div className="space-y-4">
             <p className="font-semibold text-sm text-foreground border-b border-border pb-2">
-              {vehicleType === "new_purchase" ? "L1 Pre-Delivery & L2 Post-Delivery Documents" : "L1 Booking & L2 Installation Documents"}
+              {vehicleType === "new_purchase" ? "L1 Pre-Delivery Documents" : "Retrofitment Documents"}
             </p>
             {vehicleType === "new_purchase" ? (
-              <div className="space-y-4">
-                {/* L1 Documents */}
-                <div className="space-y-3">
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-                    <strong>L1 Review:</strong> Upload booking receipt now. Delivery documents are required for L2 approval.
-                  </div>
-                  <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                  <strong>L1 Review:</strong> Upload booking receipt now. Delivery challan, delivery date, registration date and RC Book are required for L2 approval after delivery.
                 </div>
-
-                {/* L2 Documents */}
-                <div className="pt-3 border-t border-border space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground">Post-Delivery Documents (for L2)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Delivery Date" name="deliveryDate" type="date" required />
-                    <Field label="Registration Date" name="registrationDate" type="date" required />
-                  </div>
+                <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
+                <div className="pt-3 border-t border-border">
+                  <p className="text-xs font-medium text-muted-foreground mb-3">Post-Delivery Documents (for L2 — can upload later)</p>
                   <div className="space-y-3">
-                    <FileField label="Delivery Challan / Delivery Note" fieldName="deliveryChallan" required />
-                    <FileField label="RTO Receipt / RC Book" fieldName="rcBook" required />
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Delivery Date</label>
+                      <input
+                        type="date"
+                        value={form.deliveryDate}
+                        onChange={(e) => setForm({ ...form, deliveryDate: e.target.value })}
+                        className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    </div>
+                    <FileField label="Delivery Challan / Delivery Note" fieldName="deliveryChallan" />
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Registration Date</label>
+                      <input
+                        type="date"
+                        value={form.registrationDate}
+                        onChange={(e) => setForm({ ...form, registrationDate: e.target.value })}
+                        className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      />
+                    </div>
+                    <FileField label="RTO Receipt / RC Book" fieldName="rcBook" />
                   </div>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
-                {/* L1 Retrofit Booking Documents */}
-                <div className="space-y-3">
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
-                    <strong>L1 Documents:</strong> Booking receipt and RC Book confirm the retrofit intent.
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
-                    <FileField label="RC Book" fieldName="rcBook" required />
-                  </div>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                  <strong>L1 Review:</strong> RC Book and Booking Receipt were uploaded in the previous step.
                 </div>
-
-                {/* L2 Retrofit Installation Documents */}
+                <div className="p-3 bg-muted/50 rounded-lg space-y-1">
+                  <p className="text-xs font-semibold text-foreground">L1 Documents (already uploaded)</p>
+                  <p className="text-xs text-muted-foreground">✓ RC Book — {form.rcBook?.name || "Uploaded in Step 2"}</p>
+                  <p className="text-xs text-muted-foreground">✓ Booking Receipt — {form.retrofitBookingReceipt?.name || "Uploaded in Step 2"}</p>
+                </div>
                 <div className="pt-3 border-t border-border space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground">Installation & Certification Documents (for L2)</p>
-                  <div className="space-y-3">
-                    <FileField label="CNG Kit Installation Certificate" fieldName="cngCert" required />
-                    <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
-                    <FileField label="RTO Endorsement (CNG conversion)" fieldName="rtoEndorsement" required />
-                    <FileField label="Type Approval Certificate" fieldName="typeApproval" required />
-                    <FileField label="Tax Invoice from Retrofitment Center" fieldName="taxInvoice" required />
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                    <strong>L2 Review:</strong> All documents below are mandatory. Physical card will be ordered after L2 approval.
                   </div>
+                  <FileField label="CNG Kit Installation Certificate" fieldName="cngCert" required />
+                  <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
+                  <FileField label="RTO Endorsement (CNG conversion)" fieldName="rtoEndorsement" required />
+                  <FileField label="Type Approval Certificate" fieldName="typeApproval" required />
+                  <FileField label="Tax Invoice from Retrofitment Center" fieldName="taxInvoice" required />
                 </div>
               </div>
             )}
@@ -937,15 +947,13 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                   : ["Retrofitter", retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"],
                 vehicleType === "new_purchase"
                   ? ["Model", form.model === "__other" ? form.customModel : form.model || "—"]
-                  : ["Vehicle Model", form.retrofitModel || "—"],
+                  : ["Model", form.retrofitModel || "—"],
                 vehicleType === "new_purchase"
                   ? ["Dealership", availableDealers.find(d => d.id === form.dealerId)?.name || "—"]
                   : ["Vehicle Age", vehicleAge ? `${vehicleAge.years}y ${vehicleAge.months}m` : "—"],
+                ["Booking Date", form.bookingDate || "—"],
                 vehicleType === "new_purchase"
-                  ? ["Booking Date", form.bookingDate || "—"]
-                  : ["CNG Booking Date", form.bookingDate || "—"],
-                vehicleType === "new_purchase"
-                  ? ["Delivery Date", form.deliveryDate || "—"]
+                  ? ["Delivery Date", form.deliveryDate || "To be uploaded post-delivery"]
                   : ["Registration Date", form.registrationDate || "—"],
                 ["Driver", form.driverName || "Not provided"],
                 ["Delivery Address", form.deliveryAddress ? "Provided" : "Not provided"],
@@ -957,7 +965,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               ))}
             </div>
             <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-xs text-primary">
-              By submitting, you confirm all uploaded documents are authentic. The vehicle will be sent to {vehicleType === "new_purchase" ? "L1 (MIC)" : "L2 (ZIC)"} for review.
+              By submitting, you confirm all uploaded documents are authentic. The vehicle will be sent to {vehicleType === "new_purchase" ? "L1 (MIC)" : "L1 & L2 (ZIC)"} for review.
             </div>
           </div>
         )}
