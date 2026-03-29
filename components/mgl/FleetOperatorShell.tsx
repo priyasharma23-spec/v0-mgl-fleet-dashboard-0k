@@ -781,7 +781,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
               </div>
             ) : (
-              {/* Retrofit flow */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Retrofitter Name <span className="text-destructive">*</span></label>
