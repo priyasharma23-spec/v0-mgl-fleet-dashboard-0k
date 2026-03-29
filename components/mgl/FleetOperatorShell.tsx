@@ -852,34 +852,9 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
             {vehicleType === "new_purchase" ? (
               <div className="space-y-3">
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-                  <strong>L1 Review:</strong> Upload booking receipt now. Delivery challan, delivery date, registration date and RC Book are required for L2 approval after delivery.
+                  <strong>L1 Review:</strong> Only the Vehicle Booking Receipt is required at this stage. Post-delivery documents will be collected separately for L2 approval.
                 </div>
                 <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
-                <div className="pt-3 border-t border-border">
-                  <p className="text-xs font-medium text-muted-foreground mb-3">Post-Delivery Documents (for L2 — can upload later)</p>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Delivery Date</label>
-                      <input
-                        type="date"
-                        value={form.deliveryDate}
-                        onChange={(e) => setForm({ ...form, deliveryDate: e.target.value })}
-                        className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      />
-                    </div>
-                    <FileField label="Delivery Challan / Delivery Note" fieldName="deliveryChallan" />
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Registration Date</label>
-                      <input
-                        type="date"
-                        value={form.registrationDate}
-                        onChange={(e) => setForm({ ...form, registrationDate: e.target.value })}
-                        className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      />
-                    </div>
-                    <FileField label="RTO Receipt / RC Book" fieldName="rcBook" />
-                  </div>
-                </div>
               </div>
             ) : (
               <div className="space-y-4">
