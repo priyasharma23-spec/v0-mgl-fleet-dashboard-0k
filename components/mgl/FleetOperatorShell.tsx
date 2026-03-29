@@ -576,22 +576,11 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [submitted, setSubmitted] = useState(false)
   const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit">("new_purchase")
   const [form, setForm] = useState({
-    vehicleNumber: "",
-    oemId: "",
-    dealerId: "",
-    retrofitterId: "",
-    category: "" as VehicleCategory | "",
-    model: "",
-    customModel: "",
-    retrofitModel: "",
-    bookingDate: "",
-    registrationDate: "",
-    driverName: "",
-    driverContact: "",
-    driverLicense: "",
-    deliveryAddress: "",
+    vehicleNumber: "", oemId: "", dealerId: "", retrofitterId: "",
+    category: "" as VehicleCategory | "", model: "", customModel: "",
+    retrofitModel: "", bookingDate: "", registrationDate: "",
+    driverName: "", driverContact: "", driverLicense: "", deliveryAddress: "",
     bookingReceipt: null as File | null,
-    retrofitBookingReceipt: null as File | null,
     rcBook: null as File | null,
     driverLicenseFile: null as File | null,
     deliveryChallan: null as File | null,
@@ -599,8 +588,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     cngCert: null as File | null,
     eFitment: null as File | null,
     rtoEndorsement: null as File | null,
+    insurance: null as File | null,
     typeApproval: null as File | null,
-    insuranceCert: null as File | null,
   })
 
   const selectedOEM = oems.find(o => o.id === form.oemId)
@@ -620,6 +609,274 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     "407g": "LCV", "609g": "LCV", "709g": "LCV",
     "LP410 CNG": "Bus", "LP913": "Bus", "51 S SKI": "Bus", "34 S SKI": "Bus", "24S STAFF NAC/AC": "Bus",
   }
+  const derivedRetrofitCategory = retrofitModelCategoryMap[form.retrofitModel] ?? null
+
+  function Field({ label, name, type = "text", placeholder, required = false }: { label: string; name: string; type?: string; placeholder?: string; required?: boolean }) {
+    return (
+      <div>
+        <label className="text-xs font-medium text-muted-foreground">{label}{required && <span className="text-destructive ml-0.5">*</span>}</label>
+        <input
+          type={type} placeholder={placeholder || label}
+          value={(form as Record<string, any>)[name] as string || ""}
+          onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+          className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+    )
+  }
+
+  function FileField({ label, fieldName, required = false }: { label: string; fieldName: keyof typeof form; required?: boolean }) {
+    const file = form[fieldName] as File | null
+    return (
+      <div>
+        <label className="text-xs font-medium text-muted-foreground">{label}{required && <span className="text-destructive ml-0.5">*</span>}</label>
+        <label className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/60 transition-colors">
+          <Upload className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">{file ? file.name : "Upload PDF / JPG (max 10MB)"}</span>
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
+            onChange={(e) => setForm({ ...form, [fieldName]: e.target.files?.[0] || null })} />
+        </label>
+      </div>
+    )
+  }
+
+  const l1Steps = ["Vehicle Type", "Vehicle Details", "L1 Documents"]
+  const l2Steps = ["Driver & Address", "L2 Documents", "Review & Submit"]
+  const steps = mode === "l1" ? l1Steps : l2Steps
+
+  if (submitted) {
+    return (
+      <div className="flex flex-col gap-5 p-5 max-w-3xl mx-auto">
+        <div className="text-center py-10">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold">{mode === "l1" ? "Submitted for L1 Approval" : "Submitted for L2 Approval"}</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            {mode === "l1"
+              ? "MIC will review your documents. Once approved, a card will be issued to your vehicle in inactive state. You will be notified to complete L2 registration."
+              : "ZIC will review your documents. Once approved, your vehicle will be active and the card will be sent for printing."}
+          </p>
+          <button onClick={() => onViewChange("fo-vehicles")} className="mt-6 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+            View My Vehicles
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-5 p-5 max-w-3xl mx-auto">
+      <div>
+        <h1 className="text-xl font-bold text-foreground">{mode === "l1" ? "Register New Vehicle" : "Complete Vehicle Registration"}</h1>
+        <p className="text-sm text-muted-foreground">
+          {mode === "l1" ? "Choose vehicle type and upload L1 documents." : "Complete your registration by uploading L2 documents."}
+        </p>
+      </div>
+
+      {mode === "l2" && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex gap-3">
+          <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-blue-900">L1 Approved — Complete Registration</p>
+            <p className="text-xs text-blue-700 mt-1">Your vehicle has been approved. Upload L2 documents to activate your vehicle and card.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Step indicator */}
+      <div className="flex items-center gap-0">
+        {steps.map((label, i) => {
+          const s = i + 1
+          return (
+            <div key={i} className="flex items-center">
+              <div className="flex flex-col items-center gap-1">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${s < step ? "bg-green-500 text-white" : s === step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                  {s < step ? "✓" : s}
+                </div>
+                <span className="text-[10px] text-muted-foreground whitespace-nowrap">{label}</span>
+              </div>
+              {i < steps.length - 1 && <div className={`h-0.5 w-12 mx-1 mb-4 ${s < step ? "bg-green-500" : "bg-border"}`} />}
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="space-y-4">
+        {/* L1: Step 1 - Vehicle Type */}
+        {mode === "l1" && step === 1 && (
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { value: "new_purchase", label: "New Purchase", desc: "Brand new CNG vehicle from dealer" },
+              { value: "retrofit", label: "Retrofit", desc: "Existing vehicle converted to CNG" }
+            ].map(opt => (
+              <button key={opt.value} onClick={() => setVehicleType(opt.value as any)}
+                className={`p-4 rounded-xl border-2 text-left transition-colors ${vehicleType === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                <p className="font-semibold text-sm">{opt.label}</p>
+                <p className="text-xs text-muted-foreground mt-1">{opt.desc}</p>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* L1: Step 2 - Vehicle Details */}
+        {mode === "l1" && step === 2 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" required />
+            
+            {vehicleType === "new_purchase" ? (
+              <>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">OEM <span className="text-destructive">*</span></label>
+                  <select
+                    value={form.oemId}
+                    onChange={(e) => setForm({ ...form, oemId: e.target.value, dealerId: "", category: "", model: "" })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Select OEM</option>
+                    {oems.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+                  </select>
+                </div>
+                {form.oemId && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Dealership <span className="text-destructive">*</span></label>
+                    <select
+                      value={form.dealerId}
+                      onChange={(e) => setForm({ ...form, dealerId: e.target.value })}
+                      className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Select Dealership</option>
+                      {availableDealers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                    </select>
+                  </div>
+                )}
+                {form.oemId && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Category <span className="text-destructive">*</span></label>
+                    <select
+                      value={form.category}
+                      onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory })}
+                      className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Select Category</option>
+                      {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                )}
+                {form.oemId && form.category && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Model <span className="text-destructive">*</span></label>
+                    <select
+                      value={form.model}
+                      onChange={(e) => setForm({ ...form, model: e.target.value })}
+                      className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Select Model</option>
+                      {availableModels.map(m => <option key={m} value={m}>{m}</option>)}
+                    </select>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Retrofitter <span className="text-destructive">*</span></label>
+                  <select
+                    value={form.retrofitterId}
+                    onChange={(e) => setForm({ ...form, retrofitterId: e.target.value })}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Select Retrofitter</option>
+                    {retrofitters.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                  </select>
+                </div>
+                <Field label="Vehicle Model" name="retrofitModel" placeholder="e.g., 407g" required />
+                <Field label="Registration Date" name="registrationDate" type="date" required />
+                {vehicleAge && (
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <p className="text-xs text-muted-foreground">Vehicle Age</p>
+                    <p className="text-sm font-semibold">{vehicleAge.years}y {vehicleAge.months}m</p>
+                  </div>
+                )}
+              </>
+            )}
+            <Field label="Booking Date" name="bookingDate" type="date" required />
+          </div>
+        )}
+
+        {/* L1: Step 3 - L1 Documents */}
+        {mode === "l1" && step === 3 && (
+          <div className="space-y-3">
+            <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
+            <FileField label="RC Book" fieldName="rcBook" required />
+            <FileField label="Driver License" fieldName="driverLicenseFile" required />
+          </div>
+        )}
+
+        {/* L2: Step 1 - Driver & Address */}
+        {mode === "l2" && step === 1 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Driver Name" name="driverName" placeholder="Full name" required />
+            <Field label="Driver Contact" name="driverContact" type="tel" placeholder="10-digit mobile" required />
+            <Field label="Driver License Number" name="driverLicense" placeholder="DL number" required />
+            <div className="sm:col-span-2">
+              <label className="text-xs font-medium text-muted-foreground">Delivery Address <span className="text-destructive">*</span></label>
+              <textarea
+                rows={3}
+                placeholder="Full address with PIN code"
+                value={form.deliveryAddress}
+                onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
+                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* L2: Step 2 - L2 Documents */}
+        {mode === "l2" && step === 2 && (
+          <div className="space-y-3">
+            <FileField label="Delivery Challan" fieldName="deliveryChallan" required />
+            <FileField label="Tax Invoice" fieldName="taxInvoice" required />
+            <FileField label="CNG Certificate" fieldName="cngCert" required />
+            <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
+            <FileField label="RTO Endorsement" fieldName="rtoEndorsement" required />
+            <FileField label="Insurance Certificate" fieldName="insurance" required />
+            <FileField label="Type Approval" fieldName="typeApproval" required />
+          </div>
+        )}
+
+        {/* L2: Step 3 - Review & Submit */}
+        {mode === "l2" && step === 3 && (
+          <div className="bg-card rounded-xl border border-border p-4">
+            <p className="font-semibold text-sm mb-3">Registration Summary</p>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-xs text-muted-foreground">Vehicle Number</p>
+                <p className="font-medium">{form.vehicleNumber || "—"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Type</p>
+                <p className="font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofit"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Documents</p>
+                <p className="font-medium">7 uploaded</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      <div className="flex gap-3 justify-between pt-4 border-t border-border">
+        <button onClick={() => step > 1 ? setStep(step - 1) : onViewChange("fo-vehicles")} className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          {step === 1 ? "Cancel" : "Back"}
+        </button>
+        <button onClick={() => step < 3 ? setStep(step + 1) : setSubmitted(true)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+          {step === 3 ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
+        </button>
+      </div>
+    </div>
+  )
+}
 
   const derivedRetrofitCategory = retrofitModelCategoryMap[form.retrofitModel] ?? null
 
@@ -2279,7 +2536,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   )
 }
 
-// ─── FO Fund Management ──────────────────────────────────────────────────────
+// ─── FO Fund Management ��─────────────────────────────────────────────────────
 function FOFundManagement() {
   const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
