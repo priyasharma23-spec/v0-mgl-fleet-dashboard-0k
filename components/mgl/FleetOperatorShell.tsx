@@ -649,7 +649,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
 
       {/* Steps */}
       <div className="flex items-center gap-0">
-        {["Vehicle Type", "Vehicle Details", "Driver & Address", "Documents", "Review"].map((label, i) => {
+        {["Vehicle Type", "Vehicle Details", "Documents", "Driver & Address", "Review"].map((label, i) => {
           const s = i + 1
           return (
             <div key={i} className="flex items-center">
@@ -843,34 +843,8 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           </div>
         )}
 
-        {/* Step 3: Driver & Delivery Address */}
+        {/* Step 3: Documents */}
         {step === 3 && (
-          <div className="space-y-4">
-            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Driver Details & Card Delivery Address</p>
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-              Driver details are optional. Card delivery address is required for physical card dispatch.
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Driver Name" name="driverName" placeholder="Full name" />
-              <Field label="Driver Contact Number" name="driverContact" type="tel" placeholder="10-digit mobile" />
-              <Field label="Driver License Number" name="driverLicense" placeholder="DL number" />
-              <FileField label="Driver License Copy" fieldName="driverLicenseFile" />
-              <div className="sm:col-span-2">
-                <label className="text-xs font-medium text-muted-foreground">Card Delivery Address <span className="text-destructive">*</span></label>
-                <textarea
-                  rows={2}
-                  placeholder="Full address with PIN code for card delivery"
-                  value={form.deliveryAddress}
-                  onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
-                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Documents */}
-        {step === 4 && (
           <div className="space-y-4">
             <p className="font-semibold text-sm text-foreground border-b border-border pb-2">
               {vehicleType === "new_purchase" ? "L1 Pre-Delivery Documents" : "Retrofitment Documents"}
@@ -929,6 +903,32 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Step 4: Driver & Delivery Address */}
+        {step === 4 && (
+          <div className="space-y-4">
+            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Driver Details & Card Delivery Address</p>
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+              Driver details are optional. Card delivery address is required for physical card dispatch.
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Driver Name" name="driverName" placeholder="Full name" />
+              <Field label="Driver Contact Number" name="driverContact" type="tel" placeholder="10-digit mobile" />
+              <Field label="Driver License Number" name="driverLicense" placeholder="DL number" />
+              <FileField label="Driver License Copy" fieldName="driverLicenseFile" />
+              <div className="sm:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground">Card Delivery Address <span className="text-destructive">*</span></label>
+                <textarea
+                  rows={2}
+                  placeholder="Full address with PIN code for card delivery"
+                  value={form.deliveryAddress}
+                  onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
+                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                />
+              </div>
+            </div>
           </div>
         )}
 
