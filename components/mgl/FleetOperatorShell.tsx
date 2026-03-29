@@ -611,6 +611,31 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   // Calculate vehicle age for retrofits
   const vehicleAge = form.registrationDate ? calculateVehicleAge(form.registrationDate) : null
 
+  const retrofitModelCategoryMap: Record<string, VehicleCategory> = {
+    // Ashok Leyland ICV
+    "E Comet 1110": "ICV", "E Comet 1415": "ICV", "E Comet 1115": "ICV",
+    // Ashok Leyland HCV
+    "E Comet 1615": "HCV", "E Comet 1915": "HCV", "E Comet 1922": "HCV", "E Comet 2822": "HCV",
+    // Eicher HCV
+    "Pro 2119": "HCV", "Pro 2114XP": "HCV", "Pro 2118": "HCV", "Pro 3018": "HCV",
+    // Eicher ICV
+    "Pro 2109 CNG": "ICV", "Pro 2095XP": "ICV", "Pro 2110": "ICV", "Pro 2110XP": "ICV",
+    // Eicher LCV
+    "Pro 2049 CNG": "LCV", "Pro 2059 CNG": "LCV", "Pro 2059XP CNG": "LCV", "Pro 2075 CNG": "LCV",
+    // Eicher Bus
+    "2090": "Bus", "Pro 2075": "Bus", "Pro 3010": "Bus",
+    // Tata HCV
+    "1612g": "HCV", "1912g": "HCV",
+    // Tata ICV
+    "1109g": "ICV",
+    // Tata LCV
+    "407g": "LCV", "609g": "LCV", "709g": "LCV",
+    // Tata Bus
+    "LP410 CNG": "Bus", "LP913": "Bus", "51 S SKI": "Bus", "34 S SKI": "Bus", "24S STAFF NAC/AC": "Bus",
+  }
+
+  const derivedRetrofitCategory = retrofitModelCategoryMap[form.retrofitModel] ?? null
+
   function Field({ label, name, type = "text", placeholder, required = false }: { label: string; name: string; type?: string; placeholder?: string; required?: boolean }) {
     return (
       <div>
@@ -797,29 +822,27 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory })}
-                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="">Select Category</option>
-                    <option value="LCV">LCV ({'>'}3.5T, {'<'}10T)</option>
-                    <option value="ICV">ICV (≥10T, {'<'}15T)</option>
-                    <option value="HCV">HCV (≥15T)</option>
-                    <option value="Bus">Bus</option>
-                  </select>
-                </div>
-
-                <div>
                   <label className="text-xs font-medium text-muted-foreground">Vehicle Model <span className="text-destructive">*</span></label>
                   <input
                     type="text"
-                    placeholder="Enter vehicle model"
+                    placeholder="Enter vehicle model (e.g. 407g, Pro 2109 CNG)"
                     value={form.retrofitModel}
-                    onChange={(e) => setForm({ ...form, retrofitModel: e.target.value })}
+                    onChange={(e) => setForm({ ...form, retrofitModel: e.target.value, category: retrofitModelCategoryMap[e.target.value] ?? "" as VehicleCategory | "" })}
                     className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="text-xs font-medium text-muted-foreground">Vehicle Category (auto-calculated from model)</label>
+                  <div className={`mt-1 px-3 py-2.5 rounded-lg border text-sm font-medium ${
+                    derivedRetrofitCategory
+                      ? "border-green-300 bg-green-50 text-green-800"
+                      : "border-border bg-muted/30 text-muted-foreground"
+                  }`}>
+                    {derivedRetrofitCategory
+                      ? `${derivedRetrofitCategory === "HCV" ? "HCV (≥15T)" : derivedRetrofitCategory === "ICV" ? "ICV (≥10T, <15T)" : derivedRetrofitCategory === "LCV" ? "LCV (>3.5T, <10T)" : "Bus"}`
+                      : "Will auto-populate when model is entered"}
+                  </div>
                 </div>
 
                 <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" required />
