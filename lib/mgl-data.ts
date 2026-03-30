@@ -73,17 +73,17 @@ export const oems: OEM[] = [
     contactPerson: "Rajesh Kumar",
     email: "fleet@tatamotors.com",
     mobile: "9876543210",
-    categories: ["LCV", "ICV", "HCV", "Bus"],
+    categories: ["HCV", "ICV", "LCV", "Bus"],
     models: {
-      "LCV": ["407g GOLD", "609g SFC"],
-      "ICV": ["709g LPT", "1109g LPT", "1412g LPT", "1612g", "1812g"],
-      "HCV": ["LPT 2518", "LPT 2818", "LPT 3518"],
-      "Bus": ["34 S SKI NAC/AC LP 410/36 CNG", "51 S SKI NAC/AC LP 310/52 CNG", "LP913CNG/52 AC 24V 3.8 SDI TC 125", "24 S Staff NAC/AC LP 410/36 CNG", "40 S Staff AC/NAC"]
-    }
+      "HCV": ["1612g", "1912g"],
+      "ICV": ["1109g"],
+      "LCV": ["407g", "609g", "709g"],
+      "Bus": ["LP410 CNG", "LP913", "51 S SKI", "34 S SKI", "24S STAFF NAC/AC"],
+    },
   },
   {
     id: "OEM002",
-    name: "Eicher",
+    name: "Eicher (VECV)",
     type: "New Vehicle",
     address: "Eicher House, 12 Commercial Complex",
     city: "New Delhi",
@@ -92,13 +92,13 @@ export const oems: OEM[] = [
     contactPerson: "Vikram Singh",
     email: "commercial@eicher.in",
     mobile: "9123456789",
-    categories: ["LCV", "ICV", "HCV"],
+    categories: ["HCV", "ICV", "LCV", "Bus"],
     models: {
-      "LCV": ["Pro 2049 CNG", "Pro 2059 CNG", "Pro 2059XP CNG", "Pro 2095XP CNG", "Pro 2109 CNG"],
-      "ICV": ["Pro 2110XP", "Pro 2114XP CNG", "Pro 2075 CNG"],
-      "HCV": ["Pro 3015", "Pro 3018 CNG", "Pro 3010"],
-      "Bus": []
-    }
+      "HCV": ["Pro 2119", "Pro 2114XP", "Pro 2118", "Pro 3018"],
+      "ICV": ["Pro 2109 CNG", "Pro 2095XP", "Pro 2110", "Pro 2110XP"],
+      "LCV": ["Pro 2049 CNG", "Pro 2059 CNG", "Pro 2059XP CNG", "Pro 2075 CNG"],
+      "Bus": ["2090", "Pro 2075", "Pro 3010"],
+    },
   },
   {
     id: "OEM003",
@@ -111,52 +111,14 @@ export const oems: OEM[] = [
     contactPerson: "Suresh Iyer",
     email: "fleet@ashokleyland.com",
     mobile: "9988776655",
-    categories: ["LCV", "ICV", "HCV"],
+    categories: ["ICV", "HCV"],
     models: {
-      "LCV": ["Ecomet 1015", "Ecomet 1415"],
-      "ICV": ["Ecomet 1615", "Ecomet 1915"],
-      "HCV": ["Ecomet 1922", "Ecomet 2518"],
-      "Bus": []
-    }
+      "ICV": ["E Comet 1110", "E Comet 1415", "E Comet 1115"],
+      "HCV": ["E Comet 1615", "E Comet 1915", "E Comet 1922", "E Comet 2822"],
+      "LCV": [],
+      "Bus": [],
+    },
   },
-  {
-    id: "OEM004",
-    name: "Mahindra",
-    type: "New Vehicle",
-    address: "Mahindra Towers, Worli",
-    city: "Mumbai",
-    state: "Maharashtra",
-    pincode: "400018",
-    contactPerson: "Anil Sharma",
-    email: "commercial@mahindra.com",
-    mobile: "9765432100",
-    categories: ["LCV"],
-    models: {
-      "LCV": ["Bolero Pik-Up CNG", "Supro CNG", "Jeeto CNG"],
-      "ICV": [],
-      "HCV": [],
-      "Bus": []
-    }
-  },
-  {
-    id: "OEM005",
-    name: "Force Motors",
-    type: "New Vehicle",
-    address: "Force Motors Complex, Akurdi",
-    city: "Pune",
-    state: "Maharashtra",
-    pincode: "411035",
-    contactPerson: "Deepak Patil",
-    email: "sales@forcemotors.com",
-    mobile: "9654321098",
-    categories: ["LCV", "Bus"],
-    models: {
-      "LCV": ["Traveller 26 CNG", "Traveller 36 CNG"],
-      "ICV": [],
-      "HCV": [],
-      "Bus": ["Traveller Staff Bus", "Traveller School Bus"]
-    }
-  }
 ];
 
 // Dealers linked to OEMs
@@ -168,9 +130,6 @@ export const dealers: Dealer[] = [
   { id: "DLR005", oemId: "OEM002", name: "Eicher Navi Mumbai", address: "Vashi", city: "Navi Mumbai", state: "Maharashtra", pincode: "400703", contactPerson: "Prakash Rao", email: "navimumbai@eicherdealers.com", mobile: "9123402345" },
   { id: "DLR006", oemId: "OEM003", name: "AL Dealers Kurla", address: "Kurla West", city: "Mumbai", state: "Maharashtra", pincode: "400070", contactPerson: "Mahesh Kumar", email: "kurla@aldealers.com", mobile: "9988701234" },
   { id: "DLR007", oemId: "OEM003", name: "AL Dealers Pune", address: "Hadapsar", city: "Pune", state: "Maharashtra", pincode: "411028", contactPerson: "Ramesh Patil", email: "pune@aldealers.com", mobile: "9988702345" },
-  { id: "DLR008", oemId: "OEM004", name: "Mahindra Pune West", address: "Kothrud", city: "Pune", state: "Maharashtra", pincode: "411038", contactPerson: "Nilesh Gaikwad", email: "punewest@mahindradealers.com", mobile: "9765401234" },
-  { id: "DLR009", oemId: "OEM004", name: "Mahindra Mumbai Central", address: "Lower Parel", city: "Mumbai", state: "Maharashtra", pincode: "400013", contactPerson: "Shyam Rathod", email: "mumbai@mahindradealers.com", mobile: "9765402345" },
-  { id: "DLR010", oemId: "OEM005", name: "Force Mumbai North", address: "Borivali", city: "Mumbai", state: "Maharashtra", pincode: "400066", contactPerson: "Ganesh Sawant", email: "mumbainorth@forcedealers.com", mobile: "9654301234" },
 ];
 
 // Retrofitters (not OEM-specific, apply broadly)
