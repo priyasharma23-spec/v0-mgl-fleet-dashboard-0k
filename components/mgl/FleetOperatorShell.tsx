@@ -815,7 +815,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           <div className="space-y-3">
             <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
             <FileField label="RC Book" fieldName="rcBook" required />
-            <FileField label="Driver License" fieldName="driverLicenseFile" required />
+            <FileField label="Driver License" fieldName="driverLicenseFile" />
           </div>
         )}
 
