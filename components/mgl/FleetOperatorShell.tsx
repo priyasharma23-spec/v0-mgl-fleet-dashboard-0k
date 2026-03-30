@@ -120,6 +120,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
+      case "fo-mou": return <FOMoUView />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
@@ -2627,4 +2628,128 @@ function FONotificationsView() {
       </div>
     </div>
   )
+}
+
+// ─── FO MOU View ────────────────────────────────────────────────────────────
+function FOMoUView() {
+  const mou = {
+    number: myFO.mouNumber || "MGL/MOU/2025/001",
+    executedDate: myFO.mouExecutionDate || "15 Jan 2025",
+    expiryDate: myFO.mouExpiryDate || "14 Jan 2026",
+    status: "Active",
+    vehiclesCommitted: 15,
+    newVehicles: 10,
+    retrofitVehicles: 5,
+    vehiclesRegistered: myVehicles.length,
+    vehiclesActive: myVehicles.filter(v => v.status === "CARD_ACTIVE").length,
+  }
+
+  const daysToExpiry = Math.ceil((new Date(myFO.mouExpiryDate || "2026-01-14").getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+
+  return (
+    <div className="flex flex-col gap-5 p-5">
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-bold text-foreground">My MoU</h1>
+        <p className="text-sm text-muted-foreground">Memorandum of Understanding with Mahanagar Gas Limited</p>
+      </div>
+
+      {/* Expiry warning */}
+      {daysToExpiry <= 30 && daysToExpiry > 0 && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-900">MoU Expiring Soon</p>
+            <p className="text-xs text-amber-700 mt-0.5">Your MoU expires in {daysToExpiry} days. Please contact your MIC officer for renewal.</p>
+          </div>
+        </div>
+      )}
+
+      {/* MOU Summary Card */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="text-xs text-muted-foreground">MoU Number</p>
+            <p className="text-lg font-bold font-mono text-foreground mt-0.5">{mou.number}</p>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${mou.status === "Active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{mou.status}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+          <div>
+            <p className="text-xs text-muted-foreground">Executed Date</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.executedDate}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Expiry Date</p>
+            <p className={`text-sm font-semibold mt-0.5 ${daysToExpiry <= 30 ? "text-amber-600" : "text-foreground"}`}>{mou.expiryDate}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Vehicle Commitment */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <p className="text-sm font-semibold text-foreground mb-4">Vehicle Commitment</p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {[
+            { label: "Committed", value: mou.vehiclesCommitted, color: "text-foreground", bg: "bg-muted/30" },
+            { label: "Registered", value: mou.vehiclesRegistered, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: "Active", value: mou.vehiclesActive, color: "text-green-600", bg: "bg-green-50" },
+            { label: "Pending", value: mou.vehiclesCommitted - mou.vehiclesRegistered, color: "text-amber-600", bg: "bg-amber-50" },
+          ].map(({ label, value, color, bg }) => (
+            <div key={label} className={`${bg} rounded-xl p-4`}>
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className={`text-2xl font-bold mt-1 ${color}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2 pt-3 border-t border-border">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">New Vehicles</span>
+            <span className="font-medium text-foreground">{mou.newVehicles}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Retrofitment</span>
+            <span className="font-medium text-foreground">{mou.retrofitVehicles}</span>
+          </div>
+        </div>
+        {/* Progress */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+            <span>Registration Progress</span>
+            <span className="font-semibold">{Math.round((mou.vehiclesRegistered / mou.vehiclesCommitted) * 100)}%</span>
+          </div>
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((mou.vehiclesRegistered / mou.vehiclesCommitted) * 100)}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* MOU Document */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <p className="text-sm font-semibold text-foreground mb-3">MoU Document</p>
+        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-red-600">PDF</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">MoU Agreement — {mou.number}</p>
+            <p className="text-xs text-muted-foreground">Signed copy · Executed {mou.executedDate}</p>
+          </div>
+          <button className="text-xs text-primary font-medium hover:underline shrink-0">View PDF</button>
+        </div>
+      </div>
+
+      {/* Contact MIC */}
+      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+          <Bell className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">Need to update your MoU?</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Contact your assigned MIC officer for any changes, renewals, or vehicle commitment updates.</p>
+        </div>
+      </div>
+    </div>
+  )
+}
 }
