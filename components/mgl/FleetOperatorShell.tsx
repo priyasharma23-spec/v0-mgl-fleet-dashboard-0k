@@ -720,9 +720,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {/* L1: Step 2 - Vehicle Details */}
         {mode === "l1" && step === 2 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" required />
-            <Field label="Registration Date" name="registrationDate" type="date" required />
-            
             {/* Shared: OEM dropdown for both vehicle types */}
             <div>
               <label className="text-xs font-medium text-muted-foreground">OEM <span className="text-destructive">*</span></label>
@@ -766,6 +763,16 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               </div>
             )}
 
+            {/* New Purchase only: Vehicle Booking Date */}
+            {vehicleType === "new_purchase" && (
+              <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
+            )}
+
+            {/* Retrofitment only: Registration Date */}
+            {vehicleType === "retrofit" && (
+              <Field label="Registration Date" name="registrationDate" type="date" required />
+            )}
+
             {/* Shared: Vehicle Category dropdown */}
             <div>
               <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
@@ -804,9 +811,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 <p className="text-sm font-semibold">{vehicleAge.years}y {vehicleAge.months}m</p>
               </div>
             )}
-
-            {/* Shared: Booking Date */}
-            <Field label="Booking Date" name="bookingDate" type="date" required />
           </div>
         )}
 
