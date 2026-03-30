@@ -748,19 +748,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                     </select>
                   </div>
                 )}
-                {form.oemId && (
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Category <span className="text-destructive">*</span></label>
-                    <select
-                      value={form.category}
-                      onChange={(e) => setForm({ ...form, category: e.target.value as VehicleCategory })}
-                      className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="">Select Category</option>
-                      {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                )}
                 {form.oemId && form.category && (
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">Model <span className="text-destructive">*</span></label>
@@ -798,6 +785,22 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 )}
               </>
             )}
+            
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
+              <select
+                value={form.category}
+                onChange={e => setForm({ ...form, category: e.target.value as VehicleCategory })}
+                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm"
+              >
+                <option value="">Select Category</option>
+                <option value="HCV">HCV (≥15T)</option>
+                <option value="ICV">ICV (≥10T, &lt;15T)</option>
+                <option value="LCV">LCV (&gt;3.5T, &lt;10T)</option>
+                <option value="Bus">Bus</option>
+              </select>
+            </div>
+            
             <Field label="Booking Date" name="bookingDate" type="date" required />
           </div>
         )}
