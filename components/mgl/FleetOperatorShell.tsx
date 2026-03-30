@@ -971,10 +971,19 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     const file = form[fieldName] as File | null
     return (
       <div>
-        <label className="text-xs font-medium text-muted-foreground">{label}{required && <span className="text-destructive ml-0.5">*</span>}</label>
+        <label className="text-xs font-medium text-muted-foreground">
+          {label}{required && <span className="text-destructive ml-0.5">*</span>}
+        </label>
         <label className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/60 transition-colors">
-          <Upload className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">{file ? file.name : "Upload PDF / JPG (max 10MB)"}</span>
+          <Upload className="w-4 h-4 text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground flex-1 truncate min-w-0">
+            {file ? file.name : "Upload PDF / JPG (max 10MB)"}
+          </span>
+          {file && (
+            <span className="text-[10px] font-semibold text-green-600 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded shrink-0">
+              Uploaded
+            </span>
+          )}
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
             onChange={(e) => setForm({ ...form, [fieldName]: e.target.files?.[0] || null })} />
         </label>
