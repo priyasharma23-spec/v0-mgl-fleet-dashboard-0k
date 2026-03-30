@@ -652,15 +652,40 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
               </div>
             ) : (
               <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-                <div className="flex items-center gap-2"><VehicleStatusBadge status={selectedVehicle.status} /></div>
+                {/* Status */}
+                <div className="flex items-center gap-2">
+                  <VehicleStatusBadge status={selectedVehicle.status} />
+                  <span className="text-xs text-muted-foreground">
+                    {selectedVehicle.onboardingType === "MIC_ASSISTED" ? "MIC Assisted" : "Self-Service"}
+                  </span>
+                </div>
+
+                {/* Vehicle Details */}
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
                   {[
-                    ["Vehicle Number", selectedVehicle.vehicleNumber || selectedVehicle.id],
+                    ["Vehicle Number", selectedVehicle.vehicleNumber],
                     ["OEM", selectedVehicle.oem],
                     ["Model", selectedVehicle.model],
                     ["Category", selectedVehicle.category],
-                    ["Fuel Type", "CNG"],
+                    ["Dealership", selectedVehicle.dealership],
+                    ["Booking Date", selectedVehicle.bookingDate],
+                    ["Registration Date", selectedVehicle.registrationDate],
+                    ["Delivery Date", selectedVehicle.deliveryDate],
+                  ].map(([label, value]) => value ? (
+                    <div key={label} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-medium text-foreground text-right">{value}</span>
+                    </div>
+                  ) : null)}
+                </div>
+
+                {/* Driver Details — shown for both, optional fields */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
+                  {[
+                    ["Driver Name", selectedVehicle.driverName],
+                    ["Contact", selectedVehicle.driverContact],
                   ].map(([label, value]) => (
                     <div key={label} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{label}</span>
@@ -668,18 +693,76 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                     </div>
                   ))}
                 </div>
+
+                {/* Card Details */}
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Details</p>
                   {[
                     ["Card Number", selectedVehicle.cardNumber || "Not issued yet"],
-                    ["Card Status", selectedVehicle.cardNumber ? "Issued" : "Pending"],
-                    ["Tracking ID", selectedVehicle.trackingId || "—"],
-                  ].map(([label, value]) => (
+                    ["Dispatch Date", selectedVehicle.cardDispatchDate],
+                    ["Delivery Date", selectedVehicle.cardDeliveryDate],
+                    ["Activated At", selectedVehicle.cardActivatedAt],
+                    ["Tracking ID", selectedVehicle.trackingId],
+                  ].map(([label, value]) => value ? (
                     <div key={label} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{label}</span>
                       <span className="font-medium text-foreground">{value}</span>
                     </div>
-                  ))}
+                  ) : null)}
+                  {!selectedVehicle.cardNumber && (
+                    <p className="text-xs text-muted-foreground">Card will be issued after L1 approval</p>
+                  )}
+                </div>
+
+                {/* Documents — MIC_ASSISTED shows L1 + L2 docs, SELF_SERVICE shows basic docs */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+                  {selectedVehicle.onboardingType === "MIC_ASSISTED" ? (
+                    <>
+                      <p className="text-[10px] text-muted-foreground font-medium">L1 Documents</p>
+                      {[
+                        ["Booking Receipt", selectedVehicle.bookingReceiptUrl],
+                        ["RC Book", selectedVehicle.rcBookUrl],
+                      ].map(([label, url]) => (
+                        <div key={label} className="flex items-center gap-2 text-sm">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
+                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                          </div>
+                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
+                        </div>
+                      ))}
+                      <p className="text-[10px] text-muted-foreground font-medium mt-2">L2 Documents</p>
+                      {[
+                        ["Delivery Challan", selectedVehicle.deliveryChallanUrl],
+                        ["CNG Certificate", selectedVehicle.cngCertUrl],
+                        ["E-Fitment Certificate", selectedVehicle.eFitmentUrl],
+                      ].map(([label, url]) => (
+                        <div key={label} className="flex items-center gap-2 text-sm">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
+                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                          </div>
+                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      {[
+                        ["Booking Receipt", selectedVehicle.bookingReceiptUrl],
+                        ["RC Book", selectedVehicle.rcBookUrl],
+                      ].map(([label, url]) => (
+                        <div key={label} className="flex items-center gap-2 text-sm">
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
+                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                          </div>
+                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
+                        </div>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -2349,7 +2432,7 @@ function FODeliveryTracking() {
   )
 }
 
-// ─── FO Notifications ───────────────────────────────���─────────────────────────
+// ─── FO Notifications ───────────────────────────────���────────��────────────────
 function FONotificationsView() {
   const notifs = [
     { title: "Document Rejected — Action Required", message: "Vehicle MH04EF9012 L1 documents rejected. Reason: Booking receipt is unclear. Please resubmit.", type: "error", time: "2 hrs ago", read: false },
