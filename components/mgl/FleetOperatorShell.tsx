@@ -20,7 +20,7 @@ import {
   calculateVehicleAge,
   type VehicleCategory
 } from "@/lib/mgl-data"
-import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/StatusBadge"
+import { VehicleStatusBadge, WorkflowStepper, WorkflowTimeline } from "@/components/mgl/StatusBadge"
 import type { VehicleStatus } from "@/lib/mgl-data"
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
