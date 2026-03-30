@@ -773,6 +773,11 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               <Field label="Registration Date" name="registrationDate" type="date" required />
             )}
 
+            {/* Retrofitment only: Vehicle Booking Date */}
+            {vehicleType === "retrofit" && (
+              <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
+            )}
+
             {/* Shared: Vehicle Category dropdown */}
             <div>
               <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
