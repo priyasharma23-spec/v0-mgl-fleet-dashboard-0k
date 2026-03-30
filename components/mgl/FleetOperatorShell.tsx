@@ -20,7 +20,7 @@ import {
   calculateVehicleAge,
   type VehicleCategory
 } from "@/lib/mgl-data"
-import { VehicleStatusBadge, WorkflowStepper, WorkflowTimeline } from "@/components/mgl/StatusBadge"
+import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/StatusBadge"
 import type { VehicleStatus } from "@/lib/mgl-data"
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -651,19 +651,37 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
             {showTimeline ? (
               <div className="p-4 space-y-3 flex-1 overflow-y-auto">
                 <p className="text-sm font-semibold text-foreground">Approval Timeline</p>
-                <WorkflowTimeline status={selectedVehicle.status} onboardingType={selectedVehicle.onboardingType || "SELF_SERVICE"} dates={{
-                  l1SubmittedAt: selectedVehicle.l1SubmittedAt,
-                  l1ApprovedAt: selectedVehicle.l1ApprovedAt,
-                  l1RejectedAt: selectedVehicle.l1RejectedAt,
-                  l2SubmittedAt: selectedVehicle.l2SubmittedAt,
-                  l2ApprovedAt: selectedVehicle.l2ApprovedAt,
-                  l2RejectedAt: selectedVehicle.l2RejectedAt,
-                  cardDispatchDate: selectedVehicle.cardDispatchDate,
-                  cardActivatedAt: selectedVehicle.cardActivatedAt,
-                }} comments={{
-                  l1Comments: selectedVehicle.l1Comments,
-                  l2Comments: selectedVehicle.l2Comments,
-                }} />
+                <div className="space-y-4">
+                  {[
+                    { type: "submitted", timestamp: selectedVehicle.l1SubmittedAt, action: "L1 Submitted", actor: "Fleet Operator" },
+                    selectedVehicle.l1ApprovedAt ? { type: "approved", timestamp: selectedVehicle.l1ApprovedAt, action: "L1 Approved", actor: "MIC Officer", comment: undefined } : null,
+                    selectedVehicle.l1RejectedAt ? { type: "rejected", timestamp: selectedVehicle.l1RejectedAt, action: "L1 Rejected", actor: "MIC Officer", comment: selectedVehicle.l1Comments } : null,
+                    selectedVehicle.l2SubmittedAt ? { type: "submitted", timestamp: selectedVehicle.l2SubmittedAt, action: "L2 Submitted", actor: "Fleet Operator" } : null,
+                    selectedVehicle.l2ApprovedAt ? { type: "approved", timestamp: selectedVehicle.l2ApprovedAt, action: "L2 Approved", actor: "ZIC Officer" } : null,
+                    selectedVehicle.l2RejectedAt ? { type: "rejected", timestamp: selectedVehicle.l2RejectedAt, action: "L2 Rejected", actor: "ZIC Officer", comment: selectedVehicle.l2Comments } : null,
+                    selectedVehicle.cardDispatchDate ? { type: "system", timestamp: selectedVehicle.cardDispatchDate, action: "Card Dispatched for Printing", actor: "System" } : null,
+                    selectedVehicle.cardDeliveryDate ? { type: "system", timestamp: selectedVehicle.cardDeliveryDate, action: "Card Delivered", actor: "Courier" } : null,
+                    selectedVehicle.cardActivatedAt ? { type: "approved", timestamp: selectedVehicle.cardActivatedAt, action: "Card Activated", actor: "System" } : null,
+                  ].filter(Boolean).map((entry, idx, arr) => (
+                    <div key={idx} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-3 h-3 rounded-full shrink-0 ${
+                          entry!.type === "approved" ? "bg-green-600" :
+                          entry!.type === "rejected" ? "bg-red-600" :
+                          entry!.type === "submitted" ? "bg-blue-600" :
+                          "bg-gray-400"
+                        }`} />
+                        {idx < arr.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
+                      </div>
+                      <div className="pb-2 flex-1">
+                        <p className="text-xs text-muted-foreground">{entry!.timestamp}</p>
+                        <p className="text-sm font-medium text-foreground">{entry!.action}</p>
+                        <p className="text-xs text-muted-foreground">{entry!.actor}</p>
+                        {entry!.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry!.comment}"</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="p-4 space-y-4 flex-1 overflow-y-auto">
