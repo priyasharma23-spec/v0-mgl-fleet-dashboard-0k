@@ -714,54 +714,128 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   )}
                 </div>
 
-                {/* Documents — MIC_ASSISTED shows L1 + L2 docs, SELF_SERVICE shows basic docs */}
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                {/* Documents — status-aware flow */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-3">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-                  {selectedVehicle.onboardingType === "MIC_ASSISTED" ? (
-                    <>
-                      <p className="text-[10px] text-muted-foreground font-medium">L1 Documents</p>
-                      {[
-                        ["Booking Receipt", selectedVehicle.bookingReceiptUrl],
-                        ["RC Book", selectedVehicle.rcBookUrl],
-                      ].map(([label, url]) => (
-                        <div key={label} className="flex items-center gap-2 text-sm">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
-                          </div>
-                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
+
+                  {/* L1 Documents — always shown */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">L1 Documents</p>
+                    {[
+                      { label: "Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
+                      { label: "RC Book", url: selectedVehicle.rcBookUrl },
+                    ].map(({ label, url }) => (
+                      <div key={label} className="flex items-center gap-2 text-sm">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
+                          {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                         </div>
-                      ))}
-                      <p className="text-[10px] text-muted-foreground font-medium mt-2">L2 Documents</p>
-                      {[
-                        ["Delivery Challan", selectedVehicle.deliveryChallanUrl],
-                        ["CNG Certificate", selectedVehicle.cngCertUrl],
-                        ["E-Fitment Certificate", selectedVehicle.eFitmentUrl],
-                      ].map(([label, url]) => (
-                        <div key={label} className="flex items-center gap-2 text-sm">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
-                          </div>
-                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
+                        <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                        {/* Reupload if L1 rejected */}
+                        {["L1_REJECTED"].includes(selectedVehicle.status) && !url && (
+                          <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
+                            Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                          </label>
+                        )}
+                        {url && <span className="text-xs text-green-600 font-medium ml-auto">Verified</span>}
+                        {!url && !["L1_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                      </div>
+                    ))}
+
+                    {/* L1 rejection notice */}
+                    {selectedVehicle.status === "L1_REJECTED" && selectedVehicle.l1Comments && (
+                      <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mt-2">
+                        <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-xs font-semibold text-red-700">L1 Correction Required</p>
+                          <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l1Comments}</p>
+                          <button className="text-xs text-red-700 font-semibold mt-1 hover:underline">Resubmit for L1 →</button>
                         </div>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      {[
-                        ["Booking Receipt", selectedVehicle.bookingReceiptUrl],
-                        ["RC Book", selectedVehicle.rcBookUrl],
-                      ].map(([label, url]) => (
-                        <div key={label} className="flex items-center gap-2 text-sm">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* L2 Documents — shown only if L1 approved or beyond */}
+                  {["L1_APPROVED","L2_SUBMITTED","L2_APPROVED","L2_REJECTED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(selectedVehicle.status) && (
+                    <div className="space-y-2 pt-2 border-t border-border">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        L2 Documents
+                        {selectedVehicle.status === "L1_APPROVED" && <span className="ml-2 text-amber-600 normal-case">— Upload required</span>}
+                      </p>
+
+                      {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.vehicleType === "new_purchase" ? (
+                        // New Purchase L2 docs
+                        <>
+                          {[
+                            { label: "Delivery Date", type: "date", url: selectedVehicle.deliveryDate },
+                            { label: "Delivery Challan / Delivery Note", type: "file", url: selectedVehicle.deliveryChallanUrl },
+                            { label: "Registration Date", type: "date", url: selectedVehicle.registrationDate },
+                            { label: "RTO Receipt / RC Book", type: "file", url: selectedVehicle.rcBookUrl },
+                          ].map(({ label, type, url }) => (
+                            <div key={label} className="flex items-center gap-2 text-sm">
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
+                                {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                              </div>
+                              <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                              {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
+                                type === "file" ? (
+                                  <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
+                                    Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                                  </label>
+                                ) : (
+                                  <input type="date" className="ml-auto text-xs border border-border rounded px-2 py-1 bg-card" />
+                                )
+                              )}
+                              {url && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
+                              {!url && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                            </div>
+                          ))}
+                        </>
+                      ) : (
+                        // Retrofitment L2 docs
+                        <>
+                          {[
+                            { label: "CNG Kit Installation Certificate", url: selectedVehicle.cngCertUrl },
+                            { label: "E-Fitment Certificate", url: selectedVehicle.eFitmentUrl },
+                            { label: "RTO Endorsement (CNG conversion)", url: selectedVehicle.rtoEndorsementUrl },
+                            { label: "Type Approval Certificate", url: selectedVehicle.typeApprovalUrl },
+                            { label: "Tax Invoice (Retrofitment Center)", url: selectedVehicle.taxInvoiceUrl },
+                          ].map(({ label, url }) => (
+                            <div key={label} className="flex items-center gap-2 text-sm">
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
+                                {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                              </div>
+                              <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                              {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
+                                <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
+                                  Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                                </label>
+                              )}
+                              {url && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
+                              {!url && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                            </div>
+                          ))}
+                        </>
+                      )}
+
+                      {/* L2 rejection notice */}
+                      {selectedVehicle.status === "L2_REJECTED" && selectedVehicle.l2Comments && (
+                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mt-2">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-red-700">L2 Correction Required</p>
+                            <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l2Comments}</p>
+                            <button className="text-xs text-red-700 font-semibold mt-1 hover:underline">Resubmit for L2 →</button>
                           </div>
-                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
                         </div>
-                      ))}
-                    </>
+                      )}
+
+                      {/* Submit L2 button when L1 approved */}
+                      {selectedVehicle.status === "L1_APPROVED" && (
+                        <button className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                          Submit L2 Documents
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -2164,7 +2238,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   )
 }
 
-// ─── FO Fund Management ��──────────────────��──────────────────────────────────
+// ─── FO Fund Management ��──────────────────��─────────────────���────────────────
 function FOFundManagement() {
   const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
