@@ -116,7 +116,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
         <FOCardsView onViewChange={setActiveView} onManageCard={(vehicleId) => setSelectedCardVehicle(vehicleId)} />
       )
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
-      case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
+      case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
