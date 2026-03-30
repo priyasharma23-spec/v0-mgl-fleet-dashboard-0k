@@ -849,67 +849,118 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
 
         {/* L1: Step 5 - Review & Submit */}
         {mode === "l1" && step === 5 && (
-          <div className="space-y-4">
-            {/* Registration Type */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registration Type</p>
-              <p className="text-sm font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p>
-            </div>
+          <div className="space-y-5">
+            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Review & Submit</p>
 
-            {/* Vehicle Details */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                {vehicleType === "retrofit" && (
-                  <>
-                    <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
-                    {vehicleAge && <div><p className="text-xs text-muted-foreground">Vehicle Age</p><p className="font-medium">{vehicleAge.years}y {vehicleAge.months}m</p></div>}
-                    <div><p className="text-xs text-muted-foreground">Retrofitter</p><p className="font-medium">{retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"}</p></div>
-                  </>
-                )}
-                {vehicleType === "new_purchase" && (
-                  <div><p className="text-xs text-muted-foreground">Dealer</p><p className="font-medium">{availableDealers.find(d => d.id === form.dealerId)?.name || "—"}</p></div>
-                )}
-                <div><p className="text-xs text-muted-foreground">OEM</p><p className="font-medium">{oems.find(o => o.id === form.oemId)?.name || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium">{form.category || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Model</p><p className="font-medium">{form.model || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Booking Date</p><p className="font-medium">{form.bookingDate || "—"}</p></div>
+            {/* Registration Type Banner */}
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${vehicleType === "new_purchase" ? "bg-blue-50 border border-blue-200" : "bg-amber-50 border border-amber-200"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${vehicleType === "new_purchase" ? "bg-blue-100" : "bg-amber-100"}`}>
+                {vehicleType === "new_purchase" ? <Truck className={`w-4 h-4 text-blue-600`} /> : <RefreshCw className={`w-4 h-4 text-amber-600`} />}
+              </div>
+              <div>
+                <p className={`text-xs font-semibold uppercase tracking-wide ${vehicleType === "new_purchase" ? "text-blue-700" : "text-amber-700"}`}>Registration Type</p>
+                <p className={`text-sm font-bold ${vehicleType === "new_purchase" ? "text-blue-900" : "text-amber-900"}`}>{vehicleType === "new_purchase" ? "New CNG Vehicle" : "Retrofitment"}</p>
               </div>
             </div>
 
-            {/* Driver Details */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Driver Name</p><p className="font-medium">{form.driverName || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Contact</p><p className="font-medium">{form.driverContact || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">License Number</p><p className="font-medium">{form.driverLicense || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Delivery Address</p><p className="font-medium">{form.deliveryAddress || "—"}</p></div>
+            {/* Vehicle Details Section */}
+            <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vehicle Details</p>
               </div>
-            </div>
-
-            {/* Documents */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-              <div className="space-y-1.5">
+              <div className="grid grid-cols-2 gap-px bg-border">
                 {[
-                  { label: "Booking Receipt", file: form.bookingReceipt, required: true },
-                  { label: "RC Book", file: form.rcBook, required: true },
-                  { label: "Driver License", file: form.driverLicenseFile, required: false },
-                ].map((doc, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{doc.label}{doc.required && <span className="text-destructive ml-0.5">*</span>}</span>
-                    {doc.file
-                      ? <span className="text-green-600 font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />{doc.file.name}</span>
-                      : <span className="text-muted-foreground text-xs">Not uploaded</span>
-                    }
+                  ["Vehicle Number", form.vehicleNumber || "—"],
+                  vehicleType === "new_purchase"
+                    ? ["OEM", selectedOEM?.name || "—"]
+                    : ["Retrofitter", retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"],
+                  ["Category", form.category
+                    ? form.category === "HCV" ? "HCV (≥15T)"
+                    : form.category === "ICV" ? "ICV (≥10T, <15T)"
+                    : form.category === "LCV" ? "LCV (>3.5T, <10T)"
+                    : "Bus"
+                    : "—"],
+                  vehicleType === "new_purchase"
+                    ? ["Model", form.model || "—"]
+                    : ["Model", form.retrofitModel || "—"],
+                  vehicleType === "new_purchase"
+                    ? ["Dealership", availableDealers.find(d => d.id === form.dealerId)?.name || "—"]
+                    : ["Registration Date", form.registrationDate || "—"],
+                  ["Booking Date", form.bookingDate || "—"],
+                  vehicleType === "retrofit" && vehicleAge
+                    ? ["Vehicle Age", `${vehicleAge.years}y ${vehicleAge.months}m`]
+                    : ["", ""],
+                ].filter(([k]) => k).map(([k, v]) => (
+                  <div key={k as string} className="bg-card px-4 py-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">{k}</p>
+                    <p className="text-sm font-semibold text-foreground">{v}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">By submitting, you confirm all details are correct. MIC will review your documents and issue a card in inactive state.</p>
+            {/* Driver Details Section */}
+            <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Driver Details</p>
+              </div>
+              <div className="grid grid-cols-2 gap-px bg-border">
+                {[
+                  ["Driver Name", form.driverName || "—"],
+                  ["Contact", form.driverContact || "—"],
+                  ["License Number", form.driverLicense || "—"],
+                  ["Delivery Address", form.deliveryAddress || "—"],
+                ].map(([k, v]) => (
+                  <div key={k as string} className={`bg-card px-4 py-3 ${k === "Delivery Address" ? "col-span-2" : ""}`}>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">{k}</p>
+                    <p className="text-sm font-semibold text-foreground">{v}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Documents Section */}
+            <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</p>
+              </div>
+              <div className="p-4 space-y-2">
+                {vehicleType === "new_purchase" ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${form.bookingReceipt ? "bg-green-500" : "bg-muted border border-border"}`}>
+                        {form.bookingReceipt && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                      </div>
+                      <p className="text-xs text-foreground">Booking Receipt — <span className="text-muted-foreground">{form.bookingReceipt?.name || "Not uploaded"}</span></p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {[
+                      ["RC Book (L1)", form.rcBook],
+                      ["Booking Receipt (L1)", form.bookingReceipt],
+                      ["CNG Kit Certificate (L2)", form.cngCert],
+                      ["E-Fitment Certificate (L2)", form.eFitment],
+                      ["RTO Endorsement (L2)", form.rtoEndorsement],
+                      ["Type Approval (L2)", form.typeApproval],
+                      ["Tax Invoice (L2)", form.taxInvoice],
+                    ].map(([label, file]) => (
+                      <div key={label as string} className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${file ? "bg-green-500" : "bg-muted border border-border"}`}>
+                          {file && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                        </div>
+                        <p className="text-xs text-foreground">{label as string} — <span className="text-muted-foreground">{(file as File | null)?.name || "Not uploaded"}</span></p>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Submission note */}
+            <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-xs text-primary">
+              By submitting, you confirm all uploaded documents are authentic. The vehicle will be sent to {vehicleType === "new_purchase" ? "L1 (MIC)" : "L1 & L2 (ZIC)"} for review.
+            </div>
           </div>
         )}
 
