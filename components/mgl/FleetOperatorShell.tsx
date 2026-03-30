@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info
+  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -493,6 +493,23 @@ function FODashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
 
 // ─── FO Vehicles List ────────────────────────────────────────────────────────
 function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void }) {
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedVehicle, setSelectedVehicle] = useState<typeof myVehicles[0] | null>(null)
+
+  const filtered = myVehicles.filter(v => {
+    const matchSearch = !search || (v.vehicleNumber || v.id).toLowerCase().includes(search.toLowerCase()) || v.oem?.toLowerCase().includes(search.toLowerCase())
+    const matchStatus = statusFilter === "all" || v.status === statusFilter
+    return matchSearch && matchStatus
+  })
+
+  const counts = {
+    total: myVehicles.length,
+    active: myVehicles.filter(v => v.status === "CARD_ACTIVE").length,
+    pending: myVehicles.filter(v => ["DRAFT","L1_SUBMITTED","L1_APPROVED","L2_SUBMITTED","CARD_PRINTED","CARD_DISPATCHED"].includes(v.status)).length,
+    rejected: myVehicles.filter(v => ["L1_REJECTED","L2_REJECTED"].includes(v.status)).length,
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5">
       <div className="flex items-center justify-between">
@@ -505,8 +522,43 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
           + Add Vehicle
         </button>
       </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { label: "Total Vehicles", value: counts.total, icon: Truck, iconBg: "bg-blue-100", iconColor: "text-blue-600" },
+          { label: "Active", value: counts.active, icon: CheckCircle, iconBg: "bg-green-100", iconColor: "text-green-600" },
+          { label: "In Progress", value: counts.pending, icon: Clock, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
+          { label: "Action Needed", value: counts.rejected, icon: AlertCircle, iconBg: "bg-red-100", iconColor: "text-red-600" },
+        ].map((card, i) => (
+          <div key={i} className="bg-card rounded-xl border border-border p-4">
+            <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center mb-3`}>
+              <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+            </div>
+            <p className="text-2xl font-bold text-foreground">{card.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by vehicle number or OEM..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+        </div>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
+          <option value="all">All Status</option>
+          <option value="CARD_ACTIVE">Active</option>
+          <option value="L1_SUBMITTED">L1 Review</option>
+          <option value="L1_APPROVED">L1 Approved</option>
+          <option value="L2_SUBMITTED">L2 Review</option>
+          <option value="L1_REJECTED">L1 Rejected</option>
+          <option value="L2_REJECTED">L2 Rejected</option>
+          <option value="CARD_DISPATCHED">Card Dispatched</option>
+        </select>
+      </div>
+
       <div className="space-y-3">
-        {myVehicles.map((v) => {
+        {filtered.map((v) => {
           const steps: { label: string; status: "done" | "active" | "pending" }[] = [
             { label: "Registered", status: "done" },
             { label: "L1 Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
@@ -525,7 +577,12 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                     <p className="text-xs text-muted-foreground">{v.oem} {v.model} · {v.category} · {v.onboardingType === "MIC_ASSISTED" ? "New Purchase" : "Self-Service"}</p>
                   </div>
                 </div>
-                <VehicleStatusBadge status={v.status} />
+                <div className="flex items-center gap-2">
+                  <VehicleStatusBadge status={v.status} />
+                  <button onClick={() => setSelectedVehicle(v)} className="p-1.5 hover:bg-muted rounded-lg ml-1">
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
               </div>
 
               <div className="overflow-x-auto mb-3">
@@ -552,19 +609,72 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
                 </div>
               )}
-
-              {/* Card info */}
-              {v.cardNumber && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                  <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
-                  <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
-                  {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
-                </div>
-              )}
             </div>
           )
         })}
       </div>
+
+      {selectedVehicle && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSelectedVehicle(null)} />
+          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto flex flex-col">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-foreground">{selectedVehicle.vehicleNumber || selectedVehicle.id}</h2>
+                <p className="text-xs text-muted-foreground">{selectedVehicle.oem} · {selectedVehicle.model}</p>
+              </div>
+              <button onClick={() => setSelectedVehicle(null)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+              <div className="flex items-center gap-2"><VehicleStatusBadge status={selectedVehicle.status} /></div>
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+                {[
+                  ["Vehicle Number", selectedVehicle.vehicleNumber || selectedVehicle.id],
+                  ["OEM", selectedVehicle.oem],
+                  ["Model", selectedVehicle.model],
+                  ["Category", selectedVehicle.category],
+                  ["Fuel Type", "CNG"],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className="font-medium text-foreground">{value || "—"}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Details</p>
+                {[
+                  ["Card Number", selectedVehicle.cardNumber || "Not issued yet"],
+                  ["Card Status", selectedVehicle.cardNumber ? "Issued" : "Pending"],
+                  ["Tracking ID", selectedVehicle.trackingId || "—"],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className="font-medium text-foreground">{value}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Approval Timeline</p>
+                <WorkflowTimeline status={selectedVehicle.status} onboardingType={selectedVehicle.onboardingType || "SELF_SERVICE"} dates={{
+                  l1SubmittedAt: selectedVehicle.l1SubmittedAt,
+                  l1ApprovedAt: selectedVehicle.l1ApprovedAt,
+                  l1RejectedAt: selectedVehicle.l1RejectedAt,
+                  l2SubmittedAt: selectedVehicle.l2SubmittedAt,
+                  l2ApprovedAt: selectedVehicle.l2ApprovedAt,
+                  l2RejectedAt: selectedVehicle.l2RejectedAt,
+                  cardDispatchDate: selectedVehicle.cardDispatchDate,
+                  cardActivatedAt: selectedVehicle.cardActivatedAt,
+                }} comments={{
+                  l1Comments: selectedVehicle.l1Comments,
+                  l2Comments: selectedVehicle.l2Comments,
+                }} />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
