@@ -706,7 +706,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           <div className="grid grid-cols-2 gap-4">
             {[
               { value: "new_purchase", label: "New Purchase", desc: "Brand new CNG vehicle from dealer" },
-              { value: "retrofit", label: "Retrofit", desc: "Existing vehicle converted to CNG" }
+              { value: "retrofit", label: "Retrofitment", desc: "Existing vehicle converted to CNG" }
             ].map(opt => (
               <button key={opt.value} onClick={() => setVehicleType(opt.value as any)}
                 className={`p-4 rounded-xl border-2 text-left transition-colors ${vehicleType === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
@@ -721,71 +721,52 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {mode === "l1" && step === 2 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Vehicle Registration Number" name="vehicleNumber" placeholder="MH04AB1234" required />
+            <Field label="Registration Date" name="registrationDate" type="date" required />
             
-            {vehicleType === "new_purchase" ? (
-              <>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">OEM <span className="text-destructive">*</span></label>
-                  <select
-                    value={form.oemId}
-                    onChange={(e) => setForm({ ...form, oemId: e.target.value, dealerId: "", category: "", model: "" })}
-                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="">Select OEM</option>
-                    {oems.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-                  </select>
-                </div>
-                {form.oemId && (
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Dealership <span className="text-destructive">*</span></label>
-                    <select
-                      value={form.dealerId}
-                      onChange={(e) => setForm({ ...form, dealerId: e.target.value })}
-                      className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="">Select Dealership</option>
-                      {availableDealers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                    </select>
-                  </div>
-                )}
-                {form.oemId && form.category && (
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground">Model <span className="text-destructive">*</span></label>
-                    <select
-                      value={form.model}
-                      onChange={(e) => setForm({ ...form, model: e.target.value })}
-                      className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="">Select Model</option>
-                      {availableModels.map(m => <option key={m} value={m}>{m}</option>)}
-                    </select>
-                  </div>
-                )}
-              </>
-            ) : (
-              <>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Retrofitter <span className="text-destructive">*</span></label>
-                  <select
-                    value={form.retrofitterId}
-                    onChange={(e) => setForm({ ...form, retrofitterId: e.target.value })}
-                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="">Select Retrofitter</option>
-                    {retrofitters.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                  </select>
-                </div>
-                <Field label="Vehicle Model" name="retrofitModel" placeholder="e.g., 407g" required />
-                <Field label="Registration Date" name="registrationDate" type="date" required />
-                {vehicleAge && (
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <p className="text-xs text-muted-foreground">Vehicle Age</p>
-                    <p className="text-sm font-semibold">{vehicleAge.years}y {vehicleAge.months}m</p>
-                  </div>
-                )}
-              </>
+            {/* Shared: OEM dropdown for both vehicle types */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">OEM <span className="text-destructive">*</span></label>
+              <select
+                value={form.oemId}
+                onChange={(e) => setForm({ ...form, oemId: e.target.value, dealerId: "", category: "", model: "" })}
+                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">Select OEM</option>
+                {oems.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
+              </select>
+            </div>
+
+            {/* New Purchase only: Dealership dropdown */}
+            {vehicleType === "new_purchase" && form.oemId && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Dealership <span className="text-destructive">*</span></label>
+                <select
+                  value={form.dealerId}
+                  onChange={(e) => setForm({ ...form, dealerId: e.target.value })}
+                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">Select Dealership</option>
+                  {availableDealers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              </div>
             )}
-            
+
+            {/* Retrofitment only: Retrofitter dropdown */}
+            {vehicleType === "retrofit" && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Retrofitter <span className="text-destructive">*</span></label>
+                <select
+                  value={form.retrofitterId}
+                  onChange={(e) => setForm({ ...form, retrofitterId: e.target.value })}
+                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">Select Retrofitter</option>
+                  {retrofitters.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                </select>
+              </div>
+            )}
+
+            {/* Shared: Vehicle Category dropdown */}
             <div>
               <label className="text-xs font-medium text-muted-foreground">Vehicle Category <span className="text-destructive">*</span></label>
               <select
@@ -800,7 +781,31 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 <option value="Bus">Bus</option>
               </select>
             </div>
-            
+
+            {/* Shared: Model dropdown (filtered by OEM and category) */}
+            {form.oemId && form.category && (
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Model <span className="text-destructive">*</span></label>
+                <select
+                  value={form.model}
+                  onChange={(e) => setForm({ ...form, model: e.target.value })}
+                  className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">Select Model</option>
+                  {availableModels.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            )}
+
+            {/* Retrofitment only: Vehicle Age (read-only) */}
+            {vehicleType === "retrofit" && vehicleAge && (
+              <div className="p-3 bg-muted/50 rounded-lg">
+                <p className="text-xs text-muted-foreground">Vehicle Age</p>
+                <p className="text-sm font-semibold">{vehicleAge.years}y {vehicleAge.months}m</p>
+              </div>
+            )}
+
+            {/* Shared: Booking Date */}
             <Field label="Booking Date" name="bookingDate" type="date" required />
           </div>
         )}
