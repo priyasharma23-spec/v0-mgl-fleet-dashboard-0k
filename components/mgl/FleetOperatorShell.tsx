@@ -497,6 +497,21 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedVehicle, setSelectedVehicle] = useState<typeof myVehicles[0] | null>(null)
   const [showTimeline, setShowTimeline] = useState(false)
+  const [l2Files, setL2Files] = useState<Record<string, File | null>>({})
+  const [l2Submitted, setL2Submitted] = useState(false)
+  const [l2Dates, setL2Dates] = useState<Record<string, string>>({})
+  const [l1Files, setL1Files] = useState<Record<string, File | null>>({})
+  const [l1Submitted, setL1Submitted] = useState(false)
+
+  const openVehicle = (v: typeof myVehicles[0]) => {
+    setSelectedVehicle(v)
+    setL2Files({})
+    setL2Dates({})
+    setL2Submitted(false)
+    setL1Files({})
+    setL1Submitted(false)
+    setShowTimeline(false)
+  }
 
   const filtered = myVehicles.filter(v => {
     const matchSearch = !search || (v.vehicleNumber || v.id).toLowerCase().includes(search.toLowerCase()) || v.oem?.toLowerCase().includes(search.toLowerCase())
@@ -580,7 +595,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 </div>
                 <div className="flex items-center gap-2">
                   <VehicleStatusBadge status={v.status} />
-                  <button onClick={() => setSelectedVehicle(v)} className="p-1.5 hover:bg-muted rounded-lg ml-1">
+                  <button onClick={() => openVehicle(v)} className="p-1.5 hover:bg-muted rounded-lg ml-1">
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>
@@ -628,7 +643,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 <button onClick={() => setShowTimeline(!showTimeline)} className={`p-2 rounded-lg transition-colors ${showTimeline ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>
                   <History className="w-4 h-4" />
                 </button>
-                <button onClick={() => { setSelectedVehicle(null); setShowTimeline(false) }} className="p-2 hover:bg-muted rounded-lg">
+                <button onClick={() => { openVehicle(null); setShowTimeline(false) }} className="p-2 hover:bg-muted rounded-lg">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -726,18 +741,20 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                       { label: "RC Book", url: selectedVehicle.rcBookUrl },
                     ].map(({ label, url }) => (
                       <div key={label} className="flex items-center gap-2 text-sm">
-                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                          {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l1Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
+                          {(url || l1Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                         </div>
-                        <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                        <span className={url || l1Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
                         {/* Reupload if L1 rejected */}
                         {["L1_REJECTED"].includes(selectedVehicle.status) && !url && (
                           <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                            Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                            {l1Files[label] ? l1Files[label]!.name.substring(0, 15) + "..." : "Upload"}
+                            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                              onChange={e => setL1Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
                           </label>
                         )}
-                        {url && <span className="text-xs text-green-600 font-medium ml-auto">Verified</span>}
-                        {!url && !["L1_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                        {(url || l1Files[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Verified</span>}
+                        {!url && !l1Files[label] && !["L1_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
                       </div>
                     ))}
 
@@ -748,7 +765,25 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                         <div>
                           <p className="text-xs font-semibold text-red-700">L1 Correction Required</p>
                           <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l1Comments}</p>
-                          <button className="text-xs text-red-700 font-semibold mt-1 hover:underline">Resubmit for L1 →</button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Resubmit L1 button */}
+                    {selectedVehicle.status === "L1_REJECTED" && !l1Submitted && (
+                      <button
+                        onClick={() => setL1Submitted(true)}
+                        className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+                      >
+                        Resubmit for L1 Approval
+                      </button>
+                    )}
+                    {l1Submitted && (
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mt-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-semibold text-green-800">Documents Resubmitted</p>
+                          <p className="text-xs text-green-700 mt-0.5">Your corrected documents have been sent to MIC for review.</p>
                         </div>
                       </div>
                     )}
@@ -772,21 +807,25 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                             { label: "RTO Receipt / RC Book", type: "file", url: selectedVehicle.rcBookUrl },
                           ].map(({ label, type, url }) => (
                             <div key={label} className="flex items-center gap-2 text-sm">
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                                {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l2Files[label] || l2Dates[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
+                                {(url || l2Files[label] || l2Dates[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                               </div>
-                              <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                              <span className={url || l2Files[label] || l2Dates[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
                               {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
                                 type === "file" ? (
                                   <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                                    Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                                    {l2Files[label] ? l2Files[label]!.name.substring(0, 15) + "..." : "Upload"}
+                                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                                      onChange={e => setL2Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
                                   </label>
                                 ) : (
-                                  <input type="date" className="ml-auto text-xs border border-border rounded px-2 py-1 bg-card" />
+                                  <input type="date" value={l2Dates[label] || ""} 
+                                    onChange={e => setL2Dates(prev => ({ ...prev, [label]: e.target.value }))}
+                                    className="ml-auto text-xs border border-border rounded px-2 py-1 bg-card" />
                                 )
                               )}
-                              {url && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
-                              {!url && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                              {(url || l2Files[label] || l2Dates[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
+                              {!url && !l2Files[label] && !l2Dates[label] && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
                             </div>
                           ))}
                         </>
@@ -801,17 +840,19 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                             { label: "Tax Invoice (Retrofitment Center)", url: selectedVehicle.taxInvoiceUrl },
                           ].map(({ label, url }) => (
                             <div key={label} className="flex items-center gap-2 text-sm">
-                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                                {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l2Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
+                                {(url || l2Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                               </div>
-                              <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                              <span className={url || l2Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
                               {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
                                 <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                                  Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+                                  {l2Files[label] ? l2Files[label]!.name.substring(0, 15) + "..." : "Upload"}
+                                  <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={e => setL2Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
                                 </label>
                               )}
-                              {url && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
-                              {!url && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                              {(url || l2Files[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
+                              {!url && !l2Files[label] && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
                             </div>
                           ))}
                         </>
@@ -824,15 +865,38 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                           <div>
                             <p className="text-xs font-semibold text-red-700">L2 Correction Required</p>
                             <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l2Comments}</p>
-                            <button className="text-xs text-red-700 font-semibold mt-1 hover:underline">Resubmit for L2 →</button>
                           </div>
                         </div>
                       )}
 
                       {/* Submit L2 button when L1 approved */}
-                      {selectedVehicle.status === "L1_APPROVED" && (
-                        <button className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                      {selectedVehicle.status === "L1_APPROVED" && !l2Submitted && (
+                        <button
+                          onClick={() => setL2Submitted(true)}
+                          className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+                        >
                           Submit L2 Documents
+                        </button>
+                      )}
+
+                      {/* L2 submission success */}
+                      {l2Submitted && (
+                        <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mt-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold text-green-800">L2 Documents Submitted</p>
+                            <p className="text-xs text-green-700 mt-0.5">Your documents have been sent to ZIC for review. You will be notified once approved.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Resubmit L2 button for rejected */}
+                      {selectedVehicle.status === "L2_REJECTED" && (
+                        <button
+                          onClick={() => setL2Submitted(false)}
+                          className="w-full mt-2 py-2.5 border border-red-300 text-red-700 rounded-lg text-sm font-medium hover:bg-red-50"
+                        >
+                          Resubmit L2 Documents
                         </button>
                       )}
                     </div>
