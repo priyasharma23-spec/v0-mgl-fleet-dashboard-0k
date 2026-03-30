@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info
+  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -20,7 +20,7 @@ import {
   calculateVehicleAge,
   type VehicleCategory
 } from "@/lib/mgl-data"
-import { VehicleStatusBadge, WorkflowStepper } from "@/components/mgl/StatusBadge"
+import { VehicleStatusBadge, WorkflowStepper, WorkflowTimeline } from "@/components/mgl/StatusBadge"
 import type { VehicleStatus } from "@/lib/mgl-data"
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -116,7 +116,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
         <FOCardsView onViewChange={setActiveView} onManageCard={(vehicleId) => setSelectedCardVehicle(vehicleId)} />
       )
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
-      case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} />
+      case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
@@ -493,6 +493,39 @@ function FODashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
 
 // ─── FO Vehicles List ────────────────────────────────────────────────────────
 function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void }) {
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedVehicle, setSelectedVehicle] = useState<typeof myVehicles[0] | null>(null)
+  const [showTimeline, setShowTimeline] = useState(false)
+  const [l2Files, setL2Files] = useState<Record<string, File | null>>({})
+  const [l2Submitted, setL2Submitted] = useState(false)
+  const [l2Dates, setL2Dates] = useState<Record<string, string>>({})
+  const [l1Files, setL1Files] = useState<Record<string, File | null>>({})
+  const [l1Submitted, setL1Submitted] = useState(false)
+
+  const openVehicle = (v: typeof myVehicles[0]) => {
+    setSelectedVehicle(v)
+    setL2Files({})
+    setL2Dates({})
+    setL2Submitted(false)
+    setL1Files({})
+    setL1Submitted(false)
+    setShowTimeline(false)
+  }
+
+  const filtered = myVehicles.filter(v => {
+    const matchSearch = !search || (v.vehicleNumber || v.id).toLowerCase().includes(search.toLowerCase()) || v.oem?.toLowerCase().includes(search.toLowerCase())
+    const matchStatus = statusFilter === "all" || v.status === statusFilter
+    return matchSearch && matchStatus
+  })
+
+  const counts = {
+    total: myVehicles.length,
+    active: myVehicles.filter(v => v.status === "CARD_ACTIVE").length,
+    pending: myVehicles.filter(v => ["DRAFT","L1_SUBMITTED","L1_APPROVED","L2_SUBMITTED","CARD_PRINTED","CARD_DISPATCHED"].includes(v.status)).length,
+    rejected: myVehicles.filter(v => ["L1_REJECTED","L2_REJECTED"].includes(v.status)).length,
+  }
+
   return (
     <div className="flex flex-col gap-5 p-5">
       <div className="flex items-center justify-between">
@@ -505,8 +538,43 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
           + Add Vehicle
         </button>
       </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { label: "Total Vehicles", value: counts.total, icon: Truck, iconBg: "bg-blue-100", iconColor: "text-blue-600" },
+          { label: "Active", value: counts.active, icon: CheckCircle, iconBg: "bg-green-100", iconColor: "text-green-600" },
+          { label: "In Progress", value: counts.pending, icon: Clock, iconBg: "bg-amber-100", iconColor: "text-amber-600" },
+          { label: "Action Needed", value: counts.rejected, icon: AlertCircle, iconBg: "bg-red-100", iconColor: "text-red-600" },
+        ].map((card, i) => (
+          <div key={i} className="bg-card rounded-xl border border-border p-4">
+            <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center mb-3`}>
+              <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+            </div>
+            <p className="text-2xl font-bold text-foreground">{card.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by vehicle number or OEM..." className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+        </div>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="px-3 py-2 border border-border rounded-lg text-sm bg-card">
+          <option value="all">All Status</option>
+          <option value="CARD_ACTIVE">Active</option>
+          <option value="L1_SUBMITTED">L1 Review</option>
+          <option value="L1_APPROVED">L1 Approved</option>
+          <option value="L2_SUBMITTED">L2 Review</option>
+          <option value="L1_REJECTED">L1 Rejected</option>
+          <option value="L2_REJECTED">L2 Rejected</option>
+          <option value="CARD_DISPATCHED">Card Dispatched</option>
+        </select>
+      </div>
+
       <div className="space-y-3">
-        {myVehicles.map((v) => {
+        {filtered.map((v) => {
           const steps: { label: string; status: "done" | "active" | "pending" }[] = [
             { label: "Registered", status: "done" },
             { label: "L1 Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
@@ -525,7 +593,12 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                     <p className="text-xs text-muted-foreground">{v.oem} {v.model} · {v.category} · {v.onboardingType === "MIC_ASSISTED" ? "New Purchase" : "Self-Service"}</p>
                   </div>
                 </div>
-                <VehicleStatusBadge status={v.status} />
+                <div className="flex items-center gap-2">
+                  <VehicleStatusBadge status={v.status} />
+                  <button onClick={() => openVehicle(v)} className="p-1.5 hover:bg-muted rounded-lg ml-1">
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
               </div>
 
               <div className="overflow-x-auto mb-3">
@@ -552,19 +625,288 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
                 </div>
               )}
-
-              {/* Card info */}
-              {v.cardNumber && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                  <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
-                  <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
-                  {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
-                </div>
-              )}
             </div>
           )
         })}
       </div>
+
+      {selectedVehicle && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSelectedVehicle(null)} />
+          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto flex flex-col">
+            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-foreground">{selectedVehicle.vehicleNumber || selectedVehicle.id}</h2>
+                <p className="text-xs text-muted-foreground">{selectedVehicle.oem} · {selectedVehicle.model}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <button onClick={() => setShowTimeline(!showTimeline)} className={`p-2 rounded-lg transition-colors ${showTimeline ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>
+                  <History className="w-4 h-4" />
+                </button>
+                <button onClick={() => { openVehicle(null); setShowTimeline(false) }} className="p-2 hover:bg-muted rounded-lg">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            {showTimeline ? (
+              <div className="p-4 space-y-3 flex-1 overflow-y-auto">
+                <p className="text-sm font-semibold text-foreground">Approval Timeline</p>
+                <WorkflowTimeline status={selectedVehicle.status} onboardingType={selectedVehicle.onboardingType || "SELF_SERVICE"} dates={{
+                  l1SubmittedAt: selectedVehicle.l1SubmittedAt,
+                  l1ApprovedAt: selectedVehicle.l1ApprovedAt,
+                  l1RejectedAt: selectedVehicle.l1RejectedAt,
+                  l2SubmittedAt: selectedVehicle.l2SubmittedAt,
+                  l2ApprovedAt: selectedVehicle.l2ApprovedAt,
+                  l2RejectedAt: selectedVehicle.l2RejectedAt,
+                  cardDispatchDate: selectedVehicle.cardDispatchDate,
+                  cardActivatedAt: selectedVehicle.cardActivatedAt,
+                }} comments={{
+                  l1Comments: selectedVehicle.l1Comments,
+                  l2Comments: selectedVehicle.l2Comments,
+                }} />
+              </div>
+            ) : (
+              <div className="p-4 space-y-4 flex-1 overflow-y-auto">
+                {/* Status */}
+                <div className="flex items-center gap-2">
+                  <VehicleStatusBadge status={selectedVehicle.status} />
+                  <span className="text-xs text-muted-foreground">
+                    {selectedVehicle.onboardingType === "MIC_ASSISTED" ? "MIC Assisted" : "Self-Service"}
+                  </span>
+                </div>
+
+                {/* Vehicle Details */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+                  {[
+                    ["Vehicle Number", selectedVehicle.vehicleNumber],
+                    ["OEM", selectedVehicle.oem],
+                    ["Model", selectedVehicle.model],
+                    ["Category", selectedVehicle.category],
+                    ["Dealership", selectedVehicle.dealership],
+                    ["Booking Date", selectedVehicle.bookingDate],
+                    ["Registration Date", selectedVehicle.registrationDate],
+                    ["Delivery Date", selectedVehicle.deliveryDate],
+                  ].map(([label, value]) => value ? (
+                    <div key={label} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-medium text-foreground text-right">{value}</span>
+                    </div>
+                  ) : null)}
+                </div>
+
+                {/* Driver Details — shown for both, optional fields */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
+                  {[
+                    ["Driver Name", selectedVehicle.driverName],
+                    ["Contact", selectedVehicle.driverContact],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-medium text-foreground">{value || "—"}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Card Details */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Details</p>
+                  {[
+                    ["Card Number", selectedVehicle.cardNumber || "Not issued yet"],
+                    ["Dispatch Date", selectedVehicle.cardDispatchDate],
+                    ["Delivery Date", selectedVehicle.cardDeliveryDate],
+                    ["Activated At", selectedVehicle.cardActivatedAt],
+                    ["Tracking ID", selectedVehicle.trackingId],
+                  ].map(([label, value]) => value ? (
+                    <div key={label} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{label}</span>
+                      <span className="font-medium text-foreground">{value}</span>
+                    </div>
+                  ) : null)}
+                  {!selectedVehicle.cardNumber && (
+                    <p className="text-xs text-muted-foreground">Card will be issued after L1 approval</p>
+                  )}
+                </div>
+
+                {/* Documents — status-aware flow */}
+                <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+
+                  {/* L1 Documents — always shown */}
+                  <div className="space-y-2">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">L1 Documents</p>
+                    {[
+                      { label: "Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
+                      { label: "RC Book", url: selectedVehicle.rcBookUrl },
+                    ].map(({ label, url }) => (
+                      <div key={label} className="flex items-center gap-2 text-sm">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l1Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
+                          {(url || l1Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                        </div>
+                        <span className={url || l1Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                        {/* Reupload if L1 rejected */}
+                        {["L1_REJECTED"].includes(selectedVehicle.status) && !url && (
+                          <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
+                            {l1Files[label] ? l1Files[label]!.name.substring(0, 15) + "..." : "Upload"}
+                            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                              onChange={e => setL1Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
+                          </label>
+                        )}
+                        {(url || l1Files[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Verified</span>}
+                        {!url && !l1Files[label] && !["L1_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                      </div>
+                    ))}
+
+                    {/* L1 rejection notice */}
+                    {selectedVehicle.status === "L1_REJECTED" && selectedVehicle.l1Comments && (
+                      <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mt-2">
+                        <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5 shrink-0" />
+                        <div>
+                          <p className="text-xs font-semibold text-red-700">L1 Correction Required</p>
+                          <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l1Comments}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Resubmit L1 button */}
+                    {selectedVehicle.status === "L1_REJECTED" && !l1Submitted && (
+                      <button
+                        onClick={() => setL1Submitted(true)}
+                        className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+                      >
+                        Resubmit for L1 Approval
+                      </button>
+                    )}
+                    {l1Submitted && (
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mt-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-semibold text-green-800">Documents Resubmitted</p>
+                          <p className="text-xs text-green-700 mt-0.5">Your corrected documents have been sent to MIC for review.</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* L2 Documents — shown only if L1 approved or beyond */}
+                  {["L1_APPROVED","L2_SUBMITTED","L2_APPROVED","L2_REJECTED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(selectedVehicle.status) && (
+                    <div className="space-y-2 pt-2 border-t border-border">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        L2 Documents
+                        {selectedVehicle.status === "L1_APPROVED" && <span className="ml-2 text-amber-600 normal-case">— Upload required</span>}
+                      </p>
+
+                      {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.vehicleType === "new_purchase" ? (
+                        // New Purchase L2 docs
+                        <>
+                          {[
+                            { label: "Delivery Date", type: "date", url: selectedVehicle.deliveryDate },
+                            { label: "Delivery Challan / Delivery Note", type: "file", url: selectedVehicle.deliveryChallanUrl },
+                            { label: "Registration Date", type: "date", url: selectedVehicle.registrationDate },
+                            { label: "RTO Receipt / RC Book", type: "file", url: selectedVehicle.rcBookUrl },
+                          ].map(({ label, type, url }) => (
+                            <div key={label} className="flex items-center gap-2 text-sm">
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l2Files[label] || l2Dates[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
+                                {(url || l2Files[label] || l2Dates[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                              </div>
+                              <span className={url || l2Files[label] || l2Dates[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                              {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
+                                type === "file" ? (
+                                  <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
+                                    {l2Files[label] ? l2Files[label]!.name.substring(0, 15) + "..." : "Upload"}
+                                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                                      onChange={e => setL2Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
+                                  </label>
+                                ) : (
+                                  <input type="date" value={l2Dates[label] || ""} 
+                                    onChange={e => setL2Dates(prev => ({ ...prev, [label]: e.target.value }))}
+                                    className="ml-auto text-xs border border-border rounded px-2 py-1 bg-card" />
+                                )
+                              )}
+                              {(url || l2Files[label] || l2Dates[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
+                              {!url && !l2Files[label] && !l2Dates[label] && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                            </div>
+                          ))}
+                        </>
+                      ) : (
+                        // Retrofitment L2 docs
+                        <>
+                          {[
+                            { label: "CNG Kit Installation Certificate", url: selectedVehicle.cngCertUrl },
+                            { label: "E-Fitment Certificate", url: selectedVehicle.eFitmentUrl },
+                            { label: "RTO Endorsement (CNG conversion)", url: selectedVehicle.rtoEndorsementUrl },
+                            { label: "Type Approval Certificate", url: selectedVehicle.typeApprovalUrl },
+                            { label: "Tax Invoice (Retrofitment Center)", url: selectedVehicle.taxInvoiceUrl },
+                          ].map(({ label, url }) => (
+                            <div key={label} className="flex items-center gap-2 text-sm">
+                              <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l2Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
+                                {(url || l2Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                              </div>
+                              <span className={url || l2Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+                              {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
+                                <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
+                                  {l2Files[label] ? l2Files[label]!.name.substring(0, 15) + "..." : "Upload"}
+                                  <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={e => setL2Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
+                                </label>
+                              )}
+                              {(url || l2Files[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
+                              {!url && !l2Files[label] && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
+                            </div>
+                          ))}
+                        </>
+                      )}
+
+                      {/* L2 rejection notice */}
+                      {selectedVehicle.status === "L2_REJECTED" && selectedVehicle.l2Comments && (
+                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mt-2">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-red-700">L2 Correction Required</p>
+                            <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l2Comments}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Submit L2 button when L1 approved */}
+                      {selectedVehicle.status === "L1_APPROVED" && !l2Submitted && (
+                        <button
+                          onClick={() => setL2Submitted(true)}
+                          className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
+                        >
+                          Submit L2 Documents
+                        </button>
+                      )}
+
+                      {/* L2 submission success */}
+                      {l2Submitted && (
+                        <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mt-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold text-green-800">L2 Documents Submitted</p>
+                            <p className="text-xs text-green-700 mt-0.5">Your documents have been sent to ZIC for review. You will be notified once approved.</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Resubmit L2 button for rejected */}
+                      {selectedVehicle.status === "L2_REJECTED" && (
+                        <button
+                          onClick={() => setL2Submitted(false)}
+                          className="w-full mt-2 py-2.5 border border-red-300 text-red-700 rounded-lg text-sm font-medium hover:bg-red-50"
+                        >
+                          Resubmit L2 Documents
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -629,10 +971,19 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     const file = form[fieldName] as File | null
     return (
       <div>
-        <label className="text-xs font-medium text-muted-foreground">{label}{required && <span className="text-destructive ml-0.5">*</span>}</label>
+        <label className="text-xs font-medium text-muted-foreground">
+          {label}{required && <span className="text-destructive ml-0.5">*</span>}
+        </label>
         <label className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-lg border border-dashed border-border bg-muted/30 cursor-pointer hover:bg-muted/60 transition-colors">
-          <Upload className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">{file ? file.name : "Upload PDF / JPG (max 10MB)"}</span>
+          <Upload className="w-4 h-4 text-muted-foreground shrink-0" />
+          <span className="text-sm text-muted-foreground flex-1 truncate min-w-0">
+            {file ? file.name : "Upload PDF / JPG (max 10MB)"}
+          </span>
+          {file && (
+            <span className="text-[10px] font-semibold text-green-600 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded shrink-0">
+              Uploaded
+            </span>
+          )}
           <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden"
             onChange={(e) => setForm({ ...form, [fieldName]: e.target.files?.[0] || null })} />
         </label>
@@ -848,68 +1199,92 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         )}
 
         {/* L1: Step 5 - Review & Submit */}
-        {mode === "l1" && step === 5 && (
-          <div className="space-y-4">
-            {/* Registration Type */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registration Type</p>
-              <p className="text-sm font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p>
+        {mode === "l1" && step === 5 && !submitted && (
+          <div className="space-y-5">
+            <p className="font-semibold text-sm text-foreground border-b border-border pb-2">Review & Submit</p>
+
+            {/* Registration Type Banner */}
+            <div className={`flex items-center gap-3 p-3 rounded-lg ${vehicleType === "new_purchase" ? "bg-blue-50 border border-blue-200" : "bg-amber-50 border border-amber-200"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${vehicleType === "new_purchase" ? "bg-blue-100" : "bg-amber-100"}`}>
+                {vehicleType === "new_purchase" ? <Truck className="w-4 h-4 text-blue-600" /> : <RefreshCw className="w-4 h-4 text-amber-600" />}
+              </div>
+              <div>
+                <p className={`text-xs font-semibold uppercase tracking-wide ${vehicleType === "new_purchase" ? "text-blue-700" : "text-amber-700"}`}>Registration Type</p>
+                <p className={`text-sm font-bold ${vehicleType === "new_purchase" ? "text-blue-900" : "text-amber-900"}`}>{vehicleType === "new_purchase" ? "New CNG Vehicle" : "Retrofitment"}</p>
+              </div>
             </div>
 
             {/* Vehicle Details */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                {vehicleType === "retrofit" && (
-                  <>
-                    <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
-                    <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
-                    {vehicleAge && <div><p className="text-xs text-muted-foreground">Vehicle Age</p><p className="font-medium">{vehicleAge.years}y {vehicleAge.months}m</p></div>}
-                    <div><p className="text-xs text-muted-foreground">Retrofitter</p><p className="font-medium">{retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"}</p></div>
-                  </>
-                )}
-                {vehicleType === "new_purchase" && (
-                  <div><p className="text-xs text-muted-foreground">Dealer</p><p className="font-medium">{availableDealers.find(d => d.id === form.dealerId)?.name || "—"}</p></div>
-                )}
-                <div><p className="text-xs text-muted-foreground">OEM</p><p className="font-medium">{oems.find(o => o.id === form.oemId)?.name || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium">{form.category || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Model</p><p className="font-medium">{form.model || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Booking Date</p><p className="font-medium">{form.bookingDate || "—"}</p></div>
+            <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vehicle Details</p>
               </div>
-            </div>
-
-            {/* Driver Details */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Driver Name</p><p className="font-medium">{form.driverName || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Contact</p><p className="font-medium">{form.driverContact || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">License Number</p><p className="font-medium">{form.driverLicense || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Delivery Address</p><p className="font-medium">{form.deliveryAddress || "—"}</p></div>
-              </div>
-            </div>
-
-            {/* Documents */}
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-              <div className="space-y-1.5">
-                {[
-                  { label: "Booking Receipt", file: form.bookingReceipt, required: true },
-                  { label: "RC Book", file: form.rcBook, required: true },
-                  { label: "Driver License", file: form.driverLicenseFile, required: false },
-                ].map((doc, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{doc.label}{doc.required && <span className="text-destructive ml-0.5">*</span>}</span>
-                    {doc.file
-                      ? <span className="text-green-600 font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />{doc.file.name}</span>
-                      : <span className="text-muted-foreground text-xs">Not uploaded</span>
-                    }
+              <div className="grid grid-cols-2 gap-px bg-border">
+                {([
+                  ["Vehicle Number", form.vehicleNumber || "—"],
+                  vehicleType === "new_purchase"
+                    ? ["OEM", selectedOEM?.name || "—"]
+                    : ["Retrofitter", retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"],
+                  ["Category", form.category === "HCV" ? "HCV (≥15T)" : form.category === "ICV" ? "ICV (≥10T, <15T)" : form.category === "LCV" ? "LCV (>3.5T, <10T)" : form.category === "Bus" ? "Bus" : "—"],
+                  ["Model", form.model || "—"],
+                  vehicleType === "new_purchase"
+                    ? ["Dealership", availableDealers.find(d => d.id === form.dealerId)?.name || "—"]
+                    : ["Registration Date", form.registrationDate || "—"],
+                  ["Booking Date", form.bookingDate || "—"],
+                ] as [string, string][]).map(([k, v]) => (
+                  <div key={k} className="bg-card px-4 py-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">{k}</p>
+                    <p className="text-sm font-semibold text-foreground">{v}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground">By submitting, you confirm all details are correct. MIC will review your documents and issue a card in inactive state.</p>
+            {/* Driver Details */}
+            <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Driver Details</p>
+              </div>
+              <div className="grid grid-cols-2 gap-px bg-border">
+                {([
+                  ["Driver Name", form.driverName || "—"],
+                  ["Contact", form.driverContact || "—"],
+                  ["License Number", form.driverLicense || "—"],
+                  ["Delivery Address", form.deliveryAddress || "—"],
+                ] as [string, string][]).map(([k, v]) => (
+                  <div key={k} className={`bg-card px-4 py-3 ${k === "Delivery Address" ? "col-span-2" : ""}`}>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-0.5">{k}</p>
+                    <p className="text-sm font-semibold text-foreground">{v}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Documents */}
+            <div className="bg-muted/40 rounded-xl border border-border overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted border-b border-border">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</p>
+              </div>
+              <div className="p-4 space-y-2">
+                {([
+                  ["Booking Receipt", form.bookingReceipt],
+                  ["RC Book", form.rcBook],
+                  ["Driver License", form.driverLicenseFile],
+                ] as [string, File | null][]).map(([label, file]) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${file ? "bg-green-500" : "bg-muted border border-border"}`}>
+                      {file && <CheckCircle className="w-3 h-3 text-white" />}
+                    </div>
+                    <p className="text-xs text-foreground">{label} — <span className={file ? "text-green-700 font-medium" : "text-muted-foreground"}>{file?.name || "Not uploaded"}</span></p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Submission note */}
+            <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-xs text-primary">
+              By submitting, you confirm all uploaded documents are authentic. MIC will review your documents and issue a card in inactive state.
+            </div>
           </div>
         )}
 
@@ -1936,7 +2311,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   )
 }
 
-// ─── FO Fund Management ��─────────────────────────────────────────────────────
+// ─── FO Fund Management ��──────────────────��─────────────────���────────────────
 function FOFundManagement() {
   const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
@@ -2204,7 +2579,7 @@ function FODeliveryTracking() {
   )
 }
 
-// ─── FO Notifications ───────────────────────────────���─────────────────────────
+// ─── FO Notifications ───────────────────────────────���────────��────────────────
 function FONotificationsView() {
   const notifs = [
     { title: "Document Rejected — Action Required", message: "Vehicle MH04EF9012 L1 documents rejected. Reason: Booking receipt is unclear. Please resubmit.", type: "error", time: "2 hrs ago", read: false },

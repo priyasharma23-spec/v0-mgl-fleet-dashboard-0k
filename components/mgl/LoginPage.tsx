@@ -109,7 +109,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     
     setLoading(true);
     await new Promise((r) => setTimeout(r, 800));
-    onLogin("fleet-operator", "Suresh Kumar");
+    onLogin("fleet-operator", "Suresh Kumar", "MIC_ASSISTED");
     setLoading(false);
   };
 
