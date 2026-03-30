@@ -573,6 +573,26 @@ export const mockVehicles: Vehicle[] = [
     cardActivatedAt: "2025-03-11",
     onboardingType: "SELF_SERVICE",
   },
+  {
+    id: "VEH007",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04MN3344",
+    model: "Tata LPT 1109",
+    category: "ICV",
+    oem: "Tata Motors",
+    dealership: "Tata Motors Andheri",
+    bookingDate: "2025-03-01",
+    registrationDate: "2025-03-10",
+    driverName: "Suresh Patil",
+    driverContact: "9876509988",
+    status: "L1_APPROVED",
+    l1SubmittedAt: "2025-03-05",
+    l1ApprovedAt: "2025-03-07",
+    onboardingType: "MIC_ASSISTED",
+    bookingReceiptUrl: "booking_veh007.pdf",
+    rcBookUrl: "rc_veh007.pdf",
+  },
 ];
 
 // ─── Mock Notifications ─────────────────────────────────────────────────────
