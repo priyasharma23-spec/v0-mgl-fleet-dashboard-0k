@@ -822,11 +822,11 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {/* L1: Step 4 - Driver Details */}
         {mode === "l1" && step === 4 && (
           <div className="space-y-4">
-            <Field label="Driver Name" name="driverName" required />
-            <Field label="Driver Contact" name="driverContact" type="tel" required />
-            <Field label="Driver License Number" name="driverLicense" required />
+            <Field label="Driver Name" name="driverName" />
+            <Field label="Driver Contact" name="driverContact" type="tel" />
+            <Field label="Driver License Number" name="driverLicense" />
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Delivery Address <span className="text-destructive">*</span></label>
+              <label className="text-xs font-medium text-muted-foreground">Delivery Address</label>
               <textarea
                 value={form.deliveryAddress}
                 onChange={e => setForm({ ...form, deliveryAddress: e.target.value })}
