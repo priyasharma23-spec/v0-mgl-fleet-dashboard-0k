@@ -640,7 +640,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
     )
   }
 
-  const l1Steps = ["Vehicle Type", "Vehicle Details", "L1 Documents"]
+  const l1Steps = ["Registration Type", "Vehicle Details", "Documentation", "Driver Details", "Review & Submit"]
   const l2Steps = ["Driver & Address", "L2 Documents", "Review & Submit"]
   const steps = mode === "l1" ? l1Steps : l2Steps
 
@@ -701,7 +701,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
       </div>
 
       <div className="space-y-4">
-        {/* L1: Step 1 - Vehicle Type */}
+        {/* L1: Step 1 - Registration Type */}
         {mode === "l1" && step === 1 && (
           <div className="grid grid-cols-2 gap-4">
             {[
@@ -810,12 +810,49 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           </div>
         )}
 
-        {/* L1: Step 3 - L1 Documents */}
+        {/* L1: Step 3 - Documentation */}
         {mode === "l1" && step === 3 && (
           <div className="space-y-3">
             <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
             <FileField label="RC Book" fieldName="rcBook" required />
             <FileField label="Driver License" fieldName="driverLicenseFile" required />
+          </div>
+        )}
+
+        {/* L1: Step 4 - Driver Details */}
+        {mode === "l1" && step === 4 && (
+          <div className="space-y-4">
+            <Field label="Driver Name" name="driverName" required />
+            <Field label="Driver Contact" name="driverContact" type="tel" required />
+            <Field label="Driver License Number" name="driverLicense" required />
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Delivery Address <span className="text-destructive">*</span></label>
+              <textarea
+                value={form.deliveryAddress}
+                onChange={e => setForm({ ...form, deliveryAddress: e.target.value })}
+                rows={3}
+                placeholder="Enter delivery address"
+                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* L1: Step 5 - Review & Submit */}
+        {mode === "l1" && step === 5 && (
+          <div className="space-y-4">
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+              <h3 className="font-semibold text-sm">Registration Summary</h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div><p className="text-xs text-muted-foreground">Registration Type</p><p className="font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium">{form.category || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Model</p><p className="font-medium">{form.model || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Driver</p><p className="font-medium">{form.driverName || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Documents</p><p className="font-medium">{[form.bookingReceipt, form.rcBook, form.driverLicenseFile].filter(Boolean).length}/3 uploaded</p></div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">By submitting, you confirm all details are correct. MIC will review your documents and issue a card in inactive state.</p>
           </div>
         )}
 
@@ -878,15 +915,15 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         <button onClick={() => step > 1 ? setStep(step - 1) : onViewChange("fo-vehicles")} className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
           {step === 1 ? "Cancel" : "Back"}
         </button>
-        <button onClick={() => step < 3 ? setStep(step + 1) : setSubmitted(true)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-          {step === 3 ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
+        <button onClick={() => step < (mode === "l1" ? 5 : 3) ? setStep(step + 1) : setSubmitted(true)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+          {(mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
         </button>
       </div>
     </div>
   )
 }
 
-// ─── FO Cards View ────────────────────────────────────────────────────────
+// ─── FO Cards View ─────────────────���──────────────────────────────────────
 function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
   const [activatingCard, setActivatingCard] = useState<string | null>(null)
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
