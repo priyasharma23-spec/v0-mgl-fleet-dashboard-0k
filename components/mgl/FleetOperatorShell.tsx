@@ -850,17 +850,65 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {/* L1: Step 5 - Review & Submit */}
         {mode === "l1" && step === 5 && (
           <div className="space-y-4">
-            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-              <h3 className="font-semibold text-sm">Registration Summary</h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div><p className="text-xs text-muted-foreground">Registration Type</p><p className="font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+            {/* Registration Type */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registration Type</p>
+              <p className="text-sm font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p>
+            </div>
+
+            {/* Vehicle Details */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                {vehicleType === "retrofit" && (
+                  <>
+                    <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+                    <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
+                    {vehicleAge && <div><p className="text-xs text-muted-foreground">Vehicle Age</p><p className="font-medium">{vehicleAge.years}y {vehicleAge.months}m</p></div>}
+                    <div><p className="text-xs text-muted-foreground">Retrofitter</p><p className="font-medium">{retrofitters.find(r => r.id === form.retrofitterId)?.name || "—"}</p></div>
+                  </>
+                )}
+                {vehicleType === "new_purchase" && (
+                  <div><p className="text-xs text-muted-foreground">Dealer</p><p className="font-medium">{availableDealers.find(d => d.id === form.dealerId)?.name || "—"}</p></div>
+                )}
+                <div><p className="text-xs text-muted-foreground">OEM</p><p className="font-medium">{oems.find(o => o.id === form.oemId)?.name || "—"}</p></div>
                 <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium">{form.category || "—"}</p></div>
                 <div><p className="text-xs text-muted-foreground">Model</p><p className="font-medium">{form.model || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Driver</p><p className="font-medium">{form.driverName || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Documents</p><p className="font-medium">{[form.bookingReceipt, form.rcBook, form.driverLicenseFile].filter(Boolean).length}/3 uploaded</p></div>
+                <div><p className="text-xs text-muted-foreground">Booking Date</p><p className="font-medium">{form.bookingDate || "—"}</p></div>
               </div>
             </div>
+
+            {/* Driver Details */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><p className="text-xs text-muted-foreground">Driver Name</p><p className="font-medium">{form.driverName || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Contact</p><p className="font-medium">{form.driverContact || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">License Number</p><p className="font-medium">{form.driverLicense || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Delivery Address</p><p className="font-medium">{form.deliveryAddress || "—"}</p></div>
+              </div>
+            </div>
+
+            {/* Documents */}
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+              <div className="space-y-1.5">
+                {[
+                  { label: "Booking Receipt", file: form.bookingReceipt, required: true },
+                  { label: "RC Book", file: form.rcBook, required: true },
+                  { label: "Driver License", file: form.driverLicenseFile, required: false },
+                ].map((doc, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">{doc.label}{doc.required && <span className="text-destructive ml-0.5">*</span>}</span>
+                    {doc.file
+                      ? <span className="text-green-600 font-medium flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />{doc.file.name}</span>
+                      : <span className="text-muted-foreground text-xs">Not uploaded</span>
+                    }
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <p className="text-xs text-muted-foreground">By submitting, you confirm all details are correct. MIC will review your documents and issue a card in inactive state.</p>
           </div>
         )}
