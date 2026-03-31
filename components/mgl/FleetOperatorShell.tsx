@@ -1223,7 +1223,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
         )}
 
         {/* L1: Step 2 - Vehicle Details */}
-        {mode === "l1" && step === 2 && (
+        {onboardingType !== "SELF_SERVICE" && mode === "l1" && step === 2 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Shared: OEM dropdown for both vehicle types */}
             <div>
