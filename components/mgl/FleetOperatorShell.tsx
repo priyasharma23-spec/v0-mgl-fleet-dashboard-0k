@@ -752,23 +752,24 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 <div className="bg-muted/30 rounded-xl p-4 space-y-3">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
 
-                  {/* L1 Documents — always shown */}
+                  {/* L1 Documents */}
                   <div className="space-y-2">
                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">L1 Documents</p>
-                    {[
-                      { label: "Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
-                      { label: "RC Book", url: selectedVehicle.rcBookUrl },
-                    ].map(({ label, url }) => (
+                    {(selectedVehicle.bookingReceiptUrl || selectedVehicle.rcBookUrl ? [
+                      selectedVehicle.bookingReceiptUrl ? { label: "Vehicle Booking Receipt", url: selectedVehicle.bookingReceiptUrl } : null,
+                      selectedVehicle.rcBookUrl ? { label: "RC Book", url: selectedVehicle.rcBookUrl } : null,
+                    ] : [
+                      { label: "Vehicle Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
+                      { label: "Driver License", url: null },
+                    ]).filter(Boolean).map(({ label, url }) => (
                       <div key={label} className="flex items-center gap-2 text-sm">
                         <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l1Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
                           {(url || l1Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                         </div>
                         <span className={url || l1Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                        {/* Reupload if L1 rejected */}
-                        {["L1_REJECTED"].includes(selectedVehicle.status) && !url && (
+                        {["L1_REJECTED"].includes(selectedVehicle.status) && !url && !l1Files[label] && (
                           <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                            {l1Files[label] ? l1Files[label]!.name.substring(0, 15) + "..." : "Upload"}
-                            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                            Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
                               onChange={e => setL1Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
                           </label>
                         )}
@@ -1192,9 +1193,18 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {/* L1: Step 3 - Documentation */}
         {mode === "l1" && step === 3 && (
           <div className="space-y-3">
-            <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
-            <FileField label="RC Book" fieldName="rcBook" required />
-            <FileField label="Driver License" fieldName="driverLicenseFile" />
+            {/* L1 Documents — based on vehicle type */}
+            {vehicleType === "new_purchase" ? (
+              <div className="space-y-3">
+                <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
+                <FileField label="Driver License" fieldName="driverLicenseFile" />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <FileField label="RC Book" fieldName="rcBook" required />
+                <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
+              </div>
+            )}
           </div>
         )}
 
@@ -1285,16 +1295,23 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</p>
               </div>
               <div className="p-4 space-y-2">
-                {([
-                  ["Booking Receipt", form.bookingReceipt],
-                  ["RC Book", form.rcBook],
-                  ["Driver License", form.driverLicenseFile],
-                ] as [string, File | null][]).map(([label, file]) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${file ? "bg-green-500" : "bg-muted border border-border"}`}>
-                      {file && <CheckCircle className="w-3 h-3 text-white" />}
+                {(vehicleType === "new_purchase" ? (
+                  [
+                    { label: "Vehicle Booking Receipt", file: form.bookingReceipt, required: true },
+                    { label: "Driver License", file: form.driverLicenseFile, required: false },
+                  ]
+                ) : (
+                  [
+                    { label: "RC Book", file: form.rcBook, required: true },
+                    { label: "Booking Receipt", file: form.bookingReceipt, required: true },
+                  ]
+                ) as { label: string; file: File | null; required: boolean }[]).map((doc, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${doc.file ? "bg-green-500" : "bg-muted border border-border"}`}>
+                      {doc.file && <CheckCircle className="w-3 h-3 text-white" />}
                     </div>
-                    <p className="text-xs text-foreground">{label} — <span className={file ? "text-green-700 font-medium" : "text-muted-foreground"}>{file?.name || "Not uploaded"}</span></p>
+                    <span className="text-foreground text-xs">{doc.label}{doc.required && <span className="text-destructive ml-0.5">*</span>}</span>
+                    <span className={`text-xs ml-auto ${doc.file ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{doc.file?.name || "Not uploaded"}</span>
                   </div>
                 ))}
               </div>
