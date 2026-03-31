@@ -698,7 +698,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
                   {[
-                    ["Registration Type", selectedVehicle.onboardingType === "MIC_ASSISTED" ? "New Purchase / Retrofitment" : "Self-Service"],
+                    ["Registration Type", selectedVehicle.onboardingType === "SELF_SERVICE" ? "Self-Service" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],
                     ["Vehicle Number", selectedVehicle.vehicleNumber],
                     ["OEM", selectedVehicle.oem],
                     ["Model", selectedVehicle.model],

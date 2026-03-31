@@ -236,6 +236,7 @@ export interface Vehicle {
   deliveryDate?: string;
   cngCertUrl?: string;
   eFitmentUrl?: string;
+  vehicleType?: "new_purchase" | "retrofit";
 }
 
 export interface Notification {
@@ -485,6 +486,7 @@ export const mockVehicles: Vehicle[] = [
     eFitmentUrl: undefined,
     rtoEndorsementUrl: undefined,
     deliveryDate: "2025-02-05",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH002",
@@ -504,6 +506,7 @@ export const mockVehicles: Vehicle[] = [
     l2SubmittedAt: "2025-02-11",
     onboardingType: "MIC_ASSISTED",
     deliveryChallanUrl: "delivery_challan_veh002.pdf",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH003",
@@ -520,6 +523,7 @@ export const mockVehicles: Vehicle[] = [
     l1RejectedAt: "2025-02-05",
     l1Comments: "Vehicle booking receipt is unclear. Please re-upload a higher quality scan.",
     onboardingType: "MIC_ASSISTED",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH004",
@@ -539,6 +543,7 @@ export const mockVehicles: Vehicle[] = [
     cardDispatchDate: "2025-03-01",
     trackingId: "BLUEDART987654",
     onboardingType: "SELF_SERVICE",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH005",
@@ -553,6 +558,7 @@ export const mockVehicles: Vehicle[] = [
     status: "L1_SUBMITTED",
     l1SubmittedAt: "2025-02-17",
     onboardingType: "SELF_SERVICE",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH006",
@@ -576,6 +582,7 @@ export const mockVehicles: Vehicle[] = [
     trackingId: "SPEEDPOST112233",
     cardActivatedAt: "2025-03-11",
     onboardingType: "SELF_SERVICE",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH007",
@@ -596,6 +603,7 @@ export const mockVehicles: Vehicle[] = [
     onboardingType: "MIC_ASSISTED",
     bookingReceiptUrl: "booking_veh007.pdf",
     rcBookUrl: "rc_veh007.pdf",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH008",
@@ -613,6 +621,7 @@ export const mockVehicles: Vehicle[] = [
     onboardingType: "MIC_ASSISTED",
     bookingReceiptUrl: "booking_veh008.pdf",
     rcBookUrl: "rc_veh008.pdf",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH009",
@@ -633,6 +642,7 @@ export const mockVehicles: Vehicle[] = [
     onboardingType: "MIC_ASSISTED",
     bookingReceiptUrl: "booking_veh009.pdf",
     rcBookUrl: "rc_veh009.pdf",
+    vehicleType: "retrofit",
   },
 ];
 
