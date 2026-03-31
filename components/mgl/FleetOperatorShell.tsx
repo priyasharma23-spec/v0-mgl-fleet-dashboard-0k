@@ -160,9 +160,13 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
   const [showPass, setShowPass] = useState(false)
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
+  const [noGstn, setNoGstn] = useState(false)
+  const [sameAddress, setSameAddress] = useState(false)
   const [form, setForm] = useState({
     name: "", contact: "", email: "", pan: "", gstn: "",
-    address: "", deliveryAddress: "", password: "", confirmPassword: ""
+    address: "", state: "", city: "", pincode: "",
+    deliveryAddress: "", deliveryState: "", deliveryCity: "", deliveryPincode: "",
+    password: "", confirmPassword: ""
   })
 
   const steps = ["Account Setup", "KYB Details", "Verification", "Complete"]
@@ -249,12 +253,89 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
               <p className="font-semibold text-foreground border-b border-border pb-2">KYB — Business Details</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="PAN Number" name="pan" placeholder="AABCA1234F" />
-                <Field label="GSTN Number" name="gstn" placeholder="27AABCA1234F1Z5" />
                 <div className="sm:col-span-2">
-                  <Field label="Registered Business Address" name="address" />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium text-muted-foreground">GSTN Number</label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={noGstn} onChange={e => { setNoGstn(e.target.checked); if(e.target.checked) setForm({...form, gstn: ""}) }}
+                        className="w-3.5 h-3.5 rounded" />
+                      <span className="text-xs text-muted-foreground">I don't have GSTN</span>
+                    </label>
+                  </div>
+                  {!noGstn && (
+                    <input type="text" placeholder="27AABCA1234F1Z5" value={form.gstn}
+                      onChange={e => setForm({...form, gstn: e.target.value})}
+                      className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  )}
+                  {noGstn && <p className="text-xs text-amber-600 mt-1">GST registration may be required for certain incentive programs.</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Field label="Card Delivery Address" name="deliveryAddress" />
+                  <label className="text-xs font-medium text-muted-foreground">Registered Business Address <span className="text-destructive">*</span></label>
+                  <input type="text" placeholder="Flat/Shop No., Building, Street" value={form.address}
+                    onChange={e => setForm({...form, address: e.target.value})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">State <span className="text-destructive">*</span></label>
+                  <select value={form.state || ""} onChange={e => setForm({...form, state: e.target.value, city: ""})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                    <option value="">Select State</option>
+                    {["Maharashtra","Gujarat","Karnataka","Tamil Nadu","Delhi","Rajasthan","Uttar Pradesh","West Bengal","Telangana","Punjab"].map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">City <span className="text-destructive">*</span></label>
+                  <select value={form.city || ""} onChange={e => setForm({...form, city: e.target.value})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                    <option value="">Select City</option>
+                    {(form.state === "Maharashtra" ? ["Mumbai","Pune","Nagpur","Thane","Nashik"] :
+                      form.state === "Gujarat" ? ["Ahmedabad","Surat","Vadodara","Rajkot"] :
+                      form.state === "Karnataka" ? ["Bengaluru","Mysuru","Hubli","Mangaluru"] :
+                      form.state === "Delhi" ? ["New Delhi","Dwarka","Rohini","Noida"] :
+                      ["Select State first"]).map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Pincode <span className="text-destructive">*</span></label>
+                  <input type="text" placeholder="400001" maxLength={6} value={form.pincode || ""}
+                    onChange={e => setForm({...form, pincode: e.target.value.replace(/\D/g, "")})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm" />
+                </div>
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium text-muted-foreground">Card Delivery Address <span className="text-destructive">*</span></label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={sameAddress} onChange={e => setSameAddress(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded" />
+                      <span className="text-xs text-muted-foreground">Same as registered address</span>
+                    </label>
+                  </div>
+                  {!sameAddress && (
+                    <>
+                      <input type="text" placeholder="Flat/Shop No., Building, Street" value={form.deliveryAddress}
+                        onChange={e => setForm({...form, deliveryAddress: e.target.value})}
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm mb-2" />
+                      <div className="grid grid-cols-3 gap-2">
+                        <select value={form.deliveryState || ""} onChange={e => setForm({...form, deliveryState: e.target.value})}
+                          className="px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                          <option value="">State</option>
+                          {["Maharashtra","Gujarat","Karnataka","Tamil Nadu","Delhi","Rajasthan","Uttar Pradesh","West Bengal","Telangana","Punjab"].map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <select value={form.deliveryCity || ""} onChange={e => setForm({...form, deliveryCity: e.target.value})}
+                          className="px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                          <option value="">City</option>
+                          {(form.deliveryState === "Maharashtra" ? ["Mumbai","Pune","Nagpur","Thane","Nashik"] :
+                            form.deliveryState === "Gujarat" ? ["Ahmedabad","Surat","Vadodara","Rajkot"] :
+                            form.deliveryState === "Karnataka" ? ["Bengaluru","Mysuru","Hubli","Mangaluru"] :
+                            ["Select State"]).map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <input type="text" placeholder="Pincode" maxLength={6} value={form.deliveryPincode || ""}
+                          onChange={e => setForm({...form, deliveryPincode: e.target.value.replace(/\D/g, "")})}
+                          className="px-3 py-2.5 rounded-lg border border-border bg-input text-sm" />
+                      </div>
+                    </>
+                  )}
+                  {sameAddress && <p className="text-xs text-muted-foreground mt-1">Card will be delivered to your registered address.</p>}
                 </div>
               </div>
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
