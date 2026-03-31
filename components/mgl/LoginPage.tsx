@@ -22,6 +22,8 @@ const mockUsers = [
   { mobile: "7777777777", email: "marketing@mgl.com", password: "mkt123", name: "Rahul Mehta", role: "mgl-admin" as UserRole, department: "marketing" },
   { mobile: "6666666666", email: "mic@mgl.com", password: "mic123", name: "Sneha Patil", role: "mic" as UserRole, department: "mic" },
   { mobile: "5555555555", email: "zic@mgl.com", password: "zic123", name: "Vikas Joshi", role: "zic" as UserRole, department: "zic" },
+  { mobile: "3333333333", email: "fo@abc-logistics.com", password: "fo123", name: "Rajesh Gupta", role: "fleet-operator" as UserRole, department: "fleet-operator", onboardingType: "MIC_ASSISTED" },
+  { mobile: "4444444444", email: "priya@priyatransport.com", password: "fo123", name: "Priya Sharma", role: "fleet-operator" as UserRole, department: "fleet-operator", onboardingType: "SELF_SERVICE" },
 ];
 
 export default function LoginPage({ onLogin, activationData, showRegistration, onStartRegistration }: LoginPageProps) {
@@ -109,7 +111,13 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     
     setLoading(true);
     await new Promise((r) => setTimeout(r, 800));
-    onLogin("fleet-operator", "Suresh Kumar", "MIC_ASSISTED");
+    
+    const user = mockUsers.find(u => u.mobile === mobile);
+    if (user) {
+      onLogin(user.role, user.name, (user as any).onboardingType || "MIC_ASSISTED", user.department);
+    } else {
+      onLogin("fleet-operator", "Suresh Kumar", "MIC_ASSISTED");
+    }
     setLoading(false);
   };
 
