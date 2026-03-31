@@ -1057,7 +1057,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   const [mode, setMode] = useState<"l1" | "l2">("l1")
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
-  const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit" | "existing_cng">("new_purchase")
+  const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit" | "existing_cng">(onboardingType === "SELF_SERVICE" ? "existing_cng" : "new_purchase")
   const [form, setForm] = useState({
     vehicleNumber: "", oemId: "", dealerId: "", retrofitterId: "",
     category: "" as VehicleCategory | "", model: "", customModel: "",
@@ -1135,7 +1135,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
 
   const l1Steps = ["Registration Type", "Vehicle Details", "Documentation", "Driver Details", "Review & Submit"]
   const l2Steps = ["Vehicle Details", "L2 Documents", "Review & Submit"]
-  const selfServiceSteps = ["Vehicle Type", "Vehicle & Documents", "Driver Details", "Review & Submit"]
+  const selfServiceSteps = ["Vehicle & Documents", "Driver Details", "Review & Submit"]
   const steps = onboardingType === "SELF_SERVICE" ? selfServiceSteps : mode === "l1" ? l1Steps : l2Steps
 
   if (submitted) {
@@ -1217,23 +1217,6 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                 className={`p-4 rounded-xl border-2 text-left transition-colors ${vehicleType === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
                 <p className="font-semibold text-sm">{opt.label}</p>
                 <p className="text-xs text-muted-foreground mt-1">{opt.desc}</p>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* SELF_SERVICE: Step 1 - Vehicle Type */}
-        {onboardingType === "SELF_SERVICE" && step === 1 && (
-          <div className="space-y-3">
-            {[
-              { value: "new_purchase", label: "New Purchase", desc: "Brand new CNG vehicle purchased from dealer" },
-              { value: "retrofit", label: "Retrofitment", desc: "Existing vehicle converted to CNG" },
-              { value: "existing_cng", label: "Existing CNG Vehicle", desc: "Vehicle already runs on CNG, applying for fuel card" },
-            ].map(opt => (
-              <button key={opt.value} onClick={() => setVehicleType(opt.value as any)}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-colors ${vehicleType === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
-                <p className="font-semibold text-sm">{opt.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
               </button>
             ))}
           </div>
@@ -1336,8 +1319,8 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 2 - Vehicle & Documents */}
-        {onboardingType === "SELF_SERVICE" && step === 2 && (
+        {/* SELF_SERVICE: Step 1 - Vehicle & Documents */}
+        {onboardingType === "SELF_SERVICE" && step === 1 && (
           <div className="space-y-4">
             <Field label="Vehicle Number" name="vehicleNumber" required />
             <div>
@@ -1397,8 +1380,8 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 3 - Driver Details */}
-        {onboardingType === "SELF_SERVICE" && step === 3 && (
+        {/* SELF_SERVICE: Step 2 - Driver Details */}
+        {onboardingType === "SELF_SERVICE" && step === 2 && (
           <div className="space-y-4">
             <p className="text-xs text-muted-foreground">Driver details are optional and can be updated later.</p>
             <Field label="Driver Name" name="driverName" />
@@ -1428,8 +1411,8 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 4 - Review & Submit */}
-        {onboardingType === "SELF_SERVICE" && step === 4 && (
+        {/* SELF_SERVICE: Step 3 - Review & Submit */}
+        {onboardingType === "SELF_SERVICE" && step === 3 && (
           <div className="space-y-4">
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
@@ -1643,10 +1626,10 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           {step === 1 ? "Cancel" : "Back"}
         </button>
         <button onClick={() => {
-          const maxStep = onboardingType === "SELF_SERVICE" ? 4 : mode === "l1" ? 5 : 3
+          const maxStep = onboardingType === "SELF_SERVICE" ? 3 : mode === "l1" ? 5 : 3
           step < maxStep ? setStep(step + 1) : setSubmitted(true)
         }} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-          {onboardingType === "SELF_SERVICE" && step === 4 ? "Submit Vehicle" : (mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
+          {onboardingType === "SELF_SERVICE" && step === 3 ? "Submit Vehicle" : (mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
         </button>
       </div>
     </div>
