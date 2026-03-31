@@ -792,24 +792,26 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 <p className="text-sm font-semibold text-foreground">Incentive Details</p>
 
                 {/* Linked Incentive Program */}
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Linked Program</p>
-                  {[
-                    ["Program ID", "INC-2026-001"],
-                    ["Program Name", "New Vehicle Onboarding Incentive"],
-                    ["Type", "One-time"],
-                    ["Gross Amount", "₹3,500"],
-                    ["TDS Deducted", "₹350"],
-                    ["Net Incentive", "₹3,150"],
-                    ["Credit Date", "Mar 21, 2026"],
-                    ["Expiry Date", "Mar 21, 2027"],
-                    ["Status", "Active"],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className={`font-medium ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700" : "text-foreground"}`}>{value}</span>
-                    </div>
-                  ))}
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Linked Program</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      ["Program ID", "INC-2026-001"],
+                      ["Program Name", "New Vehicle Onboarding Incentive"],
+                      ["Type", "One-time"],
+                      ["Gross Amount", "₹3,500"],
+                      ["TDS Deducted", "₹350"],
+                      ["Net Incentive", "₹3,150"],
+                      ["Credit Date", "Mar 21, 2026"],
+                      ["Expiry Date", "Mar 21, 2027"],
+                      ["Status", "Active"],
+                    ].map(([label, value]) => (
+                      <div key={label} className="text-sm">
+                        <span className="text-xs text-muted-foreground block">{label}</span>
+                        <span className={`font-medium block mt-0.5 ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700 font-bold" : "text-foreground"}`}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : showTimeline ? (
