@@ -1351,14 +1351,12 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
               </select>
             </div>
             <Field label="Registration Date" name="registrationDate" type="date" />
-            {vehicleType === "new_purchase" && <Field label="Booking Date" name="bookingDate" type="date" />}
 
             {/* Documents */}
             <div className="pt-2 border-t border-border space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
               <FileField label="RC Book" fieldName="rcBook" required />
-              {vehicleType === "new_purchase" && <FileField label="Booking Receipt" fieldName="bookingReceipt" />}
-              {vehicleType === "existing_cng" && <FileField label="CNG Kit Certificate" fieldName="cngCert" required />}
+              <FileField label="Driver License" fieldName="driverLicenseFile" />
             </div>
           </div>
         )}
