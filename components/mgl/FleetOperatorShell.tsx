@@ -1328,7 +1328,6 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
             <div className="pt-2 border-t border-border space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
               <FileField label="RC Book" fieldName="rcBook" required />
-              <FileField label="Driver License" fieldName="driverLicenseFile" />
             </div>
           </div>
         )}
