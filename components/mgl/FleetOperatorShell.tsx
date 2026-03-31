@@ -1207,7 +1207,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
 
       <div className="space-y-4">
         {/* L1: Step 1 - Registration Type */}
-        {mode === "l1" && step === 1 && (
+        {onboardingType !== "SELF_SERVICE" && mode === "l1" && step === 1 && (
           <div className="grid grid-cols-2 gap-4">
             {[
               { value: "new_purchase", label: "New Purchase", desc: "Brand new CNG vehicle from dealer" },
@@ -1587,7 +1587,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
                 <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
-                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "—"}</p></div>}
+                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "��"}</p></div>}
               </div>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
