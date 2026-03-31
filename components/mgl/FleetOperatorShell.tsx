@@ -591,7 +591,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
-                    <p className="text-xs text-muted-foreground">{v.oem} {v.model} · {v.category} · {v.onboardingType === "MIC_ASSISTED" ? "New Purchase" : "Self-Service"}</p>
+                    <p className="text-xs text-muted-foreground">{v.oem} {v.model} · {v.category} · {v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
