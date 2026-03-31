@@ -1334,7 +1334,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
         )}
 
         {/* L1: Step 3 - Documentation */}
-        {mode === "l1" && step === 3 && (
+        {onboardingType !== "SELF_SERVICE" && mode === "l1" && step === 3 && (
           <div className="space-y-3">
             {/* L1 Documents — based on vehicle type */}
             {vehicleType === "new_purchase" ? (
