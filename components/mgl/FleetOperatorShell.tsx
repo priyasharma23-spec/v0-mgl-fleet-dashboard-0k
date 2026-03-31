@@ -940,18 +940,19 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   const [form, setForm] = useState({
     vehicleNumber: "", oemId: "", dealerId: "", retrofitterId: "",
     category: "" as VehicleCategory | "", model: "", customModel: "",
-    retrofitModel: "", bookingDate: "", registrationDate: "",
+    retrofitModel: "", bookingDate: "", registrationDate: "", deliveryDate: "",
     driverName: "", driverContact: "", driverLicense: "", deliveryAddress: "",
     bookingReceipt: null as File | null,
     rcBook: null as File | null,
     driverLicenseFile: null as File | null,
     deliveryChallan: null as File | null,
-    taxInvoice: null as File | null,
-    cngCert: null as File | null,
+    rtoReceipt: null as File | null,
     eFitment: null as File | null,
     rtoEndorsement: null as File | null,
-    insurance: null as File | null,
     typeApproval: null as File | null,
+    taxInvoice: null as File | null,
+    cngCert: null as File | null,
+    insurance: null as File | null,
   })
 
   const selectedOEM = oems.find(o => o.id === form.oemId)
@@ -1012,7 +1013,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   }
 
   const l1Steps = ["Registration Type", "Vehicle Details", "Documentation", "Driver Details", "Review & Submit"]
-  const l2Steps = ["Driver & Address", "L2 Documents", "Review & Submit"]
+  const l2Steps = ["Vehicle Details", "L2 Documents", "Review & Submit"]
   const steps = mode === "l1" ? l1Steps : l2Steps
 
   if (submitted) {
@@ -1319,56 +1320,74 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* L2: Step 1 - Driver & Address */}
+        {/* L2: Step 1 - Vehicle Details */}
         {mode === "l2" && step === 1 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Driver Name" name="driverName" placeholder="Full name" required />
-            <Field label="Driver Contact" name="driverContact" type="tel" placeholder="10-digit mobile" required />
-            <Field label="Driver License Number" name="driverLicense" placeholder="DL number" required />
-            <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground">Delivery Address <span className="text-destructive">*</span></label>
-              <textarea
-                rows={3}
-                placeholder="Full address with PIN code"
-                value={form.deliveryAddress}
-                onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
-                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-              />
-            </div>
+          <div className="space-y-4">
+            <Field label="Vehicle Number" name="vehicleNumber" required />
+            <Field label="Registration Date" name="registrationDate" type="date" required />
+            {vehicleType === "new_purchase" && (
+              <Field label="Delivery Date" name="deliveryDate" type="date" required />
+            )}
           </div>
         )}
 
         {/* L2: Step 2 - L2 Documents */}
         {mode === "l2" && step === 2 && (
           <div className="space-y-3">
-            <FileField label="Delivery Challan" fieldName="deliveryChallan" required />
-            <FileField label="Tax Invoice" fieldName="taxInvoice" required />
-            <FileField label="CNG Certificate" fieldName="cngCert" required />
-            <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
-            <FileField label="RTO Endorsement" fieldName="rtoEndorsement" required />
-            <FileField label="Insurance Certificate" fieldName="insurance" required />
-            <FileField label="Type Approval" fieldName="typeApproval" required />
+            {vehicleType === "new_purchase" ? (
+              <>
+                <p className="text-xs text-muted-foreground">Upload the required delivery and registration documents.</p>
+                <FileField label="Delivery Challan / Delivery Note" fieldName="deliveryChallan" required />
+                <FileField label="RTO Receipt / RC Book" fieldName="rtoReceipt" required />
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">Upload the required CNG conversion and retrofitment documents.</p>
+                <FileField label="CNG Kit Installation Certificate" fieldName="cngCert" required />
+                <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
+                <FileField label="RTO Endorsement (CNG Conversion)" fieldName="rtoEndorsement" required />
+                <FileField label="Type Approval Certificate" fieldName="typeApproval" required />
+                <FileField label="Tax Invoice (Retrofitment Center)" fieldName="taxInvoice" required />
+              </>
+            )}
           </div>
         )}
 
         {/* L2: Step 3 - Review & Submit */}
         {mode === "l2" && step === 3 && (
-          <div className="bg-card rounded-xl border border-border p-4">
-            <p className="font-semibold text-sm mb-3">Registration Summary</p>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Vehicle Number</p>
-                <p className="font-medium">{form.vehicleNumber || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Type</p>
-                <p className="font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofit"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Documents</p>
-                <p className="font-medium">7 uploaded</p>
+          <div className="space-y-4">
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
+                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "—"}</p></div>}
               </div>
             </div>
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">L2 Documents</p>
+              <div className="space-y-2">
+                {(vehicleType === "new_purchase" ? [
+                  { label: "Delivery Challan / Delivery Note", file: form.deliveryChallan },
+                  { label: "RTO Receipt / RC Book", file: form.rtoReceipt },
+                ] : [
+                  { label: "CNG Kit Installation Certificate", file: form.cngCert },
+                  { label: "E-Fitment Certificate", file: form.eFitment },
+                  { label: "RTO Endorsement (CNG Conversion)", file: form.rtoEndorsement },
+                  { label: "Type Approval Certificate", file: form.typeApproval },
+                  { label: "Tax Invoice (Retrofitment Center)", file: form.taxInvoice },
+                ]).map((doc, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${doc.file ? "bg-green-500" : "bg-muted border border-border"}`}>
+                      {doc.file && <CheckCircle className="w-3 h-3 text-white" />}
+                    </div>
+                    <span className="text-foreground">{doc.label}</span>
+                    <span className={`text-xs ml-auto ${doc.file ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{doc.file?.name || "Not uploaded"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">By submitting, ZIC will review your L2 documents. Once approved, your vehicle will be activated and the card sent for printing.</p>
           </div>
         )}
       </div>
