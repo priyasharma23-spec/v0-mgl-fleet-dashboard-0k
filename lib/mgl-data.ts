@@ -614,6 +614,26 @@ export const mockVehicles: Vehicle[] = [
     bookingReceiptUrl: "booking_veh008.pdf",
     rcBookUrl: "rc_veh008.pdf",
   },
+  {
+    id: "VEH009",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04RR7788",
+    model: "Ashok Leyland 1616",
+    category: "HCV",
+    oem: "Ashok Leyland",
+    dealership: "AL Dealers Kurla",
+    bookingDate: "2025-03-15",
+    registrationDate: "2022-06-10",
+    driverName: "Manoj Tiwari",
+    driverContact: "9876504321",
+    status: "L1_APPROVED",
+    l1SubmittedAt: "2025-03-17",
+    l1ApprovedAt: "2025-03-19",
+    onboardingType: "MIC_ASSISTED",
+    bookingReceiptUrl: "booking_veh009.pdf",
+    rcBookUrl: "rc_veh009.pdf",
+  },
 ];
 
 // ─── Mock Notifications ─────────────────────────────────────────────────────
