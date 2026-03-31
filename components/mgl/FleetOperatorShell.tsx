@@ -791,20 +791,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
               <div className="p-4 space-y-4">
                 <p className="text-sm font-semibold text-foreground">Incentive Details</p>
 
-                {/* Incentive Summary */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-3">
-                    <p className="text-xs text-green-700">Incentive Wallet</p>
-                    <p className="text-xl font-bold text-green-900 mt-0.5">₹2,100</p>
-                    <p className="text-xs text-green-700 mt-0.5">Available</p>
-                  </div>
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
-                    <p className="text-xs text-blue-700">Cashback Earned</p>
-                    <p className="text-xl font-bold text-blue-900 mt-0.5">₹850</p>
-                    <p className="text-xs text-blue-700 mt-0.5">Lifetime</p>
-                  </div>
-                </div>
-
                 {/* Linked Incentive Program */}
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Linked Program</p>
@@ -822,26 +808,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                     <div key={label} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">{label}</span>
                       <span className={`font-medium ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700" : "text-foreground"}`}>{value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Cashback History */}
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback History</p>
-                  {[
-                    { date: "Mar 23, 2026", amount: "₹420", program: "Monthly CNG Cashback", status: "Credited" },
-                    { date: "Feb 23, 2026", amount: "₹430", program: "Monthly CNG Cashback", status: "Credited" },
-                  ].map((entry, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-border last:border-0">
-                      <div>
-                        <p className="text-xs font-medium text-foreground">{entry.program}</p>
-                        <p className="text-xs text-muted-foreground">{entry.date}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs font-bold text-green-600">{entry.amount}</p>
-                        <p className="text-xs text-green-600">{entry.status}</p>
-                      </div>
                     </div>
                   ))}
                 </div>
