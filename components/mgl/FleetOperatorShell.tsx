@@ -1203,12 +1203,13 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           </div>
         )}
 
-        {/* L1: Step 4 - Driver Details */}
-        {mode === "l1" && step === 4 && (
+        {/* L1: Step 4 - Driver Details (MIC_ASSISTED only) */}
+        {mode === "l1" && step === 4 && onboardingType === "MIC_ASSISTED" && (
           <div className="space-y-4">
             <Field label="Driver Name" name="driverName" />
             <Field label="Driver Contact" name="driverContact" type="tel" />
             <Field label="Driver License Number" name="driverLicense" />
+            <FileField label="Driver License" fieldName="driverLicenseFile" />
             <div>
               <label className="text-xs font-medium text-muted-foreground">Delivery Address</label>
               <textarea
