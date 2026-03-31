@@ -932,7 +932,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
 }
 
 // ─── FO Add Vehicle ──────────────────────────────────────────────────────────
-function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
+function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onViewChange: (v: string) => void; onboardingType?: "MIC_ASSISTED" | "SELF_SERVICE" }) {
   const [mode, setMode] = useState<"l1" | "l2">("l1")
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
