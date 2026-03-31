@@ -236,6 +236,7 @@ export interface Vehicle {
   deliveryDate?: string;
   cngCertUrl?: string;
   eFitmentUrl?: string;
+  vehicleType?: "new_purchase" | "retrofit";
 }
 
 export interface Notification {
@@ -466,6 +467,7 @@ export const mockVehicles: Vehicle[] = [
     dealership: "Tata Motors Andheri",
     bookingDate: "2025-01-20",
     registrationDate: "2025-02-05",
+    deliveryDate: "2025-02-05",
     driverName: "Ramesh Kumar",
     driverContact: "9876501234",
     status: "CARD_ACTIVE",
@@ -479,8 +481,12 @@ export const mockVehicles: Vehicle[] = [
     trackingId: "DTDC123456789",
     cardActivatedAt: "2025-02-16",
     onboardingType: "MIC_ASSISTED",
-    deliveryChallanUrl: "challan_veh001.pdf",
+    deliveryChallanUrl: "delivery_challan_veh001.pdf",
+    cngCertUrl: undefined,
+    eFitmentUrl: undefined,
+    rtoEndorsementUrl: undefined,
     deliveryDate: "2025-02-05",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH002",
@@ -492,14 +498,15 @@ export const mockVehicles: Vehicle[] = [
     oem: "Ashok Leyland",
     dealership: "AL Dealers Kurla",
     bookingDate: "2025-01-22",
-    registrationDate: "2025-02-10",
+    registrationDate: "2025-02-15",
+    deliveryDate: "2025-02-10",
     status: "L2_SUBMITTED",
     l1SubmittedAt: "2025-01-25",
     l1ApprovedAt: "2025-01-27",
     l2SubmittedAt: "2025-02-11",
     onboardingType: "MIC_ASSISTED",
-    deliveryChallanUrl: "challan_veh002.pdf",
-    deliveryDate: "2025-02-10",
+    deliveryChallanUrl: "delivery_challan_veh002.pdf",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH003",
@@ -516,6 +523,7 @@ export const mockVehicles: Vehicle[] = [
     l1RejectedAt: "2025-02-05",
     l1Comments: "Vehicle booking receipt is unclear. Please re-upload a higher quality scan.",
     onboardingType: "MIC_ASSISTED",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH004",
@@ -535,6 +543,7 @@ export const mockVehicles: Vehicle[] = [
     cardDispatchDate: "2025-03-01",
     trackingId: "BLUEDART987654",
     onboardingType: "SELF_SERVICE",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH005",
@@ -549,6 +558,7 @@ export const mockVehicles: Vehicle[] = [
     status: "L1_SUBMITTED",
     l1SubmittedAt: "2025-02-17",
     onboardingType: "SELF_SERVICE",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH006",
@@ -572,6 +582,7 @@ export const mockVehicles: Vehicle[] = [
     trackingId: "SPEEDPOST112233",
     cardActivatedAt: "2025-03-11",
     onboardingType: "SELF_SERVICE",
+    vehicleType: "new_purchase",
   },
   {
     id: "VEH007",
@@ -592,6 +603,46 @@ export const mockVehicles: Vehicle[] = [
     onboardingType: "MIC_ASSISTED",
     bookingReceiptUrl: "booking_veh007.pdf",
     rcBookUrl: "rc_veh007.pdf",
+    vehicleType: "new_purchase",
+  },
+  {
+    id: "VEH008",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04PQ5566",
+    model: "Ashok Leyland 1616",
+    category: "HCV",
+    oem: "Ashok Leyland",
+    dealership: "AL Dealers Kurla",
+    bookingDate: "2025-03-10",
+    status: "L1_APPROVED",
+    l1SubmittedAt: "2025-03-12",
+    l1ApprovedAt: "2025-03-14",
+    onboardingType: "MIC_ASSISTED",
+    bookingReceiptUrl: "booking_veh008.pdf",
+    rcBookUrl: "rc_veh008.pdf",
+    vehicleType: "new_purchase",
+  },
+  {
+    id: "VEH009",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04RR7788",
+    model: "Ashok Leyland 1616",
+    category: "HCV",
+    oem: "Ashok Leyland",
+    dealership: "AL Dealers Kurla",
+    bookingDate: "2025-03-15",
+    registrationDate: "2022-06-10",
+    driverName: "Manoj Tiwari",
+    driverContact: "9876504321",
+    status: "L1_APPROVED",
+    l1SubmittedAt: "2025-03-17",
+    l1ApprovedAt: "2025-03-19",
+    onboardingType: "MIC_ASSISTED",
+    bookingReceiptUrl: "booking_veh009.pdf",
+    rcBookUrl: "rc_veh009.pdf",
+    vehicleType: "retrofit",
   },
 ];
 

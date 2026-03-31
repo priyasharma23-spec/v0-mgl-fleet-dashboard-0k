@@ -120,6 +120,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
+      case "fo-mou": return <FOMoUView />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
@@ -590,7 +591,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
-                    <p className="text-xs text-muted-foreground">{v.oem} {v.model} · {v.category} · {v.onboardingType === "MIC_ASSISTED" ? "New Purchase" : "Self-Service"}</p>
+                    <p className="text-xs text-muted-foreground">{v.oem} {v.model} · {v.category} · {v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -697,6 +698,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
                   {[
+                    ["Registration Type", selectedVehicle.onboardingType === "SELF_SERVICE" ? "Self-Service" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],
                     ["Vehicle Number", selectedVehicle.vehicleNumber],
                     ["OEM", selectedVehicle.oem],
                     ["Model", selectedVehicle.model],
@@ -751,23 +753,24 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                 <div className="bg-muted/30 rounded-xl p-4 space-y-3">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
 
-                  {/* L1 Documents — always shown */}
+                  {/* L1 Documents */}
                   <div className="space-y-2">
                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">L1 Documents</p>
-                    {[
-                      { label: "Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
-                      { label: "RC Book", url: selectedVehicle.rcBookUrl },
-                    ].map(({ label, url }) => (
+                    {(selectedVehicle.bookingReceiptUrl || selectedVehicle.rcBookUrl ? [
+                      selectedVehicle.bookingReceiptUrl ? { label: "Vehicle Booking Receipt", url: selectedVehicle.bookingReceiptUrl } : null,
+                      selectedVehicle.rcBookUrl ? { label: "RC Book", url: selectedVehicle.rcBookUrl } : null,
+                    ] : [
+                      { label: "Vehicle Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
+                      { label: "Driver License", url: null },
+                    ]).filter(Boolean).map(({ label, url }) => (
                       <div key={label} className="flex items-center gap-2 text-sm">
                         <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l1Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
                           {(url || l1Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
                         </div>
                         <span className={url || l1Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                        {/* Reupload if L1 rejected */}
-                        {["L1_REJECTED"].includes(selectedVehicle.status) && !url && (
+                        {["L1_REJECTED"].includes(selectedVehicle.status) && !url && !l1Files[label] && (
                           <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                            {l1Files[label] ? l1Files[label]!.name.substring(0, 15) + "..." : "Upload"}
-                            <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
+                            Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
                               onChange={e => setL1Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
                           </label>
                         )}
@@ -814,6 +817,45 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                         L2 Documents
                         {selectedVehicle.status === "L1_APPROVED" && <span className="ml-2 text-amber-600 normal-case">— Upload required</span>}
                       </p>
+
+                      {/* L2 Vehicle Details — input fields for FO to fill */}
+                      {selectedVehicle.status === "L1_APPROVED" && (
+                        <div className="space-y-3 pb-3 border-b border-border">
+                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Vehicle Number <span className="text-destructive">*</span></label>
+                            <input
+                              type="text"
+                              placeholder="e.g. MH12AB1234"
+                              value={l2Dates["vehicleNumber"] || ""}
+                              onChange={e => setL2Dates(prev => ({ ...prev, vehicleNumber: e.target.value }))}
+                              className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                            />
+                          </div>
+                          {selectedVehicle.vehicleType !== "retrofit" && (
+                            <>
+                              <div>
+                                <label className="text-xs font-medium text-muted-foreground">Registration Date <span className="text-destructive">*</span></label>
+                                <input
+                                  type="date"
+                                  value={l2Dates["registrationDate"] || ""}
+                                  onChange={e => setL2Dates(prev => ({ ...prev, registrationDate: e.target.value }))}
+                                  className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-medium text-muted-foreground">Delivery Date <span className="text-destructive">*</span></label>
+                                <input
+                                  type="date"
+                                  value={l2Dates["deliveryDate"] || ""}
+                                  onChange={e => setL2Dates(prev => ({ ...prev, deliveryDate: e.target.value }))}
+                                  className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                                />
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
 
                       {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.vehicleType === "new_purchase" ? (
                         // New Purchase L2 docs
@@ -930,7 +972,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
 }
 
 // ─── FO Add Vehicle ──────────────────────────────────────────────────────────
-function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
+function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onViewChange: (v: string) => void; onboardingType?: "MIC_ASSISTED" | "SELF_SERVICE" }) {
   const [mode, setMode] = useState<"l1" | "l2">("l1")
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
@@ -938,18 +980,19 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [form, setForm] = useState({
     vehicleNumber: "", oemId: "", dealerId: "", retrofitterId: "",
     category: "" as VehicleCategory | "", model: "", customModel: "",
-    retrofitModel: "", bookingDate: "", registrationDate: "",
+    retrofitModel: "", bookingDate: "", registrationDate: "", deliveryDate: "",
     driverName: "", driverContact: "", driverLicense: "", deliveryAddress: "",
     bookingReceipt: null as File | null,
     rcBook: null as File | null,
     driverLicenseFile: null as File | null,
     deliveryChallan: null as File | null,
-    taxInvoice: null as File | null,
-    cngCert: null as File | null,
+    rtoReceipt: null as File | null,
     eFitment: null as File | null,
     rtoEndorsement: null as File | null,
-    insurance: null as File | null,
     typeApproval: null as File | null,
+    taxInvoice: null as File | null,
+    cngCert: null as File | null,
+    insurance: null as File | null,
   })
 
   const selectedOEM = oems.find(o => o.id === form.oemId)
@@ -1010,7 +1053,7 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
   }
 
   const l1Steps = ["Registration Type", "Vehicle Details", "Documentation", "Driver Details", "Review & Submit"]
-  const l2Steps = ["Driver & Address", "L2 Documents", "Review & Submit"]
+  const l2Steps = ["Vehicle Details", "L2 Documents", "Review & Submit"]
   const steps = mode === "l1" ? l1Steps : l2Steps
 
   if (submitted) {
@@ -1137,11 +1180,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
             )}
 
-            {/* Retrofitment only: Registration Date */}
-            {vehicleType === "retrofit" && (
-              <Field label="Registration Date" name="registrationDate" type="date" required />
-            )}
-
             {/* Retrofitment only: Vehicle Booking Date */}
             {vehicleType === "retrofit" && (
               <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
@@ -1191,18 +1229,27 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
         {/* L1: Step 3 - Documentation */}
         {mode === "l1" && step === 3 && (
           <div className="space-y-3">
-            <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
-            <FileField label="RC Book" fieldName="rcBook" required />
-            <FileField label="Driver License" fieldName="driverLicenseFile" />
+            {/* L1 Documents — based on vehicle type */}
+            {vehicleType === "new_purchase" ? (
+              <div className="space-y-3">
+                <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <FileField label="RC Book" fieldName="rcBook" required />
+                <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
+              </div>
+            )}
           </div>
         )}
 
-        {/* L1: Step 4 - Driver Details */}
-        {mode === "l1" && step === 4 && (
+        {/* L1: Step 4 - Driver Details (MIC_ASSISTED only) */}
+        {mode === "l1" && step === 4 && onboardingType === "MIC_ASSISTED" && (
           <div className="space-y-4">
             <Field label="Driver Name" name="driverName" />
             <Field label="Driver Contact" name="driverContact" type="tel" />
             <Field label="Driver License Number" name="driverLicense" />
+            <FileField label="Driver License" fieldName="driverLicenseFile" />
             <div>
               <label className="text-xs font-medium text-muted-foreground">Delivery Address</label>
               <textarea
@@ -1284,16 +1331,23 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
                 <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Documents</p>
               </div>
               <div className="p-4 space-y-2">
-                {([
-                  ["Booking Receipt", form.bookingReceipt],
-                  ["RC Book", form.rcBook],
-                  ["Driver License", form.driverLicenseFile],
-                ] as [string, File | null][]).map(([label, file]) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${file ? "bg-green-500" : "bg-muted border border-border"}`}>
-                      {file && <CheckCircle className="w-3 h-3 text-white" />}
+                {(vehicleType === "new_purchase" ? (
+                  [
+                    { label: "Vehicle Booking Receipt", file: form.bookingReceipt, required: true },
+                    { label: "Driver License", file: form.driverLicenseFile, required: false },
+                  ]
+                ) : (
+                  [
+                    { label: "RC Book", file: form.rcBook, required: true },
+                    { label: "Booking Receipt", file: form.bookingReceipt, required: true },
+                  ]
+                ) as { label: string; file: File | null; required: boolean }[]).map((doc, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${doc.file ? "bg-green-500" : "bg-muted border border-border"}`}>
+                      {doc.file && <CheckCircle className="w-3 h-3 text-white" />}
                     </div>
-                    <p className="text-xs text-foreground">{label} — <span className={file ? "text-green-700 font-medium" : "text-muted-foreground"}>{file?.name || "Not uploaded"}</span></p>
+                    <span className="text-foreground text-xs">{doc.label}{doc.required && <span className="text-destructive ml-0.5">*</span>}</span>
+                    <span className={`text-xs ml-auto ${doc.file ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{doc.file?.name || "Not uploaded"}</span>
                   </div>
                 ))}
               </div>
@@ -1306,56 +1360,74 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
           </div>
         )}
 
-        {/* L2: Step 1 - Driver & Address */}
+        {/* L2: Step 1 - Vehicle Details */}
         {mode === "l2" && step === 1 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Driver Name" name="driverName" placeholder="Full name" required />
-            <Field label="Driver Contact" name="driverContact" type="tel" placeholder="10-digit mobile" required />
-            <Field label="Driver License Number" name="driverLicense" placeholder="DL number" required />
-            <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground">Delivery Address <span className="text-destructive">*</span></label>
-              <textarea
-                rows={3}
-                placeholder="Full address with PIN code"
-                value={form.deliveryAddress}
-                onChange={(e) => setForm({ ...form, deliveryAddress: e.target.value })}
-                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-              />
-            </div>
+          <div className="space-y-4">
+            <Field label="Vehicle Number" name="vehicleNumber" required />
+            <Field label="Registration Date" name="registrationDate" type="date" required />
+            {vehicleType === "new_purchase" && (
+              <Field label="Delivery Date" name="deliveryDate" type="date" required />
+            )}
           </div>
         )}
 
         {/* L2: Step 2 - L2 Documents */}
         {mode === "l2" && step === 2 && (
           <div className="space-y-3">
-            <FileField label="Delivery Challan" fieldName="deliveryChallan" required />
-            <FileField label="Tax Invoice" fieldName="taxInvoice" required />
-            <FileField label="CNG Certificate" fieldName="cngCert" required />
-            <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
-            <FileField label="RTO Endorsement" fieldName="rtoEndorsement" required />
-            <FileField label="Insurance Certificate" fieldName="insurance" required />
-            <FileField label="Type Approval" fieldName="typeApproval" required />
+            {vehicleType === "new_purchase" ? (
+              <>
+                <p className="text-xs text-muted-foreground">Upload the required delivery and registration documents.</p>
+                <FileField label="Delivery Challan / Delivery Note" fieldName="deliveryChallan" required />
+                <FileField label="RTO Receipt / RC Book" fieldName="rtoReceipt" required />
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-muted-foreground">Upload the required CNG conversion and retrofitment documents.</p>
+                <FileField label="CNG Kit Installation Certificate" fieldName="cngCert" required />
+                <FileField label="E-Fitment Certificate" fieldName="eFitment" required />
+                <FileField label="RTO Endorsement (CNG Conversion)" fieldName="rtoEndorsement" required />
+                <FileField label="Type Approval Certificate" fieldName="typeApproval" required />
+                <FileField label="Tax Invoice (Retrofitment Center)" fieldName="taxInvoice" required />
+              </>
+            )}
           </div>
         )}
 
         {/* L2: Step 3 - Review & Submit */}
         {mode === "l2" && step === 3 && (
-          <div className="bg-card rounded-xl border border-border p-4">
-            <p className="font-semibold text-sm mb-3">Registration Summary</p>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Vehicle Number</p>
-                <p className="font-medium">{form.vehicleNumber || "—"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Type</p>
-                <p className="font-medium">{vehicleType === "new_purchase" ? "New Purchase" : "Retrofit"}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Documents</p>
-                <p className="font-medium">7 uploaded</p>
+          <div className="space-y-4">
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
+                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "—"}</p></div>}
               </div>
             </div>
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">L2 Documents</p>
+              <div className="space-y-2">
+                {(vehicleType === "new_purchase" ? [
+                  { label: "Delivery Challan / Delivery Note", file: form.deliveryChallan },
+                  { label: "RTO Receipt / RC Book", file: form.rtoReceipt },
+                ] : [
+                  { label: "CNG Kit Installation Certificate", file: form.cngCert },
+                  { label: "E-Fitment Certificate", file: form.eFitment },
+                  { label: "RTO Endorsement (CNG Conversion)", file: form.rtoEndorsement },
+                  { label: "Type Approval Certificate", file: form.typeApproval },
+                  { label: "Tax Invoice (Retrofitment Center)", file: form.taxInvoice },
+                ]).map((doc, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${doc.file ? "bg-green-500" : "bg-muted border border-border"}`}>
+                      {doc.file && <CheckCircle className="w-3 h-3 text-white" />}
+                    </div>
+                    <span className="text-foreground">{doc.label}</span>
+                    <span className={`text-xs ml-auto ${doc.file ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{doc.file?.name || "Not uploaded"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">By submitting, ZIC will review your L2 documents. Once approved, your vehicle will be activated and the card sent for printing.</p>
           </div>
         )}
       </div>
@@ -2624,6 +2696,129 @@ function FONotificationsView() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── FO MOU View ────────────────────────────────────────────────────────────
+function FOMoUView() {
+  const mou = {
+    number: myFO.mouNumber || "MGL/MOU/2025/001",
+    executedDate: myFO.mouExecutionDate || "15 Jan 2025",
+    expiryDate: myFO.mouExpiryDate || "14 Jan 2026",
+    status: "Active",
+    vehiclesCommitted: 15,
+    newVehicles: 10,
+    retrofitVehicles: 5,
+    vehiclesRegistered: myVehicles.length,
+    vehiclesActive: myVehicles.filter(v => v.status === "CARD_ACTIVE").length,
+  }
+
+  const daysToExpiry = Math.ceil((new Date(myFO.mouExpiryDate || "2026-01-14").getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+
+  return (
+    <div className="flex flex-col gap-5 p-5">
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-bold text-foreground">My MoU</h1>
+        <p className="text-sm text-muted-foreground">Memorandum of Understanding with Mahanagar Gas Limited</p>
+      </div>
+
+      {/* Expiry warning */}
+      {daysToExpiry <= 30 && daysToExpiry > 0 && (
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-amber-900">MoU Expiring Soon</p>
+            <p className="text-xs text-amber-700 mt-0.5">Your MoU expires in {daysToExpiry} days. Please contact your MIC officer for renewal.</p>
+          </div>
+        </div>
+      )}
+
+      {/* MOU Summary Card */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="text-xs text-muted-foreground">MoU Number</p>
+            <p className="text-lg font-bold font-mono text-foreground mt-0.5">{mou.number}</p>
+          </div>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${mou.status === "Active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{mou.status}</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+          <div>
+            <p className="text-xs text-muted-foreground">Executed Date</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.executedDate}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Expiry Date</p>
+            <p className={`text-sm font-semibold mt-0.5 ${daysToExpiry <= 30 ? "text-amber-600" : "text-foreground"}`}>{mou.expiryDate}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Vehicle Commitment */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <p className="text-sm font-semibold text-foreground mb-4">Vehicle Commitment</p>
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          {[
+            { label: "Committed", value: mou.vehiclesCommitted, color: "text-foreground", bg: "bg-muted/30" },
+            { label: "Registered", value: mou.vehiclesRegistered, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: "Active", value: mou.vehiclesActive, color: "text-green-600", bg: "bg-green-50" },
+            { label: "Pending", value: mou.vehiclesCommitted - mou.vehiclesRegistered, color: "text-amber-600", bg: "bg-amber-50" },
+          ].map(({ label, value, color, bg }) => (
+            <div key={label} className={`${bg} rounded-xl p-4`}>
+              <p className="text-xs text-muted-foreground">{label}</p>
+              <p className={`text-2xl font-bold mt-1 ${color}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2 pt-3 border-t border-border">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">New Vehicles</span>
+            <span className="font-medium text-foreground">{mou.newVehicles}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Retrofitment</span>
+            <span className="font-medium text-foreground">{mou.retrofitVehicles}</span>
+          </div>
+        </div>
+        {/* Progress */}
+        <div className="mt-4">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+            <span>Registration Progress</span>
+            <span className="font-semibold">{Math.round((mou.vehiclesRegistered / mou.vehiclesCommitted) * 100)}%</span>
+          </div>
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((mou.vehiclesRegistered / mou.vehiclesCommitted) * 100)}%` }} />
+          </div>
+        </div>
+      </div>
+
+      {/* MOU Document */}
+      <div className="bg-card rounded-xl border border-border p-5">
+        <p className="text-sm font-semibold text-foreground mb-3">MoU Document</p>
+        <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-red-600">PDF</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">MoU Agreement — {mou.number}</p>
+            <p className="text-xs text-muted-foreground">Signed copy · Executed {mou.executedDate}</p>
+          </div>
+          <button className="text-xs text-primary font-medium hover:underline shrink-0">View PDF</button>
+        </div>
+      </div>
+
+      {/* Contact MIC */}
+      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
+        <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+          <Bell className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">Need to update your MoU?</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Contact your assigned MIC officer for any changes, renewals, or vehicle commitment updates.</p>
+        </div>
       </div>
     </div>
   )
