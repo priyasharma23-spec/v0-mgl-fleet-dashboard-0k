@@ -36,12 +36,12 @@ interface Props {
 }
 
 // The FO data for this logged-in user
-// Switch to "FO005" to test SELF_SERVICE FO portal
-const myFO = onboardingType === "SELF_SERVICE"
-  ? mockFleetOperators.find(f => f.id === "FO005") ?? mockFleetOperators[0]
-  : mockFleetOperators[0]
-// Switch foId to test different FO portals: "FO001" = MIC_ASSISTED, "FO005" = SELF_SERVICE
-const myVehicles = mockVehicles.filter((v) => v.foId === myFO.id)
+const myFO = mockFleetOperators[0]
+const myVehicles = mockVehicles.filter((v) => v.foId === "FO001")
+
+// SELF_SERVICE FO data for testing
+const myFO_SS = mockFleetOperators.find(f => f.id === "FO005") ?? mockFleetOperators[0]
+const myVehicles_SS = mockVehicles.filter((v) => v.foId === "FO005")
 
 export default function FleetOperatorShell({ user, onLogout, onboardingType = "SELF_SERVICE", isNewRegistration = false }: Props) {
   const [activeView, setActiveView] = useState("fo-dashboard")
@@ -119,7 +119,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       ) : (
         <FOCardsView onViewChange={setActiveView} onManageCard={(vehicleId) => setSelectedCardVehicle(vehicleId)} />
       )
-      case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} />
+      case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
@@ -578,10 +578,12 @@ function FODashboard({ onViewChange }: { onViewChange: (v: string) => void }) {
 }
 
 // ─── FO Vehicles List ────────────────────────────────────────────────────────
-function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void }) {
+function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onViewChange: (v: string) => void; onboardingType?: string }) {
+  const vehicles = onboardingType === "SELF_SERVICE" ? myVehicles_SS : myVehicles
+  const fo = onboardingType === "SELF_SERVICE" ? myFO_SS : myFO
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedVehicle, setSelectedVehicle] = useState<typeof myVehicles[0] | null>(null)
+  const [selectedVehicle, setSelectedVehicle] = useState<typeof vehicles[0] | null>(null)
   const [showTimeline, setShowTimeline] = useState(false)
   const [l2Files, setL2Files] = useState<Record<string, File | null>>({})
   const [l2Submitted, setL2Submitted] = useState(false)
@@ -589,7 +591,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
   const [l1Files, setL1Files] = useState<Record<string, File | null>>({})
   const [l1Submitted, setL1Submitted] = useState(false)
 
-  const openVehicle = (v: typeof myVehicles[0]) => {
+  const openVehicle = (v: typeof vehicles[0]) => {
     setSelectedVehicle(v)
     setL2Files({})
     setL2Dates({})
@@ -599,17 +601,17 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
     setShowTimeline(false)
   }
 
-  const filtered = myVehicles.filter(v => {
+  const filtered = vehicles.filter(v => {
     const matchSearch = !search || (v.vehicleNumber || v.id).toLowerCase().includes(search.toLowerCase()) || v.oem?.toLowerCase().includes(search.toLowerCase())
     const matchStatus = statusFilter === "all" || v.status === statusFilter
     return matchSearch && matchStatus
   })
 
   const counts = {
-    total: myVehicles.length,
-    active: myVehicles.filter(v => v.status === "CARD_ACTIVE").length,
-    pending: myVehicles.filter(v => ["DRAFT","L1_SUBMITTED","L1_APPROVED","L2_SUBMITTED","CARD_PRINTED","CARD_DISPATCHED"].includes(v.status)).length,
-    rejected: myVehicles.filter(v => ["L1_REJECTED","L2_REJECTED"].includes(v.status)).length,
+    total: vehicles.length,
+    active: vehicles.filter(v => v.status === "CARD_ACTIVE").length,
+    pending: vehicles.filter(v => ["DRAFT","L1_SUBMITTED","L1_APPROVED","L2_SUBMITTED","CARD_PRINTED","CARD_DISPATCHED"].includes(v.status)).length,
+    rejected: vehicles.filter(v => ["L1_REJECTED","L2_REJECTED"].includes(v.status)).length,
   }
 
   return (
@@ -617,7 +619,7 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-foreground">My Vehicles</h1>
-          <p className="text-sm text-muted-foreground">{myVehicles.length} vehicles registered</p>
+            <p className="text-sm text-muted-foreground">{vehicles.length} vehicles registered</p>
         </div>
         <button onClick={() => onViewChange("fo-add-vehicle")}
           className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
