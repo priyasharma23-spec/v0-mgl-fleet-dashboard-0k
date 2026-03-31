@@ -160,9 +160,13 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
   const [showPass, setShowPass] = useState(false)
   const [otp, setOtp] = useState("")
   const [otpSent, setOtpSent] = useState(false)
+  const [noGstn, setNoGstn] = useState(false)
+  const [sameAddress, setSameAddress] = useState(false)
   const [form, setForm] = useState({
     name: "", contact: "", email: "", pan: "", gstn: "",
-    address: "", deliveryAddress: "", password: "", confirmPassword: ""
+    address: "", state: "", city: "", pincode: "",
+    deliveryAddress: "", deliveryState: "", deliveryCity: "", deliveryPincode: "",
+    password: "", confirmPassword: ""
   })
 
   const steps = ["Account Setup", "KYB Details", "Verification", "Complete"]
@@ -249,12 +253,89 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
               <p className="font-semibold text-foreground border-b border-border pb-2">KYB — Business Details</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="PAN Number" name="pan" placeholder="AABCA1234F" />
-                <Field label="GSTN Number" name="gstn" placeholder="27AABCA1234F1Z5" />
                 <div className="sm:col-span-2">
-                  <Field label="Registered Business Address" name="address" />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium text-muted-foreground">GSTN Number</label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={noGstn} onChange={e => { setNoGstn(e.target.checked); if(e.target.checked) setForm({...form, gstn: ""}) }}
+                        className="w-3.5 h-3.5 rounded" />
+                      <span className="text-xs text-muted-foreground">I don't have GSTN</span>
+                    </label>
+                  </div>
+                  {!noGstn && (
+                    <input type="text" placeholder="27AABCA1234F1Z5" value={form.gstn}
+                      onChange={e => setForm({...form, gstn: e.target.value})}
+                      className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  )}
+                  {noGstn && <p className="text-xs text-amber-600 mt-1">GST registration may be required for certain incentive programs.</p>}
                 </div>
                 <div className="sm:col-span-2">
-                  <Field label="Card Delivery Address" name="deliveryAddress" />
+                  <label className="text-xs font-medium text-muted-foreground">Registered Business Address <span className="text-destructive">*</span></label>
+                  <input type="text" placeholder="Flat/Shop No., Building, Street" value={form.address}
+                    onChange={e => setForm({...form, address: e.target.value})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">State <span className="text-destructive">*</span></label>
+                  <select value={form.state || ""} onChange={e => setForm({...form, state: e.target.value, city: ""})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                    <option value="">Select State</option>
+                    {["Maharashtra","Gujarat","Karnataka","Tamil Nadu","Delhi","Rajasthan","Uttar Pradesh","West Bengal","Telangana","Punjab"].map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">City <span className="text-destructive">*</span></label>
+                  <select value={form.city || ""} onChange={e => setForm({...form, city: e.target.value})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                    <option value="">Select City</option>
+                    {(form.state === "Maharashtra" ? ["Mumbai","Pune","Nagpur","Thane","Nashik"] :
+                      form.state === "Gujarat" ? ["Ahmedabad","Surat","Vadodara","Rajkot"] :
+                      form.state === "Karnataka" ? ["Bengaluru","Mysuru","Hubli","Mangaluru"] :
+                      form.state === "Delhi" ? ["New Delhi","Dwarka","Rohini","Noida"] :
+                      ["Select State first"]).map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Pincode <span className="text-destructive">*</span></label>
+                  <input type="text" placeholder="400001" maxLength={6} value={form.pincode || ""}
+                    onChange={e => setForm({...form, pincode: e.target.value.replace(/\D/g, "")})}
+                    className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm" />
+                </div>
+                <div className="sm:col-span-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-medium text-muted-foreground">Card Delivery Address <span className="text-destructive">*</span></label>
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input type="checkbox" checked={sameAddress} onChange={e => setSameAddress(e.target.checked)}
+                        className="w-3.5 h-3.5 rounded" />
+                      <span className="text-xs text-muted-foreground">Same as registered address</span>
+                    </label>
+                  </div>
+                  {!sameAddress && (
+                    <>
+                      <input type="text" placeholder="Flat/Shop No., Building, Street" value={form.deliveryAddress}
+                        onChange={e => setForm({...form, deliveryAddress: e.target.value})}
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm mb-2" />
+                      <div className="grid grid-cols-3 gap-2">
+                        <select value={form.deliveryState || ""} onChange={e => setForm({...form, deliveryState: e.target.value})}
+                          className="px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                          <option value="">State</option>
+                          {["Maharashtra","Gujarat","Karnataka","Tamil Nadu","Delhi","Rajasthan","Uttar Pradesh","West Bengal","Telangana","Punjab"].map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                        <select value={form.deliveryCity || ""} onChange={e => setForm({...form, deliveryCity: e.target.value})}
+                          className="px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
+                          <option value="">City</option>
+                          {(form.deliveryState === "Maharashtra" ? ["Mumbai","Pune","Nagpur","Thane","Nashik"] :
+                            form.deliveryState === "Gujarat" ? ["Ahmedabad","Surat","Vadodara","Rajkot"] :
+                            form.deliveryState === "Karnataka" ? ["Bengaluru","Mysuru","Hubli","Mangaluru"] :
+                            ["Select State"]).map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                        <input type="text" placeholder="Pincode" maxLength={6} value={form.deliveryPincode || ""}
+                          onChange={e => setForm({...form, deliveryPincode: e.target.value.replace(/\D/g, "")})}
+                          className="px-3 py-2.5 rounded-lg border border-border bg-input text-sm" />
+                      </div>
+                    </>
+                  )}
+                  {sameAddress && <p className="text-xs text-muted-foreground mt-1">Card will be delivered to your registered address.</p>}
                 </div>
               </div>
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
@@ -976,7 +1057,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   const [mode, setMode] = useState<"l1" | "l2">("l1")
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
-  const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit">("new_purchase")
+  const [vehicleType, setVehicleType] = useState<"new_purchase" | "retrofit" | "existing_cng">(onboardingType === "SELF_SERVICE" ? "existing_cng" : "new_purchase")
   const [form, setForm] = useState({
     vehicleNumber: "", oemId: "", dealerId: "", retrofitterId: "",
     category: "" as VehicleCategory | "", model: "", customModel: "",
@@ -1054,19 +1135,29 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
 
   const l1Steps = ["Registration Type", "Vehicle Details", "Documentation", "Driver Details", "Review & Submit"]
   const l2Steps = ["Vehicle Details", "L2 Documents", "Review & Submit"]
-  const steps = mode === "l1" ? l1Steps : l2Steps
+  const selfServiceSteps = ["Vehicle & Documents", "Driver Details", "Review & Submit"]
+  const steps = onboardingType === "SELF_SERVICE" ? selfServiceSteps : mode === "l1" ? l1Steps : l2Steps
 
   if (submitted) {
     return (
       <div className="flex flex-col gap-5 p-5 max-w-3xl mx-auto">
         <div className="text-center py-10">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold">{mode === "l1" ? "Submitted for L1 Approval" : "Submitted for L2 Approval"}</h2>
-          <p className="text-sm text-muted-foreground mt-2">
-            {mode === "l1"
-              ? "MIC will review your documents. Once approved, a card will be issued to your vehicle in inactive state. You will be notified to complete L2 registration."
-              : "ZIC will review your documents. Once approved, your vehicle will be active and the card will be sent for printing."}
-          </p>
+          {onboardingType === "SELF_SERVICE" ? (
+            <>
+              <h2 className="text-xl font-bold">Vehicle Submitted</h2>
+              <p className="text-sm text-muted-foreground mt-2">Your vehicle has been submitted for MIC review. You will be notified once validated.</p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold">{mode === "l1" ? "Submitted for L1 Approval" : "Submitted for L2 Approval"}</h2>
+              <p className="text-sm text-muted-foreground mt-2">
+                {mode === "l1"
+                  ? "MIC will review your documents. Once approved, a card will be issued to your vehicle in inactive state. You will be notified to complete L2 registration."
+                  : "ZIC will review your documents. Once approved, your vehicle will be active and the card will be sent for printing."}
+              </p>
+            </>
+          )}
           <button onClick={() => onViewChange("fo-vehicles")} className="mt-6 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
             View My Vehicles
           </button>
@@ -1078,9 +1169,11 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   return (
     <div className="flex flex-col gap-5 p-5 max-w-3xl mx-auto">
       <div>
-        <h1 className="text-xl font-bold text-foreground">{mode === "l1" ? "Register New Vehicle" : "Complete Vehicle Registration"}</h1>
+        <h1 className="text-xl font-bold text-foreground">
+          {onboardingType === "SELF_SERVICE" ? "Register Vehicle for Fuel Card" : mode === "l1" ? "Register New Vehicle" : "Complete Vehicle Registration"}
+        </h1>
         <p className="text-sm text-muted-foreground">
-          {mode === "l1" ? "Choose vehicle type and upload L1 documents." : "Complete your registration by uploading L2 documents."}
+          {onboardingType === "SELF_SERVICE" ? "Add your vehicle details and documents to apply for a fuel card." : mode === "l1" ? "Choose vehicle type and upload L1 documents." : "Complete your registration by uploading L2 documents."}
         </p>
       </div>
 
@@ -1114,7 +1207,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
 
       <div className="space-y-4">
         {/* L1: Step 1 - Registration Type */}
-        {mode === "l1" && step === 1 && (
+        {onboardingType !== "SELF_SERVICE" && mode === "l1" && step === 1 && (
           <div className="grid grid-cols-2 gap-4">
             {[
               { value: "new_purchase", label: "New Purchase", desc: "Brand new CNG vehicle from dealer" },
@@ -1130,7 +1223,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
         )}
 
         {/* L1: Step 2 - Vehicle Details */}
-        {mode === "l1" && step === 2 && (
+        {onboardingType !== "SELF_SERVICE" && mode === "l1" && step === 2 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Shared: OEM dropdown for both vehicle types */}
             <div>
@@ -1226,8 +1319,21 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
+        {/* SELF_SERVICE: Step 1 - Vehicle & Documents */}
+        {onboardingType === "SELF_SERVICE" && step === 1 && (
+          <div className="space-y-4">
+            <Field label="Vehicle Number" name="vehicleNumber" required />
+
+            {/* Documents */}
+            <div className="pt-2 border-t border-border space-y-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+              <FileField label="RC Book" fieldName="rcBook" required />
+            </div>
+          </div>
+        )}
+
         {/* L1: Step 3 - Documentation */}
-        {mode === "l1" && step === 3 && (
+        {onboardingType !== "SELF_SERVICE" && mode === "l1" && step === 3 && (
           <div className="space-y-3">
             {/* L1 Documents — based on vehicle type */}
             {vehicleType === "new_purchase" ? (
@@ -1240,6 +1346,17 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                 <FileField label="Booking Receipt" fieldName="bookingReceipt" required />
               </div>
             )}
+          </div>
+        )}
+
+        {/* SELF_SERVICE: Step 2 - Driver Details */}
+        {onboardingType === "SELF_SERVICE" && step === 2 && (
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground">Driver details are optional and can be updated later.</p>
+            <Field label="Driver Name" name="driverName" />
+            <Field label="Driver Contact" name="driverContact" type="tel" />
+            <Field label="Driver License Number" name="driverLicense" />
+            <FileField label="Driver License Copy" fieldName="driverLicenseFile" />
           </div>
         )}
 
@@ -1260,6 +1377,39 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                 className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
+          </div>
+        )}
+
+        {/* SELF_SERVICE: Step 3 - Review & Submit */}
+        {onboardingType === "SELF_SERVICE" && step === 3 && (
+          <div className="space-y-4">
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><p className="text-xs text-muted-foreground">Vehicle No.</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+              </div>
+            </div>
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium">{form.driverName || "—"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Contact</p><p className="font-medium">{form.driverContact || "—"}</p></div>
+              </div>
+            </div>
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
+              {[
+                { label: "RC Book", file: form.rcBook },
+                { label: "Driver License", file: form.driverLicenseFile },
+              ].filter(d => d.file).map((doc, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                  <span className="text-foreground">{doc.label}</span>
+                  <span className="text-green-600 text-xs ml-auto font-medium">{doc.file?.name}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">By submitting, MIC will review your vehicle details and validate your registration.</p>
           </div>
         )}
 
@@ -1401,7 +1551,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
                 <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
-                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "—"}</p></div>}
+                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "��"}</p></div>}
               </div>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
@@ -1437,8 +1587,11 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
         <button onClick={() => step > 1 ? setStep(step - 1) : onViewChange("fo-vehicles")} className="px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
           {step === 1 ? "Cancel" : "Back"}
         </button>
-        <button onClick={() => step < (mode === "l1" ? 5 : 3) ? setStep(step + 1) : setSubmitted(true)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-          {(mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
+        <button onClick={() => {
+          const maxStep = onboardingType === "SELF_SERVICE" ? 3 : mode === "l1" ? 5 : 3
+          step < maxStep ? setStep(step + 1) : setSubmitted(true)
+        }} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+          {onboardingType === "SELF_SERVICE" && step === 3 ? "Submit Vehicle" : (mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
         </button>
       </div>
     </div>
