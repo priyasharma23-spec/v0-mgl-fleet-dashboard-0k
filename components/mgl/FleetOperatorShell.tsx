@@ -832,26 +832,27 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                               className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
                             />
                           </div>
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Registration Date <span className="text-destructive">*</span></label>
-                            <input
-                              type="date"
-                              value={l2Dates["registrationDate"] || ""}
-                              onChange={e => setL2Dates(prev => ({ ...prev, registrationDate: e.target.value }))}
-                              className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                            />
-                          </div>
-                          {/* Delivery Date — only for new purchase vehicles */}
-                          {!selectedVehicle.cngCertUrl && !selectedVehicle.eFitmentUrl && (
-                            <div>
-                              <label className="text-xs font-medium text-muted-foreground">Delivery Date <span className="text-destructive">*</span></label>
-                              <input
-                                type="date"
-                                value={l2Dates["deliveryDate"] || ""}
-                                onChange={e => setL2Dates(prev => ({ ...prev, deliveryDate: e.target.value }))}
-                                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                              />
-                            </div>
+                          {selectedVehicle.vehicleType !== "retrofit" && (
+                            <>
+                              <div>
+                                <label className="text-xs font-medium text-muted-foreground">Registration Date <span className="text-destructive">*</span></label>
+                                <input
+                                  type="date"
+                                  value={l2Dates["registrationDate"] || ""}
+                                  onChange={e => setL2Dates(prev => ({ ...prev, registrationDate: e.target.value }))}
+                                  className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-medium text-muted-foreground">Delivery Date <span className="text-destructive">*</span></label>
+                                <input
+                                  type="date"
+                                  value={l2Dates["deliveryDate"] || ""}
+                                  onChange={e => setL2Dates(prev => ({ ...prev, deliveryDate: e.target.value }))}
+                                  className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                                />
+                              </div>
+                            </>
                           )}
                         </div>
                       )}
