@@ -36,7 +36,9 @@ interface Props {
 }
 
 // The FO data for this logged-in user
+// Switch to "FO005" to test SELF_SERVICE FO portal
 const myFO = mockFleetOperators[0]
+// Switch foId to test different FO portals: "FO001" = MIC_ASSISTED, "FO005" = SELF_SERVICE
 const myVehicles = mockVehicles.filter((v) => v.foId === "FO001")
 
 export default function FleetOperatorShell({ user, onLogout, onboardingType = "SELF_SERVICE", isNewRegistration = false }: Props) {
