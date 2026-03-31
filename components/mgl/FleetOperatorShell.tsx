@@ -663,7 +663,11 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
 
       <div className="space-y-3">
         {filtered.map((v) => {
-          const steps: { label: string; status: "done" | "active" | "pending" }[] = [
+          const steps: { label: string; status: "done" | "active" | "pending" }[] = v.onboardingType === "SELF_SERVICE" ? [
+            { label: "Registered", status: "done" },
+            { label: "Under Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
+            { label: "Card Issued", status: v.cardActivatedAt ? "done" : v.cardNumber ? "active" : "pending" },
+          ] : [
             { label: "Registered", status: "done" },
             { label: "L1 Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
             { label: "L2 Review", status: v.l2ApprovedAt ? "done" : v.l2SubmittedAt ? "active" : "pending" },
@@ -692,6 +696,21 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
               <div className="overflow-x-auto mb-3">
                 <WorkflowStepper steps={steps} />
               </div>
+
+              {/* L1 Approved banner */}
+              {v.status === "L1_APPROVED" && (
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-200 mb-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
+                    <p className="text-xs text-blue-700 font-medium">
+                      {v.onboardingType === "SELF_SERVICE" ? "Approved — Card issuance in progress" : "L1 Approved — Complete L2 Registration"}
+                    </p>
+                  </div>
+                  {v.onboardingType !== "SELF_SERVICE" && (
+                    <button onClick={() => openVehicle(v)} className="text-xs text-blue-700 font-semibold hover:underline whitespace-nowrap">Complete →</button>
+                  )}
+                </div>
+              )}
 
               {/* Rejection alert */}
               {(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && (
@@ -1079,7 +1098,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                           <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-xs font-semibold text-amber-900">Pending MIC Review</p>
+                            <p className="text-xs font-semibold text-amber-900">Under Review</p>
                             <p className="text-xs text-amber-700 mt-0.5">Your vehicle is being reviewed by MIC. You will be notified once validated.</p>
                           </div>
                         </div>
@@ -1088,7 +1107,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                           <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-xs font-semibold text-green-900">Approved by MIC</p>
+                            <p className="text-xs font-semibold text-green-900">Approved</p>
                             <p className="text-xs text-green-700 mt-0.5">Your vehicle has been validated. Card issuance is in progress.</p>
                           </div>
                         </div>
@@ -1097,7 +1116,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                           <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-xs font-semibold text-red-900">Action Required</p>
+                            <p className="text-xs font-semibold text-red-900">Rejected</p>
                             <p className="text-xs text-red-700 mt-0.5">{selectedVehicle.l1Comments || "Please re-upload the required documents."}</p>
                             <div className="mt-2 space-y-2">
                               {[{ label: "RC Book", field: "rcBook" as const }].map(({ label, field }) => (
