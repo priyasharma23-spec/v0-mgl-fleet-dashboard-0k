@@ -1192,7 +1192,6 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
             {vehicleType === "new_purchase" ? (
               <div className="space-y-3">
                 <FileField label="Vehicle Booking Receipt" fieldName="bookingReceipt" required />
-                <FileField label="Driver License" fieldName="driverLicenseFile" />
               </div>
             ) : (
               <div className="space-y-3">
