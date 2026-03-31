@@ -817,6 +817,44 @@ function FOVehiclesList({ onViewChange }: { onViewChange: (v: string) => void })
                         {selectedVehicle.status === "L1_APPROVED" && <span className="ml-2 text-amber-600 normal-case">— Upload required</span>}
                       </p>
 
+                      {/* L2 Vehicle Details — input fields for FO to fill */}
+                      {selectedVehicle.status === "L1_APPROVED" && (
+                        <div className="space-y-3 pb-3 border-b border-border">
+                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Vehicle Number <span className="text-destructive">*</span></label>
+                            <input
+                              type="text"
+                              placeholder="e.g. MH12AB1234"
+                              value={l2Dates["vehicleNumber"] || ""}
+                              onChange={e => setL2Dates(prev => ({ ...prev, vehicleNumber: e.target.value }))}
+                              className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground">Registration Date <span className="text-destructive">*</span></label>
+                            <input
+                              type="date"
+                              value={l2Dates["registrationDate"] || ""}
+                              onChange={e => setL2Dates(prev => ({ ...prev, registrationDate: e.target.value }))}
+                              className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                            />
+                          </div>
+                          {/* Delivery Date — only for new purchase vehicles */}
+                          {!selectedVehicle.cngCertUrl && !selectedVehicle.eFitmentUrl && (
+                            <div>
+                              <label className="text-xs font-medium text-muted-foreground">Delivery Date <span className="text-destructive">*</span></label>
+                              <input
+                                type="date"
+                                value={l2Dates["deliveryDate"] || ""}
+                                onChange={e => setL2Dates(prev => ({ ...prev, deliveryDate: e.target.value }))}
+                                className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.vehicleType === "new_purchase" ? (
                         // New Purchase L2 docs
                         <>
