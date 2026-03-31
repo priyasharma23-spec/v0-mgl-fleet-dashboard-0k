@@ -1139,11 +1139,6 @@ function FOAddVehicle({ onViewChange }: { onViewChange: (v: string) => void }) {
               <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
             )}
 
-            {/* Retrofitment only: Registration Date */}
-            {vehicleType === "retrofit" && (
-              <Field label="Registration Date" name="registrationDate" type="date" required />
-            )}
-
             {/* Retrofitment only: Vehicle Booking Date */}
             {vehicleType === "retrofit" && (
               <Field label="Vehicle Booking Date" name="bookingDate" type="date" required />
