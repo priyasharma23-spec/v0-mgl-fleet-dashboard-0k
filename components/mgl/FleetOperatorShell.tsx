@@ -686,7 +686,24 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <VehicleStatusBadge status={v.status} />
+                  {v.onboardingType === "SELF_SERVICE" ? (
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      v.status === "L1_SUBMITTED" ? "bg-amber-100 text-amber-700" :
+                      v.status === "L1_APPROVED" || v.status === "CARD_ACTIVE" || v.status === "CARD_DISPATCHED" || v.status === "CARD_PRINTED" ? "bg-green-100 text-green-700" :
+                      v.status === "L1_REJECTED" ? "bg-red-100 text-red-700" :
+                      "bg-gray-100 text-gray-600"
+                    }`}>
+                      {v.status === "L1_SUBMITTED" ? "Under Review" :
+                       v.status === "L1_APPROVED" ? "Approved" :
+                       v.status === "L1_REJECTED" ? "Rejected" :
+                       v.status === "CARD_ACTIVE" ? "Active" :
+                       v.status === "CARD_DISPATCHED" ? "Card Dispatched" :
+                       v.status === "CARD_PRINTED" ? "Card Printing" :
+                       v.status}
+                    </span>
+                  ) : (
+                    <VehicleStatusBadge status={v.status} />
+                  )}
                   <button onClick={() => openVehicle(v)} className="p-1.5 hover:bg-muted rounded-lg ml-1">
                     <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </button>
@@ -2968,7 +2985,7 @@ function FONotificationsView() {
   )
 }
 
-// ─── FO MOU View ────────────────────────────────────────────────────────────
+// ─── FO MOU View ───────────────────────────────────────────────────────────���
 function FOMoUView() {
   const mou = {
     number: myFO.mouNumber || "MGL/MOU/2025/001",
