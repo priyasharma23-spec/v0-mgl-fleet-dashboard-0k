@@ -1323,34 +1323,6 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
         {onboardingType === "SELF_SERVICE" && step === 1 && (
           <div className="space-y-4">
             <Field label="Vehicle Number" name="vehicleNumber" required />
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">OEM</label>
-              <select value={form.oemId} onChange={e => setForm({...form, oemId: e.target.value, model: ""})}
-                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
-                <option value="">Select OEM</option>
-                {oems.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Vehicle Category</label>
-              <select value={form.category} onChange={e => setForm({...form, category: e.target.value as VehicleCategory, model: ""})}
-                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
-                <option value="">Select Category</option>
-                <option value="HCV">HCV (≥15T)</option>
-                <option value="ICV">ICV (≥10T, &lt;15T)</option>
-                <option value="LCV">LCV (&gt;3.5T, &lt;10T)</option>
-                <option value="Bus">Bus</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground">Model</label>
-              <select value={form.model} onChange={e => setForm({...form, model: e.target.value})}
-                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm">
-                <option value="">Select Model</option>
-                {availableModels.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-            </div>
-            <Field label="Registration Date" name="registrationDate" type="date" />
 
             {/* Documents */}
             <div className="pt-2 border-t border-border space-y-3">
