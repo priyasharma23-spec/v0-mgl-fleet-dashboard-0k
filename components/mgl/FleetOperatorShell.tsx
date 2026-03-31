@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History
+  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -585,6 +585,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedVehicle, setSelectedVehicle] = useState<typeof vehicles[0] | null>(null)
   const [showTimeline, setShowTimeline] = useState(false)
+  const [showIncentive, setShowIncentive] = useState(false)
   const [l2Files, setL2Files] = useState<Record<string, File | null>>({})
   const [l2Submitted, setL2Submitted] = useState(false)
   const [l2Dates, setL2Dates] = useState<Record<string, string>>({})
@@ -599,6 +600,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
     setL1Files({})
     setL1Submitted(false)
     setShowTimeline(false)
+    setShowIncentive(false)
   }
 
   const filtered = vehicles.filter(v => {
@@ -763,16 +765,56 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 <h2 className="font-semibold text-foreground">{selectedVehicle.vehicleNumber || selectedVehicle.id}</h2>
                 <p className="text-xs text-muted-foreground">{selectedVehicle.oem} · {selectedVehicle.model}</p>
               </div>
-              <div className="flex items-center gap-1">
-                <button onClick={() => setShowTimeline(!showTimeline)} className={`p-2 rounded-lg transition-colors ${showTimeline ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}>
+              <div className="flex items-center gap-1 shrink-0 ml-2">
+                {selectedVehicle.onboardingType === "MIC_ASSISTED" && (
+                  <button
+                    onClick={() => { setShowIncentive(!showIncentive); setShowTimeline(false) }}
+                    className={`p-2 rounded-lg transition-colors ${showIncentive ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}
+                    title="Incentive Details"
+                  >
+                    <Gift className="w-4 h-4" />
+                  </button>
+                )}
+                <button
+                  onClick={() => { setShowTimeline(!showTimeline); setShowIncentive(false) }}
+                  className={`p-2 rounded-lg transition-colors ${showTimeline ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}
+                  title="Approval Timeline"
+                >
                   <History className="w-4 h-4" />
                 </button>
-                <button onClick={() => { openVehicle(null); setShowTimeline(false) }} className="p-2 hover:bg-muted rounded-lg">
+                <button onClick={() => { setSelectedVehicle(null); setShowTimeline(false); setShowIncentive(false) }} className="p-2 hover:bg-muted rounded-lg">
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            {showTimeline ? (
+            {showIncentive ? (
+              <div className="p-4 space-y-4">
+                <p className="text-sm font-semibold text-foreground">Incentive Details</p>
+
+                {/* Linked Incentive Program */}
+                <div className="bg-muted/30 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Linked Program</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      ["Program ID", "INC-2026-001"],
+                      ["Program Name", "New Vehicle Onboarding Incentive"],
+                      ["Type", "One-time"],
+                      ["Gross Amount", "₹3,500"],
+                      ["TDS Deducted", "₹350"],
+                      ["Net Incentive", "₹3,150"],
+                      ["Credit Date", "Mar 21, 2026"],
+                      ["Expiry Date", "Mar 21, 2027"],
+                      ["Status", "Active"],
+                    ].map(([label, value]) => (
+                      <div key={label} className="text-sm">
+                        <span className="text-xs text-muted-foreground block">{label}</span>
+                        <span className={`font-medium block mt-0.5 ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700 font-bold" : "text-foreground"}`}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : showTimeline ? (
               <div className="p-4 space-y-3 flex-1 overflow-y-auto">
                 <p className="text-sm font-semibold text-foreground">Approval Timeline</p>
                 <div className="space-y-4">
