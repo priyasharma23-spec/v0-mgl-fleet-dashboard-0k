@@ -1387,12 +1387,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Type</p><p className="font-medium">{vehicleType === "new_purchase" ? "New Purchase" : vehicleType === "retrofit" ? "Retrofitment" : "Existing CNG"}</p></div>
                 <div><p className="text-xs text-muted-foreground">Vehicle No.</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">OEM</p><p className="font-medium">{oems.find(o => o.id === form.oemId)?.name || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Category</p><p className="font-medium">{form.category || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Model</p><p className="font-medium">{form.model || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
               </div>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
@@ -1406,8 +1401,6 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
               {[
                 { label: "RC Book", file: form.rcBook },
-                { label: "Booking Receipt", file: form.bookingReceipt },
-                { label: "CNG Certificate", file: form.cngCert },
                 { label: "Driver License", file: form.driverLicenseFile },
               ].filter(d => d.file).map((doc, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
