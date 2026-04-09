@@ -3154,190 +3154,183 @@ function FOTransactionsView() {
       {/* Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                {activeTab === "pos" && (
-                  <>
-                    <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
-                    <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
-                    <th className="px-4 py-3 text-left font-semibold">Vehicle</th>
-                    <th className="px-4 py-3 text-left font-semibold">Station</th>
-                    <th className="px-4 py-3 text-left font-semibold">Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold">Status</th>
-                    <th className="px-4 py-3 text-center font-semibold">Action</th>
-                  </>
-                )}
-                {activeTab === "load" && (
-                  <>
-                    <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
-                    <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
-                    <th className="px-4 py-3 text-left font-semibold">Source</th>
-                    <th className="px-4 py-3 text-left font-semibold">Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold">Status</th>
-                    <th className="px-4 py-3 text-center font-semibold">Action</th>
-                  </>
-                )}
-                {activeTab === "allocation" && (
-                  <>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Alloc ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Vehicle</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Card</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Allocated</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Balance</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">By</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
-                  </>
-                )}
-                {activeTab === "incentive" && (
-                  <>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Incentive ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Vehicle</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Type</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Gross</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">TDS</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Net Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
-                  </>
-                )}
-                {activeTab === "debits" && (
-                  <>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Debit ID</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Type</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Amount</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Debited From</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Opening Bal</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Closing Bal</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Reference</th>
-                    <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
-                  </>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {/* POS Transactions */}
-              {activeTab === "pos" && filtered.map((txn: any) => (
-                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
-                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                  <td className="px-4 py-3">
-                    <p className="text-sm">{txn.date}</p>
-                    <p className="text-xs text-muted-foreground">{txn.time}</p>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{txn.station}</td>
-                  <td className="px-4 py-3 font-medium">{txn.amount}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${txn.status === "Successful" ? "bg-green-100 text-green-700" : txn.status === "Failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-                      {txn.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
+          {/* Incentive Tab – Separate Table */}
+          {activeTab === "incentive" ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">TXN ID</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date & Time</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Credit Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
                 </tr>
-              ))}
-
-              {/* Load Transactions */}
-              {activeTab === "load" && filtered.map((txn: any) => (
-                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
-                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                  <td className="px-4 py-3">
-                    <p className="text-sm">{txn.date}</p>
-                    <p className="text-xs text-muted-foreground">{txn.time}</p>
-                  </td>
-                  <td className="px-4 py-3 text-xs">{txn.source}</td>
-                  <td className="px-4 py-3 font-medium">{txn.amount}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {incentiveTransactions.map(txn => (
+                  <tr key={txn.id} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm">{txn.date}</p>
+                      <p className="text-xs text-muted-foreground">{txn.time}</p>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{txn.source}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.creditType === "Incentive" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
+                        {txn.creditType}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-bold text-green-700">{txn.netAmount}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                        {txn.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn as any)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            /* Other Tabs – Main Table */
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  {activeTab === "pos" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
+                      <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
+                      <th className="px-4 py-3 text-left font-semibold">Vehicle</th>
+                      <th className="px-4 py-3 text-left font-semibold">Station</th>
+                      <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                      <th className="px-4 py-3 text-left font-semibold">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold">Action</th>
+                    </>
+                  )}
+                  {activeTab === "load" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
+                      <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
+                      <th className="px-4 py-3 text-left font-semibold">Source</th>
+                      <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                      <th className="px-4 py-3 text-left font-semibold">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold">Action</th>
+                    </>
+                  )}
+                  {activeTab === "allocation" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Alloc ID</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Vehicle</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Card</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Allocated</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Balance</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">By</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
+                    </>
+                  )}
+                  {activeTab === "debits" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Debit ID</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Type</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Amount</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Debited From</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Opening Bal</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Closing Bal</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Reference</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
+                    </>
+                  )}
                 </tr>
-              ))}
+              </thead>
+              <tbody className="divide-y divide-border">
+                {/* POS Transactions */}
+                {activeTab === "pos" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm">{txn.date}</p>
+                      <p className="text-xs text-muted-foreground">{txn.time}</p>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{txn.station}</td>
+                    <td className="px-4 py-3 font-medium">{txn.amount}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${txn.status === "Successful" ? "bg-green-100 text-green-700" : txn.status === "Failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                        {txn.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
 
-              {/* Allocation Transactions */}
-              {activeTab === "allocation" && filtered.map((txn: any) => (
-                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
-                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                  <td className="px-4 py-3 text-xs">{txn.date}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{txn.card}</td>
-                  <td className="px-4 py-3 font-medium text-green-700">{txn.allocatedAmount}</td>
-                  <td className="px-4 py-3 text-xs">{txn.availableBalance}</td>
-                  <td className="px-4 py-3 text-xs text-muted-foreground">{txn.allocatedBy}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{txn.status}</span>
-                  </td>
-                </tr>
-              ))}
+                {/* Load Transactions */}
+                {activeTab === "load" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm">{txn.date}</p>
+                      <p className="text-xs text-muted-foreground">{txn.time}</p>
+                    </td>
+                    <td className="px-4 py-3 text-xs">{txn.source}</td>
+                    <td className="px-4 py-3 font-medium">{txn.amount}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
 
-              {/* Incentive Transactions */}
-              {activeTab === "incentive" && (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border bg-muted/30">
-                      {["TXN ID", "Date & Time", "Source", "Credit Type", "Amount", "Status", "Action"].map(h => (
-                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {incentiveTransactions.map(txn => (
-                      <tr key={txn.id} className="hover:bg-muted/30 cursor-pointer">
-                        <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                        <td className="px-4 py-3">
-                          <p className="text-sm">{txn.date}</p>
-                          <p className="text-xs text-muted-foreground">{txn.time}</p>
-                        </td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{txn.source}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.creditType === "Incentive" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
-                            {txn.creditType}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 font-bold text-green-700">{txn.netAmount}</td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                            {txn.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button onClick={() => setSelectedTxn(txn as any)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                {/* Allocation Transactions */}
+                {activeTab === "allocation" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3 text-xs">{txn.date}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.card}</td>
+                    <td className="px-4 py-3 font-medium text-green-700">{txn.allocatedAmount}</td>
+                    <td className="px-4 py-3 text-xs">{txn.availableBalance}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{txn.allocatedBy}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{txn.status}</span>
+                    </td>
+                  </tr>
+                ))}
 
-              {/* Debit Transactions */}
-              {activeTab === "debits" && filtered.map((txn: any) => (
-                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
-                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                  <td className="px-4 py-3 text-xs">{txn.date}</td>
-                  <td className="px-4 py-3 text-xs">{txn.debitType}</td>
-                  <td className="px-4 py-3 font-bold text-red-600">{txn.amount}</td>
-                  <td className="px-4 py-3 text-xs">{txn.debitedFrom}</td>
-                  <td className="px-4 py-3 text-xs">{txn.openingBalance}</td>
-                  <td className="px-4 py-3 text-xs">{txn.closingBalance}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{txn.reference}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                {/* Debit Transactions */}
+                {activeTab === "debits" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3 text-xs">{txn.date}</td>
+                    <td className="px-4 py-3 text-xs">{txn.debitType}</td>
+                    <td className="px-4 py-3 font-bold text-red-600">{txn.amount}</td>
+                    <td className="px-4 py-3 text-xs">{txn.debitedFrom}</td>
+                    <td className="px-4 py-3 text-xs">{txn.openingBalance}</td>
+                    <td className="px-4 py-3 text-xs">{txn.closingBalance}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.reference}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
