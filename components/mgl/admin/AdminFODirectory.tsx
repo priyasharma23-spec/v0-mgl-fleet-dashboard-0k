@@ -374,12 +374,13 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                     }`}>{fo.kycStatus}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <button 
+                    <div className="flex items-center gap-1">
+                      <button
                         onClick={() => setSelectedFO(fo.id)}
-                        className="text-xs text-primary font-medium hover:underline"
+                        title="View Details"
+                        className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
                       >
-                        View
+                        <Eye className="w-3.5 h-3.5" />
                       </button>
                       {fo.status === "PENDING_ACTIVATION" && (
                         <button
@@ -389,10 +390,10 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                             setCopiedId(fo.id)
                             setTimeout(() => setCopiedId(null), 2000)
                           }}
-                          className={`flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg transition-colors ${copiedId === fo.id ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700 hover:bg-amber-200"}`}
+                          title="Copy Activation Link"
+                          className={`p-1.5 rounded-lg transition-colors ${copiedId === fo.id ? "bg-green-100 text-green-600" : "hover:bg-amber-100 text-amber-600"}`}
                         >
-                          {copiedId === fo.id ? <CheckCircle className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                          {copiedId === fo.id ? "Copied!" : "Copy Link"}
+                          {copiedId === fo.id ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       )}
                     </div>
