@@ -1388,9 +1388,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                       )}
                     </div>
                   </>
-                )}
-              
-              </div>
             )}
           </div>
         </>
