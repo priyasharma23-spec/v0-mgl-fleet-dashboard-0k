@@ -783,7 +783,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                   </div>
                   <button className="text-red-700 hover:text-red-900 font-semibold whitespace-nowrap text-xs">Resubmit →</button>
                 </div>
-                </div>
               )}
 
               {/* Card info */}
