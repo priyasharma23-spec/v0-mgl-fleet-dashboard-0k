@@ -73,20 +73,24 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
 
         <div className="p-4 space-y-4 flex-1 overflow-y-auto">
 
+          {/* Amount hero */}
+          <div className={`rounded-xl p-4 text-center ${txn.type === "Credit" || txn.type === "credit" ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+            <p className="text-xs font-medium text-muted-foreground mb-1">{txn.channel === "pos" ? "Amount Paid" : "Amount Loaded"}</p>
+            <p className={`text-3xl font-bold ${txn.type === "Credit" || txn.type === "credit" ? "text-green-700" : "text-red-600"}`}>
+              {txn.type === "Credit" || txn.type === "credit" ? "+" : "-"}{formatAmount(txn.amount)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">{txn.date}{txn.time ? ` · ${txn.time}` : ""}</p>
+          </div>
+
           {/* Transaction Info */}
           <div className="bg-muted/30 rounded-xl p-4 space-y-2">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Transaction Info</p>
             {[
               ["TXN ID", txn.id],
-              ["Date", txn.date],
-              txn.time ? ["Time", txn.time] : null,
               ["Type", typeof txn.type === "string" ? txn.type.charAt(0).toUpperCase() + txn.type.slice(1) : "—"],
               ["Channel", txn.channel === "pos" ? "POS" : "Load"],
               txn.paymentMethod ? ["Payment Method", txn.paymentMethod] : null,
               txn.product ? ["Product", txn.product.toUpperCase()] : null,
-              ["Amount", formatAmount(txn.amount)],
-              txn.openingBalance !== undefined ? ["Opening Balance", formatAmount(txn.openingBalance)] : null,
-              txn.closingBalance !== undefined ? ["Closing Balance", formatAmount(txn.closingBalance)] : null,
             ].filter(Boolean).map(([label, value]) => (
               <div key={label as string} className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{label}</span>
@@ -133,20 +137,42 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
 
           {/* Wallet Debit — POS only */}
           {txn.channel === "pos" && (txn.cardWalletDebit !== undefined || txn.incentiveWalletDebit !== undefined) && (
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Card Wallet</span>
-                <span className="font-medium text-red-600">-₹{Number(txn.cardWalletDebit || 0).toLocaleString("en-IN")}</span>
+
+              {/* Opening Balance */}
+              {txn.openingBalance !== undefined && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Opening Balance</span>
+                  <span className="font-medium text-foreground">{formatAmount(txn.openingBalance)}</span>
+                </div>
+              )}
+
+              {/* Debit breakdown */}
+              <div className="space-y-1.5 py-2 border-y border-border">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Card Wallet</span>
+                  <span className="font-medium text-red-600">-₹{Number(txn.cardWalletDebit || 0).toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Incentive Wallet</span>
+                  <span className="font-medium text-red-600">-₹{Number(txn.incentiveWalletDebit || 0).toLocaleString("en-IN")}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Incentive Wallet</span>
-                <span className="font-medium text-red-600">-₹{Number(txn.incentiveWalletDebit || 0).toLocaleString("en-IN")}</span>
-              </div>
+
+              {/* Total debited — prominent */}
               {totalDebit > 0 && (
-                <div className="pt-2 border-t border-border flex items-center justify-between text-sm font-semibold">
-                  <span className="text-foreground">Total Debited</span>
-                  <span className="text-red-600">-₹{totalDebit.toLocaleString("en-IN")}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">Total Debited</span>
+                  <span className="text-xl font-bold text-red-600">-₹{totalDebit.toLocaleString("en-IN")}</span>
+                </div>
+              )}
+
+              {/* Closing Balance */}
+              {txn.closingBalance !== undefined && (
+                <div className="flex items-center justify-between text-sm pt-1 border-t border-border">
+                  <span className="text-muted-foreground">Closing Balance</span>
+                  <span className="font-medium text-foreground">{formatAmount(txn.closingBalance)}</span>
                 </div>
               )}
             </div>
