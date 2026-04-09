@@ -92,7 +92,7 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
               </div>
             </div>
 
-            {fo.status === "INACTIVE" && (
+            {fo.status === "PENDING_ACTIVATION" && (
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
@@ -323,7 +323,9 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                   <td className="px-4 py-3 text-muted-foreground">{fo.region}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      fo.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      fo.status === "Active" ? "bg-green-100 text-green-700" :
+                      fo.status === "PENDING_ACTIVATION" ? "bg-amber-100 text-amber-700" :
+                      "bg-red-100 text-red-700"
                     }`}>{fo.status}</span>
                   </td>
                   <td className="px-4 py-3">{fo.vehicles}</td>
