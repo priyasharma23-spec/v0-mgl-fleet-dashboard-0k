@@ -750,22 +750,22 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 <div className="border-l-4 border-green-600 bg-green-50 px-4 py-3 rounded-r-lg flex items-center justify-between mb-3">
                   {v.onboardingType === "SELF_SERVICE" ? (
                     <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
                       <div>
-                        <p className="font-semibold text-green-900">Approved</p>
-                        <p className="text-xs text-green-700">Card issuance in progress</p>
+                        <p className="text-xs font-semibold text-green-900">Approved</p>
+                        <p className="text-[11px] text-green-700">Card issuance in progress</p>
                       </div>
                     </div>
                   ) : (
                     <>
                       <div className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
                         <div>
-                          <p className="font-semibold text-green-900">L1 Approved</p>
-                          <p className="text-xs text-green-700">Complete L2 Registration to proceed</p>
+                          <p className="text-xs font-semibold text-green-900">L1 Approved</p>
+                          <p className="text-[11px] text-green-700">Complete L2 Registration to proceed</p>
                         </div>
                       </div>
-                      <button onClick={() => openVehicle(v)} className="text-green-700 hover:text-green-900 font-semibold whitespace-nowrap text-sm">Complete →</button>
+                      <button onClick={() => openVehicle(v)} className="text-green-700 hover:text-green-900 font-semibold whitespace-nowrap text-xs">Complete →</button>
                     </>
                   )}
                 </div>
