@@ -1380,10 +1380,11 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
-                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "��"}</p></div>}
+                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "-"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "-"}</p></div>
+                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "-"}</p></div>}
               </div>
+            </div>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">L2 Documents</p>
@@ -2924,7 +2925,7 @@ function FOFundManagement() {
                     <p className="text-xs text-muted-foreground">{item.type} Load • {item.date}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-foreground">₹{item.amount.toLocaleString()}</p>
+                    <p className="font-semibold text-foreground">��{item.amount.toLocaleString()}</p>
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">{item.status}</span>
                   </div>
                 </div>
