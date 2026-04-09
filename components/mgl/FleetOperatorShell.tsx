@@ -1341,10 +1341,9 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                             </button>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
+                )}
+              </div>
+            ) : (
                   <>
                     {/* SELF_SERVICE: Simple document status + approval state */}
                     <div className="bg-muted/30 rounded-xl p-4 space-y-3">
@@ -2363,7 +2362,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 <p className="text-sm text-muted-foreground mb-4">Please confirm you have received the physical card for Vehicle {myVehicles.find(v => v.id === activationCardId)?.vehicleNumber}.</p>
                 <div className="mb-4 p-3 bg-muted rounded-lg text-sm">
                   <p className="text-foreground font-semibold">Card Details:</p>
-                  <p className="text-muted-foreground mt-2">Card: ••••{myVehicles.find(v => v.id === activationCardId)?.cardNumber?.slice(-4)}</p>
+                  <p className="text-muted-foreground mt-2">Card: •••��{myVehicles.find(v => v.id === activationCardId)?.cardNumber?.slice(-4)}</p>
                   <p className="text-muted-foreground">Expiry: 12/27</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer mb-4">
