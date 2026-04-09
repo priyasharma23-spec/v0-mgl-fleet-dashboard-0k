@@ -3246,6 +3246,7 @@ function FOTransactionsView() {
                       <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Closing Bal</th>
                       <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Reference</th>
                       <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold text-xs uppercase">Action</th>
                     </>
                   )}
                 </tr>
@@ -3326,6 +3327,11 @@ function FOTransactionsView() {
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
                     </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -3346,7 +3352,7 @@ function FOTransactionsView() {
   )
 }
 
-// ─── FO Fund Management ────────────────────────────────────────────────────────
+// ─── FO Fund Management ────────���───────────────────────────────────────────────
 function FOFundManagement() {
   const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
@@ -3655,7 +3661,7 @@ function FONotificationsView() {
   )
 }
 
-// ─── FO MOU View ───────────────────────────────────────────────────────────���
+// ─── FO MOU View ───────────��───────────────────────────────────────────────���
 function FOMoUView() {
   const mou = {
     number: myFO.mouNumber || "MGL/MOU/2025/001",
