@@ -853,22 +853,15 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
       </div>
 
       {selectedVehicle && (
-        <FOVehicleDetailTray
-          vehicle={selectedVehicle}
-          onClose={() => setSelectedVehicle(null)}
-          onboardingType={onboardingType}
-          l1Files={l1Files}
-          l2Files={l2Files}
-          l2Dates={l2Dates}
-          l1Submitted={l1Submitted}
-          l2Submitted={l2Submitted}
-          onL1FileChange={(label, file) => setL1Files(prev => ({ ...prev, [label]: file }))}
-          onL2FileChange={(label, file) => setL2Files(prev => ({ ...prev, [label]: file }))}
-          onL2DateChange={(label, value) => setL2Dates(prev => ({ ...prev, [label]: value }))}
-          onL1Submit={() => setL1Submitted(true)}
-          onL2Submit={() => setL2Submitted(true)}
-          onL2Resubmit={() => setL2Submitted(false)}
-        />
+        <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">{selectedVehicle.vehicleNumber}</h2>
+            <button onClick={() => setSelectedVehicle(null)} className="text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <p className="text-sm text-muted-foreground">Vehicle details tray component placeholder</p>
+        </div>
       )}
     </div>
   )
