@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift
+  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -679,8 +679,25 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
             <div key={v.id} className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <Truck className="w-5 h-5 text-blue-600" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    v.vehicleType === "retrofit" ? "bg-amber-100" :
+                    v.category === "Bus" ? "bg-purple-100" :
+                    v.category === "HCV" ? "bg-blue-100" :
+                    v.category === "ICV" ? "bg-green-100" :
+                    v.category === "LCV" ? "bg-teal-100" :
+                    "bg-gray-100"
+                  }`}>
+                    {v.vehicleType === "retrofit" ? (
+                      <RefreshCw className={`w-5 h-5 text-amber-600`} />
+                    ) : v.category === "Bus" ? (
+                      <Bus className={`w-5 h-5 text-purple-600`} />
+                    ) : v.category === "HCV" ? (
+                      <Truck className={`w-5 h-5 text-blue-600`} />
+                    ) : v.category === "ICV" ? (
+                      <Truck className={`w-5 h-5 text-green-600`} />
+                    ) : (
+                      <Truck className={`w-5 h-5 text-teal-600`} />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
