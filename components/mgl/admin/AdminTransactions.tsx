@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Download, Eye, X, Search, Filter, CheckCircle, Clock, XCircle, BarChart3 } from "lucide-react"
 import { KPICard } from "@/components/mgl/shared"
+import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 
 export default function AdminTransactions({ onViewChange }: { onViewChange: (v: string) => void }) {
   const [type, setType] = useState<"POS" | "Load">("POS")
@@ -35,7 +36,11 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       paymentMethod: "Card",
       stationType: "COCO",
       cardWalletDebit: 11957.6,
-      incentiveWalletDebit: 2989.4
+      incentiveWalletDebit: 2989.4,
+      cashbackEligible: true,
+      cashbackPercent: 2.5,
+      cashbackAmount: 21.25,
+      cashbackStatus: "Credited" as const
     },
     { 
       id: "42287", 
@@ -58,7 +63,9 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       paymentMethod: "Scan & Pay",
       stationType: "DODO",
       cardWalletDebit: 2608.48,
-      incentiveWalletDebit: 652.12
+      incentiveWalletDebit: 652.12,
+      cashbackEligible: false,
+      cashbackReason: "Station not eligible for cashback"
     },
   ]
 
@@ -455,6 +462,15 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                   {selectedTransaction.reversalOf && <div className="flex justify-between"><span className="text-muted-foreground">Reversal Of:</span><span className="font-mono text-xs">{selectedTransaction.reversalOf}</span></div>}
                 </div>
               </div>
+            )}
+            {selectedTransaction?.channel !== "load" && (
+              <CashbackDetails data={{
+                cashbackEligible: selectedTransaction.cashbackEligible,
+                cashbackPercent: selectedTransaction.cashbackPercent,
+                cashbackAmount: selectedTransaction.cashbackAmount ? `₹${selectedTransaction.cashbackAmount}` : undefined,
+                cashbackStatus: selectedTransaction.cashbackStatus,
+                cashbackReason: selectedTransaction.cashbackReason,
+              }} />
             )}
           </div>
         </div>

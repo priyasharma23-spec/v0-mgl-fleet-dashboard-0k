@@ -14,6 +14,7 @@ import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
+import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import {
   mockVehicles, mockFleetOperators,
   oems, dealers, retrofitters,
@@ -1752,10 +1753,19 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                   <span className="text-foreground">{doc.label}</span>
                   <span className="text-green-600 text-xs ml-auto font-medium">{doc.file?.name}</span>
                 </div>
-              ))}
+                  ))}
+                </div>
+              )}
+              {activeTab === "pos" && (
+                <CashbackDetails data={{
+                  cashbackEligible: selectedTxn.cashbackEligible,
+                  cashbackPercent: selectedTxn.cashbackPercent,
+                  cashbackAmount: selectedTxn.cashbackAmount,
+                  cashbackStatus: selectedTxn.cashbackStatus,
+                  cashbackReason: selectedTxn.cashbackReason,
+                }} />
+              )}
             </div>
-            <p className="text-xs text-muted-foreground">By submitting, MIC will review your vehicle details and validate your registration.</p>
-          </div>
         )}
 
         {/* L1: Step 5 - Review & Submit */}
