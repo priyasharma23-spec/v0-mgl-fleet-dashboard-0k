@@ -90,6 +90,8 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
               ["Type", typeof txn.type === "string" ? txn.type.charAt(0).toUpperCase() + txn.type.slice(1) : "—"],
               ["Channel", txn.channel === "pos" ? "POS" : "Load"],
               txn.paymentMethod ? ["Payment Method", txn.paymentMethod] : null,
+              txn.vehicle ? ["Vehicle", txn.vehicle] : null,
+              txn.card ? ["Card", txn.card] : null,
               txn.product ? ["Product", txn.product.toUpperCase()] : null,
             ].filter(Boolean).map(([label, value]) => (
               <div key={label as string} className="flex items-center justify-between text-sm">
@@ -107,8 +109,6 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
                 txn.station ? ["Station", txn.station] : null,
                 txn.stationType ? ["Station Type", txn.stationType] : null,
                 txn.merchantCode ? ["Merchant Code", txn.merchantCode] : null,
-                txn.vehicle ? ["Vehicle", txn.vehicle] : null,
-                txn.card ? ["Card", txn.card] : null,
                 txn.driver ? ["Driver", txn.driver] : null,
               ].filter(Boolean).map(([label, value]) => (
                 <div key={label as string} className="flex items-center justify-between text-sm">
