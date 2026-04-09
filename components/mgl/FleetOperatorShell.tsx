@@ -1755,7 +1755,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                 </div>
                   ))}
                 </div>
-              )}
+
               {activeTab === "pos" && (
                 <CashbackDetails data={{
                   cashbackEligible: selectedTxn.cashbackEligible,
