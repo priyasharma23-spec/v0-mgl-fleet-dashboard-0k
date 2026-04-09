@@ -15,6 +15,7 @@ import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
+import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
 import {
   mockVehicles, mockFleetOperators,
   oems, dealers, retrofitters,
@@ -2914,20 +2915,20 @@ function FOTransactionsView() {
   const [activeTab, setActiveTab] = useState<"pos" | "load">("pos")
   const [search, setSearch] = useState("")
   const [showFilters, setShowFilters] = useState(false)
-  const [selectedTxn, setSelectedTxn] = useState<any>(null)
+  const [selectedTxn, setSelectedTxn] = useState<TransactionRecord | null>(null)
 
   const posTransactions = [
-    { id: "42288", date: "Mar 23, 2026", time: "10:30 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹850", station: "MGL Hind CNG Filling Station", merchantCode: "100069", status: "Successful", type: "Debit", openingBalance: "₹13,350", closingBalance: "₹12,500", paymentMethod: "Card", stationType: "COCO", cardWalletDebit: "680", incentiveWalletDebit: "170", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹21.25", cashbackStatus: "Credited" },
-    { id: "42201", date: "Mar 22, 2026", time: "08:15 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹1,200", station: "MGL Kurla Station", merchantCode: "100045", status: "Successful", type: "Debit", openingBalance: "₹14,550", closingBalance: "₹13,350", paymentMethod: "Scan & Pay", stationType: "DODO", cardWalletDebit: "960", incentiveWalletDebit: "240", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹30.00", cashbackStatus: "Pending" },
-    { id: "42156", date: "Mar 21, 2026", time: "06:45 PM", card: "xxxxxxxxxxxx4522", vehicle: "MH04CD5678", amount: "₹950", station: "MGL Andheri East", merchantCode: "100032", status: "Successful", type: "Debit", openingBalance: "₹9,150", closingBalance: "₹8,200", paymentMethod: "Card", stationType: "MGL Tej", cardWalletDebit: "760", incentiveWalletDebit: "190", cashbackEligible: false, cashbackReason: "Station not eligible for cashback" },
-    { id: "42089", date: "Mar 20, 2026", time: "09:20 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹780", station: "MGL Goregaon", merchantCode: "100078", status: "Failed", type: "Debit", openingBalance: "₹14,550", closingBalance: "₹14,550", paymentMethod: "Card", stationType: "COCO", cardWalletDebit: "780", incentiveWalletDebit: "0", cashbackEligible: false, cashbackReason: "Transaction failed — no cashback" },
-    { id: "42034", date: "Mar 19, 2026", time: "07:10 AM", card: "xxxxxxxxxxxx4522", vehicle: "MH04CD5678", amount: "₹1,100", station: "MGL Thane", merchantCode: "100091", status: "Successful", type: "Debit", openingBalance: "₹10,250", closingBalance: "₹9,150", paymentMethod: "Scan & Pay", stationType: "DODO", cardWalletDebit: "880", incentiveWalletDebit: "220", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹27.50", cashbackStatus: "Credited" },
+    { id: "42288", date: "Mar 23, 2026", time: "10:30 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹850", station: "MGL Hind CNG Filling Station", merchantCode: "100069", status: "Successful", type: "Debit", openingBalance: "₹13,350", closingBalance: "₹12,500", paymentMethod: "Card", stationType: "COCO", cardWalletDebit: "680", incentiveWalletDebit: "170", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹21.25", cashbackStatus: "Credited", channel: "pos" as const },
+    { id: "42201", date: "Mar 22, 2026", time: "08:15 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹1,200", station: "MGL Kurla Station", merchantCode: "100045", status: "Successful", type: "Debit", openingBalance: "₹14,550", closingBalance: "₹13,350", paymentMethod: "Scan & Pay", stationType: "DODO", cardWalletDebit: "960", incentiveWalletDebit: "240", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹30.00", cashbackStatus: "Pending", channel: "pos" as const },
+    { id: "42156", date: "Mar 21, 2026", time: "06:45 PM", card: "xxxxxxxxxxxx4522", vehicle: "MH04CD5678", amount: "₹950", station: "MGL Andheri East", merchantCode: "100032", status: "Successful", type: "Debit", openingBalance: "₹9,150", closingBalance: "₹8,200", paymentMethod: "Card", stationType: "MGL Tej", cardWalletDebit: "760", incentiveWalletDebit: "190", cashbackEligible: false, cashbackReason: "Station not eligible for cashback", channel: "pos" as const },
+    { id: "42089", date: "Mar 20, 2026", time: "09:20 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹780", station: "MGL Goregaon", merchantCode: "100078", status: "Failed", type: "Debit", openingBalance: "₹14,550", closingBalance: "₹14,550", paymentMethod: "Card", stationType: "COCO", cardWalletDebit: "780", incentiveWalletDebit: "0", cashbackEligible: false, cashbackReason: "Transaction failed — no cashback", channel: "pos" as const },
+    { id: "42034", date: "Mar 19, 2026", time: "07:10 AM", card: "xxxxxxxxxxxx4522", vehicle: "MH04CD5678", amount: "₹1,100", station: "MGL Thane", merchantCode: "100091", status: "Successful", type: "Debit", openingBalance: "₹10,250", closingBalance: "₹9,150", paymentMethod: "Scan & Pay", stationType: "DODO", cardWalletDebit: "880", incentiveWalletDebit: "220", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹27.50", cashbackStatus: "Credited", channel: "pos" as const },
   ]
 
   const loadTransactions = [
-    { id: "L1001", date: "Mar 22, 2026", time: "02:15 PM", source: "NEFT Credit", amount: "₹10,000", status: "Successful", type: "Credit", utr: "NEFT2026032200123", openingBalance: "₹4,550", closingBalance: "₹14,550" },
-    { id: "L1002", date: "Mar 18, 2026", time: "11:00 AM", source: "UPI Credit", amount: "₹5,000", status: "Successful", type: "Credit", utr: "UPI2026031800456", openingBalance: "₹5,250", closingBalance: "₹10,250" },
-    { id: "L1003", date: "Mar 15, 2026", time: "03:00 PM", source: "NEFT Credit", amount: "₹15,000", status: "Successful", type: "Credit", utr: "NEFT2026031500789", openingBalance: "₹0", closingBalance: "₹15,000" },
+    { id: "L1001", date: "Mar 22, 2026", time: "02:15 PM", source: "NEFT Credit", amount: "₹10,000", status: "Successful", type: "Credit", utr: "NEFT2026032200123", openingBalance: "₹4,550", closingBalance: "₹14,550", channel: "load" as const },
+    { id: "L1002", date: "Mar 18, 2026", time: "11:00 AM", source: "UPI Credit", amount: "₹5,000", status: "Successful", type: "Credit", utr: "UPI2026031800456", openingBalance: "₹5,250", closingBalance: "₹10,250", channel: "load" as const },
+    { id: "L1003", date: "Mar 15, 2026", time: "03:00 PM", source: "NEFT Credit", amount: "₹15,000", status: "Successful", type: "Credit", utr: "NEFT2026031500789", openingBalance: "₹0", closingBalance: "₹15,000", channel: "load" as const },
   ]
 
   const txns = activeTab === "pos" ? posTransactions : loadTransactions
@@ -3064,72 +3065,11 @@ function FOTransactionsView() {
 
       {/* Detail Tray */}
       {selectedTxn && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSelectedTxn(null)} />
-          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto flex flex-col">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-semibold text-foreground">Transaction Details</h2>
-                <p className="text-xs text-muted-foreground font-mono">{selectedTxn.id}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${selectedTxn.status === "Successful" ? "bg-green-100 text-green-700" : selectedTxn.status === "Failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>{selectedTxn.status}</span>
-                <button onClick={() => setSelectedTxn(null)} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
-              </div>
-            </div>
-            <div className="p-4 space-y-4">
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Transaction Info</p>
-                {[
-                  ["TXN ID", selectedTxn.id],
-                  ["Date", selectedTxn.date],
-                  ["Time", selectedTxn.time],
-                  ["Type", selectedTxn.type],
-                  ["Payment Method", selectedTxn.paymentMethod || "Card"],
-                  ["Amount", selectedTxn.amount],
-                  ["Opening Balance", selectedTxn.openingBalance],
-                  ["Closing Balance", selectedTxn.closingBalance],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="font-medium text-foreground">{value}</span>
-                  </div>
-                ))}
-              </div>
-              {activeTab === "pos" && (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Station Info</p>
-                  {[
-                    ["Station", selectedTxn.station],
-                    ["Merchant Code", selectedTxn.merchantCode],
-                    ["Station Type", selectedTxn.stationType || "COCO"],
-                    ["Vehicle", selectedTxn.vehicle],
-                    ["Card", selectedTxn.card],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-medium text-foreground font-mono text-xs">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {activeTab === "load" && (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Load Info</p>
-                  {[
-                    ["Source", selectedTxn.source],
-                    ["UTR / Reference", selectedTxn.utr],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-medium text-foreground font-mono text-xs">{value}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </>
+        <TransactionDetailTray
+          transaction={selectedTxn}
+          onClose={() => setSelectedTxn(null)}
+          role="fo"
+        />
       )}
     </div>
   )
@@ -3320,7 +3260,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ──────────────��─────────�����────────────��────────���──────
+// ─── FO Delivery Tracking ─────────────�����─────────�����────────────��────────���──────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 
