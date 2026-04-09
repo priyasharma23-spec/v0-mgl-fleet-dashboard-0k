@@ -534,6 +534,22 @@ export const mockFleetOperators: FleetOperator[] = [
     createdAt: "2025-03-20",
     micId: "MIC001",
   },
+  {
+    id: "FO006",
+    name: "Vijay Fleet Solutions",
+    contactNumber: "9876506789",
+    email: "vijay@vijayfleet.com",
+    pan: "EFGVF6789H",
+    gstn: "27EFGVF6789H1Z4",
+    registeredAddress: "Plot 22, Vasai West, Mumbai 401202",
+    deliveryAddress: "Plot 22, Vasai West, Mumbai 401202",
+    status: "INACTIVE" as FOStatus,
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    totalVehicles: 0,
+    activeCards: 0,
+    createdAt: "2025-03-28",
+    micId: "MIC001",
+  },
 ];
 
 // ─── Mock Vehicles ──────────────────────────────────────────────────────────

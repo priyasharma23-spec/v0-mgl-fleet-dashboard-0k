@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet } from "lucide-react"
+import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet, Copy, Mail, Smartphone } from "lucide-react"
 import { KPICard } from "@/components/mgl/shared"
 
 function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClose: () => void; fleetOperators: any[] }) {
@@ -9,6 +9,7 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
   const [editData, setEditData] = useState<any>(null)
   const [showTransactions, setShowTransactions] = useState(false)
   const [txnTab, setTxnTab] = useState<"POS"|"Load"|"All">("All")
+  const [copied, setCopied] = useState(false)
   const fo = fleetOperators.find(f => f.id === foId)
   if (!fo) return null
 
@@ -90,6 +91,46 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
                 <div className="flex justify-between"><span className="text-muted-foreground">Account Type</span><span className="font-medium">{fo.accountType}</span></div>
               </div>
             </div>
+
+            {fo.status === "INACTIVE" && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <p className="text-sm font-semibold text-amber-900">Account Not Activated</p>
+                </div>
+                <p className="text-xs text-amber-700">This Fleet Operator has not yet activated their account. Share the activation link below.</p>
+                
+                <div className="bg-white border border-amber-200 rounded-lg p-3">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5">Activation Link</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-mono text-foreground flex-1 truncate bg-muted/30 px-2 py-1.5 rounded">
+                      https://mgl-fleet.app/activate?fo={fo.id}&token=ACT{fo.id}2026
+                    </p>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://mgl-fleet.app/activate?fo=${fo.id}&token=ACT${fo.id}2026`)
+                        setCopied(true)
+                        setTimeout(() => setCopied(false), 2000)
+                      }}
+                      className="shrink-0 flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button className="flex-1 py-2 border border-amber-300 text-amber-700 rounded-lg text-xs font-medium hover:bg-amber-100 transition-colors flex items-center justify-center gap-1">
+                    <Mail className="w-3.5 h-3.5" /> Send via Email
+                  </button>
+                  <button className="flex-1 py-2 border border-amber-300 text-amber-700 rounded-lg text-xs font-medium hover:bg-amber-100 transition-colors flex items-center justify-center gap-1">
+                    <Smartphone className="w-3.5 h-3.5" /> Send via SMS
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div>
               <p className="text-sm font-semibold mb-2">Vehicle Cards</p>
               <div className="space-y-2">
