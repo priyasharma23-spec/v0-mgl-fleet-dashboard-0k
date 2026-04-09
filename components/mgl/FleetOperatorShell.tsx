@@ -2958,7 +2958,7 @@ function FOTransactionsView() {
           { label: "Successful", value: "₹4.9L", count: "4 transactions", iconBg: "bg-green-100", iconColor: "text-green-600", icon: CheckCircle },
           { label: "Pending", value: "₹0.0L", count: "0 transactions", iconBg: "bg-amber-100", iconColor: "text-amber-600", icon: Clock },
           { label: "Failed", value: "₹0.8L", count: "1 transaction", iconBg: "bg-red-100", iconColor: "text-red-600", icon: XCircle },
-          { label: "Total Loads", value: "₹30,000", count: "3 loads", iconBg: "bg-blue-100", iconColor: "text-blue-600", icon: Wallet },
+          { label: "Total Cashback", value: "₹78.75", count: "3 transactions", iconBg: "bg-green-100", iconColor: "text-green-700", icon: Gift },
         ].map((card, i) => (
           <div key={i} className="bg-card rounded-xl border border-border p-4">
             <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center mb-3`}>
