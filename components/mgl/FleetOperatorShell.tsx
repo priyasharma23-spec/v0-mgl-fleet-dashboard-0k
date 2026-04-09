@@ -3233,6 +3233,7 @@ function FOTransactionsView() {
                       <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Balance</th>
                       <th className="px-4 py-3 text-left font-semibold text-xs uppercase">By</th>
                       <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold text-xs uppercase">Action</th>
                     </>
                   )}
                   {activeTab === "debits" && (
@@ -3299,7 +3300,7 @@ function FOTransactionsView() {
 
                 {/* Allocation Transactions */}
                 {activeTab === "allocation" && filtered.map((txn: any) => (
-                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                  <tr key={txn.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
                     <td className="px-4 py-3 text-xs">{txn.date}</td>
                     <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
@@ -3309,6 +3310,13 @@ function FOTransactionsView() {
                     <td className="px-4 py-3 text-xs text-muted-foreground">{txn.allocatedBy}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{txn.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => setSelectedTxn(txn as any)}
+                        className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
                     </td>
                   </tr>
                 ))}
