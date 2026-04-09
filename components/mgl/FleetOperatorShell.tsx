@@ -3108,7 +3108,7 @@ function FOFundManagement() {
       </div>
 
       {/* Parent Wallet Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-card rounded-xl border border-border p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-1">Parent Wallet Balance</p>
           <p className="text-2xl font-bold text-primary">₹{parentWalletBalance.toLocaleString()}</p>
@@ -3120,6 +3120,15 @@ function FOFundManagement() {
         <div className="bg-card rounded-xl border border-border p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-1">Available for Load</p>
           <p className="text-2xl font-bold text-green-600">₹{availableToLoad.toLocaleString()}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground font-semibold mb-1">T+1 Pending</p>
+              <p className="text-2xl font-bold text-amber-600">₹10,000</p>
+            </div>
+            <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+          </div>
         </div>
       </div>
 
