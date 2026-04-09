@@ -890,20 +890,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
               </div>
             </div>
 
-              {/* Wallet Debit */}
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Card Wallet</span>
-                  <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "0"}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Incentive Wallet</span>
-                  <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "0"}</span>
-                </div>
-              </div>
-
-              {/* Cashback — POS only */}
+            {/* Cashback — POS only */}
               {activeTab === "pos" && (
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
@@ -962,9 +949,22 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         {entry!.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry!.comment}"</p>}
                       </div>
                     </div>
-                  ))}
+                    ))}
+                  </div>
+                </div>
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Card Wallet</span>
+                  <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "680"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Incentive Wallet</span>
+                  <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "170"}</span>
                 </div>
               </div>
+            </div>
             ) : (
               <div className="p-4 space-y-4 flex-1 overflow-y-auto">
                 {/* Status */}
@@ -3319,7 +3319,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ──────────────��──────────────────────────────────────
+// ─── FO Delivery Tracking ──────────────��─────────���────────────────────────────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 
