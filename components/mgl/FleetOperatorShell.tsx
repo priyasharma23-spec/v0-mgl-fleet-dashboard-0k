@@ -13,6 +13,7 @@ import MGLHeader from "@/components/mgl/MGLHeader"
 import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
+import FOVehicleDetailTray from "@/components/mgl/FOVehicleDetailTray"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
@@ -634,8 +635,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
     setL2Submitted(false)
     setL1Files({})
     setL1Submitted(false)
-    setShowTimeline(false)
-    setShowIncentive(false)
   }
 
   const filtered = vehicles.filter(v => {
