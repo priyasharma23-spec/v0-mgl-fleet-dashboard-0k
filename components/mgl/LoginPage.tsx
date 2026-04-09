@@ -47,6 +47,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
   const [mglOtpSent, setMglOtpSent] = useState(false);
   const [mglOtpError, setMglOtpError] = useState("");
   const [foLoginMethod, setFoLoginMethod] = useState<"otp" | "password">("otp");
+  const [foEmail, setFoEmail] = useState("");
   const [foPassword, setFoPassword] = useState("");
   const [foPasswordError, setFoPasswordError] = useState("");
   const [showFoPassword, setShowFoPassword] = useState(false);
@@ -125,7 +126,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
     
     const user = foLoginMethod === "otp"
       ? mockUsers.find(u => u.mobile === mobile)
-      : mockUsers.find(u => u.mobile === mobile && u.password === foPassword);
+      : mockUsers.find(u => (u as any).email === foEmail && u.password === foPassword);
     
     if (user) {
       onLogin(user.role, user.name, (user as any).onboardingType || "MIC_ASSISTED", user.department);
@@ -425,6 +426,20 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                       <>
                         {/* Password Login */}
                         <div>
+                          <label className="text-xs font-medium text-muted-foreground">Email ID</label>
+                          <input
+                            type="email"
+                            placeholder="Enter email"
+                            value={foEmail}
+                            onChange={(e) => {
+                              setFoEmail(e.target.value);
+                              setFoPasswordError("");
+                            }}
+                            className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          />
+                        </div>
+
+                        <div>
                           <label className="text-xs font-medium text-muted-foreground">Password</label>
                           <div className="relative mt-1">
                             <input
@@ -449,7 +464,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
 
                         <button
                           onClick={handleFOLogin}
-                          disabled={loading || !foPassword}
+                          disabled={loading || !foEmail || !foPassword}
                           className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
                         >
                           {loading ? (
