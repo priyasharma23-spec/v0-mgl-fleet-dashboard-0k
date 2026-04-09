@@ -1305,6 +1305,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         </div>
                 )}
               </div>
+            </> 
             ) : (
                   <>
                     {/* SELF_SERVICE: Simple document status + approval state */}
