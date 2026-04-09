@@ -6,7 +6,7 @@ import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
   ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus,
-  Download, Filter, Wallet
+  Download, Filter, Wallet, Edit, User, KeyRound
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -129,6 +129,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
       case "fo-mou": return <FOMoUView />
+      case "fo-profile": return <FOProfileView onboardingType={onboardingType} />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
@@ -620,8 +621,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedVehicle, setSelectedVehicle] = useState<typeof vehicles[0] | null>(null)
-  const [showTimeline, setShowTimeline] = useState(false)
-  const [showIncentive, setShowIncentive] = useState(false)
   const [l2Files, setL2Files] = useState<Record<string, File | null>>({})
   const [l2Submitted, setL2Submitted] = useState(false)
   const [l2Dates, setL2Dates] = useState<Record<string, string>>({})
@@ -854,546 +853,15 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
       </div>
 
       {selectedVehicle && (
-        <>
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSelectedVehicle(null)} />
-          <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-xl z-50 overflow-y-auto flex flex-col">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-semibold text-foreground">{selectedVehicle.vehicleNumber || selectedVehicle.id}</h2>
-                <p className="text-xs text-muted-foreground">{selectedVehicle.oem} · {selectedVehicle.model}</p>
-              </div>
-              <div className="flex items-center gap-1 shrink-0 ml-2">
-                {selectedVehicle.onboardingType === "MIC_ASSISTED" && (
-                  <button
-                    onClick={() => { setShowIncentive(!showIncentive); setShowTimeline(false) }}
-                    className={`p-2 rounded-lg transition-colors ${showIncentive ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}
-                    title="Incentive Details"
-                  >
-                    <Gift className="w-4 h-4" />
-                  </button>
-                )}
-                <button
-                  onClick={() => { setShowTimeline(!showTimeline); setShowIncentive(false) }}
-                  className={`p-2 rounded-lg transition-colors ${showTimeline ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}
-                  title="Approval Timeline"
-                >
-                  <History className="w-4 h-4" />
-                </button>
-                <button onClick={() => { setSelectedVehicle(null); setShowTimeline(false); setShowIncentive(false) }} className="p-2 hover:bg-muted rounded-lg">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            {showIncentive ? (
-              <div className="p-4 space-y-4">
-                <p className="text-sm font-semibold text-foreground">Incentive Details</p>
-
-                {/* Linked Incentive Program */}
-                <div className="bg-muted/30 rounded-xl p-4">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Linked Program</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      ["Program ID", "INC-2026-001"],
-                      ["Program Name", "New Vehicle Onboarding Incentive"],
-                      ["Type", "One-time"],
-                      ["Gross Amount", "₹3,500"],
-                      ["TDS Deducted", "₹350"],
-                      ["Net Incentive", "₹3,150"],
-                      ["Credit Date", "Mar 21, 2026"],
-                      ["Expiry Date", "Mar 21, 2027"],
-                      ["Status", "Active"],
-                    ].map(([label, value]) => (
-                      <div key={label} className="text-sm">
-                        <span className="text-xs text-muted-foreground block">{label}</span>
-                        <span className={`font-medium block mt-0.5 ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700 font-bold" : "text-foreground"}`}>{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            ) : showTimeline ? (
-              <div className="p-4 space-y-3 flex-1 overflow-y-auto">
-                <p className="text-sm font-semibold text-foreground">Approval Timeline</p>
-                <div className="space-y-4">
-                  {[
-                    { type: "submitted", timestamp: selectedVehicle.l1SubmittedAt, action: "L1 Submitted", actor: "Fleet Operator" },
-                    selectedVehicle.l1ApprovedAt ? { type: "approved", timestamp: selectedVehicle.l1ApprovedAt, action: "L1 Approved", actor: "MIC Officer", comment: undefined } : null,
-                    selectedVehicle.l1RejectedAt ? { type: "rejected", timestamp: selectedVehicle.l1RejectedAt, action: "L1 Rejected", actor: "MIC Officer", comment: selectedVehicle.l1Comments } : null,
-                    selectedVehicle.l2SubmittedAt ? { type: "submitted", timestamp: selectedVehicle.l2SubmittedAt, action: "L2 Submitted", actor: "Fleet Operator" } : null,
-                    selectedVehicle.l2ApprovedAt ? { type: "approved", timestamp: selectedVehicle.l2ApprovedAt, action: "L2 Approved", actor: "ZIC Officer" } : null,
-                    selectedVehicle.l2RejectedAt ? { type: "rejected", timestamp: selectedVehicle.l2RejectedAt, action: "L2 Rejected", actor: "ZIC Officer", comment: selectedVehicle.l2Comments } : null,
-                    selectedVehicle.cardDispatchDate ? { type: "system", timestamp: selectedVehicle.cardDispatchDate, action: "Card Dispatched for Printing", actor: "System" } : null,
-                    selectedVehicle.cardDeliveryDate ? { type: "system", timestamp: selectedVehicle.cardDeliveryDate, action: "Card Delivered", actor: "Courier" } : null,
-                    selectedVehicle.cardActivatedAt ? { type: "approved", timestamp: selectedVehicle.cardActivatedAt, action: "Card Activated", actor: "System" } : null,
-                  ].filter(Boolean).map((entry, idx, arr) => (
-                    <div key={idx} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className={`w-3 h-3 rounded-full shrink-0 ${
-                          entry!.type === "approved" ? "bg-green-600" :
-                          entry!.type === "rejected" ? "bg-red-600" :
-                          entry!.type === "submitted" ? "bg-blue-600" :
-                          "bg-gray-400"
-                        }`} />
-                        {idx < arr.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
-                      </div>
-                      <div className="pb-2 flex-1">
-                        <p className="text-xs text-muted-foreground">{entry!.timestamp}</p>
-                        <p className="text-sm font-medium text-foreground">{entry!.action}</p>
-                        <p className="text-xs text-muted-foreground">{entry!.actor}</p>
-                        {entry!.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry!.comment}"</p>}
-                      </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Card Wallet</span>
-                  <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "680"}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Incentive Wallet</span>
-                  <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "170"}</span>
-                </div>
-              </div>
-            </div>
-            ) : (
-              <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-                {/* Status */}
-                <div className="flex items-center gap-2">
-                  <VehicleStatusBadge status={selectedVehicle.status} />
-                  <span className="text-xs text-muted-foreground">
-                    {selectedVehicle.onboardingType === "MIC_ASSISTED" ? "MIC Assisted" : "Self-Service"}
-                  </span>
-                </div>
-
-                {/* Vehicle Details */}
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-                  {[
-                    ["Registration Type", selectedVehicle.onboardingType === "SELF_SERVICE" ? "Self-Service" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],
-                    ["Vehicle Number", selectedVehicle.vehicleNumber],
-                    ["OEM", selectedVehicle.oem],
-                    ["Model", selectedVehicle.model],
-                    ["Category", selectedVehicle.category],
-                    ["Dealership", selectedVehicle.dealership],
-                    ["Booking Date", selectedVehicle.bookingDate],
-                    ["Registration Date", selectedVehicle.registrationDate],
-                    ["Delivery Date", selectedVehicle.deliveryDate],
-                  ].map(([label, value]) => value ? (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-medium text-foreground text-right">{value}</span>
-                    </div>
-                  ) : null)}
-                </div>
-
-                {/* MOU Details — MIC_ASSISTED only */}
-                {selectedVehicle.onboardingType === "MIC_ASSISTED" && (
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MOU Details</p>
-                    
-                    {/* MOU details */}
-                    {[
-                      ["MOU Number", selectedVehicle.mouId || "—"],
-                      ["Category Sequence", selectedVehicle.categorySequence ? `#${selectedVehicle.categorySequence} in ${selectedVehicle.category}` : "—"],
-                      ["Vehicle Type", selectedVehicle.vehicleType === "new_purchase" ? "New Purchase" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "—"],
-                    ].map(([label, value]) => (
-                      <div key={label} className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">{label}</span>
-                        <span className="font-medium text-foreground text-right">{value}</span>
-                      </div>
-                    ))}
-
-                    {/* Incentive eligibility status */}
-                    <div className="pt-2 border-t border-border">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Incentive Status</span>
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                          selectedVehicle.incentiveStatus === "paid" ? "bg-green-100 text-green-700" :
-                          selectedVehicle.incentiveStatus === "approved" ? "bg-blue-100 text-blue-700" :
-                          selectedVehicle.incentiveStatus === "eligible" ? "bg-amber-100 text-amber-700" :
-                          selectedVehicle.incentiveStatus === "pending_approval" ? "bg-purple-100 text-purple-700" :
-                          selectedVehicle.incentiveStatus === "not_eligible" ? "bg-gray-100 text-gray-600" :
-                          "bg-gray-100 text-gray-600"
-                        }`}>
-                          {selectedVehicle.incentiveStatus === "paid" ? "Paid" :
-                           selectedVehicle.incentiveStatus === "approved" ? "Approved" :
-                           selectedVehicle.incentiveStatus === "eligible" ? "Eligible — Pending Approval" :
-                           selectedVehicle.incentiveStatus === "pending_approval" ? "Submitted for Approval" :
-                           selectedVehicle.incentiveStatus === "not_eligible" ? "Not Yet Eligible" :
-                           "—"}
-                        </span>
-                      </div>
-
-                      {/* Not eligible explanation */}
-                      {selectedVehicle.incentiveStatus === "not_eligible" && (
-                        <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
-                          <p className="text-xs text-amber-700">
-                            This is the first {selectedVehicle.category} vehicle under MOU {selectedVehicle.mouId}. 
-                            Incentive becomes eligible when a second {selectedVehicle.category} vehicle is added and approved.
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Approved by */}
-                      {selectedVehicle.incentiveApprovedBy && (
-                        <div className="flex items-center justify-between text-sm mt-2">
-                          <span className="text-muted-foreground">Approved By</span>
-                          <span className="font-medium text-foreground">{selectedVehicle.incentiveApprovedBy}</span>
-                        </div>
-                      )}
-                      {selectedVehicle.incentiveApprovedAt && (
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Approved At</span>
-                          <span className="font-medium text-foreground">{selectedVehicle.incentiveApprovedAt}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Driver Details — shown for both, optional fields */}
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
-                  {[
-                    ["Driver Name", selectedVehicle.driverName],
-                    ["Contact", selectedVehicle.driverContact],
-                  ].map(([label, value]) => (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-medium text-foreground">{value || "—"}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Card Details */}
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Details</p>
-                  {[
-                    ["Card Number", selectedVehicle.cardNumber || "Not issued yet"],
-                    ["Dispatch Date", selectedVehicle.cardDispatchDate],
-                    ["Delivery Date", selectedVehicle.cardDeliveryDate],
-                    ["Activated At", selectedVehicle.cardActivatedAt],
-                    ["Tracking ID", selectedVehicle.trackingId],
-                  ].map(([label, value]) => value ? (
-                    <div key={label} className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">{label}</span>
-                      <span className="font-medium text-foreground">{value}</span>
-                    </div>
-                  ) : null)}
-                  {!selectedVehicle.cardNumber && (
-                    <p className="text-xs text-muted-foreground">Card will be issued after L1 approval</p>
-                  )}
-                </div>
-
-                {/* Documents & Actions — branched by onboarding type */}
-                {selectedVehicle.onboardingType === "MIC_ASSISTED" ? (
-                  <>
-                    {/* MIC_ASSISTED: L1 + L2 documents with upload flow */}
-                    <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-
-                      {/* L1 Documents */}
-                      <div className="space-y-2">
-                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">L1 Documents</p>
-                        {(selectedVehicle.bookingReceiptUrl || selectedVehicle.rcBookUrl ? [
-                          selectedVehicle.bookingReceiptUrl ? { label: "Vehicle Booking Receipt", url: selectedVehicle.bookingReceiptUrl } : null,
-                          selectedVehicle.rcBookUrl ? { label: "RC Book", url: selectedVehicle.rcBookUrl } : null,
-                        ] : [
-                          { label: "Vehicle Booking Receipt", url: selectedVehicle.bookingReceiptUrl },
-                          { label: "Driver License", url: null },
-                        ]).filter(Boolean).map(({ label, url }) => (
-                          <div key={label} className="flex items-center gap-2 text-sm">
-                            <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l1Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
-                              {(url || l1Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
-                            </div>
-                            <span className={url || l1Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                            {["L1_REJECTED"].includes(selectedVehicle.status) && !url && !l1Files[label] && (
-                              <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                                Upload <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
-                                  onChange={e => setL1Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
-                              </label>
-                            )}
-                            {(url || l1Files[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Verified</span>}
-                            {!url && !l1Files[label] && !["L1_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
-                          </div>
-                        ))}
-
-                        {/* L1 rejection notice */}
-                        {selectedVehicle.status === "L1_REJECTED" && selectedVehicle.l1Comments && (
-                          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mt-2">
-                            <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5 shrink-0" />
-                            <div>
-                              <p className="text-xs font-semibold text-red-700">L1 Correction Required</p>
-                              <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l1Comments}</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Resubmit L1 button */}
-                        {selectedVehicle.status === "L1_REJECTED" && !l1Submitted && (
-                          <button
-                            onClick={() => setL1Submitted(true)}
-                            className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
-                          >
-                            Resubmit for L1 Approval
-                          </button>
-                        )}
-                        {l1Submitted && (
-                          <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mt-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                            <div>
-                              <p className="text-xs font-semibold text-green-800">Documents Resubmitted</p>
-                              <p className="text-xs text-green-700 mt-0.5">Your corrected documents have been sent to MIC for review.</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* L2 Documents — shown only if L1 approved or beyond */}
-                      {["L1_APPROVED","L2_SUBMITTED","L2_APPROVED","L2_REJECTED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(selectedVehicle.status) && (
-                        <div className="space-y-2 pt-2 border-t border-border">
-                          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                            L2 Documents
-                            {selectedVehicle.status === "L1_APPROVED" && <span className="ml-2 text-amber-600 normal-case">— Upload required</span>}
-                          </p>
-
-                          {/* L2 Vehicle Details — input fields for FO to fill */}
-                          {selectedVehicle.status === "L1_APPROVED" && (
-                            <div className="space-y-3 pb-3 border-b border-border">
-                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-                              <div>
-                                <label className="text-xs font-medium text-muted-foreground">Vehicle Number <span className="text-destructive">*</span></label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g. MH12AB1234"
-                                  value={l2Dates["vehicleNumber"] || ""}
-                                  onChange={e => setL2Dates(prev => ({ ...prev, vehicleNumber: e.target.value }))}
-                                  className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                                />
-                              </div>
-                              {selectedVehicle.vehicleType !== "retrofit" && (
-                                <>
-                                  <div>
-                                    <label className="text-xs font-medium text-muted-foreground">Registration Date <span className="text-destructive">*</span></label>
-                                    <input
-                                      type="date"
-                                      value={l2Dates["registrationDate"] || ""}
-                                      onChange={e => setL2Dates(prev => ({ ...prev, registrationDate: e.target.value }))}
-                                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                                    />
-                                  </div>
-                                  <div>
-                                    <label className="text-xs font-medium text-muted-foreground">Delivery Date <span className="text-destructive">*</span></label>
-                                    <input
-                                      type="date"
-                                      value={l2Dates["deliveryDate"] || ""}
-                                      onChange={e => setL2Dates(prev => ({ ...prev, deliveryDate: e.target.value }))}
-                                      className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card"
-                                    />
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          )}
-
-                          {selectedVehicle.onboardingType === "MIC_ASSISTED" && selectedVehicle.vehicleType === "new_purchase" ? (
-                            // New Purchase L2 docs
-                            <>
-                              {[
-                                { label: "Delivery Date", type: "date", url: selectedVehicle.deliveryDate },
-                                { label: "Delivery Challan / Delivery Note", type: "file", url: selectedVehicle.deliveryChallanUrl },
-                                { label: "Registration Date", type: "date", url: selectedVehicle.registrationDate },
-                                { label: "RTO Receipt / RC Book", type: "file", url: selectedVehicle.rcBookUrl },
-                              ].map(({ label, type, url }) => (
-                                <div key={label} className="flex items-center gap-2 text-sm">
-                                  <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l2Files[label] || l2Dates[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
-                                    {(url || l2Files[label] || l2Dates[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
-                                  </div>
-                                  <span className={url || l2Files[label] || l2Dates[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                                  {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
-                                    type === "file" ? (
-                                      <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                                        {l2Files[label] ? l2Files[label]!.name.substring(0, 15) + "..." : "Upload"}
-                                        <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
-                                          onChange={e => setL2Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
-                                      </label>
-                                    ) : (
-                                      <input type="date" value={l2Dates[label] || ""} 
-                                        onChange={e => setL2Dates(prev => ({ ...prev, [label]: e.target.value }))}
-                                        className="ml-auto text-xs border border-border rounded px-2 py-1 bg-card" />
-                                    )
-                                  )}
-                                  {(url || l2Files[label] || l2Dates[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
-                                  {!url && !l2Files[label] && !l2Dates[label] && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
-                                </div>
-                              ))}
-                            </>
-                          ) : (
-                            // Retrofitment L2 docs
-                            <>
-                              {[
-                                { label: "CNG Kit Installation Certificate", url: selectedVehicle.cngCertUrl },
-                                { label: "E-Fitment Certificate", url: selectedVehicle.eFitmentUrl },
-                                { label: "RTO Endorsement (CNG conversion)", url: selectedVehicle.rtoEndorsementUrl },
-                                { label: "Type Approval Certificate", url: selectedVehicle.typeApprovalUrl },
-                                { label: "Tax Invoice (Retrofitment Center)", url: selectedVehicle.taxInvoiceUrl },
-                              ].map(({ label, url }) => (
-                                <div key={label} className="flex items-center gap-2 text-sm">
-                                  <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url || l2Files[label] ? "bg-green-500" : "bg-muted border border-border"}`}>
-                                    {(url || l2Files[label]) && <CheckCircle className="w-2.5 h-2.5 text-white" />}
-                                  </div>
-                                  <span className={url || l2Files[label] ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                                  {["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && !url && (
-                                    <label className="ml-auto text-xs text-primary font-medium cursor-pointer hover:underline">
-                                      {l2Files[label] ? l2Files[label]!.name.substring(0, 15) + "..." : "Upload"}
-                                      <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
-                                        onChange={e => setL2Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
-                                    </label>
-                                  )}
-                                  {(url || l2Files[label]) && <span className="text-xs text-green-600 font-medium ml-auto">Uploaded</span>}
-                                  {!url && !l2Files[label] && !["L1_APPROVED","L2_REJECTED"].includes(selectedVehicle.status) && <span className="text-xs text-muted-foreground ml-auto">Pending</span>}
-                                </div>
-                              ))}
-                            </>
-                          )}
-
-                          {/* L2 rejection notice */}
-                          {selectedVehicle.status === "L2_REJECTED" && selectedVehicle.l2Comments && (
-                            <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mt-2">
-                              <AlertCircle className="w-3.5 h-3.5 text-red-600 mt-0.5 shrink-0" />
-                              <div>
-                                <p className="text-xs font-semibold text-red-700">L2 Correction Required</p>
-                                <p className="text-xs text-red-600 mt-0.5">{selectedVehicle.l2Comments}</p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Submit L2 button when L1 approved */}
-                          {selectedVehicle.status === "L1_APPROVED" && !l2Submitted && (
-                            <button
-                              onClick={() => setL2Submitted(true)}
-                              className="w-full mt-2 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
-                            >
-                              Submit L2 Documents
-                            </button>
-                          )}
-
-                          {/* L2 submission success */}
-                          {l2Submitted && (
-                            <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200 mt-2">
-                              <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                              <div>
-                                <p className="text-xs font-semibold text-green-800">L2 Documents Submitted</p>
-                                <p className="text-xs text-green-700 mt-0.5">Your documents have been sent to ZIC for review. You will be notified once approved.</p>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Resubmit L2 button for rejected */}
-                          {selectedVehicle.status === "L2_REJECTED" && (
-                            <button
-                              onClick={() => setL2Submitted(false)}
-                              className="w-full mt-2 py-2.5 border border-red-300 text-red-700 rounded-lg text-sm font-medium hover:bg-red-50"
-                            >
-                              Resubmit L2 Documents
-                            </button>
-                          )}
-                        </div>
-                )}
-              </div>
-            </> 
-            ) : (
-                  <>
-                    {/* SELF_SERVICE: Simple document status + approval state */}
-                    <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-                      {[
-                        { label: "RC Book", url: selectedVehicle.rcBookUrl },
-                        { label: "Driver License", url: null },
-                      ].map(({ label, url }) => (
-                        <div key={label} className="flex items-center gap-2 text-sm">
-                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 ${url ? "bg-green-500" : "bg-muted border border-border"}`}>
-                            {url && <CheckCircle className="w-2.5 h-2.5 text-white" />}
-                          </div>
-                          <span className={url ? "text-foreground" : "text-muted-foreground"}>{label}</span>
-                          <span className={`text-xs ml-auto ${url ? "text-green-600 font-medium" : "text-muted-foreground"}`}>{url ? "Uploaded" : "Pending"}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* SELF_SERVICE: Approval Status */}
-                    <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Approval Status</p>
-                      {selectedVehicle.status === "L1_SUBMITTED" && (
-                        <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                          <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs font-semibold text-amber-900">Under Review</p>
-                            <p className="text-xs text-amber-700 mt-0.5">Your vehicle is being reviewed by MIC. You will be notified once validated.</p>
-                          </div>
-                        </div>
-                      )}
-                      {selectedVehicle.status === "L1_APPROVED" && (
-                        <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs font-semibold text-green-900">Approved</p>
-                            <p className="text-xs text-green-700 mt-0.5">Your vehicle has been validated. Card issuance is in progress.</p>
-                          </div>
-                        </div>
-                      )}
-                      {selectedVehicle.status === "L1_REJECTED" && (
-                        <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs font-semibold text-red-900">Rejected</p>
-                            <p className="text-xs text-red-700 mt-0.5">{selectedVehicle.l1Comments || "Please re-upload the required documents."}</p>
-                            <div className="mt-2 space-y-2">
-                              {[{ label: "RC Book", field: "rcBook" as const }].map(({ label, field }) => (
-                                <div key={label}>
-                                  <label className="text-xs text-red-700 font-medium cursor-pointer hover:underline flex items-center gap-1">
-                                    <Upload className="w-3 h-3" /> Re-upload {label}
-                                    <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png"
-                                      onChange={e => setL1Files(prev => ({ ...prev, [label]: e.target.files?.[0] || null }))} />
-                                  </label>
-                                </div>
-                              ))}
-                              {!l1Submitted && (
-                                <button onClick={() => setL1Submitted(true)}
-                                  className="w-full py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
-                                  Resubmit for Review
-                                </button>
-                              )}
-                              {l1Submitted && (
-                                <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded-lg">
-                                  <CheckCircle className="w-3.5 h-3.5 text-green-600" />
-                                  <p className="text-xs text-green-700 font-medium">Resubmitted for MIC review</p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      {["CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(selectedVehicle.status) && (
-                        <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs font-semibold text-green-900">Vehicle Active</p>
-                            <p className="text-xs text-green-700 mt-0.5">Your vehicle is approved and card has been {selectedVehicle.status === "CARD_ACTIVE" ? "activated" : selectedVehicle.status === "CARD_DISPATCHED" ? "dispatched" : "sent for printing"}.</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </>
-            )}
+        <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">{selectedVehicle.vehicleNumber}</h2>
+            <button onClick={() => setSelectedVehicle(null)} className="text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        </>
+          <p className="text-sm text-muted-foreground">Vehicle details tray component placeholder</p>
+        </div>
       )}
     </div>
   )
@@ -1905,9 +1373,9 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "—"}</p></div>
-                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "��"}</p></div>}
+                <div><p className="text-xs text-muted-foreground">Vehicle Number</p><p className="font-medium">{form.vehicleNumber || "-"}</p></div>
+                <div><p className="text-xs text-muted-foreground">Registration Date</p><p className="font-medium">{form.registrationDate || "-"}</p></div>
+                {vehicleType === "new_purchase" && <div><p className="text-xs text-muted-foreground">Delivery Date</p><p className="font-medium">{form.deliveryDate || "-"}</p></div>}
               </div>
             </div>
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
@@ -1993,6 +1461,19 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   const [loadOtp, setLoadOtp] = useState("")
   const [loadOtpAttempts, setLoadOtpAttempts] = useState(0)
   const [cardBalances, setCardBalances] = useState<Record<string, number>>({})
+
+  // Replacement Card Journey States
+  const [showReplacementModal, setShowReplacementModal] = useState(false)
+  const [replacementStep, setReplacementStep] = useState(1)
+  const [selectedReason, setSelectedReason] = useState<{id: string, label: string, fee: number} | null>(null)
+  const [replacementOtp, setReplacementOtp] = useState("")
+
+  const replacementReasons = [
+    { id: "lost", label: "Card Lost", fee: 150 },
+    { id: "stolen", label: "Card Stolen", fee: 150 },
+    { id: "damaged", label: "Card Damaged / Not Working", fee: 100 },
+    { id: "expired", label: "Card Expired", fee: 0 },
+  ]
 
   const cards = myVehicles.filter((v) => v.cardNumber)
 
@@ -2569,23 +2050,114 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
             {/* Order Replacement Modal */}
             {actionModal === "replacement" && (
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-4">Order Replacement Card</h3>
-                <p className="text-sm text-muted-foreground mb-4">Request a replacement card. The new card will be sent to your registered address.</p>
-                <div className="mb-4">
-                  <label className="text-xs font-semibold text-foreground mb-2 block">Reason for Replacement</label>
-                  <select value={replacementReason} onChange={(e) => setReplacementReason(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    <option value="">Select reason</option>
-                    <option value="damaged">Card Damaged</option>
-                    <option value="lost">Card Lost</option>
-                    <option value="stolen">Card Stolen</option>
-                    <option value="expired">Card Expired</option>
-                    <option value="other">Other</option>
-                  </select>
+                <div className="flex items-center gap-3 mb-6">
+                  {[1, 2, 3, 4].map((step) => (
+                    <div key={step} className="flex items-center flex-1">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${replacementStep >= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{step}</div>
+                      {step < 4 && <div className={`flex-1 h-1 mx-2 ${replacementStep > step ? "bg-primary" : "bg-muted"}`} />}
+                    </div>
+                  ))}
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                  <button onClick={() => { setActionModal(null); setReplacementReason(""); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Order Replacement</button>
-                </div>
+
+                {/* Step 1: Select Reason */}
+                {replacementStep === 1 && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-1">Why are you replacing this card?</h3>
+                      <p className="text-sm text-muted-foreground">Select the reason for replacement</p>
+                    </div>
+                    <div className="space-y-2">
+                      {replacementReasons.map((reason) => (
+                        <button key={reason.id}
+                          onClick={() => { setSelectedReason(reason); setReplacementStep(2) }}
+                          className="w-full p-4 border-2 border-border rounded-lg text-left hover:border-primary hover:bg-primary/5 transition-all group">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold text-foreground group-hover:text-primary">{reason.label}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{reason.fee === 0 ? "No charges" : `₹${reason.fee} replacement fee`}</p>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Confirm Amount */}
+                {replacementStep === 2 && selectedReason && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-1">Confirm Replacement Details</h3>
+                      <p className="text-sm text-muted-foreground">Review the charges and confirm</p>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-sm font-semibold text-amber-900">Replacement Card Charges</p>
+                      <p className="text-xs text-amber-700 mt-1">The following amount will be debited from your Parent Wallet.</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                      {[
+                        ["Reason", selectedReason.label],
+                        ["Card Number", "MGL****4521"],
+                        ["Replacement Fee", selectedReason.fee === 0 ? "Free" : `₹${selectedReason.fee}`],
+                        ["Deducted From", "Parent Wallet"],
+                        ["Current Wallet Balance", "₹12,500"],
+                        ["Balance After Deduction", selectedReason.fee === 0 ? "₹12,500" : `₹${12500 - selectedReason.fee}`],
+                      ].map(([label, value]) => (
+                        <div key={label} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{label}</span>
+                          <span className={`font-medium ${label === "Replacement Fee" && selectedReason.fee > 0 ? "text-red-600" : "text-foreground"}`}>{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">A new card will be dispatched to your registered delivery address within 5-7 working days.</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setReplacementStep(1); setSelectedReason(null) }} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
+                      <button onClick={() => { setReplacementStep(3); setReplacementOtp("") }} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Proceed</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: OTP Verification */}
+                {replacementStep === 3 && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-1">Verify Your Mobile Number</h3>
+                      <p className="text-sm text-muted-foreground">Complete OTP verification</p>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl border border-border">
+                      <Smartphone className="w-8 h-8 text-primary shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">OTP Verification</p>
+                        <p className="text-xs text-muted-foreground">Enter the 6-digit OTP sent to {myFO.contactNumber}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Enter OTP</label>
+                      <input type="text" maxLength={6} placeholder="• • • • • •"
+                        value={replacementOtp}
+                        onChange={e => setReplacementOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm tracking-[0.5em] text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                      <p className="text-xs text-muted-foreground mt-1 text-center">Demo: enter any 6 digits</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setReplacementStep(2)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
+                      <button onClick={() => { replacementOtp.length === 6 && setReplacementStep(4) }} disabled={replacementOtp.length !== 6} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">Verify OTP</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Success */}
+                {replacementStep === 4 && (
+                  <div className="text-center py-6">
+                    <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4" />
+                    <h3 className="font-bold text-lg text-foreground">Replacement Card Ordered</h3>
+                    <p className="text-sm text-muted-foreground mt-2">Your replacement card has been ordered. {selectedReason?.fee! > 0 ? `₹${selectedReason?.fee} has been debited from your Parent Wallet.` : "No charges applied."}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Estimated delivery: 5-7 working days</p>
+                    <p className="text-xs font-mono text-muted-foreground mt-2">Ref: RPL{Date.now().toString().slice(-6)}</p>
+                    <button onClick={() => { setActionModal(null); setReplacementStep(1); setSelectedReason(null); setReplacementOtp("") }} className="mt-6 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Close</button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -2912,7 +2484,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
 
 // ─── FO Transactions View ───────────────────────────────────────────────────────
 function FOTransactionsView() {
-  const [activeTab, setActiveTab] = useState<"pos" | "load">("pos")
+  const [activeTab, setActiveTab] = useState<"pos" | "load" | "allocation" | "incentive" | "debits">("pos")
   const [search, setSearch] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [selectedTxn, setSelectedTxn] = useState<TransactionRecord | null>(null)
@@ -2931,11 +2503,39 @@ function FOTransactionsView() {
     { id: "L1003", date: "Mar 15, 2026", time: "03:00 PM", source: "NEFT Credit", amount: "₹15,000", status: "Successful", type: "Credit", utr: "NEFT2026031500789", openingBalance: "₹0", closingBalance: "₹15,000", channel: "load" as const },
   ]
 
-  const txns = activeTab === "pos" ? posTransactions : loadTransactions
-  const filtered = txns.filter(t =>
+  const allocationTransactions = [
+    { id: "ALO001", date: "Mar 23, 2026", time: "09:00 AM", vehicle: "MH04AB1234", card: "xxxxxxxxxxxx4521", allocatedAmount: "₹5,000", availableBalance: "₹12,500", allocatedBy: "System Auto", status: "Active", channel: "allocation" as const, amount: "₹5,000", type: "Credit" as const },
+    { id: "ALO002", date: "Mar 20, 2026", time: "08:30 AM", vehicle: "MH04CD5678", card: "xxxxxxxxxxxx4522", allocatedAmount: "₹3,000", availableBalance: "₹8,200", allocatedBy: "FO Manual", status: "Active", channel: "allocation" as const, amount: "₹3,000", type: "Credit" as const },
+    { id: "ALO003", date: "Mar 18, 2026", time: "10:00 AM", vehicle: "MH04EF9012", card: "xxxxxxxxxxxx4523", allocatedAmount: "₹4,500", availableBalance: "₹4,500", allocatedBy: "System Auto", status: "Inactive", channel: "allocation" as const, amount: "₹4,500", type: "Credit" as const },
+  ]
+
+  const incentiveTransactions = [
+    { id: "INC001", date: "Mar 21, 2026", time: "11:00 AM", source: "Incentive Wallet", creditType: "Incentive", vehicle: "MH04AB1234", grossAmount: "₹15,000", tds: "₹1,500", netAmount: "₹13,500", status: "Paid", channel: "incentive" as const, amount: "₹13,500", type: "Credit" as const },
+    { id: "INC002", date: "Mar 15, 2026", time: "02:00 PM", source: "Incentive Wallet", creditType: "Incentive", vehicle: "MH04CD5678", grossAmount: "₹15,000", tds: "₹1,500", netAmount: "₹13,500", status: "Pending", channel: "incentive" as const, amount: "₹13,500", type: "Credit" as const },
+    { id: "INC003", date: "Mar 10, 2026", time: "03:30 PM", source: "Incentive Wallet", creditType: "Cashback", vehicle: "MH04AB1234", grossAmount: "₹850", tds: "₹0", netAmount: "₹850", status: "Paid", channel: "incentive" as const, amount: "₹850", type: "Credit" as const },
+    { id: "INC004", date: "Feb 23, 2026", time: "10:00 AM", source: "Incentive Wallet", creditType: "Cashback", vehicle: "MH04CD5678", grossAmount: "₹430", tds: "₹0", netAmount: "₹430", status: "Paid", channel: "incentive" as const, amount: "₹430", type: "Credit" as const },
+  ]
+
+  const debitTransactions = [
+    { id: "DEB001", date: "Mar 22, 2026", time: "01:00 PM", debitType: "Card Replacement Fee", amount: "₹150", debitedFrom: "Parent Wallet", openingBalance: "₹12,650", closingBalance: "₹12,500", reference: "RPL123456", status: "Successful", channel: "debits" as const, type: "Debit" as const },
+    { id: "DEB002", date: "Mar 10, 2026", time: "11:30 AM", debitType: "Annual Maintenance Charge", amount: "₹500", debitedFrom: "Parent Wallet", openingBalance: "₹13,000", closingBalance: "₹12,500", reference: "AMC202603", status: "Successful", channel: "debits" as const, type: "Debit" as const },
+    { id: "DEB003", date: "Feb 28, 2026", time: "09:15 AM", debitType: "SMS Alert Charges", amount: "₹50", debitedFrom: "Parent Wallet", openingBalance: "₹13,050", closingBalance: "₹13,000", reference: "SMS202602", status: "Successful", channel: "debits" as const, type: "Debit" as const },
+  ]
+
+  const activeData = activeTab === "pos" ? posTransactions :
+    activeTab === "load" ? loadTransactions :
+    activeTab === "allocation" ? allocationTransactions :
+    activeTab === "incentive" ? incentiveTransactions :
+    debitTransactions
+
+  const filtered = activeData.filter(t =>
     !search ||
-    t.id.includes(search) ||
-    (activeTab === "pos" ? (t as any).vehicle?.toLowerCase().includes(search.toLowerCase()) || (t as any).station?.toLowerCase().includes(search.toLowerCase()) : (t as any).source?.toLowerCase().includes(search.toLowerCase()))
+    (t as any).id?.includes(search) ||
+    (activeTab === "pos" ? ((t as any).vehicle?.toLowerCase().includes(search.toLowerCase()) || (t as any).station?.toLowerCase().includes(search.toLowerCase())) : 
+     activeTab === "load" ? (t as any).source?.toLowerCase().includes(search.toLowerCase()) :
+     activeTab === "allocation" ? ((t as any).vehicle?.toLowerCase().includes(search.toLowerCase()) || (t as any).card?.toLowerCase().includes(search.toLowerCase())) :
+     activeTab === "incentive" ? ((t as any).vehicle?.toLowerCase().includes(search.toLowerCase()) || (t as any).incentiveType?.toLowerCase().includes(search.toLowerCase())) :
+     (t as any).debitType?.toLowerCase().includes(search.toLowerCase()))
   )
 
   return (
@@ -2954,10 +2554,10 @@ function FOTransactionsView() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          { label: "Successful", value: "₹4.9L", count: "4 transactions", iconBg: "bg-green-100", iconColor: "text-green-600", icon: CheckCircle },
-          { label: "Pending", value: "₹0.0L", count: "0 transactions", iconBg: "bg-amber-100", iconColor: "text-amber-600", icon: Clock },
+          { label: "Successful", value: "₹5.0L", count: "7 transactions", iconBg: "bg-green-100", iconColor: "text-green-600", icon: CheckCircle },
+          { label: "Pending", value: "₹13.5L", count: "1 transaction", iconBg: "bg-amber-100", iconColor: "text-amber-600", icon: Clock },
           { label: "Failed", value: "₹0.8L", count: "1 transaction", iconBg: "bg-red-100", iconColor: "text-red-600", icon: XCircle },
-          { label: "Total Loads", value: "₹30,000", count: "3 loads", iconBg: "bg-blue-100", iconColor: "text-blue-600", icon: Wallet },
+          { label: "Total Cashback", value: "₹78.75", count: "3 transactions", iconBg: "bg-green-100", iconColor: "text-green-700", icon: Gift },
         ].map((card, i) => (
           <div key={i} className="bg-card rounded-xl border border-border p-4">
             <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center mb-3`}>
@@ -2970,9 +2570,15 @@ function FOTransactionsView() {
         ))}
       </div>
 
-      {/* POS / Load tabs */}
+      {/* POS / Load / Allocation / Incentive / Debits tabs */}
       <div className="flex gap-1 border-b border-border">
-        {[{id: "pos", label: "POS"}, {id: "load", label: "Load"}].map(tab => (
+        {[
+          {id: "pos", label: "POS"},
+          {id: "load", label: "Load"},
+          {id: "allocation", label: "Allocation"},
+          {id: "incentive", label: "Incentive"},
+          {id: "debits", label: "Debits"},
+        ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
             {tab.label}
@@ -2985,7 +2591,7 @@ function FOTransactionsView() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder={activeTab === "pos" ? "Search by TXN ID, vehicle or station..." : "Search by TXN ID or source..."}
+            placeholder={activeTab === "pos" ? "Search by TXN ID, vehicle or station..." : activeTab === "load" ? "Search by TXN ID or source..." : activeTab === "allocation" ? "Search by ID, vehicle or card..." : activeTab === "incentive" ? "Search by ID or type..." : "Search by ID or debit type..."}
             className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
         </div>
         <button onClick={() => setShowFilters(!showFilters)}
@@ -3015,51 +2621,197 @@ function FOTransactionsView() {
       {/* Table */}
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border bg-muted/30">
-                <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
-                <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
-                {activeTab === "pos" ? <>
-                  <th className="px-4 py-3 text-left font-semibold">Vehicle</th>
-                  <th className="px-4 py-3 text-left font-semibold">Station</th>
-                </> : <>
-                  <th className="px-4 py-3 text-left font-semibold">Source</th>
-                </>}
-                <th className="px-4 py-3 text-left font-semibold">Amount</th>
-                <th className="px-4 py-3 text-left font-semibold">Status</th>
-                <th className="px-4 py-3 text-center font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.map((txn: any) => (
-                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
-                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                  <td className="px-4 py-3">
-                    <p className="text-sm">{txn.date}</p>
-                    <p className="text-xs text-muted-foreground">{txn.time}</p>
-                  </td>
-                  {activeTab === "pos" ? <>
+          {/* Incentive Tab – Separate Table */}
+          {activeTab === "incentive" ? (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">TXN ID</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date & Time</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Source</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Credit Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Amount</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {incentiveTransactions.map(txn => (
+                  <tr key={txn.id} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm">{txn.date}</p>
+                      <p className="text-xs text-muted-foreground">{txn.time}</p>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{txn.source}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.creditType === "Incentive" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
+                        {txn.creditType}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-bold text-green-700">{txn.netAmount}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                        {txn.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn as any)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            /* Other Tabs – Main Table */
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  {activeTab === "pos" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
+                      <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
+                      <th className="px-4 py-3 text-left font-semibold">Vehicle</th>
+                      <th className="px-4 py-3 text-left font-semibold">Station</th>
+                      <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                      <th className="px-4 py-3 text-left font-semibold">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold">Action</th>
+                    </>
+                  )}
+                  {activeTab === "load" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
+                      <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
+                      <th className="px-4 py-3 text-left font-semibold">Source</th>
+                      <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                      <th className="px-4 py-3 text-left font-semibold">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold">Action</th>
+                    </>
+                  )}
+                  {activeTab === "allocation" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Alloc ID</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Vehicle</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Card</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Allocated</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Balance</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">By</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold text-xs uppercase">Action</th>
+                    </>
+                  )}
+                  {activeTab === "debits" && (
+                    <>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Debit ID</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Date</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Type</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Amount</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Debited From</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Opening Bal</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Closing Bal</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Reference</th>
+                      <th className="px-4 py-3 text-left font-semibold text-xs uppercase">Status</th>
+                      <th className="px-4 py-3 text-center font-semibold text-xs uppercase">Action</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {/* POS Transactions */}
+                {activeTab === "pos" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm">{txn.date}</p>
+                      <p className="text-xs text-muted-foreground">{txn.time}</p>
+                    </td>
                     <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{txn.station}</td>
-                  </> : <>
+                    <td className="px-4 py-3 font-medium">{txn.amount}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${txn.status === "Successful" ? "bg-green-100 text-green-700" : txn.status === "Failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                        {txn.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* Load Transactions */}
+                {activeTab === "load" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3">
+                      <p className="text-sm">{txn.date}</p>
+                      <p className="text-xs text-muted-foreground">{txn.time}</p>
+                    </td>
                     <td className="px-4 py-3 text-xs">{txn.source}</td>
-                  </>}
-                  <td className="px-4 py-3 font-medium">{txn.amount}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${txn.status === "Successful" ? "bg-green-100 text-green-700" : txn.status === "Failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-                      {txn.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
-                      <Eye className="w-3.5 h-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <td className="px-4 py-3 font-medium">{txn.amount}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* Allocation Transactions */}
+                {activeTab === "allocation" && filtered.map((txn: any) => (
+                  <tr key={txn.id} className="hover:bg-muted/30">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3 text-xs">{txn.date}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.card}</td>
+                    <td className="px-4 py-3 font-medium text-green-700">{txn.allocatedAmount}</td>
+                    <td className="px-4 py-3 text-xs">{txn.availableBalance}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{txn.allocatedBy}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>{txn.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => setSelectedTxn(txn as any)}
+                        className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* Debit Transactions */}
+                {activeTab === "debits" && filtered.map((txn: any) => (
+                  <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                    <td className="px-4 py-3 text-xs">{txn.date}</td>
+                    <td className="px-4 py-3 text-xs">{txn.debitType}</td>
+                    <td className="px-4 py-3 font-bold text-red-600">{txn.amount}</td>
+                    <td className="px-4 py-3 text-xs">{txn.debitedFrom}</td>
+                    <td className="px-4 py-3 text-xs">{txn.openingBalance}</td>
+                    <td className="px-4 py-3 text-xs">{txn.closingBalance}</td>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.reference}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">{txn.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
@@ -3075,7 +2827,7 @@ function FOTransactionsView() {
   )
 }
 
-// ─── FO Fund Management ────────────────────────────────────────────────────────
+// ─── FO Fund Management ────────���───────────────────────────────────────────────
 function FOFundManagement() {
   const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
@@ -3107,7 +2859,7 @@ function FOFundManagement() {
       </div>
 
       {/* Parent Wallet Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-card rounded-xl border border-border p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-1">Parent Wallet Balance</p>
           <p className="text-2xl font-bold text-primary">₹{parentWalletBalance.toLocaleString()}</p>
@@ -3119,6 +2871,15 @@ function FOFundManagement() {
         <div className="bg-card rounded-xl border border-border p-4">
           <p className="text-xs text-muted-foreground font-semibold mb-1">Available for Load</p>
           <p className="text-2xl font-bold text-green-600">₹{availableToLoad.toLocaleString()}</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground font-semibold mb-1">T+1 Pending</p>
+              <p className="text-2xl font-bold text-amber-600">₹10,000</p>
+            </div>
+            <Clock className="w-5 h-5 text-amber-600 shrink-0" />
+          </div>
         </div>
       </div>
 
@@ -3156,7 +2917,7 @@ function FOFundManagement() {
                     <p className="text-xs text-muted-foreground">{item.type} Load • {item.date}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-foreground">₹{item.amount.toLocaleString()}</p>
+                    <p className="font-semibold text-foreground">��{item.amount.toLocaleString()}</p>
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">{item.status}</span>
                   </div>
                 </div>
@@ -3375,7 +3136,7 @@ function FONotificationsView() {
   )
 }
 
-// ─── FO MOU View ───────────────────────────────────────────────────────────���
+// ─── FO MOU View ───────────��───────────────────────────────────────────────���
 function FOMoUView() {
   const mou = {
     number: myFO.mouNumber || "MGL/MOU/2025/001",
@@ -3494,6 +3255,276 @@ function FOMoUView() {
           <p className="text-xs text-muted-foreground mt-0.5">Contact your assigned MIC officer for any changes, renewals, or vehicle commitment updates.</p>
         </div>
       </div>
+    </div>
+  )
+}
+
+function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: string }) {
+  const fo = onboardingType === "SELF_SERVICE" ? myFO_SS : myFO
+  const [requestSent, setRequestSent] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({ current: "", newPass: "", confirm: "" })
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
+  const [passwordSuccess, setPasswordSuccess] = useState(false)
+
+  return (
+    <div className="flex flex-col gap-5 p-5 max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">My Profile</h1>
+          <p className="text-sm text-muted-foreground">Your company and account details</p>
+        </div>
+        {!requestSent ? (
+          <button onClick={() => setRequestSent(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Edit className="w-4 h-4" /> Request Change
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+            <CheckCircle className="w-4 h-4 text-green-600" />
+            <span className="text-sm text-green-700 font-medium">Request Sent</span>
+          </div>
+        )}
+      </div>
+
+      {/* User Info */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center shrink-0">
+            <span className="text-xl font-bold text-primary">{fo.name.charAt(0)}</span>
+          </div>
+          <div>
+            <p className="font-bold text-foreground text-lg">{fo.name}</p>
+            <p className="text-sm text-muted-foreground">{fo.id} · {fo.onboardingType === "MIC_ASSISTED" ? "MIC Assisted" : "Self-Service"}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Company Details */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Company Details</p>
+        {[
+          ["Company Name", fo.name, false],
+          ["Registered Address", fo.registeredAddress, false],
+          ["Delivery Address", fo.deliveryAddress, false],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
+          </div>
+        ))}
+        {/* PAN — verified */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">PAN Number</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{fo.pan}</span>
+            <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
+              <CheckCircle className="w-3 h-3" /> Verified
+            </span>
+          </div>
+        </div>
+        {/* GSTN — verified or not provided */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">GSTN Number</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{fo.gstn || "Not provided"}</span>
+            {fo.gstn && (
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
+                <CheckCircle className="w-3 h-3" /> Verified
+              </span>
+            )}
+          </div>
+        </div>
+        {/* TDS */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">Applicable TDS</span>
+          <span className="font-medium text-foreground">{fo.gstn ? "2%" : "10%"} <span className="text-xs text-muted-foreground">({fo.gstn ? "GST registered" : "Non-GST"})</span></span>
+        </div>
+      </div>
+
+      {/* Contact Details */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Contact Details</p>
+        {[
+          ["Mobile Number", fo.contactNumber],
+          ["Email Address", fo.email],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Login Details */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Login Details</p>
+        {[
+          ["Name", fo.name],
+          ["Role", "Fleet Operator"],
+          ["Email", fo.email],
+          ["Mobile", fo.contactNumber],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
+          </div>
+        ))}
+        {/* Change password */}
+        <div className="pt-2 border-t border-border">
+          <button onClick={() => { setShowPasswordModal(true); setPasswordSuccess(false); setPasswordError(""); setPasswordForm({ current: "", newPass: "", confirm: "" }) }}
+            className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+            <KeyRound className="w-4 h-4" /> Change Password
+          </button>
+        </div>
+      </div>
+
+      {/* Account Info */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Account Info</p>
+        {[
+          ["Account Status", fo.status],
+          ["Member Since", fo.createdAt],
+          ["Total Vehicles", fo.totalVehicles],
+          ["Active Cards", fo.activeCards],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{String(value)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Request change note */}
+      <div className="bg-muted/30 border border-border rounded-xl p-4 flex items-start gap-3">
+        <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+        <p className="text-xs text-muted-foreground">To update your company details, contact details, or bank account, click "Request Change" and your MIC officer will assist you.</p>
+      </div>
+
+      {/* Change Password Modal */}
+      {showPasswordModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setShowPasswordModal(false)} />
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
+              <div className="flex items-center justify-between p-5 border-b border-border">
+                <div>
+                  <h3 className="font-semibold text-foreground">Change Password</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Enter your current password and choose a new one</p>
+                </div>
+                <button onClick={() => setShowPasswordModal(false)} className="p-2 hover:bg-muted rounded-lg">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {passwordSuccess ? (
+                <div className="p-8 text-center">
+                  <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                  <h4 className="font-semibold text-foreground">Password Updated</h4>
+                  <p className="text-sm text-muted-foreground mt-1">Your password has been changed successfully.</p>
+                  <button onClick={() => setShowPasswordModal(false)}
+                    className="mt-4 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <div className="p-5 space-y-4">
+                  {/* Current Password */}
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Current Password <span className="text-destructive">*</span></label>
+                    <div className="relative mt-1">
+                      <input type={showCurrent ? "text" : "password"} placeholder="Enter current password"
+                        value={passwordForm.current}
+                        onChange={e => { setPasswordForm(f => ({ ...f, current: e.target.value })); setPasswordError("") }}
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                      <button onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* New Password */}
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">New Password <span className="text-destructive">*</span></label>
+                    <div className="relative mt-1">
+                      <input type={showNew ? "text" : "password"} placeholder="Enter new password (min 8 characters)"
+                        value={passwordForm.newPass}
+                        onChange={e => { setPasswordForm(f => ({ ...f, newPass: e.target.value })); setPasswordError("") }}
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                      <button onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {/* Password strength */}
+                    {passwordForm.newPass && (
+                      <div className="mt-1.5 flex gap-1">
+                        {[...Array(4)].map((_, i) => (
+                          <div key={i} className={`h-1 flex-1 rounded-full ${
+                            passwordForm.newPass.length >= 8 && i < 2 ? "bg-amber-400" :
+                            passwordForm.newPass.length >= 10 && /[A-Z]/.test(passwordForm.newPass) && i < 3 ? "bg-green-400" :
+                            passwordForm.newPass.length >= 12 && /[!@#$%]/.test(passwordForm.newPass) && i < 4 ? "bg-green-600" :
+                            "bg-muted"
+                          }`} />
+                        ))}
+                        <span className="text-[10px] text-muted-foreground ml-1">
+                          {passwordForm.newPass.length < 8 ? "Too short" :
+                           passwordForm.newPass.length < 10 ? "Weak" :
+                           passwordForm.newPass.length < 12 ? "Good" : "Strong"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Confirm New Password <span className="text-destructive">*</span></label>
+                    <div className="relative mt-1">
+                      <input type={showConfirm ? "text" : "password"} placeholder="Re-enter new password"
+                        value={passwordForm.confirm}
+                        onChange={e => { setPasswordForm(f => ({ ...f, confirm: e.target.value })); setPasswordError("") }}
+                        className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                      <button onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    {passwordForm.confirm && passwordForm.newPass !== passwordForm.confirm && (
+                      <p className="text-xs text-destructive mt-1">Passwords do not match</p>
+                    )}
+                  </div>
+
+                  {passwordError && (
+                    <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                      <p className="text-xs text-red-700">{passwordError}</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 pt-2">
+                    <button onClick={() => setShowPasswordModal(false)}
+                      className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!passwordForm.current) { setPasswordError("Please enter your current password"); return }
+                        if (passwordForm.newPass.length < 8) { setPasswordError("New password must be at least 8 characters"); return }
+                        if (passwordForm.newPass !== passwordForm.confirm) { setPasswordError("Passwords do not match"); return }
+                        setPasswordSuccess(true)
+                      }}
+                      className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                      Update Password
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

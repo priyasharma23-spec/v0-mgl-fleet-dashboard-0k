@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Truck, CreditCard, CheckSquare, Clock,
   BarChart2, Settings, HelpCircle, LogOut, ChevronRight, FileText,
   MapPin, Bell, Package, ShieldCheck, UserPlus, Wallet, Gift, 
-  ArrowRightLeft, FileSpreadsheet, Activity, Building2, Banknote, GitBranch
+  ArrowRightLeft, FileSpreadsheet, Activity, Building2, Banknote, GitBranch, User
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,7 @@ const foNavItems: NavItem[] = [
   { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle" },
   { icon: MapPin, label: "Card Delivery", view: "fo-delivery" },
   { icon: Bell, label: "Notifications", view: "fo-notifications" },
+  { icon: User, label: "My Profile", view: "fo-profile" },
 ];
 
 const adminNavItems: NavItem[] = [

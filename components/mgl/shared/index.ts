@@ -38,6 +38,9 @@ export type { CashbackData } from "./CashbackDetails"
 export { default as TransactionDetailTray } from "./TransactionDetailTray"
 export type { TransactionRecord } from "./TransactionDetailTray"
 
+export { default as ReportsView } from "./ReportsView"
+export type { ReportRole } from "./ReportsView"
+
 // ─── Existing MGL Components (re-exported for unified imports) ────────────────
 export { default as StatCard } from "@/components/mgl/StatCard"
 

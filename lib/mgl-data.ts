@@ -295,6 +295,10 @@ export interface Vehicle {
   deliveryDate?: string;
   cngCertUrl?: string;
   eFitmentUrl?: string;
+  rtoEndorsementUrl?: string;
+  typeApprovalUrl?: string;
+  taxInvoiceUrl?: string;
+  rtoReceiptUrl?: string;
   vehicleType?: "new_purchase" | "retrofit";
   mouId?: string;                          // linked MOU number e.g. "MGL/MOU/2025/001"
   categorySequence?: number;               // order added within same MOU + category (1, 2, 3...)
@@ -580,10 +584,6 @@ export const mockVehicles: Vehicle[] = [
     cardActivatedAt: "2025-02-16",
     onboardingType: "MIC_ASSISTED",
     deliveryChallanUrl: "delivery_challan_veh001.pdf",
-    cngCertUrl: undefined,
-    eFitmentUrl: undefined,
-    rtoEndorsementUrl: undefined,
-    deliveryDate: "2025-02-05",
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,

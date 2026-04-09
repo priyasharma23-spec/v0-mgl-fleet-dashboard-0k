@@ -7,7 +7,7 @@ export interface TransactionRecord {
   date: string
   time?: string
   type?: "Debit" | "Credit" | "debit" | "credit"
-  channel: "pos" | "load"
+  channel: "pos" | "load" | "allocation" | "incentive" | "debits"
   amount: string | number
   status: "Successful" | "Failed" | "Pending"
   paymentMethod?: string
@@ -31,6 +31,21 @@ export interface TransactionRecord {
   cashbackReason?: string
   reversedBy?: string
   reversalOf?: string
+  // Allocation fields
+  allocatedAmount?: string
+  availableBalance?: string
+  allocatedBy?: string
+  // Incentive fields
+  creditType?: "Incentive" | "Cashback"
+  grossAmount?: string
+  tds?: string
+  netAmount?: string
+  creditedTo?: string
+  incentiveType?: string
+  // Debit fields
+  debitType?: string
+  debitedFrom?: string
+  reference?: string
 }
 
 interface Props {
@@ -56,7 +71,14 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
         {/* Header */}
         <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-foreground">Transaction Details</h2>
+            <h2 className="font-semibold text-foreground">
+              {txn.channel === "pos" ? "POS Transaction" :
+               txn.channel === "load" ? "Load Details" :
+               txn.channel === "allocation" ? "Allocation Details" :
+               txn.channel === "incentive" ? "Incentive Details" :
+               txn.channel === "debits" ? "Debit Details" :
+               "Transaction Details"}
+            </h2>
             <p className="text-xs text-muted-foreground font-mono">{txn.id}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -75,7 +97,14 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
 
           {/* Amount hero */}
           <div className={`rounded-xl p-4 text-center ${txn.type === "Credit" || txn.type === "credit" ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
-            <p className="text-xs font-medium text-muted-foreground mb-1">{txn.channel === "pos" ? "Amount Paid" : "Amount Loaded"}</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1">
+              {txn.channel === "pos" ? "Amount Paid" :
+               txn.channel === "load" ? "Amount Loaded" :
+               txn.channel === "allocation" ? "Amount Allocated" :
+               txn.channel === "incentive" ? "Net Incentive" :
+               txn.channel === "debits" ? "Amount Debited" :
+               "Amount"}
+            </p>
             <p className={`text-3xl font-bold ${txn.type === "Credit" || txn.type === "credit" ? "text-green-700" : "text-red-600"}`}>
               {txn.type === "Credit" || txn.type === "credit" ? "+" : "-"}{formatAmount(txn.amount)}
             </p>
@@ -119,17 +148,78 @@ export default function TransactionDetailTray({ transaction: txn, onClose, role 
             </div>
           )}
 
-          {/* Load Info — Load only */}
-          {txn.channel === "load" && (txn.source || txn.utr) && (
+          {/* Load Info */}
+          {txn.channel === "load" && (
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Load Info</p>
               {[
                 txn.source ? ["Source", txn.source] : null,
                 txn.utr ? ["UTR / Reference", txn.utr] : null,
+                txn.openingBalance !== undefined ? ["Opening Balance", formatAmount(txn.openingBalance)] : null,
+                txn.closingBalance !== undefined ? ["Closing Balance", formatAmount(txn.closingBalance)] : null,
               ].filter(Boolean).map(([label, value]) => (
                 <div key={label as string} className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">{label}</span>
-                  <span className="font-medium text-foreground font-mono text-xs">{value}</span>
+                  <span className="font-medium text-foreground">{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Allocation Info */}
+          {txn.channel === "allocation" && (
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Allocation Info</p>
+              {[
+                txn.vehicle ? ["Vehicle", txn.vehicle] : null,
+                txn.card ? ["Card", txn.card] : null,
+                txn.allocatedAmount ? ["Allocated Amount", txn.allocatedAmount] : null,
+                txn.availableBalance ? ["Available Balance", txn.availableBalance] : null,
+                txn.allocatedBy ? ["Allocated By", txn.allocatedBy] : null,
+              ].filter(Boolean).map(([label, value]) => (
+                <div key={label as string} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className="font-medium text-foreground">{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Incentive Info */}
+          {txn.channel === "incentive" && (
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Incentive Info</p>
+              {[
+                txn.creditType ? ["Credit Type", txn.creditType] : null,
+                txn.vehicle ? ["Vehicle", txn.vehicle] : null,
+                txn.incentiveType ? ["Program", txn.incentiveType] : null,
+                txn.grossAmount ? ["Gross Amount", txn.grossAmount] : null,
+                txn.tds ? ["TDS Deducted", txn.tds] : null,
+                txn.netAmount ? ["Net Amount", txn.netAmount] : null,
+                txn.creditedTo ? ["Credited To", txn.creditedTo] : null,
+              ].filter(Boolean).map(([label, value]) => (
+                <div key={label as string} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className={`font-medium ${label === "TDS Deducted" ? "text-red-600" : label === "Net Amount" ? "text-green-700 font-bold" : "text-foreground"}`}>{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Debit Info */}
+          {txn.channel === "debits" && (
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Debit Info</p>
+              {[
+                txn.debitType ? ["Debit Type", txn.debitType] : null,
+                txn.debitedFrom ? ["Debited From", txn.debitedFrom] : null,
+                txn.reference ? ["Reference", txn.reference] : null,
+                txn.openingBalance !== undefined ? ["Opening Balance", formatAmount(txn.openingBalance)] : null,
+                txn.closingBalance !== undefined ? ["Closing Balance", formatAmount(txn.closingBalance)] : null,
+              ].filter(Boolean).map(([label, value]) => (
+                <div key={label as string} className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className="font-medium text-foreground">{value}</span>
                 </div>
               ))}
             </div>
