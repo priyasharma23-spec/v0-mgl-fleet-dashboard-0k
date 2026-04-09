@@ -911,45 +911,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
               </div>
             ) : null}
 
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Card Wallet</span>
-                <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "680"}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Incentive Wallet</span>
-                <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "170"}</span>
-              </div>
-            </div>
-
-            {/* Cashback — POS only */}
-            {activeTab === "pos" && (
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
-                {selectedTxn.cashbackEligible ? (
-                  <>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Cashback Rate</span>
-                      <span className="font-medium text-green-700">{selectedTxn.cashbackPercent}%</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Cashback Amount</span>
-                      <span className="font-bold text-green-700">+{selectedTxn.cashbackAmount}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Status</span>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                        {selectedTxn.cashbackStatus}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <p className="text-xs text-muted-foreground">{selectedTxn.cashbackReason || "Not eligible for cashback"}</p>
-                )}
-              </div>
-            )}
-            </div>
+            ) : showTimeline ? (
               <div className="p-4 space-y-3 flex-1 overflow-y-auto">
                 <p className="text-sm font-semibold text-foreground">Approval Timeline</p>
                 <div className="space-y-4">
@@ -2911,7 +2873,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
             {/* Step 3: Success */}
             {loadCardStep === "success" && (
               <div className="text-center">
-                <div className="text-5xl mb-4">✓</div>
+                <div className="text-5xl mb-4">��</div>
                 <h3 className="text-lg font-bold text-green-600 mb-4">Load Successful!</h3>
                 <p className="text-sm text-muted-foreground mb-4">₹{parseInt(loadAmount).toLocaleString()} has been loaded to your card.</p>
                 
