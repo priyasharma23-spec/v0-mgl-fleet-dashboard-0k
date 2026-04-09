@@ -1995,6 +1995,19 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   const [loadOtpAttempts, setLoadOtpAttempts] = useState(0)
   const [cardBalances, setCardBalances] = useState<Record<string, number>>({})
 
+  // Replacement Card Journey States
+  const [showReplacementModal, setShowReplacementModal] = useState(false)
+  const [replacementStep, setReplacementStep] = useState(1)
+  const [selectedReason, setSelectedReason] = useState<{id: string, label: string, fee: number} | null>(null)
+  const [replacementOtp, setReplacementOtp] = useState("")
+
+  const replacementReasons = [
+    { id: "lost", label: "Card Lost", fee: 150 },
+    { id: "stolen", label: "Card Stolen", fee: 150 },
+    { id: "damaged", label: "Card Damaged / Not Working", fee: 100 },
+    { id: "expired", label: "Card Expired", fee: 0 },
+  ]
+
   const cards = myVehicles.filter((v) => v.cardNumber)
 
   // Filter vehicles based on search and status - only show vehicles post L1 approval with digital card issued
@@ -2570,23 +2583,114 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
             {/* Order Replacement Modal */}
             {actionModal === "replacement" && (
               <div>
-                <h3 className="text-lg font-bold text-foreground mb-4">Order Replacement Card</h3>
-                <p className="text-sm text-muted-foreground mb-4">Request a replacement card. The new card will be sent to your registered address.</p>
-                <div className="mb-4">
-                  <label className="text-xs font-semibold text-foreground mb-2 block">Reason for Replacement</label>
-                  <select value={replacementReason} onChange={(e) => setReplacementReason(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30">
-                    <option value="">Select reason</option>
-                    <option value="damaged">Card Damaged</option>
-                    <option value="lost">Card Lost</option>
-                    <option value="stolen">Card Stolen</option>
-                    <option value="expired">Card Expired</option>
-                    <option value="other">Other</option>
-                  </select>
+                <div className="flex items-center gap-3 mb-6">
+                  {[1, 2, 3, 4].map((step) => (
+                    <div key={step} className="flex items-center flex-1">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${replacementStep >= step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{step}</div>
+                      {step < 4 && <div className={`flex-1 h-1 mx-2 ${replacementStep > step ? "bg-primary" : "bg-muted"}`} />}
+                    </div>
+                  ))}
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setActionModal(null)} className="flex-1 py-2 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Cancel</button>
-                  <button onClick={() => { setActionModal(null); setReplacementReason(""); }} className="flex-1 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Order Replacement</button>
-                </div>
+
+                {/* Step 1: Select Reason */}
+                {replacementStep === 1 && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-1">Why are you replacing this card?</h3>
+                      <p className="text-sm text-muted-foreground">Select the reason for replacement</p>
+                    </div>
+                    <div className="space-y-2">
+                      {replacementReasons.map((reason) => (
+                        <button key={reason.id}
+                          onClick={() => { setSelectedReason(reason); setReplacementStep(2) }}
+                          className="w-full p-4 border-2 border-border rounded-lg text-left hover:border-primary hover:bg-primary/5 transition-all group">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold text-foreground group-hover:text-primary">{reason.label}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{reason.fee === 0 ? "No charges" : `₹${reason.fee} replacement fee`}</p>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Confirm Amount */}
+                {replacementStep === 2 && selectedReason && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-1">Confirm Replacement Details</h3>
+                      <p className="text-sm text-muted-foreground">Review the charges and confirm</p>
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-sm font-semibold text-amber-900">Replacement Card Charges</p>
+                      <p className="text-xs text-amber-700 mt-1">The following amount will be debited from your Parent Wallet.</p>
+                    </div>
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                      {[
+                        ["Reason", selectedReason.label],
+                        ["Card Number", "MGL****4521"],
+                        ["Replacement Fee", selectedReason.fee === 0 ? "Free" : `₹${selectedReason.fee}`],
+                        ["Deducted From", "Parent Wallet"],
+                        ["Current Wallet Balance", "₹12,500"],
+                        ["Balance After Deduction", selectedReason.fee === 0 ? "₹12,500" : `₹${12500 - selectedReason.fee}`],
+                      ].map(([label, value]) => (
+                        <div key={label} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{label}</span>
+                          <span className={`font-medium ${label === "Replacement Fee" && selectedReason.fee > 0 ? "text-red-600" : "text-foreground"}`}>{value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">A new card will be dispatched to your registered delivery address within 5-7 working days.</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => { setReplacementStep(1); setSelectedReason(null) }} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
+                      <button onClick={() => { setReplacementStep(3); setReplacementOtp("") }} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Proceed</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: OTP Verification */}
+                {replacementStep === 3 && (
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground mb-1">Verify Your Mobile Number</h3>
+                      <p className="text-sm text-muted-foreground">Complete OTP verification</p>
+                    </div>
+                    <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl border border-border">
+                      <Smartphone className="w-8 h-8 text-primary shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium">OTP Verification</p>
+                        <p className="text-xs text-muted-foreground">Enter the 6-digit OTP sent to {myFO.contactNumber}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Enter OTP</label>
+                      <input type="text" maxLength={6} placeholder="• • • • • •"
+                        value={replacementOtp}
+                        onChange={e => setReplacementOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm tracking-[0.5em] text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                      <p className="text-xs text-muted-foreground mt-1 text-center">Demo: enter any 6 digits</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setReplacementStep(2)} className="flex-1 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted">Back</button>
+                      <button onClick={() => { replacementOtp.length === 6 && setReplacementStep(4) }} disabled={replacementOtp.length !== 6} className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed">Verify OTP</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Success */}
+                {replacementStep === 4 && (
+                  <div className="text-center py-6">
+                    <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-4" />
+                    <h3 className="font-bold text-lg text-foreground">Replacement Card Ordered</h3>
+                    <p className="text-sm text-muted-foreground mt-2">Your replacement card has been ordered. {selectedReason?.fee! > 0 ? `₹${selectedReason?.fee} has been debited from your Parent Wallet.` : "No charges applied."}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Estimated delivery: 5-7 working days</p>
+                    <p className="text-xs font-mono text-muted-foreground mt-2">Ref: RPL{Date.now().toString().slice(-6)}</p>
+                    <button onClick={() => { setActionModal(null); setReplacementStep(1); setSelectedReason(null); setReplacementOtp("") }} className="mt-6 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">Close</button>
+                  </div>
+                )}
               </div>
             )}
 
