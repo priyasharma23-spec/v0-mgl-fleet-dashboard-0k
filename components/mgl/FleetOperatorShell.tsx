@@ -915,8 +915,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                     <p className="text-xs text-muted-foreground">{selectedTxn.cashbackReason || "Not eligible for cashback"}</p>
                   )}
                 </div>
-              )}
-            </div>
+                )}
               </div>
             ) : showTimeline ? (
               <div className="p-4 space-y-3 flex-1 overflow-y-auto">
