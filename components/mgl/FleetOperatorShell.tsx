@@ -880,15 +880,14 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                   ) : null)}
                 </div>
 
-                {/* MOU & Incentive Eligibility — MIC_ASSISTED only */}
+                {/* MOU Details — MIC_ASSISTED only */}
                 {selectedVehicle.onboardingType === "MIC_ASSISTED" && (
                   <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MOU & Incentive</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MOU Details</p>
                     
                     {/* MOU details */}
                     {[
                       ["MOU Number", selectedVehicle.mouId || "—"],
-                      ["Vehicle Category", selectedVehicle.category],
                       ["Category Sequence", selectedVehicle.categorySequence ? `#${selectedVehicle.categorySequence} in ${selectedVehicle.category}` : "—"],
                       ["Vehicle Type", selectedVehicle.vehicleType === "new_purchase" ? "New Purchase" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "—"],
                     ].map(([label, value]) => (
@@ -918,14 +917,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                            "—"}
                         </span>
                       </div>
-
-                      {/* Incentive amount if eligible or beyond */}
-                      {selectedVehicle.incentiveAmount && (
-                        <div className="flex items-center justify-between text-sm mt-2">
-                          <span className="text-muted-foreground">Incentive Amount</span>
-                          <span className="font-bold text-green-700">₹{selectedVehicle.incentiveAmount.toLocaleString("en-IN")}</span>
-                        </div>
-                      )}
 
                       {/* Not eligible explanation */}
                       {selectedVehicle.incentiveStatus === "not_eligible" && (
