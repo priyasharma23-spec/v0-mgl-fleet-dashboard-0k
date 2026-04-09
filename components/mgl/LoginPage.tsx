@@ -301,13 +301,14 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                        <label className="text-xs font-medium text-muted-foreground">{foLoginMethod === "otp" ? "Mobile Number" : "Credentials"}</label>
                         <div className="flex gap-0.5 p-0.5 bg-muted rounded-full">
                           <button
                             onClick={() => {
                               setFoLoginMethod("otp");
                               setFoPassword("");
                               setFoPasswordError("");
+                              setFoEmail("");
                             }}
                             className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full transition-colors ${
                               foLoginMethod === "otp" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
@@ -321,6 +322,8 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                               setOtp(["", "", "", "", "", ""]);
                               setOtpSent(false);
                               setOtpError("");
+                              setMobile("");
+                              setMobileError("");
                             }}
                             className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full transition-colors ${
                               foLoginMethod === "password" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
@@ -330,26 +333,44 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                           </button>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-2">
-                        <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
-                          +91
-                        </span>
-                        <input
-                          type="tel"
-                          maxLength={10}
-                          value={mobile}
-                          onChange={(e) => {
-                            setMobile(e.target.value.replace(/\D/g, ""));
-                            setMobileError("");
-                            if (otpSent) resetOtpState();
-                          }}
-                          placeholder="Enter 10-digit mobile"
-                          className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
-                            mobileError ? "border-destructive" : "border-border"
-                          }`}
-                        />
-                      </div>
-                      {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
+
+                      {foLoginMethod === "otp" ? (
+                        <div className="flex gap-2 mt-2">
+                          <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            maxLength={10}
+                            value={mobile}
+                            onChange={(e) => {
+                              setMobile(e.target.value.replace(/\D/g, ""));
+                              setMobileError("");
+                              if (otpSent) resetOtpState();
+                            }}
+                            placeholder="Enter 10-digit mobile"
+                            className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                              mobileError ? "border-destructive" : "border-border"
+                            }`}
+                          />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mt-2">
+                            <input
+                              type="email"
+                              placeholder="Enter email"
+                              value={foEmail}
+                              onChange={(e) => {
+                                setFoEmail(e.target.value);
+                                setFoPasswordError("");
+                              }}
+                              className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            />
+                          </div>
+                        </>
+                      )}
+                      {mobileError && foLoginMethod === "otp" && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
                     </div>
 
                     {foLoginMethod === "otp" ? (
