@@ -716,6 +716,35 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 <WorkflowStepper steps={steps} />
               </div>
 
+              {/* MOU & Incentive — MIC_ASSISTED only */}
+              {v.onboardingType === "MIC_ASSISTED" && v.mouId && (
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground font-mono">{v.mouId}</span>
+                    {v.categorySequence && (
+                      <span className="text-xs text-muted-foreground">· {v.category} #{v.categorySequence}</span>
+                    )}
+                  </div>
+                  {v.incentiveStatus && (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                      v.incentiveStatus === "paid" ? "bg-green-100 text-green-700" :
+                      v.incentiveStatus === "approved" ? "bg-blue-100 text-blue-700" :
+                      v.incentiveStatus === "eligible" ? "bg-amber-100 text-amber-700" :
+                      v.incentiveStatus === "pending_approval" ? "bg-purple-100 text-purple-700" :
+                      v.incentiveStatus === "not_eligible" ? "bg-gray-100 text-gray-500" :
+                      "bg-gray-100 text-gray-500"
+                    }`}>
+                      {v.incentiveStatus === "paid" ? "✓ Incentive Paid" :
+                       v.incentiveStatus === "approved" ? "✓ Incentive Approved" :
+                       v.incentiveStatus === "eligible" ? "⬆ Eligible" :
+                       v.incentiveStatus === "pending_approval" ? "⏳ Pending Approval" :
+                       v.incentiveStatus === "not_eligible" ? "Awaiting 2nd Vehicle" :
+                       ""}
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* L1 Approved banner */}
               {v.status === "L1_APPROVED" && (
                 <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-200 mb-3">
