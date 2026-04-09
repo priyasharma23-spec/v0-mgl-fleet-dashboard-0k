@@ -747,48 +747,53 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
 
               {/* L1 Approved banner */}
               {v.status === "L1_APPROVED" && (
-                <div className="border-l-4 border-green-600 bg-green-50 px-4 py-3 rounded-r-lg flex items-center justify-between mb-3">
+                <div className="border-l-4 border-blue-600 bg-blue-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
                   {v.onboardingType === "SELF_SERVICE" ? (
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
                       <div>
-                        <p className="text-xs font-semibold text-green-900">Approved</p>
-                        <p className="text-[11px] text-green-700">Card issuance in progress</p>
+                        <p className="text-xs font-semibold text-blue-900">Approved</p>
+                        <p className="text-[11px] text-blue-700">Card issuance in progress</p>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center gap-3">
-                        <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
                         <div>
-                          <p className="text-xs font-semibold text-green-900">L1 Approved</p>
-                          <p className="text-[11px] text-green-700">Complete L2 Registration to proceed</p>
+                          <p className="text-xs font-semibold text-blue-900">L1 Approved</p>
+                          <p className="text-[11px] text-blue-700">Complete L2 Registration to proceed</p>
                         </div>
                       </div>
-                      <button onClick={() => openVehicle(v)} className="text-green-700 hover:text-green-900 font-semibold whitespace-nowrap text-xs">Complete →</button>
+                      <button onClick={() => openVehicle(v)} className="text-blue-700 hover:text-blue-900 font-semibold whitespace-nowrap text-xs">Complete →</button>
                     </>
                   )}
                 </div>
               )}
 
-              {/* Rejection alert */}
+              {/* Action Required banner */}
               {(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && (
-                <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mb-3">
-                  <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs font-semibold text-red-700">Action Required</p>
-                    <p className="text-xs text-red-600">{v.l1Comments || v.l2Comments || "Please re-upload the required documents."}</p>
-                    <button className="text-xs text-red-700 font-semibold mt-1 hover:underline">Resubmit Documents →</button>
+                <div className="border-l-4 border-red-600 bg-red-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold text-red-900">Action Required</p>
+                      <p className="text-[11px] text-red-700">{v.l1Comments || v.l2Comments || "Please re-upload the required documents."}</p>
+                    </div>
                   </div>
+                  <button className="text-red-700 hover:text-red-900 font-semibold whitespace-nowrap text-xs">Resubmit →</button>
+                </div>
                 </div>
               )}
 
               {/* Card info */}
               {v.cardNumber && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                  <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
-                  <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
-                  {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
+                <div className="border-l-4 border-green-600 bg-green-50 px-3 py-2 rounded-r-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
+                    <p className="text-xs font-semibold text-green-900">Card: {v.cardNumber}</p>
+                  </div>
+                  {v.trackingId && <p className="text-xs text-muted-foreground">Track: {v.trackingId}</p>}
                 </div>
               )}
             </div>
