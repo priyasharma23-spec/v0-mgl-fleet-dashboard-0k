@@ -31,7 +31,11 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       vehicle: "MH47BY2770", 
       reversedBy: "", 
       reversalOf: "", 
-      status: "Successful" as const 
+      status: "Successful" as const,
+      paymentMethod: "Card",
+      stationType: "COCO",
+      cardWalletDebit: 11957.6,
+      incentiveWalletDebit: 2989.4
     },
     { 
       id: "42287", 
@@ -50,7 +54,11 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
       vehicle: "MH47BY1688", 
       reversedBy: "", 
       reversalOf: "", 
-      status: "Successful" as const 
+      status: "Successful" as const,
+      paymentMethod: "Scan & Pay",
+      stationType: "DODO",
+      cardWalletDebit: 2608.48,
+      incentiveWalletDebit: 652.12
     },
   ]
 
@@ -386,6 +394,10 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                 <div className="flex justify-between"><span className="text-muted-foreground">Date:</span><span className="font-semibold">{selectedTransaction.date}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Time:</span><span className="font-semibold">{selectedTransaction.time}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Type:</span><span className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${selectedTransaction.type === 'debit' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{selectedTransaction.type === 'debit' ? 'Debit' : 'Credit'}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Payment Method:</span>
+                  <span className="font-medium">{selectedTransaction.paymentMethod || "Card"}</span>
+                </div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Channel:</span><span className="font-semibold capitalize">{selectedTransaction.channel}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Product:</span><span className="font-semibold uppercase">{selectedTransaction.product}</span></div>
               </div>
@@ -405,6 +417,10 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Station:</span><span className="font-semibold text-right">{selectedTransaction.station}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Merchant Code:</span><span className="font-mono text-xs">{selectedTransaction.merchantCode}</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Station Type:</span>
+                  <span className="font-medium">{selectedTransaction.stationType || "COCO"}</span>
+                </div>
               </div>
             </div>
 
@@ -414,6 +430,20 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
                 <div className="flex justify-between"><span className="text-muted-foreground">Opening Balance:</span><span className="font-semibold">₹{selectedTransaction.openingBalance?.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Amount:</span><span className="font-bold text-lg">₹{selectedTransaction.amount?.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Closing Balance:</span><span className="font-semibold">₹{selectedTransaction.closingBalance?.toLocaleString()}</span></div>
+              </div>
+            </div>
+
+            <div className="bg-muted/30 rounded-xl p-4 space-y-2 mt-4">
+              <p className="text-sm font-semibold text-foreground">Wallet Debit</p>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Card Wallet:</span>
+                  <span className="font-semibold text-red-600">-₹{selectedTransaction.cardWalletDebit?.toLocaleString() || selectedTransaction.amount?.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Incentive Wallet:</span>
+                  <span className="font-semibold text-red-600">-₹{selectedTransaction.incentiveWalletDebit?.toLocaleString() || "0"}</span>
+                </div>
               </div>
             </div>
 

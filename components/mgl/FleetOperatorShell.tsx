@@ -873,9 +873,22 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <span className="text-xs text-muted-foreground block">{label}</span>
                         <span className={`font-medium block mt-0.5 ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700 font-bold" : "text-foreground"}`}>{value}</span>
                       </div>
-                    ))}
-                  </div>
+                  ))}
                 </div>
+              )}
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Card Wallet</span>
+                  <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "680"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Incentive Wallet</span>
+                  <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "170"}</span>
+                </div>
+              </div>
+            </div>
 
               {/* Wallet Debit */}
               <div className="bg-muted/30 rounded-xl p-4 space-y-2">
