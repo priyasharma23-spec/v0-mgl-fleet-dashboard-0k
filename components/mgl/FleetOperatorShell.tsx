@@ -5,7 +5,7 @@ import { useState } from "react"
 import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift
+  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -679,8 +679,25 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
             <div key={v.id} className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <Truck className="w-5 h-5 text-blue-600" />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                    v.vehicleType === "retrofit" ? "bg-amber-100" :
+                    v.category === "Bus" ? "bg-purple-100" :
+                    v.category === "HCV" ? "bg-blue-100" :
+                    v.category === "ICV" ? "bg-green-100" :
+                    v.category === "LCV" ? "bg-teal-100" :
+                    "bg-gray-100"
+                  }`}>
+                    {v.vehicleType === "retrofit" ? (
+                      <RefreshCw className={`w-5 h-5 text-amber-600`} />
+                    ) : v.category === "Bus" ? (
+                      <Bus className={`w-5 h-5 text-purple-600`} />
+                    ) : v.category === "HCV" ? (
+                      <Truck className={`w-5 h-5 text-blue-600`} />
+                    ) : v.category === "ICV" ? (
+                      <Truck className={`w-5 h-5 text-green-600`} />
+                    ) : (
+                      <Truck className={`w-5 h-5 text-teal-600`} />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{v.vehicleNumber || v.id}</p>
@@ -716,39 +733,83 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 <WorkflowStepper steps={steps} />
               </div>
 
-              {/* L1 Approved banner */}
-              {v.status === "L1_APPROVED" && (
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-200 mb-3">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
-                    <p className="text-xs text-blue-700 font-medium">
-                      {v.onboardingType === "SELF_SERVICE" ? "Approved — Card issuance in progress" : "L1 Approved — Complete L2 Registration"}
-                    </p>
+              {/* MOU & Incentive — MIC_ASSISTED only */}
+              {v.onboardingType === "MIC_ASSISTED" && v.mouId && (
+                <div className="flex items-center justify-between mt-2 pt-2 mb-2 border-t border-border">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground font-mono">{v.mouId}</span>
+                    {v.categorySequence && (
+                      <span className="text-xs text-muted-foreground">· {v.category} #{v.categorySequence}</span>
+                    )}
                   </div>
-                  {v.onboardingType !== "SELF_SERVICE" && (
-                    <button onClick={() => openVehicle(v)} className="text-xs text-blue-700 font-semibold hover:underline whitespace-nowrap">Complete →</button>
+                  {v.incentiveStatus && (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                      v.incentiveStatus === "paid" ? "bg-green-100 text-green-700" :
+                      v.incentiveStatus === "approved" ? "bg-blue-100 text-blue-700" :
+                      v.incentiveStatus === "eligible" ? "bg-amber-100 text-amber-700" :
+                      v.incentiveStatus === "pending_approval" ? "bg-purple-100 text-purple-700" :
+                      v.incentiveStatus === "not_eligible" ? "bg-gray-100 text-gray-500" :
+                      "bg-gray-100 text-gray-500"
+                    }`}>
+                      {v.incentiveStatus === "paid" ? "✓ Incentive Paid" :
+                       v.incentiveStatus === "approved" ? "✓ Incentive Approved" :
+                       v.incentiveStatus === "eligible" ? "⬆ Eligible" :
+                       v.incentiveStatus === "pending_approval" ? "⏳ Pending Approval" :
+                       v.incentiveStatus === "not_eligible" ? "Awaiting 2nd Vehicle" :
+                       ""}
+                    </span>
                   )}
                 </div>
               )}
 
-              {/* Rejection alert */}
+              {/* L1 Approved banner */}
+              {v.status === "L1_APPROVED" && (
+                <div className="border-l-4 border-blue-600 bg-blue-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
+                  {v.onboardingType === "SELF_SERVICE" ? (
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-blue-900">Approved</p>
+                        <p className="text-[11px] text-blue-700">Card issuance in progress</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
+                        <div>
+                          <p className="text-xs font-semibold text-blue-900">L1 Approved</p>
+                          <p className="text-[11px] text-blue-700">Complete L2 Registration to proceed</p>
+                        </div>
+                      </div>
+                      <button onClick={() => openVehicle(v)} className="text-blue-700 hover:text-blue-900 font-semibold whitespace-nowrap text-xs">Complete →</button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Action Required banner */}
               {(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && (
-                <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-200 mb-3">
-                  <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-xs font-semibold text-red-700">Action Required</p>
-                    <p className="text-xs text-red-600">{v.l1Comments || v.l2Comments || "Please re-upload the required documents."}</p>
-                    <button className="text-xs text-red-700 font-semibold mt-1 hover:underline">Resubmit Documents →</button>
+                <div className="border-l-4 border-red-600 bg-red-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold text-red-900">Action Required</p>
+                      <p className="text-[11px] text-red-700">{v.l1Comments || v.l2Comments || "Please re-upload the required documents."}</p>
+                    </div>
                   </div>
+                  <button className="text-red-700 hover:text-red-900 font-semibold whitespace-nowrap text-xs">Resubmit →</button>
                 </div>
               )}
 
               {/* Card info */}
               {v.cardNumber && (
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50 border border-green-200">
-                  <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
-                  <p className="text-xs text-green-700 font-medium">Card: {v.cardNumber}</p>
-                  {v.trackingId && <p className="text-xs text-muted-foreground ml-auto">Track: {v.trackingId}</p>}
+                <div className="border-l-4 border-green-600 bg-green-50 px-3 py-2 rounded-r-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-green-600 shrink-0" />
+                    <p className="text-xs font-semibold text-green-900">Card: {v.cardNumber}</p>
+                  </div>
+                  {v.trackingId && <p className="text-xs text-muted-foreground">Track: {v.trackingId}</p>}
                 </div>
               )}
             </div>
@@ -879,6 +940,71 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                     </div>
                   ) : null)}
                 </div>
+
+                {/* MOU Details — MIC_ASSISTED only */}
+                {selectedVehicle.onboardingType === "MIC_ASSISTED" && (
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MOU Details</p>
+                    
+                    {/* MOU details */}
+                    {[
+                      ["MOU Number", selectedVehicle.mouId || "—"],
+                      ["Category Sequence", selectedVehicle.categorySequence ? `#${selectedVehicle.categorySequence} in ${selectedVehicle.category}` : "—"],
+                      ["Vehicle Type", selectedVehicle.vehicleType === "new_purchase" ? "New Purchase" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "—"],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-medium text-foreground text-right">{value}</span>
+                      </div>
+                    ))}
+
+                    {/* Incentive eligibility status */}
+                    <div className="pt-2 border-t border-border">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Incentive Status</span>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                          selectedVehicle.incentiveStatus === "paid" ? "bg-green-100 text-green-700" :
+                          selectedVehicle.incentiveStatus === "approved" ? "bg-blue-100 text-blue-700" :
+                          selectedVehicle.incentiveStatus === "eligible" ? "bg-amber-100 text-amber-700" :
+                          selectedVehicle.incentiveStatus === "pending_approval" ? "bg-purple-100 text-purple-700" :
+                          selectedVehicle.incentiveStatus === "not_eligible" ? "bg-gray-100 text-gray-600" :
+                          "bg-gray-100 text-gray-600"
+                        }`}>
+                          {selectedVehicle.incentiveStatus === "paid" ? "Paid" :
+                           selectedVehicle.incentiveStatus === "approved" ? "Approved" :
+                           selectedVehicle.incentiveStatus === "eligible" ? "Eligible — Pending Approval" :
+                           selectedVehicle.incentiveStatus === "pending_approval" ? "Submitted for Approval" :
+                           selectedVehicle.incentiveStatus === "not_eligible" ? "Not Yet Eligible" :
+                           "—"}
+                        </span>
+                      </div>
+
+                      {/* Not eligible explanation */}
+                      {selectedVehicle.incentiveStatus === "not_eligible" && (
+                        <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs text-amber-700">
+                            This is the first {selectedVehicle.category} vehicle under MOU {selectedVehicle.mouId}. 
+                            Incentive becomes eligible when a second {selectedVehicle.category} vehicle is added and approved.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Approved by */}
+                      {selectedVehicle.incentiveApprovedBy && (
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <span className="text-muted-foreground">Approved By</span>
+                          <span className="font-medium text-foreground">{selectedVehicle.incentiveApprovedBy}</span>
+                        </div>
+                      )}
+                      {selectedVehicle.incentiveApprovedAt && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Approved At</span>
+                          <span className="font-medium text-foreground">{selectedVehicle.incentiveApprovedAt}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Driver Details — shown for both, optional fields */}
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
@@ -1771,7 +1897,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   )
 }
 
-// ─── FO Cards View ─────────────────���──────────────────────────────────────
+// ─── FO Cards View ────────────────�������──────────────────────────────────────
 function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
   const [activatingCard, setActivatingCard] = useState<string | null>(null)
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")

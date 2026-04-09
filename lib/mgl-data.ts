@@ -19,6 +19,29 @@ export type OnboardingType = "MIC_ASSISTED" | "SELF_SERVICE";
 export type VehicleCategory = "HCV" | "ICV" | "LCV" | "Bus";
 export type VehicleType = "NEW_PURCHASE" | "RETROFIT";
 
+export const INCENTIVE_RATES = {
+  new_purchase: {
+    HCV: 15000,
+    ICV: 12000,
+    LCV: 8000,
+    Bus: 10000,
+  },
+  retrofit: {
+    HCV: 10000,
+    ICV: 8000,
+    LCV: 5000,
+    Bus: 7000,
+  },
+} as const
+
+export type IncentiveStatus = 
+  | "not_eligible"      // first vehicle in category, waiting for 2nd
+  | "eligible"          // 2nd+ vehicle approved, awaiting ZIC/admin approval
+  | "pending_approval"  // submitted for ZIC/admin incentive approval
+  | "approved"          // ZIC/admin approved, pending payment
+  | "paid"              // incentive credited to wallet
+  | "out_of_scope"      // existing CNG vehicle
+
 // OEM & Dealer Master Data
 export interface OEM {
   id: string;
@@ -178,6 +201,42 @@ export function calculateVehicleAge(registrationDate: string): { years: number; 
   return { years, months };
 }
 
+// Compute incentive eligibility based on category sequence and vehicle type
+export function computeIncentiveEligibility(
+  vehicles: Vehicle[],
+  mouId: string
+): Map<string, { eligible: boolean; sequence: number; amount: number | null }> {
+  const result = new Map<string, { eligible: boolean; sequence: number; amount: number | null }>()
+  
+  // Group by category + vehicleType within same MOU
+  const groups = new Map<string, Vehicle[]>()
+  
+  vehicles
+    .filter(v => v.mouId === mouId && v.onboardingType === "MIC_ASSISTED" && v.vehicleType !== "existing_cng")
+    .forEach(v => {
+      const key = `${v.category}_${v.vehicleType}`
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(v)
+    })
+  
+  groups.forEach((groupVehicles) => {
+    // Sort by categorySequence
+    const sorted = [...groupVehicles].sort((a, b) => (a.categorySequence ?? 0) - (b.categorySequence ?? 0))
+    const hasSecond = sorted.length >= 2
+    
+    sorted.forEach((v, idx) => {
+      const eligible = hasSecond // all vehicles eligible if group has 2+
+      const vType = v.vehicleType as "new_purchase" | "retrofit"
+      const cat = v.category as keyof typeof INCENTIVE_RATES.new_purchase
+      const amount = eligible && vType && cat ? INCENTIVE_RATES[vType]?.[cat] ?? null : null
+      result.set(v.id, { eligible, sequence: idx + 1, amount })
+    })
+  })
+  
+  return result
+}
+
+
 export interface FleetOperator {
   id: string;
   name: string;
@@ -237,6 +296,13 @@ export interface Vehicle {
   cngCertUrl?: string;
   eFitmentUrl?: string;
   vehicleType?: "new_purchase" | "retrofit";
+  mouId?: string;                          // linked MOU number e.g. "MGL/MOU/2025/001"
+  categorySequence?: number;               // order added within same MOU + category (1, 2, 3...)
+  incentiveStatus?: IncentiveStatus;       // eligibility and approval state
+  incentiveAmount?: number;                // computed incentive amount in INR
+  incentiveApprovedBy?: string;            // ZIC or admin user ID
+  incentiveApprovedAt?: string;            // approval timestamp
+  incentiveNote?: string;                  // reason or note from approver
 }
 
 export interface Notification {
@@ -503,6 +569,10 @@ export const mockVehicles: Vehicle[] = [
     rtoEndorsementUrl: undefined,
     deliveryDate: "2025-02-05",
     vehicleType: "new_purchase",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 1,
+    incentiveStatus: "paid",
+    incentiveAmount: 15000,
   },
   {
     id: "VEH002",
@@ -523,6 +593,10 @@ export const mockVehicles: Vehicle[] = [
     onboardingType: "MIC_ASSISTED",
     deliveryChallanUrl: "delivery_challan_veh002.pdf",
     vehicleType: "new_purchase",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 2,
+    incentiveStatus: "approved",
+    incentiveAmount: 15000,
   },
   {
     id: "VEH003",
@@ -540,6 +614,9 @@ export const mockVehicles: Vehicle[] = [
     l1Comments: "Vehicle booking receipt is unclear. Please re-upload a higher quality scan.",
     onboardingType: "MIC_ASSISTED",
     vehicleType: "new_purchase",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 1,
+    incentiveStatus: "not_eligible",
   },
   {
     id: "VEH004",
@@ -620,6 +697,10 @@ export const mockVehicles: Vehicle[] = [
     bookingReceiptUrl: "booking_veh007.pdf",
     rcBookUrl: "rc_veh007.pdf",
     vehicleType: "new_purchase",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 2,
+    incentiveStatus: "eligible",
+    incentiveAmount: 12000,
   },
   {
     id: "VEH008",
@@ -638,6 +719,10 @@ export const mockVehicles: Vehicle[] = [
     bookingReceiptUrl: "booking_veh008.pdf",
     rcBookUrl: "rc_veh008.pdf",
     vehicleType: "new_purchase",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 3,
+    incentiveStatus: "eligible",
+    incentiveAmount: 15000,
   },
   {
     id: "VEH009",
@@ -659,6 +744,9 @@ export const mockVehicles: Vehicle[] = [
     bookingReceiptUrl: "booking_veh009.pdf",
     rcBookUrl: "rc_veh009.pdf",
     vehicleType: "retrofit",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 1,
+    incentiveStatus: "not_eligible",
   },
   {
     id: "VEH010",
@@ -720,6 +808,29 @@ export const mockVehicles: Vehicle[] = [
     l1Comments: "RC Book is not clearly legible. Please upload a higher quality scan.",
     onboardingType: "SELF_SERVICE",
     vehicleType: "new_purchase",
+  },
+  {
+    id: "VEH013",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04KL9876",
+    model: "BharatBenz 4923",
+    category: "HCV",
+    oem: "BharatBenz",
+    dealership: "BharatBenz Mumbai",
+    bookingDate: "2025-04-01",
+    registrationDate: undefined,
+    driverName: "Vikram Singh",
+    driverContact: "9876507654",
+    status: "L1_SUBMITTED",
+    l1SubmittedAt: "2025-04-02",
+    onboardingType: "MIC_ASSISTED",
+    bookingReceiptUrl: "booking_veh013.pdf",
+    rcBookUrl: undefined,
+    vehicleType: "new_purchase",
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 4,
+    incentiveStatus: "not_eligible",
   },
 ];
 
