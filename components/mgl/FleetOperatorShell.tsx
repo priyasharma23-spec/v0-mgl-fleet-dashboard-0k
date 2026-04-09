@@ -873,7 +873,9 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <span className="text-xs text-muted-foreground block">{label}</span>
                         <span className={`font-medium block mt-0.5 ${label === "Status" ? "text-green-600" : label === "TDS Deducted" ? "text-red-600" : label === "Net Incentive" ? "text-green-700 font-bold" : "text-foreground"}`}>{value}</span>
                       </div>
-                  ))}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : null}
