@@ -380,9 +380,41 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                     <p className="text-xs text-muted-foreground text-center">
                       Demo: enter any 6 digits. <button onClick={() => setOtpSent(false)} className="text-primary hover:underline">Resend OTP</button>
                     </p>
+                </div>
+              )}
+              {activeTab === "pos" && (
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Card Wallet</span>
+                    <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "0"}</span>
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Incentive Wallet</span>
+                    <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "0"}</span>
+                  </div>
+                </div>
+              )}
+              {activeTab === "pos" && selectedTxn.cashbackEligible && (
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Cashback Rate</span>
+                    <span className="font-medium text-green-700">{selectedTxn.cashbackPercent}%</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Cashback Amount</span>
+                    <span className="font-bold text-green-700">+{selectedTxn.cashbackAmount}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Status</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                      {selectedTxn.cashbackStatus}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
             </>
           )}
 
@@ -3319,7 +3351,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ──────────────��─────────�����────────────��───────────────
+// ─── FO Delivery Tracking ──────────────��─────────�����────────────��────────���──────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 
