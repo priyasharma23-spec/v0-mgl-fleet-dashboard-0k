@@ -299,7 +299,36 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                 {foFlow === "signin" && (
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
+                        <div className="flex gap-0.5 p-0.5 bg-muted rounded-full">
+                          <button
+                            onClick={() => {
+                              setFoLoginMethod("otp");
+                              setFoPassword("");
+                              setFoPasswordError("");
+                            }}
+                            className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full transition-colors ${
+                              foLoginMethod === "otp" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            OTP
+                          </button>
+                          <button
+                            onClick={() => {
+                              setFoLoginMethod("password");
+                              setOtp(["", "", "", "", "", ""]);
+                              setOtpSent(false);
+                              setOtpError("");
+                            }}
+                            className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full transition-colors ${
+                              foLoginMethod === "password" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Password
+                          </button>
+                        </div>
+                      </div>
                       <div className="flex gap-2 mt-2">
                         <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
                           +91
@@ -320,35 +349,6 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                         />
                       </div>
                       {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
-                    </div>
-
-                    {/* OTP vs Password toggle */}
-                    <div className="flex gap-1 p-1 bg-muted rounded-lg">
-                      <button
-                        onClick={() => {
-                          setFoLoginMethod("otp");
-                          setFoPassword("");
-                          setFoPasswordError("");
-                        }}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                          foLoginMethod === "otp" ? "bg-card shadow text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
-                        OTP
-                      </button>
-                      <button
-                        onClick={() => {
-                          setFoLoginMethod("password");
-                          setOtp(["", "", "", "", "", ""]);
-                          setOtpSent(false);
-                          setOtpError("");
-                        }}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                          foLoginMethod === "password" ? "bg-card shadow text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
-                        Password
-                      </button>
                     </div>
 
                     {foLoginMethod === "otp" ? (
