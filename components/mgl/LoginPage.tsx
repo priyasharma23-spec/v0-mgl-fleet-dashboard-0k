@@ -300,82 +300,75 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                 {foFlow === "signin" && (
                   <div className="space-y-4">
                     <div>
-                      {foLoginMethod === "otp" ? (
-                        <>
-                          <label className="text-xs font-medium text-muted-foreground">Mobile Number</label>
-                          <div className="flex gap-2 mt-2">
-                            <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
-                              +91
-                            </span>
-                            <input
-                              type="tel"
-                              maxLength={10}
-                              value={mobile}
-                              onChange={(e) => {
-                                setMobile(e.target.value.replace(/\D/g, ""));
-                                setMobileError("");
-                                if (otpSent) resetOtpState();
-                              }}
-                              placeholder="Enter 10-digit mobile"
-                              className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
-                                mobileError ? "border-destructive" : "border-border"
-                              }`}
-                            />
-                          </div>
-                          {mobileError && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
-                        </>
-                      ) : (
-                        <>
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Email ID</label>
-                            <input
-                              type="email"
-                              placeholder="Enter email"
-                              value={foEmail}
-                              onChange={(e) => {
-                                setFoEmail(e.target.value);
-                                setFoPasswordError("");
-                              }}
-                              className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-medium text-muted-foreground">Password</label>
-                            <div className="relative mt-1">
-                              <input
-                                type={showFoPassword ? "text" : "password"}
-                                placeholder="Enter password"
-                                value={foPassword}
-                                onChange={(e) => {
-                                  setFoPassword(e.target.value);
-                                  setFoPasswordError("");
-                                }}
-                                className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                              />
-                              <button
-                                onClick={() => setShowFoPassword(!showFoPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                              >
-                                {showFoPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                              </button>
-                            </div>
-                            {foPasswordError && <p className="text-xs text-destructive mt-1">{foPasswordError}</p>}
-                          </div>
-
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-medium text-muted-foreground">
+                          {foLoginMethod === "password" ? "Email Address" : "Mobile Number"}
+                        </label>
+                        <div className="flex gap-0.5 p-0.5 bg-muted rounded-full">
                           <button
-                            onClick={handleFOLogin}
-                            disabled={loading || !foEmail || !foPassword}
-                            className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+                            onClick={() => {
+                              setFoLoginMethod("otp");
+                              setFoPassword("");
+                              setFoPasswordError("");
+                              setFoEmail("");
+                            }}
+                            className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full transition-colors ${
+                              foLoginMethod === "otp" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                            }`}
                           >
-                            {loading ? (
-                              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-                            ) : (
-                              "Login"
-                            )}
+                            OTP
                           </button>
-                        </>
+                          <button
+                            onClick={() => {
+                              setFoLoginMethod("password");
+                              setOtp(["", "", "", "", "", ""]);
+                              setOtpSent(false);
+                              setOtpError("");
+                              setMobile("");
+                              setMobileError("");
+                            }}
+                            className={`px-2.5 py-0.5 text-[10px] font-semibold rounded-full transition-colors ${
+                              foLoginMethod === "password" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Password
+                          </button>
+                        </div>
+                      </div>
+
+                      {foLoginMethod === "otp" ? (
+                        <div className="flex gap-2 mt-2">
+                          <span className="flex items-center px-3 bg-muted border border-border rounded-lg text-sm text-muted-foreground">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            maxLength={10}
+                            placeholder="10-digit mobile number"
+                            value={mobile}
+                            onChange={(e) => {
+                              setMobile(e.target.value.replace(/\D/g, ""));
+                              setMobileError("");
+                              if (otpSent) resetOtpState();
+                            }}
+                            className={`flex-1 px-3 py-2.5 rounded-lg border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary ${
+                              mobileError ? "border-destructive" : "border-border"
+                            }`}
+                          />
+                        </div>
+                      ) : (
+                        <input
+                          type="email"
+                          placeholder="Enter email address"
+                          value={foEmail}
+                          onChange={(e) => {
+                            setFoEmail(e.target.value);
+                            setFoPasswordError("");
+                          }}
+                          className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm mt-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
                       )}
+                      {mobileError && foLoginMethod === "otp" && <p className="text-xs text-destructive mt-1">{mobileError}</p>}
                     </div>
 
                     {foLoginMethod === "otp" ? (
@@ -450,21 +443,6 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
                       </>
                     ) : (
                       <>
-                        {/* Password Login */}
-                        <div>
-                          <label className="text-xs font-medium text-muted-foreground">Email ID</label>
-                          <input
-                            type="email"
-                            placeholder="Enter email"
-                            value={foEmail}
-                            onChange={(e) => {
-                              setFoEmail(e.target.value);
-                              setFoPasswordError("");
-                            }}
-                            className="w-full px-3 py-2.5 rounded-lg border border-border bg-input text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                          />
-                        </div>
-
                         <div>
                           <label className="text-xs font-medium text-muted-foreground">Password</label>
                           <div className="relative mt-1">
