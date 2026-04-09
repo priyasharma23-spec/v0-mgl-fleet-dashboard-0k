@@ -5,7 +5,8 @@ import { useState } from "react"
 import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
-  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus
+  ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus,
+  Download, Filter, Wallet
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -13,6 +14,8 @@ import { PoweredByFooter } from "@/components/mgl/PoweredByFooter"
 import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
+import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
+import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
 import {
   mockVehicles, mockFleetOperators,
   oems, dealers, retrofitters,
@@ -109,6 +112,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   function renderView() {
     switch (activeView) {
       case "fo-dashboard": return <FODashboard onViewChange={setActiveView} />
+      case "fo-transactions": return <FOTransactionsView />
       case "fo-wallet": return <FOWalletView />
       case "fo-cards": return selectedCardVehicle ? (
         <CardDetailsView
@@ -378,9 +382,41 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                     <p className="text-xs text-muted-foreground text-center">
                       Demo: enter any 6 digits. <button onClick={() => setOtpSent(false)} className="text-primary hover:underline">Resend OTP</button>
                     </p>
+                </div>
+              )}
+              {activeTab === "pos" && (
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Card Wallet</span>
+                    <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "0"}</span>
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Incentive Wallet</span>
+                    <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "0"}</span>
+                  </div>
+                </div>
+              )}
+              {activeTab === "pos" && selectedTxn.cashbackEligible && (
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Cashback Rate</span>
+                    <span className="font-medium text-green-700">{selectedTxn.cashbackPercent}%</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Cashback Amount</span>
+                    <span className="font-bold text-green-700">+{selectedTxn.cashbackAmount}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Status</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                      {selectedTxn.cashbackStatus}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
             </>
           )}
 
@@ -875,6 +911,8 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                   </div>
                 </div>
               </div>
+            ) : null}
+
             ) : showTimeline ? (
               <div className="p-4 space-y-3 flex-1 overflow-y-auto">
                 <p className="text-sm font-semibold text-foreground">Approval Timeline</p>
@@ -906,10 +944,23 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <p className="text-xs text-muted-foreground">{entry!.actor}</p>
                         {entry!.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry!.comment}"</p>}
                       </div>
-                    </div>
-                  ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Card Wallet</span>
+                  <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "680"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Incentive Wallet</span>
+                  <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "170"}</span>
                 </div>
               </div>
+            </div>
             ) : (
               <div className="p-4 space-y-4 flex-1 overflow-y-auto">
                 {/* Status */}
@@ -1254,10 +1305,10 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                             </button>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
+                )}
+              </div>
+            </> 
+            ) : (
                   <>
                     {/* SELF_SERVICE: Simple document status + approval state */}
                     <div className="bg-muted/30 rounded-xl p-4 space-y-3">
@@ -1340,9 +1391,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                       )}
                     </div>
                   </>
-                )}
-              
-              </div>
             )}
           </div>
         </>
@@ -1706,10 +1754,19 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                   <span className="text-foreground">{doc.label}</span>
                   <span className="text-green-600 text-xs ml-auto font-medium">{doc.file?.name}</span>
                 </div>
-              ))}
+                  ))}
+                </div>
+
+              {activeTab === "pos" && (
+                <CashbackDetails data={{
+                  cashbackEligible: selectedTxn.cashbackEligible,
+                  cashbackPercent: selectedTxn.cashbackPercent,
+                  cashbackAmount: selectedTxn.cashbackAmount,
+                  cashbackStatus: selectedTxn.cashbackStatus,
+                  cashbackReason: selectedTxn.cashbackReason,
+                }} />
+              )}
             </div>
-            <p className="text-xs text-muted-foreground">By submitting, MIC will review your vehicle details and validate your registration.</p>
-          </div>
         )}
 
         {/* L1: Step 5 - Review & Submit */}
@@ -2276,7 +2333,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 <p className="text-sm text-muted-foreground mb-4">Please confirm you have received the physical card for Vehicle {myVehicles.find(v => v.id === activationCardId)?.vehicleNumber}.</p>
                 <div className="mb-4 p-3 bg-muted rounded-lg text-sm">
                   <p className="text-foreground font-semibold">Card Details:</p>
-                  <p className="text-muted-foreground mt-2">Card: ••••{myVehicles.find(v => v.id === activationCardId)?.cardNumber?.slice(-4)}</p>
+                  <p className="text-muted-foreground mt-2">Card: •••��{myVehicles.find(v => v.id === activationCardId)?.cardNumber?.slice(-4)}</p>
                   <p className="text-muted-foreground">Expiry: 12/27</p>
                 </div>
                 <label className="flex items-center gap-3 cursor-pointer mb-4">
@@ -2825,7 +2882,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
             {/* Step 3: Success */}
             {loadCardStep === "success" && (
               <div className="text-center">
-                <div className="text-5xl mb-4">✓</div>
+                <div className="text-5xl mb-4">��</div>
                 <h3 className="text-lg font-bold text-green-600 mb-4">Load Successful!</h3>
                 <p className="text-sm text-muted-foreground mb-4">₹{parseInt(loadAmount).toLocaleString()} has been loaded to your card.</p>
                 
@@ -2853,7 +2910,172 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
   )
 }
 
-// ─── FO Fund Management ��──────────────────��─────────────────���────────────────
+// ─── FO Transactions View ───────────────────────────────────────────────────────
+function FOTransactionsView() {
+  const [activeTab, setActiveTab] = useState<"pos" | "load">("pos")
+  const [search, setSearch] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
+  const [selectedTxn, setSelectedTxn] = useState<TransactionRecord | null>(null)
+
+  const posTransactions = [
+    { id: "42288", date: "Mar 23, 2026", time: "10:30 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹850", station: "MGL Hind CNG Filling Station", merchantCode: "100069", status: "Successful", type: "Debit", openingBalance: "₹13,350", closingBalance: "₹12,500", paymentMethod: "Card", stationType: "COCO", cardWalletDebit: "680", incentiveWalletDebit: "170", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹21.25", cashbackStatus: "Credited", channel: "pos" as const },
+    { id: "42201", date: "Mar 22, 2026", time: "08:15 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹1,200", station: "MGL Kurla Station", merchantCode: "100045", status: "Successful", type: "Debit", openingBalance: "₹14,550", closingBalance: "₹13,350", paymentMethod: "Scan & Pay", stationType: "DODO", cardWalletDebit: "960", incentiveWalletDebit: "240", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹30.00", cashbackStatus: "Pending", channel: "pos" as const },
+    { id: "42156", date: "Mar 21, 2026", time: "06:45 PM", card: "xxxxxxxxxxxx4522", vehicle: "MH04CD5678", amount: "₹950", station: "MGL Andheri East", merchantCode: "100032", status: "Successful", type: "Debit", openingBalance: "₹9,150", closingBalance: "₹8,200", paymentMethod: "Card", stationType: "MGL Tej", cardWalletDebit: "760", incentiveWalletDebit: "190", cashbackEligible: false, cashbackReason: "Station not eligible for cashback", channel: "pos" as const },
+    { id: "42089", date: "Mar 20, 2026", time: "09:20 AM", card: "xxxxxxxxxxxx4521", vehicle: "MH04AB1234", amount: "₹780", station: "MGL Goregaon", merchantCode: "100078", status: "Failed", type: "Debit", openingBalance: "₹14,550", closingBalance: "₹14,550", paymentMethod: "Card", stationType: "COCO", cardWalletDebit: "780", incentiveWalletDebit: "0", cashbackEligible: false, cashbackReason: "Transaction failed — no cashback", channel: "pos" as const },
+    { id: "42034", date: "Mar 19, 2026", time: "07:10 AM", card: "xxxxxxxxxxxx4522", vehicle: "MH04CD5678", amount: "₹1,100", station: "MGL Thane", merchantCode: "100091", status: "Successful", type: "Debit", openingBalance: "₹10,250", closingBalance: "₹9,150", paymentMethod: "Scan & Pay", stationType: "DODO", cardWalletDebit: "880", incentiveWalletDebit: "220", cashbackEligible: true, cashbackPercent: 2.5, cashbackAmount: "₹27.50", cashbackStatus: "Credited", channel: "pos" as const },
+  ]
+
+  const loadTransactions = [
+    { id: "L1001", date: "Mar 22, 2026", time: "02:15 PM", source: "NEFT Credit", amount: "₹10,000", status: "Successful", type: "Credit", utr: "NEFT2026032200123", openingBalance: "₹4,550", closingBalance: "₹14,550", channel: "load" as const },
+    { id: "L1002", date: "Mar 18, 2026", time: "11:00 AM", source: "UPI Credit", amount: "₹5,000", status: "Successful", type: "Credit", utr: "UPI2026031800456", openingBalance: "₹5,250", closingBalance: "₹10,250", channel: "load" as const },
+    { id: "L1003", date: "Mar 15, 2026", time: "03:00 PM", source: "NEFT Credit", amount: "₹15,000", status: "Successful", type: "Credit", utr: "NEFT2026031500789", openingBalance: "₹0", closingBalance: "₹15,000", channel: "load" as const },
+  ]
+
+  const txns = activeTab === "pos" ? posTransactions : loadTransactions
+  const filtered = txns.filter(t =>
+    !search ||
+    t.id.includes(search) ||
+    (activeTab === "pos" ? (t as any).vehicle?.toLowerCase().includes(search.toLowerCase()) || (t as any).station?.toLowerCase().includes(search.toLowerCase()) : (t as any).source?.toLowerCase().includes(search.toLowerCase()))
+  )
+
+  return (
+    <div className="flex flex-col gap-5 p-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Transactions</h1>
+          <p className="text-sm text-muted-foreground">View your fleet transaction history</p>
+        </div>
+        <button className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+          <Download className="w-4 h-4" /> Export
+        </button>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { label: "Successful", value: "₹4.9L", count: "4 transactions", iconBg: "bg-green-100", iconColor: "text-green-600", icon: CheckCircle },
+          { label: "Pending", value: "₹0.0L", count: "0 transactions", iconBg: "bg-amber-100", iconColor: "text-amber-600", icon: Clock },
+          { label: "Failed", value: "₹0.8L", count: "1 transaction", iconBg: "bg-red-100", iconColor: "text-red-600", icon: XCircle },
+          { label: "Total Loads", value: "₹30,000", count: "3 loads", iconBg: "bg-blue-100", iconColor: "text-blue-600", icon: Wallet },
+        ].map((card, i) => (
+          <div key={i} className="bg-card rounded-xl border border-border p-4">
+            <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center mb-3`}>
+              <card.icon className={`w-5 h-5 ${card.iconColor}`} />
+            </div>
+            <p className="text-2xl font-bold text-foreground">{card.value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{card.label}</p>
+            <p className="text-xs text-muted-foreground">{card.count}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* POS / Load tabs */}
+      <div className="flex gap-1 border-b border-border">
+        {[{id: "pos", label: "POS"}, {id: "load", label: "Load"}].map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Search + Filter */}
+      <div className="flex gap-3 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder={activeTab === "pos" ? "Search by TXN ID, vehicle or station..." : "Search by TXN ID or source..."}
+            className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card" />
+        </div>
+        <button onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+          <Filter className="w-4 h-4" /> Filters
+        </button>
+      </div>
+
+      {showFilters && (
+        <div className="border border-border rounded-lg p-4 bg-muted/30">
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+            <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
+            <div><label className="text-xs font-medium text-muted-foreground">Status</label>
+              <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
+                <option>All</option><option>Successful</option><option>Failed</option><option>Pending</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-3 justify-end mt-3">
+            <button className="text-sm font-medium text-muted-foreground hover:text-foreground">Clear All</button>
+            <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Apply</button>
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="px-4 py-3 text-left font-semibold">TXN ID</th>
+                <th className="px-4 py-3 text-left font-semibold">Date & Time</th>
+                {activeTab === "pos" ? <>
+                  <th className="px-4 py-3 text-left font-semibold">Vehicle</th>
+                  <th className="px-4 py-3 text-left font-semibold">Station</th>
+                </> : <>
+                  <th className="px-4 py-3 text-left font-semibold">Source</th>
+                </>}
+                <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                <th className="px-4 py-3 text-left font-semibold">Status</th>
+                <th className="px-4 py-3 text-center font-semibold">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filtered.map((txn: any) => (
+                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
+                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                  <td className="px-4 py-3">
+                    <p className="text-sm">{txn.date}</p>
+                    <p className="text-xs text-muted-foreground">{txn.time}</p>
+                  </td>
+                  {activeTab === "pos" ? <>
+                    <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{txn.station}</td>
+                  </> : <>
+                    <td className="px-4 py-3 text-xs">{txn.source}</td>
+                  </>}
+                  <td className="px-4 py-3 font-medium">{txn.amount}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${txn.status === "Successful" ? "bg-green-100 text-green-700" : txn.status === "Failed" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                      {txn.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <button onClick={() => setSelectedTxn(txn)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                      <Eye className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Detail Tray */}
+      {selectedTxn && (
+        <TransactionDetailTray
+          transaction={selectedTxn}
+          onClose={() => setSelectedTxn(null)}
+          role="fo"
+        />
+      )}
+    </div>
+  )
+}
+
+// ─── FO Fund Management ────────────────────────────────────────────────────────
 function FOFundManagement() {
   const [activeTab, setActiveTab] = useState<"overview" | "load" | "allocate">("overview")
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null)
@@ -3038,7 +3260,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ──────────────��──────────────────────────────────────
+// ─── FO Delivery Tracking ─────────────�����─────────�����────────────��────────���──────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 

@@ -386,6 +386,22 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                           View Details
                         </span>
                       </div>
+                      <div className="relative group">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigator.clipboard.writeText(fo.id)
+                            setCopiedId(fo.id)
+                            setTimeout(() => setCopiedId(null), 2000)
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${copiedId === fo.id ? "bg-green-100 text-green-600" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                        >
+                          {copiedId === fo.id ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-foreground text-background text-[10px] font-medium rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                          {copiedId === fo.id ? "Copied!" : "Copy FO ID"}
+                        </span>
+                      </div>
                       {fo.status === "PENDING_ACTIVATION" && (
                         <div className="relative group">
                           <button

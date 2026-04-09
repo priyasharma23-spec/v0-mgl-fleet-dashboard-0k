@@ -32,6 +32,12 @@ export {
 
 export { ToastProvider, useToast } from "./Toast"
 
+export { default as CashbackDetails } from "./CashbackDetails"
+export type { CashbackData } from "./CashbackDetails"
+
+export { default as TransactionDetailTray } from "./TransactionDetailTray"
+export type { TransactionRecord } from "./TransactionDetailTray"
+
 // ─── Existing MGL Components (re-exported for unified imports) ────────────────
 export { default as StatCard } from "@/components/mgl/StatCard"
 

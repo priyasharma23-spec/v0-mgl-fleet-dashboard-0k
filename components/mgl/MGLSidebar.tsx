@@ -36,7 +36,7 @@ const zicNavItems: NavItem[] = [
 const foNavItems: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", view: "fo-dashboard" },
   { icon: FileText, label: "My MoU", view: "fo-mou" },
-  { icon: Wallet, label: "Transactions", view: "fo-wallet" },
+  { icon: ArrowRightLeft, label: "Transactions", view: "fo-transactions" },
   { icon: CreditCard, label: "My Cards", view: "fo-cards" },
   { icon: Gift, label: "Fund Management", view: "fo-funds" },
   { icon: Truck, label: "My Vehicles", view: "fo-vehicles" },
