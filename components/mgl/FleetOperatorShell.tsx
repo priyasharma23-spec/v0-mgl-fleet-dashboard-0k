@@ -3601,7 +3601,6 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
         {[
           ["Mobile Number", fo.contactNumber],
           ["Email Address", fo.email],
-          ["MIC Officer", fo.micId],
         ].map(([label, value]) => (
           <div key={label} className="flex items-start justify-between gap-4 text-sm">
             <span className="text-muted-foreground shrink-0 w-36">{label}</span>
