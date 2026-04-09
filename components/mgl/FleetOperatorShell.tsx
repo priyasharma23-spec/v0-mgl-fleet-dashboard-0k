@@ -875,9 +875,8 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                       </div>
                   ))}
                 </div>
-              )}
-
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+              </div>
+            ) : null}
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Card Wallet</span>
@@ -3319,7 +3318,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ──────────────��─────────���────────────────────────────
+// ─── FO Delivery Tracking ──────────────��─────────�����────────────────────────────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 
