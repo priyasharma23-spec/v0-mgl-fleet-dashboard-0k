@@ -718,7 +718,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
 
               {/* MOU & Incentive — MIC_ASSISTED only */}
               {v.onboardingType === "MIC_ASSISTED" && v.mouId && (
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
+                <div className="flex items-center justify-between mt-2 pt-2 mb-2 border-t border-border">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs text-muted-foreground font-mono">{v.mouId}</span>
                     {v.categorySequence && (
@@ -1865,7 +1865,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   )
 }
 
-// ─── FO Cards View ─────────────────���──────────────────────────────────────
+// ─── FO Cards View ─────────────────�����──────────────────────────────────────
 function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
   const [activatingCard, setActivatingCard] = useState<string | null>(null)
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
