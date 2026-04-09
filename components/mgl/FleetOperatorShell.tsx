@@ -747,15 +747,26 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
 
               {/* L1 Approved banner */}
               {v.status === "L1_APPROVED" && (
-                <div className="flex items-center justify-between p-2.5 rounded-lg bg-blue-50 border border-blue-200 mb-3">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
-                    <p className="text-xs text-blue-700 font-medium">
-                      {v.onboardingType === "SELF_SERVICE" ? "Approved — Card issuance in progress" : "L1 Approved — Complete L2 Registration"}
-                    </p>
-                  </div>
-                  {v.onboardingType !== "SELF_SERVICE" && (
-                    <button onClick={() => openVehicle(v)} className="text-xs text-blue-700 font-semibold hover:underline whitespace-nowrap">Complete →</button>
+                <div className="border-l-4 border-green-600 bg-green-50 px-4 py-3 rounded-r-lg flex items-center justify-between mb-3">
+                  {v.onboardingType === "SELF_SERVICE" ? (
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                      <div>
+                        <p className="font-semibold text-green-900">Approved</p>
+                        <p className="text-xs text-green-700">Card issuance in progress</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+                        <div>
+                          <p className="font-semibold text-green-900">L1 Approved</p>
+                          <p className="text-xs text-green-700">Complete L2 Registration to proceed</p>
+                        </div>
+                      </div>
+                      <button onClick={() => openVehicle(v)} className="text-green-700 hover:text-green-900 font-semibold whitespace-nowrap text-sm">Complete →</button>
+                    </>
                   )}
                 </div>
               )}
@@ -1865,7 +1876,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   )
 }
 
-// ─── FO Cards View ─────────────────�����──────────────────────────────────────
+// ─── FO Cards View ────────────────�������──────────────────────────────────────
 function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
   const [activatingCard, setActivatingCard] = useState<string | null>(null)
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
