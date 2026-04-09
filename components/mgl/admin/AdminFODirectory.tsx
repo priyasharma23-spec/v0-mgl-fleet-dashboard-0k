@@ -1,14 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet } from "lucide-react"
+import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet, Copy, Mail, Smartphone } from "lucide-react"
 import { KPICard } from "@/components/mgl/shared"
+import { mockFleetOperators, mockVehicles } from "@/lib/mgl-data"
 
 function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClose: () => void; fleetOperators: any[] }) {
   const [editMode, setEditMode] = useState(false)
   const [editData, setEditData] = useState<any>(null)
   const [showTransactions, setShowTransactions] = useState(false)
   const [txnTab, setTxnTab] = useState<"POS"|"Load"|"All">("All")
+  const [copied, setCopied] = useState(false)
   const fo = fleetOperators.find(f => f.id === foId)
   if (!fo) return null
 
@@ -63,7 +65,12 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
           <div className="p-4 space-y-4">
             <div className="flex items-start justify-between">
               <div><h3 className="font-bold text-lg">{fo.name}</h3><p className="text-sm text-muted-foreground">{fo.id} • {fo.region}</p></div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${fo.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{fo.status}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      fo.status === "Active" ? "bg-green-100 text-green-700" :
+                      fo.status === "PENDING_ACTIVATION" ? "bg-amber-100 text-amber-700" :
+                      fo.status === "Suspended" ? "bg-red-100 text-red-700" :
+                      "bg-gray-100 text-gray-600"
+                    }`}>{fo.status}</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 bg-muted/30 rounded-lg"><p className="text-xs text-muted-foreground">Parent Wallet</p><p className="font-bold text-lg">{fo.parentWallet}</p><p className="text-xs text-amber-600">T+1 Pending: ₹15,000</p></div>
@@ -90,6 +97,46 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
                 <div className="flex justify-between"><span className="text-muted-foreground">Account Type</span><span className="font-medium">{fo.accountType}</span></div>
               </div>
             </div>
+
+            {fo.status === "PENDING_ACTIVATION" && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <p className="text-sm font-semibold text-amber-900">Account Not Activated</p>
+                </div>
+                <p className="text-xs text-amber-700">This Fleet Operator has not yet activated their account. Share the activation link below.</p>
+                
+                <div className="bg-white border border-amber-200 rounded-lg p-3">
+                  <p className="text-xs font-medium text-muted-foreground mb-1.5">Activation Link</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-mono text-foreground flex-1 truncate bg-muted/30 px-2 py-1.5 rounded">
+                      https://mgl-fleet.app/activate?fo={fo.id}&token=ACT{fo.id}2026
+                    </p>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://mgl-fleet.app/activate?fo=${fo.id}&token=ACT${fo.id}2026`)
+                        setCopied(true)
+                        setTimeout(() => setCopied(false), 2000)
+                      }}
+                      className="shrink-0 flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      {copied ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button className="flex-1 py-2 border border-amber-300 text-amber-700 rounded-lg text-xs font-medium hover:bg-amber-100 transition-colors flex items-center justify-center gap-1">
+                    <Mail className="w-3.5 h-3.5" /> Send via Email
+                  </button>
+                  <button className="flex-1 py-2 border border-amber-300 text-amber-700 rounded-lg text-xs font-medium hover:bg-amber-100 transition-colors flex items-center justify-center gap-1">
+                    <Smartphone className="w-3.5 h-3.5" /> Send via SMS
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div>
               <p className="text-sm font-semibold mb-2">Vehicle Cards</p>
               <div className="space-y-2">
@@ -120,13 +167,41 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
   const [kycFilter, setKycFilter] = useState("all")
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
 
-  const fleetOperators = [
-    { id: "FO001", name: "ABC Logistics Pvt. Ltd.", region: "Mumbai", status: "Active", vehicles: 15, cards: 12, parentWallet: "₹2.4L", kycStatus: "Verified", joinedDate: "Jan 2025", bankName: "HDFC Bank", accountNumber: "****4521", ifsc: "HDFC0001234", accountType: "Current", incentiveWallet: "₹2.4L", cashback: "₹12,500", incentiveLifetime: "₹5.2L", incentiveUnused: "₹2.4L", cashbackLifetime: "₹18,500", cashbackUnused: "₹12,500", transactions: [{ id: 'TXN001', date: 'Mar 21, 2024 10:30 AM', type: 'POS', amount: 50000, status: 'Successful' }, { id: 'TXN002', date: 'Mar 20, 2024 02:15 PM', type: 'Load', amount: 25000, status: 'Successful' }, { id: 'TXN003', date: 'Mar 19, 2024 11:00 AM', type: 'POS', amount: 15000, status: 'Failed' }, { id: 'TXN004', date: 'Mar 18, 2024 04:45 PM', type: 'POS', amount: 8000, status: 'Pending' }] },
-    { id: "FO002", name: "Metro Freight Solutions", region: "Pune", status: "Active", vehicles: 20, cards: 18, parentWallet: "₹5.1L", kycStatus: "Verified", joinedDate: "Mar 2025", bankName: "ICICI Bank", accountNumber: "****7890", ifsc: "ICIC0005678", accountType: "Savings", incentiveWallet: "₹3.8L", cashback: "₹28,900", incentiveLifetime: "₹8.5L", incentiveUnused: "₹3.8L", cashbackLifetime: "₹42,100", cashbackUnused: "₹28,900", transactions: [{ id: 'TXN101', date: 'Mar 21, 2024 09:00 AM', type: 'POS', amount: 75000, status: 'Successful' }, { id: 'TXN102', date: 'Mar 20, 2024 03:30 PM', type: 'Load', amount: 50000, status: 'Successful' }, { id: 'TXN103', date: 'Mar 19, 2024 01:15 PM', type: 'POS', amount: 30000, status: 'Pending' }] },
-    { id: "FO003", name: "Sunrise Transport Co.", region: "Thane", status: "Active", vehicles: 8, cards: 8, parentWallet: "₹1.2L", kycStatus: "Expiring", joinedDate: "Dec 2024", bankName: "Axis Bank", accountNumber: "****3456", ifsc: "UTIB0001111", accountType: "Current", incentiveWallet: "₹0.8L", cashback: "₹5,200", incentiveLifetime: "₹2.1L", incentiveUnused: "₹0.8L", cashbackLifetime: "₹9,800", cashbackUnused: "₹5,200", transactions: [{ id: 'TXN201', date: 'Mar 21, 2024 11:45 AM', type: 'POS', amount: 20000, status: 'Successful' }, { id: 'TXN202', date: 'Mar 20, 2024 05:20 PM', type: 'POS', amount: 10000, status: 'Failed' }] },
-    { id: "FO004", name: "Quick Move Logistics", region: "Navi Mumbai", status: "Suspended", vehicles: 5, cards: 3, parentWallet: "₹0", kycStatus: "Expired", joinedDate: "Nov 2024", bankName: "Kotak Bank", accountNumber: "****9012", ifsc: "KKBK0002222", accountType: "Savings", incentiveWallet: "₹0.2L", cashback: "₹1,800", incentiveLifetime: "₹0.6L", incentiveUnused: "₹0.2L", cashbackLifetime: "₹3,200", cashbackUnused: "₹1,800", transactions: [{ id: 'TXN301', date: 'Mar 21, 2024 02:10 PM', type: 'Load', amount: 5000, status: 'Failed' }] },
-    { id: "FO005", name: "City Express Carriers", region: "Mumbai", status: "Active", vehicles: 25, cards: 22, parentWallet: "₹8.3L", kycStatus: "Verified", joinedDate: "Feb 2025", bankName: "Yes Bank", accountNumber: "****5678", ifsc: "YESB0003333", accountType: "Current", incentiveWallet: "₹5.2L", cashback: "₹42,100", incentiveLifetime: "₹12.8L", incentiveUnused: "₹5.2L", cashbackLifetime: "₹68,500", cashbackUnused: "₹42,100", transactions: [{ id: 'TXN401', date: 'Mar 21, 2024 08:30 AM', type: 'POS', amount: 120000, status: 'Successful' }, { id: 'TXN402', date: 'Mar 20, 2024 04:00 PM', type: 'Load', amount: 80000, status: 'Successful' }, { id: 'TXN403', date: 'Mar 19, 2024 02:25 PM', type: 'POS', amount: 45000, status: 'Successful' }, { id: 'TXN404', date: 'Mar 18, 2024 06:15 PM', type: 'POS', amount: 35000, status: 'Pending' }] },
-  ]
+  const fleetOperators = mockFleetOperators.map(fo => ({
+    id: fo.id,
+    name: fo.name,
+    region: fo.registeredAddress.split(",").slice(-1)[0]?.trim() || "Mumbai",
+    status: fo.status === "ACTIVE" ? "Active" :
+            fo.status === "SUSPENDED" ? "Suspended" :
+            fo.status === "PENDING_ACTIVATION" ? "PENDING_ACTIVATION" :
+            fo.status,
+    vehicles: fo.totalVehicles,
+    cards: fo.activeCards,
+    parentWallet: "₹0",
+    kycStatus: "Verified",
+    joinedDate: fo.createdAt,
+    bankName: "—",
+    accountNumber: "—",
+    ifsc: "—",
+    accountType: "—",
+    incentiveWallet: "₹0",
+    cashback: "₹0",
+    incentiveLifetime: "₹0",
+    incentiveUnused: "₹0",
+    cashbackLifetime: "₹0",
+    cashbackUnused: "₹0",
+    email: fo.email,
+    contactNumber: fo.contactNumber,
+    pan: fo.pan,
+    gstn: fo.gstn,
+    registeredAddress: fo.registeredAddress,
+    deliveryAddress: fo.deliveryAddress,
+    onboardingType: fo.onboardingType,
+    mouNumber: (fo as any).mouNumber,
+    mouExecutionDate: (fo as any).mouExecutionDate,
+    mouExpiryDate: (fo as any).mouExpiryDate,
+    transactions: [],
+  }))
 
   const getActiveFilterCount = () => {
     let count = 0
@@ -224,6 +299,7 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
               >
                 <option value="all">All</option>
                 <option value="active">Active</option>
+                <option value="pending_activation">Pending Activation</option>
                 <option value="suspended">Suspended</option>
               </select>
             </div>
@@ -282,7 +358,9 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                   <td className="px-4 py-3 text-muted-foreground">{fo.region}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      fo.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      fo.status === "Active" ? "bg-green-100 text-green-700" :
+                      fo.status === "PENDING_ACTIVATION" ? "bg-amber-100 text-amber-700" :
+                      "bg-red-100 text-red-700"
                     }`}>{fo.status}</span>
                   </td>
                   <td className="px-4 py-3">{fo.vehicles}</td>

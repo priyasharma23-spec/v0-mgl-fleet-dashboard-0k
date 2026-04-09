@@ -14,7 +14,7 @@ export type VehicleStatus =
   | "CARD_DISPATCHED"
   | "CARD_ACTIVE";
 
-export type FOStatus = "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED";
+export type FOStatus = "PENDING_ACTIVATION" | "ACTIVE" | "SUSPENDED" | "INACTIVE";
 export type OnboardingType = "MIC_ASSISTED" | "SELF_SERVICE";
 export type VehicleCategory = "HCV" | "ICV" | "LCV" | "Bus";
 export type VehicleType = "NEW_PURCHASE" | "RETROFIT";
@@ -532,6 +532,22 @@ export const mockFleetOperators: FleetOperator[] = [
     totalVehicles: 3,
     activeCards: 1,
     createdAt: "2025-03-20",
+    micId: "MIC001",
+  },
+  {
+    id: "FO006",
+    name: "Vijay Fleet Solutions",
+    contactNumber: "9876506789",
+    email: "vijay@vijayfleet.com",
+    pan: "EFGVF6789H",
+    gstn: "27EFGVF6789H1Z4",
+    registeredAddress: "Plot 22, Vasai West, Mumbai 401202",
+    deliveryAddress: "Plot 22, Vasai West, Mumbai 401202",
+    status: "PENDING_ACTIVATION" as FOStatus,
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    totalVehicles: 0,
+    activeCards: 0,
+    createdAt: "2025-03-28",
     micId: "MIC001",
   },
 ];
