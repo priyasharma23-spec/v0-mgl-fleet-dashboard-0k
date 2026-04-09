@@ -375,26 +375,34 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setSelectedFO(fo.id)}
-                        title="View Details"
-                        className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </button>
-                      {fo.status === "PENDING_ACTIVATION" && (
+                      <div className="relative group">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            navigator.clipboard.writeText(`https://mgl-fleet.app/activate?fo=${fo.id}&token=ACT${fo.id}2026`)
-                            setCopiedId(fo.id)
-                            setTimeout(() => setCopiedId(null), 2000)
-                          }}
-                          title="Copy Activation Link"
-                          className={`p-1.5 rounded-lg transition-colors ${copiedId === fo.id ? "bg-green-100 text-green-600" : "hover:bg-amber-100 text-amber-600"}`}
+                          onClick={() => setSelectedFO(fo.id)}
+                          className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
                         >
-                          {copiedId === fo.id ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          <Eye className="w-3.5 h-3.5" />
                         </button>
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-foreground text-background text-[10px] font-medium rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                          View Details
+                        </span>
+                      </div>
+                      {fo.status === "PENDING_ACTIVATION" && (
+                        <div className="relative group">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigator.clipboard.writeText(`https://mgl-fleet.app/activate?fo=${fo.id}&token=ACT${fo.id}2026`)
+                              setCopiedId(fo.id)
+                              setTimeout(() => setCopiedId(null), 2000)
+                            }}
+                            className={`p-1.5 rounded-lg transition-colors ${copiedId === fo.id ? "bg-green-100 text-green-600" : "hover:bg-amber-100 text-amber-600"}`}
+                          >
+                            {copiedId === fo.id ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-foreground text-background text-[10px] font-medium rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                            {copiedId === fo.id ? "Copied!" : "Copy Activation Link"}
+                          </span>
+                        </div>
                       )}
                     </div>
                   </td>
