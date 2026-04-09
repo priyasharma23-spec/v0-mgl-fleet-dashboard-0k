@@ -1,5 +1,5 @@
 "use client";
-import { Users, Search, X, Copy, CheckCircle, AlertTriangle, Mail, Smartphone, CreditCard, Wallet, MapPin } from "lucide-react";
+import { Users, Search, X, Copy, CheckCircle, AlertTriangle, Mail, Smartphone, CreditCard, Wallet, MapPin, History } from "lucide-react";
 import { useState } from "react";
 import { mockFleetOperators, mockVehicles } from "@/lib/mgl-data";
 import { FOStatusBadge } from "@/components/mgl/StatusBadge";
@@ -8,6 +8,13 @@ export default function MICOperatorsList({ onViewChange }: { onViewChange: (view
   const [search, setSearch] = useState("");
   const [selectedFO, setSelectedFO] = useState<typeof mockFleetOperators[0] | null>(null)
   const [copied, setCopied] = useState(false)
+  const [showTimeline, setShowTimeline] = useState(false)
+
+  const openFO = (fo: typeof mockFleetOperators[0]) => {
+    setSelectedFO(fo)
+    setShowTimeline(false)
+    setCopied(false)
+  }
   const filtered = mockFleetOperators.filter((fo) =>
     fo.name.toLowerCase().includes(search.toLowerCase()) ||
     fo.pan.toLowerCase().includes(search.toLowerCase()) ||
@@ -56,7 +63,7 @@ export default function MICOperatorsList({ onViewChange }: { onViewChange: (view
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((fo) => (
-                <tr key={fo.id} onClick={() => setSelectedFO(fo)} className="hover:bg-muted/30 cursor-pointer transition-colors border-b border-border">
+                <tr key={fo.id} onClick={() => openFO(fo)} className="hover:bg-muted/30 cursor-pointer transition-colors border-b border-border">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
@@ -101,15 +108,55 @@ export default function MICOperatorsList({ onViewChange }: { onViewChange: (view
               </div>
               <div className="flex items-center gap-2">
                 <FOStatusBadge status={selectedFO.status} />
-                <button onClick={() => setSelectedFO(null)} className="p-2 hover:bg-muted rounded-lg">
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-1 shrink-0 ml-2">
+                  <button
+                    onClick={() => setShowTimeline(!showTimeline)}
+                    className={`p-2 rounded-lg transition-colors ${showTimeline ? "bg-primary/10 text-primary" : "hover:bg-muted text-muted-foreground"}`}
+                    title="Activity Timeline"
+                  >
+                    <History className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setSelectedFO(null)} className="p-2 hover:bg-muted rounded-lg">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 
             <div className="p-4 space-y-4 flex-1 overflow-y-auto">
-
-              {/* Activation Link — PENDING_ACTIVATION only */}
+              {showTimeline ? (
+                <div className="space-y-4">
+                  <p className="text-sm font-semibold text-foreground">Activity Timeline</p>
+                  <div className="space-y-4">
+                    {[
+                      { type: "submitted", timestamp: selectedFO.createdAt, action: "FO Registration Submitted", actor: "MIC Officer" },
+                      selectedFO.status !== "PENDING_ACTIVATION" ? { type: "approved", timestamp: selectedFO.createdAt, action: "KYC Verified", actor: "MIC Officer" } : null,
+                      selectedFO.status === "ACTIVE" ? { type: "approved", timestamp: selectedFO.createdAt, action: "Account Activated", actor: "System" } : null,
+                      selectedFO.status === "PENDING_ACTIVATION" ? { type: "system", timestamp: selectedFO.createdAt, action: "Activation Link Sent", actor: "System" } : null,
+                      (selectedFO as any).mouNumber ? { type: "approved", timestamp: (selectedFO as any).mouExecutionDate || selectedFO.createdAt, action: `MOU Executed — ${(selectedFO as any).mouNumber}`, actor: "MGL Admin" } : null,
+                      selectedFO.totalVehicles > 0 ? { type: "submitted", timestamp: selectedFO.createdAt, action: `${selectedFO.totalVehicles} Vehicle(s) Registered`, actor: "Fleet Operator" } : null,
+                    ].filter(Boolean).map((entry, idx, arr) => (
+                      <div key={idx} className="flex gap-3">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full shrink-0 ${
+                            entry!.type === "approved" ? "bg-green-600" :
+                            entry!.type === "submitted" ? "bg-blue-600" :
+                            "bg-gray-400"
+                          }`} />
+                          {idx < arr.length - 1 && <div className="w-0.5 h-8 bg-border mt-1" />}
+                        </div>
+                        <div className="pb-2 flex-1">
+                          <p className="text-xs text-muted-foreground">{entry!.timestamp}</p>
+                          <p className="text-sm font-medium text-foreground">{entry!.action}</p>
+                          <p className="text-xs text-muted-foreground">{entry!.actor}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Activation Link — PENDING_ACTIVATION only */}
               {selectedFO.status === "PENDING_ACTIVATION" && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
                   <div className="flex items-center gap-2">
@@ -224,6 +271,8 @@ export default function MICOperatorsList({ onViewChange }: { onViewChange: (view
                 ) : null
               })()}
 
+                </>
+              )}
             </div>
           </div>
         </>
