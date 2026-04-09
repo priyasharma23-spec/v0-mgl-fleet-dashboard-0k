@@ -3043,9 +3043,10 @@ function FOTransactionsView() {
   ]
 
   const incentiveTransactions = [
-    { id: "INC001", date: "Mar 21, 2026", time: "11:00 AM", vehicle: "MH04AB1234", incentiveType: "New Vehicle Onboarding", grossAmount: "₹15,000", tds: "₹1,500", netAmount: "₹13,500", creditedTo: "Incentive Wallet", status: "Paid", channel: "incentive" as const, amount: "₹13,500", type: "Credit" as const },
-    { id: "INC002", date: "Mar 15, 2026", time: "02:00 PM", vehicle: "MH04CD5678", incentiveType: "New Vehicle Onboarding", grossAmount: "₹15,000", tds: "₹1,500", netAmount: "₹13,500", creditedTo: "Incentive Wallet", status: "Pending", channel: "incentive" as const, amount: "₹13,500", type: "Credit" as const },
-    { id: "INC003", date: "Mar 10, 2026", time: "03:30 PM", vehicle: "MH04AB1234", incentiveType: "Monthly Cashback", grossAmount: "₹850", tds: "₹0", netAmount: "₹850", creditedTo: "Incentive Wallet", status: "Paid", channel: "incentive" as const, amount: "₹850", type: "Credit" as const },
+    { id: "INC001", date: "Mar 21, 2026", time: "11:00 AM", source: "Incentive Wallet", creditType: "Incentive", vehicle: "MH04AB1234", grossAmount: "₹15,000", tds: "₹1,500", netAmount: "₹13,500", status: "Paid", channel: "incentive" as const, amount: "₹13,500", type: "Credit" as const },
+    { id: "INC002", date: "Mar 15, 2026", time: "02:00 PM", source: "Incentive Wallet", creditType: "Incentive", vehicle: "MH04CD5678", grossAmount: "₹15,000", tds: "₹1,500", netAmount: "₹13,500", status: "Pending", channel: "incentive" as const, amount: "₹13,500", type: "Credit" as const },
+    { id: "INC003", date: "Mar 10, 2026", time: "03:30 PM", source: "Incentive Wallet", creditType: "Cashback", vehicle: "MH04AB1234", grossAmount: "₹850", tds: "₹0", netAmount: "₹850", status: "Paid", channel: "incentive" as const, amount: "₹850", type: "Credit" as const },
+    { id: "INC004", date: "Feb 23, 2026", time: "10:00 AM", source: "Incentive Wallet", creditType: "Cashback", vehicle: "MH04CD5678", grossAmount: "₹430", tds: "₹0", netAmount: "₹430", status: "Paid", channel: "incentive" as const, amount: "₹430", type: "Credit" as const },
   ]
 
   const debitTransactions = [
@@ -3279,20 +3280,45 @@ function FOTransactionsView() {
               ))}
 
               {/* Incentive Transactions */}
-              {activeTab === "incentive" && filtered.map((txn: any) => (
-                <tr key={txn.id} onClick={() => setSelectedTxn(txn)} className="hover:bg-muted/30 cursor-pointer">
-                  <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
-                  <td className="px-4 py-3 text-xs">{txn.date}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{txn.vehicle}</td>
-                  <td className="px-4 py-3 text-xs">{txn.incentiveType}</td>
-                  <td className="px-4 py-3 font-medium">{txn.grossAmount}</td>
-                  <td className="px-4 py-3 text-xs text-red-600">{txn.tds}</td>
-                  <td className="px-4 py-3 font-bold text-green-700">{txn.netAmount}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{txn.status}</span>
-                  </td>
-                </tr>
-              ))}
+              {activeTab === "incentive" && (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/30">
+                      {["TXN ID", "Date & Time", "Source", "Credit Type", "Amount", "Status", "Action"].map(h => (
+                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {incentiveTransactions.map(txn => (
+                      <tr key={txn.id} className="hover:bg-muted/30 cursor-pointer">
+                        <td className="px-4 py-3 font-mono text-xs font-medium">{txn.id}</td>
+                        <td className="px-4 py-3">
+                          <p className="text-sm">{txn.date}</p>
+                          <p className="text-xs text-muted-foreground">{txn.time}</p>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">{txn.source}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.creditType === "Incentive" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
+                            {txn.creditType}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-bold text-green-700">{txn.netAmount}</td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${txn.status === "Paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                            {txn.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <button onClick={() => setSelectedTxn(txn as any)} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
 
               {/* Debit Transactions */}
               {activeTab === "debits" && filtered.map((txn: any) => (
