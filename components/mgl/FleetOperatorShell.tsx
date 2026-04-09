@@ -6,7 +6,7 @@ import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
   ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus,
-  Download, Filter, Wallet, Edit, User
+  Download, Filter, Wallet, Edit, User, KeyRound
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -3541,17 +3541,42 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Company Details</p>
         {[
-          ["Company Name", fo.name],
-          ["PAN Number", fo.pan],
-          ["GSTN Number", fo.gstn || "Not provided"],
-          ["Registered Address", fo.registeredAddress],
-          ["Delivery Address", fo.deliveryAddress],
+          ["Company Name", fo.name, false],
+          ["Registered Address", fo.registeredAddress, false],
+          ["Delivery Address", fo.deliveryAddress, false],
         ].map(([label, value]) => (
           <div key={label} className="flex items-start justify-between gap-4 text-sm">
             <span className="text-muted-foreground shrink-0 w-36">{label}</span>
             <span className="font-medium text-foreground text-right">{value}</span>
           </div>
         ))}
+        {/* PAN — verified */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">PAN Number</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{fo.pan}</span>
+            <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
+              <CheckCircle className="w-3 h-3" /> Verified
+            </span>
+          </div>
+        </div>
+        {/* GSTN — verified or not provided */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">GSTN Number</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{fo.gstn || "Not provided"}</span>
+            {fo.gstn && (
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
+                <CheckCircle className="w-3 h-3" /> Verified
+              </span>
+            )}
+          </div>
+        </div>
+        {/* TDS */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">Applicable TDS</span>
+          <span className="font-medium text-foreground">{fo.gstn ? "2%" : "10%"} <span className="text-xs text-muted-foreground">({fo.gstn ? "GST registered" : "Non-GST"})</span></span>
+        </div>
       </div>
 
       {/* Contact Details */}
@@ -3569,21 +3594,26 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
         ))}
       </div>
 
-      {/* Bank Account Details */}
+      {/* Login Details */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
-        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Bank Account Details</p>
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Login Details</p>
         {[
-          ["Bank Name", "HDFC Bank"],
-          ["Account Number", "••••••••4521"],
-          ["IFSC Code", "HDFC0001234"],
-          ["Account Type", "Current"],
-          ["Account Holder", fo.name],
+          ["Name", fo.name],
+          ["Role", "Fleet Operator"],
+          ["Email", fo.email],
+          ["Mobile", fo.contactNumber],
         ].map(([label, value]) => (
           <div key={label} className="flex items-start justify-between gap-4 text-sm">
             <span className="text-muted-foreground shrink-0 w-36">{label}</span>
             <span className="font-medium text-foreground text-right">{value}</span>
           </div>
         ))}
+        {/* Change password */}
+        <div className="pt-2 border-t border-border">
+          <button className="flex items-center gap-2 text-sm text-primary font-medium hover:underline">
+            <KeyRound className="w-4 h-4" /> Change Password
+          </button>
+        </div>
       </div>
 
       {/* Account Info */}
