@@ -948,7 +948,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                         <p className="text-xs text-muted-foreground">{entry!.actor}</p>
                         {entry!.comment && <p className="text-xs italic text-muted-foreground mt-1">"{entry!.comment}"</p>}
                       </div>
-                    </div>
+                      </div>
                     ))}
                   </div>
                 </div>
