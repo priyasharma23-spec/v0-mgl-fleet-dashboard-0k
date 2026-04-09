@@ -6,7 +6,7 @@ import {
   Truck, CreditCard, MapPin, Bell, LayoutDashboard, UserPlus, Upload,
   CheckCircle, Clock, XCircle, AlertCircle, Package, Eye, EyeOff,
   ChevronRight, ArrowRight, Shield, Smartphone, Star, RefreshCw, Info, Search, X, History, Gift, Bus,
-  Download, Filter, Wallet
+  Download, Filter, Wallet, Edit, User
 } from "lucide-react"
 import Image from "next/image"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -129,6 +129,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
       case "fo-mou": return <FOMoUView />
+      case "fo-profile": return <FOProfileView onboardingType={onboardingType} />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
@@ -3493,6 +3494,118 @@ function FOMoUView() {
           <p className="text-sm font-semibold text-foreground">Need to update your MoU?</p>
           <p className="text-xs text-muted-foreground mt-0.5">Contact your assigned MIC officer for any changes, renewals, or vehicle commitment updates.</p>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: string }) {
+  const fo = onboardingType === "SELF_SERVICE" ? myFO_SS : myFO
+  const [requestSent, setRequestSent] = useState(false)
+
+  return (
+    <div className="flex flex-col gap-5 p-5 max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">My Profile</h1>
+          <p className="text-sm text-muted-foreground">Your company and account details</p>
+        </div>
+        {!requestSent ? (
+          <button onClick={() => setRequestSent(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+            <Edit className="w-4 h-4" /> Request Change
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+            <CheckCircle className="w-4 h-4 text-green-600" />
+            <span className="text-sm text-green-700 font-medium">Request Sent</span>
+          </div>
+        )}
+      </div>
+
+      {/* User Info */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center shrink-0">
+            <span className="text-xl font-bold text-primary">{fo.name.charAt(0)}</span>
+          </div>
+          <div>
+            <p className="font-bold text-foreground text-lg">{fo.name}</p>
+            <p className="text-sm text-muted-foreground">{fo.id} · {fo.onboardingType === "MIC_ASSISTED" ? "MIC Assisted" : "Self-Service"}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Company Details */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Company Details</p>
+        {[
+          ["Company Name", fo.name],
+          ["PAN Number", fo.pan],
+          ["GSTN Number", fo.gstn || "Not provided"],
+          ["Registered Address", fo.registeredAddress],
+          ["Delivery Address", fo.deliveryAddress],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Contact Details */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Contact Details</p>
+        {[
+          ["Mobile Number", fo.contactNumber],
+          ["Email Address", fo.email],
+          ["MIC Officer", fo.micId],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Bank Account Details */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Bank Account Details</p>
+        {[
+          ["Bank Name", "HDFC Bank"],
+          ["Account Number", "••••••••4521"],
+          ["IFSC Code", "HDFC0001234"],
+          ["Account Type", "Current"],
+          ["Account Holder", fo.name],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Account Info */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">Account Info</p>
+        {[
+          ["Account Status", fo.status],
+          ["Member Since", fo.createdAt],
+          ["Total Vehicles", fo.totalVehicles],
+          ["Active Cards", fo.activeCards],
+        ].map(([label, value]) => (
+          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+            <span className="text-muted-foreground shrink-0 w-36">{label}</span>
+            <span className="font-medium text-foreground text-right">{String(value)}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Request change note */}
+      <div className="bg-muted/30 border border-border rounded-xl p-4 flex items-start gap-3">
+        <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+        <p className="text-xs text-muted-foreground">To update your company details, contact details, or bank account, click "Request Change" and your MIC officer will assist you.</p>
       </div>
     </div>
   )
