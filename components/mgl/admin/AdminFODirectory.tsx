@@ -166,6 +166,7 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
   const [toDate, setToDate] = useState("")
   const [kycFilter, setKycFilter] = useState("all")
   const [selectedFO, setSelectedFO] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const fleetOperators = mockFleetOperators.map(fo => ({
     id: fo.id,
@@ -373,12 +374,37 @@ export default function AdminFODirectory({ onViewChange }: { onViewChange: (v: s
                     }`}>{fo.kycStatus}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <button 
-                      onClick={() => setSelectedFO(fo.id)}
-                      className="flex items-center gap-1 text-primary text-xs font-medium hover:underline"
-                    >
-                      <Eye className="w-3 h-3" /> View
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <div className="relative group">
+                        <button
+                          onClick={() => setSelectedFO(fo.id)}
+                          className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-foreground text-background text-[10px] font-medium rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                          View Details
+                        </span>
+                      </div>
+                      {fo.status === "PENDING_ACTIVATION" && (
+                        <div className="relative group">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigator.clipboard.writeText(`https://mgl-fleet.app/activate?fo=${fo.id}&token=ACT${fo.id}2026`)
+                              setCopiedId(fo.id)
+                              setTimeout(() => setCopiedId(null), 2000)
+                            }}
+                            className={`p-1.5 rounded-lg transition-colors ${copiedId === fo.id ? "bg-green-100 text-green-600" : "hover:bg-amber-100 text-amber-600"}`}
+                          >
+                            {copiedId === fo.id ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 bg-foreground text-background text-[10px] font-medium rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                            {copiedId === fo.id ? "Copied!" : "Copy Activation Link"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
