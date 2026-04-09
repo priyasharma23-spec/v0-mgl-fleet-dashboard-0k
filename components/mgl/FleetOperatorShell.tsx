@@ -880,6 +880,80 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                   ) : null)}
                 </div>
 
+                {/* MOU & Incentive Eligibility — MIC_ASSISTED only */}
+                {selectedVehicle.onboardingType === "MIC_ASSISTED" && (
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MOU & Incentive</p>
+                    
+                    {/* MOU details */}
+                    {[
+                      ["MOU Number", selectedVehicle.mouId || "—"],
+                      ["Vehicle Category", selectedVehicle.category],
+                      ["Category Sequence", selectedVehicle.categorySequence ? `#${selectedVehicle.categorySequence} in ${selectedVehicle.category}` : "—"],
+                      ["Vehicle Type", selectedVehicle.vehicleType === "new_purchase" ? "New Purchase" : selectedVehicle.vehicleType === "retrofit" ? "Retrofitment" : "—"],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-medium text-foreground text-right">{value}</span>
+                      </div>
+                    ))}
+
+                    {/* Incentive eligibility status */}
+                    <div className="pt-2 border-t border-border">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">Incentive Status</span>
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                          selectedVehicle.incentiveStatus === "paid" ? "bg-green-100 text-green-700" :
+                          selectedVehicle.incentiveStatus === "approved" ? "bg-blue-100 text-blue-700" :
+                          selectedVehicle.incentiveStatus === "eligible" ? "bg-amber-100 text-amber-700" :
+                          selectedVehicle.incentiveStatus === "pending_approval" ? "bg-purple-100 text-purple-700" :
+                          selectedVehicle.incentiveStatus === "not_eligible" ? "bg-gray-100 text-gray-600" :
+                          "bg-gray-100 text-gray-600"
+                        }`}>
+                          {selectedVehicle.incentiveStatus === "paid" ? "Paid" :
+                           selectedVehicle.incentiveStatus === "approved" ? "Approved" :
+                           selectedVehicle.incentiveStatus === "eligible" ? "Eligible — Pending Approval" :
+                           selectedVehicle.incentiveStatus === "pending_approval" ? "Submitted for Approval" :
+                           selectedVehicle.incentiveStatus === "not_eligible" ? "Not Yet Eligible" :
+                           "—"}
+                        </span>
+                      </div>
+
+                      {/* Incentive amount if eligible or beyond */}
+                      {selectedVehicle.incentiveAmount && (
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <span className="text-muted-foreground">Incentive Amount</span>
+                          <span className="font-bold text-green-700">₹{selectedVehicle.incentiveAmount.toLocaleString("en-IN")}</span>
+                        </div>
+                      )}
+
+                      {/* Not eligible explanation */}
+                      {selectedVehicle.incentiveStatus === "not_eligible" && (
+                        <div className="mt-2 p-2.5 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs text-amber-700">
+                            This is the first {selectedVehicle.category} vehicle under MOU {selectedVehicle.mouId}. 
+                            Incentive becomes eligible when a second {selectedVehicle.category} vehicle is added and approved.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Approved by */}
+                      {selectedVehicle.incentiveApprovedBy && (
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <span className="text-muted-foreground">Approved By</span>
+                          <span className="font-medium text-foreground">{selectedVehicle.incentiveApprovedBy}</span>
+                        </div>
+                      )}
+                      {selectedVehicle.incentiveApprovedAt && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Approved At</span>
+                          <span className="font-medium text-foreground">{selectedVehicle.incentiveApprovedAt}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Driver Details — shown for both, optional fields */}
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
