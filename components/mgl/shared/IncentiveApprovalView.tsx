@@ -208,20 +208,21 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  {["MOU", "FO Name", "Category", "Type", "Slab", "Range", "Count", "Gross", "Net", "Status", "Action"].map(h => (
+                  {["Vehicle", "MOU", "FO Name", "Category", "Type", "Slab", "Range", "Count", "Gross", "Net", "Status", "Action"].map(h => (
                     <th key={h} className="px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.length === 0 && (
-                  <tr><td colSpan={11} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
+                  <tr><td colSpan={12} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
                 )}
                 {filtered.map(b => {
                   const actualStatus = actionDone[b.id] === "approved" ? "approved" : actionDone[b.id] === "rejected" ? "pending_completion" : b.status
                   const cfg = STATUS_CONFIG[actualStatus as SlabBonus["status"]]
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
+                      <td className="px-4 py-3 font-mono text-xs font-medium">{b.vehicles[0] || "—"}</td>
                       <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground">{b.mouId}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground truncate">{b.foName}</td>
                       <td className="px-4 py-3 text-xs font-medium">{b.category}</td>
