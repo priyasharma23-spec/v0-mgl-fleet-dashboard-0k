@@ -271,10 +271,10 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                     <th key={h || i} className="px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {i === 0 ? (
                         <input type="checkbox"
-                          checked={selectedRows.size === tableRows.filter(r => (r.incentiveStatus === "eligible" || r.incentiveStatus === "pending_approval") && !actionDone[r.id]).length && selectedRows.size > 0}
+                          checked={selectedRows.size === tableRows.filter(r => (r.incentiveStatus === "eligible" || r.incentiveStatus === "pending_approval") && !actionDone[r.vehicleId]).length && selectedRows.size > 0}
                           onChange={e => {
                             if (e.target.checked) {
-                              const eligible = tableRows.filter(r => (r.incentiveStatus === "eligible" || r.incentiveStatus === "pending_approval") && !actionDone[r.id]).map(r => r.id)
+                              const eligible = tableRows.filter(r => (r.incentiveStatus === "eligible" || r.incentiveStatus === "pending_approval") && !actionDone[r.vehicleId]).map(r => r.vehicleId)
                               setSelectedRows(new Set(eligible))
                             } else {
                               setSelectedRows(new Set())
@@ -294,17 +294,17 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                 {tableRows.map(row => {
                   const b = row
                   const actualStatus = actionDone[b.id] === "approved" ? "approved" : actionDone[b.id] === "rejected" ? "pending_completion" : b.status
-                  const vehicleStatus = row.firstVehicle?.incentiveStatus ?? "not_eligible"
+                  const vehicleStatus = row.incentiveStatus ?? "not_eligible"
                   const statusCfg = VEHICLE_STATUS_CONFIG[vehicleStatus] ?? VEHICLE_STATUS_CONFIG["not_eligible"]
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
                       <td className="px-4 py-3">
-                        {(row.incentiveStatus === "eligible" || row.incentiveStatus === "pending_approval") && !actionDone[b.id] && (
+                        {(row.incentiveStatus === "eligible" || row.incentiveStatus === "pending_approval") && !actionDone[row.vehicleId] && (
                           <input type="checkbox"
-                            checked={selectedRows.has(b.id)}
+                            checked={selectedRows.has(row.vehicleId)}
                             onChange={e => {
                               const next = new Set(selectedRows)
-                              e.target.checked ? next.add(b.id) : next.delete(b.id)
+                              e.target.checked ? next.add(row.vehicleId) : next.delete(row.vehicleId)
                               setSelectedRows(next)
                             }}
                             className="w-4 h-4 rounded border-border"
@@ -557,8 +557,8 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                     {/* Summary of selected vehicles */}
                     <div className="bg-muted/30 rounded-xl p-4 space-y-2 max-h-48 overflow-y-auto">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicles to Approve</p>
-                      {tableRows.filter(r => selectedRows.has(r.id)).map(row => (
-                        <div key={row.id} className="flex items-center justify-between text-sm">
+                      {tableRows.filter(r => selectedRows.has(r.vehicleId)).map(row => (
+                        <div key={row.vehicleId} className="flex items-center justify-between text-sm">
                           <span className="font-mono text-xs">{row.firstVehicle?.vehicleNumber || row.vehicles[0]}</span>
                           <span className="text-green-700 font-medium text-xs">₹{row.grossAmount.toLocaleString("en-IN")}</span>
                         </div>
@@ -567,7 +567,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                         <span>Total Net Payable</span>
                         <span className="text-green-700">
                           ₹{tableRows
-                            .filter(r => selectedRows.has(r.id))
+                            .filter(r => selectedRows.has(r.vehicleId))
                             .reduce((sum, r) => sum + Math.round(r.grossAmount * 0.9), 0)
                             .toLocaleString("en-IN")}
                         </span>
@@ -587,7 +587,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       <button
                         onClick={() => {
                           const next = { ...actionDone }
-                          selectedRows.forEach(id => { next[id] = "approved" })
+                          selectedRows.forEach(vehicleId => { next[vehicleId] = "approved" })
                           setActionDone(next)
                           setBulkDone(true)
                         }}
