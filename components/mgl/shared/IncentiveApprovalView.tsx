@@ -208,14 +208,14 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  {["MOU", "FO Name", "Category", "Type", "Slab", "Range", "Vehicles", "Gross Amount", "Net Amount", "Status", "Action"].map(h => (
+                  {["MOU", "Vehicles", "FO Name", "Category", "Type", "Slab", "Range", "Count", "Gross", "Net", "Status", "Action"].map(h => (
                     <th key={h} className="px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filtered.length === 0 && (
-                  <tr><td colSpan={11} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
+                  <tr><td colSpan={12} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
                 )}
                 {filtered.map(b => {
                   const actualStatus = actionDone[b.id] === "approved" ? "approved" : actionDone[b.id] === "rejected" ? "pending_completion" : b.status
@@ -223,16 +223,21 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground">{b.mouId}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          {b.vehicles.slice(0, 3).map((vNum, i) => (
+                            <span key={i} className="font-mono text-[10px] text-muted-foreground">{vNum}</span>
+                          ))}
+                          {b.vehicles.length > 3 && (
+                            <span className="text-[10px] text-muted-foreground">+{b.vehicles.length - 3} more</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-xs text-muted-foreground truncate">{b.foName}</td>
                       <td className="px-4 py-3 text-xs font-medium">{b.category}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.vehicleType === "new_purchase" ? "New" : "Retrofit"}</td>
                       <td className="px-4 py-3 text-xs font-medium text-center">{b.slabNumber}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.slabRange}</td>
-                      <td className="px-4 py-3 text-xs text-center">
-                        <span className={`font-medium ${b.vehiclesInSlab >= b.slabSize ? "text-green-700" : "text-amber-700"}`}>
-                          {b.vehiclesInSlab}/{b.slabSize}
-                        </span>
-                      </td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.grossAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.netAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3">
