@@ -31,6 +31,7 @@ const zicNavItems: NavItem[] = [
   { icon: Truck, label: "Vehicles", view: "zic-vehicles" },
   { icon: CreditCard, label: "Card Orders", view: "zic-cards" },
   { icon: BarChart2, label: "Reports", view: "zic-reports" },
+  { icon: Gift, label: "Incentives", view: "zic-incentives" },
 ];
 
 const foNavItems: NavItem[] = [

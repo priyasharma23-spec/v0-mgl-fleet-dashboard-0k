@@ -34,6 +34,22 @@ export const INCENTIVE_RATES = {
   },
 } as const
 
+// Slab-based incentive types for MOUs
+export interface IncentiveSlab {
+  slabNumber: number
+  fromVehicle: number
+  toVehicle: number
+  rates: {
+    new_purchase: { HCV: number; ICV: number; LCV: number; Bus: number }
+    retrofit: { HCV: number; ICV: number; LCV: number; Bus: number }
+  }
+}
+
+export interface MOUIncentiveConfig {
+  mouId: string
+  slabs: IncentiveSlab[]
+}
+
 export type IncentiveStatus = 
   | "not_eligible"      // first vehicle in category, waiting for 2nd
   | "eligible"          // 2nd+ vehicle approved, awaiting ZIC/admin approval
@@ -182,6 +198,66 @@ export function getModelsByOEMAndCategory(oemId: string, category: VehicleCatego
   return oem?.models[category] || [];
 }
 
+// Mock MOU incentive configs
+export const mockMOUIncentiveConfigs: MOUIncentiveConfig[] = [
+  {
+    mouId: "MGL/MOU/2025/001",
+    slabs: [
+      {
+        slabNumber: 1,
+        fromVehicle: 1,
+        toVehicle: 5,
+        rates: {
+          new_purchase: { HCV: 15000, ICV: 12000, LCV: 8000, Bus: 10000 },
+          retrofit:     { HCV: 10000, ICV: 8000,  LCV: 5000, Bus: 7000  },
+        },
+      },
+      {
+        slabNumber: 2,
+        fromVehicle: 6,
+        toVehicle: 10,
+        rates: {
+          new_purchase: { HCV: 18000, ICV: 14000, LCV: 10000, Bus: 12000 },
+          retrofit:     { HCV: 12000, ICV: 10000, LCV: 7000,  Bus: 9000  },
+        },
+      },
+      {
+        slabNumber: 3,
+        fromVehicle: 11,
+        toVehicle: 15,
+        rates: {
+          new_purchase: { HCV: 20000, ICV: 16000, LCV: 12000, Bus: 14000 },
+          retrofit:     { HCV: 14000, ICV: 12000, LCV: 9000,  Bus: 11000 },
+        },
+      },
+    ],
+  },
+];
+
+// Helper functions for incentive calculations
+export function getIncentiveAmount(
+  mouId: string,
+  vehicleSequence: number,
+  vehicleType: "new_purchase" | "retrofit",
+  category: "HCV" | "ICV" | "LCV" | "Bus"
+): number | null {
+  const config = mockMOUIncentiveConfigs.find(c => c.mouId === mouId);
+  if (!config) return null;
+  const slab = config.slabs.find(s => vehicleSequence >= s.fromVehicle && vehicleSequence <= s.toVehicle);
+  if (!slab) return null;
+  return slab.rates[vehicleType][category] ?? null;
+}
+
+export function getSlabNumber(
+  mouId: string,
+  vehicleSequence: number
+): number | null {
+  const config = mockMOUIncentiveConfigs.find(c => c.mouId === mouId);
+  if (!config) return null;
+  const slab = config.slabs.find(s => vehicleSequence >= s.fromVehicle && vehicleSequence <= s.toVehicle);
+  return slab?.slabNumber ?? null;
+}
+
 // Vehicle category classification
 export function classifyVehicleCategory(grossWeight: number): VehicleCategory {
   if (grossWeight >= 15) return "HCV";
@@ -302,6 +378,7 @@ export interface Vehicle {
   vehicleType?: "new_purchase" | "retrofit";
   mouId?: string;                          // linked MOU number e.g. "MGL/MOU/2025/001"
   categorySequence?: number;               // order added within same MOU + category (1, 2, 3...)
+  slabNumber?: number;                     // which incentive slab this vehicle falls in
   incentiveStatus?: IncentiveStatus;       // eligibility and approval state
   incentiveAmount?: number;                // computed incentive amount in INR
   incentiveApprovedBy?: string;            // ZIC or admin user ID
@@ -587,6 +664,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,
+    slabNumber: 1,
     incentiveStatus: "paid",
     incentiveAmount: 15000,
   },
@@ -611,6 +689,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 2,
+    slabNumber: 1,
     incentiveStatus: "approved",
     incentiveAmount: 15000,
   },
@@ -632,6 +711,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,
+    slabNumber: 1,
     incentiveStatus: "not_eligible",
   },
   {
@@ -715,6 +795,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 2,
+    slabNumber: 1,
     incentiveStatus: "eligible",
     incentiveAmount: 12000,
   },
@@ -737,6 +818,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 3,
+    slabNumber: 1,
     incentiveStatus: "eligible",
     incentiveAmount: 15000,
   },
@@ -762,6 +844,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "retrofit",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,
+    slabNumber: 1,
     incentiveStatus: "not_eligible",
   },
   {
@@ -847,6 +930,136 @@ export const mockVehicles: Vehicle[] = [
     mouId: "MGL/MOU/2025/001",
     categorySequence: 4,
     incentiveStatus: "not_eligible",
+  },
+  {
+    id: "VEH020",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04HCV0006",
+    model: "Tata LPT 2518",
+    category: "HCV" as const,
+    oem: "Tata Motors",
+    dealership: "Tata Motors Andheri",
+    bookingDate: "2025-04-01",
+    registrationDate: "2025-04-10",
+    status: "CARD_ACTIVE" as VehicleStatus,
+    l1SubmittedAt: "2025-04-02",
+    l1ApprovedAt: "2025-04-04",
+    l2SubmittedAt: "2025-04-11",
+    l2ApprovedAt: "2025-04-13",
+    cardNumber: "MGL****7001",
+    cardActivatedAt: "2025-04-15",
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    vehicleType: "new_purchase" as const,
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 6,
+    slabNumber: 2,
+    incentiveStatus: "eligible" as IncentiveStatus,
+    incentiveAmount: 18000,
+    bookingReceiptUrl: "booking_veh020.pdf",
+    rcBookUrl: "rc_veh020.pdf",
+  },
+  {
+    id: "VEH021",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04HCV0007",
+    model: "Ashok Leyland 1616",
+    category: "HCV" as const,
+    oem: "Ashok Leyland",
+    dealership: "AL Dealers Kurla",
+    bookingDate: "2025-04-05",
+    registrationDate: "2025-04-15",
+    status: "CARD_ACTIVE" as VehicleStatus,
+    l1SubmittedAt: "2025-04-06",
+    l1ApprovedAt: "2025-04-08",
+    l2SubmittedAt: "2025-04-16",
+    l2ApprovedAt: "2025-04-18",
+    cardNumber: "MGL****7002",
+    cardActivatedAt: "2025-04-20",
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    vehicleType: "new_purchase" as const,
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 7,
+    slabNumber: 2,
+    incentiveStatus: "eligible" as IncentiveStatus,
+    incentiveAmount: 18000,
+    bookingReceiptUrl: "booking_veh021.pdf",
+    rcBookUrl: "rc_veh021.pdf",
+  },
+  {
+    id: "VEH022",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04LCV0001",
+    model: "Tata 407",
+    category: "LCV" as const,
+    oem: "Tata Motors",
+    dealership: "Tata Motors Andheri",
+    bookingDate: "2025-04-10",
+    registrationDate: "2025-04-18",
+    status: "CARD_ACTIVE" as VehicleStatus,
+    l1SubmittedAt: "2025-04-11",
+    l1ApprovedAt: "2025-04-13",
+    l2SubmittedAt: "2025-04-19",
+    l2ApprovedAt: "2025-04-21",
+    cardNumber: "MGL****8001",
+    cardActivatedAt: "2025-04-22",
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    vehicleType: "new_purchase" as const,
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 1,
+    slabNumber: 1,
+    incentiveStatus: "not_eligible" as IncentiveStatus,
+    bookingReceiptUrl: "booking_veh022.pdf",
+    rcBookUrl: "rc_veh022.pdf",
+  },
+  {
+    id: "VEH023",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04BUS0001",
+    model: "Force Traveller",
+    category: "Bus" as const,
+    oem: "Force Motors",
+    dealership: "Force Motors Thane",
+    bookingDate: "2025-04-12",
+    registrationDate: "2025-04-20",
+    status: "CARD_ACTIVE" as VehicleStatus,
+    l1SubmittedAt: "2025-04-13",
+    l1ApprovedAt: "2025-04-15",
+    l2SubmittedAt: "2025-04-21",
+    l2ApprovedAt: "2025-04-23",
+    cardNumber: "MGL****8002",
+    cardActivatedAt: "2025-04-24",
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    vehicleType: "new_purchase" as const,
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 1,
+    slabNumber: 1,
+    incentiveStatus: "not_eligible" as IncentiveStatus,
+    bookingReceiptUrl: "booking_veh023.pdf",
+    rcBookUrl: "rc_veh023.pdf",
+  },
+  {
+    id: "VEH024",
+    foId: "FO001",
+    foName: "ABC Logistics Pvt. Ltd.",
+    vehicleNumber: "MH04HCV0008",
+    model: "Eicher Pro 3018",
+    category: "HCV" as const,
+    oem: "Eicher",
+    dealership: "Eicher Goregaon",
+    bookingDate: "2025-04-15",
+    status: "L1_SUBMITTED" as VehicleStatus,
+    l1SubmittedAt: "2025-04-16",
+    onboardingType: "MIC_ASSISTED" as OnboardingType,
+    vehicleType: "new_purchase" as const,
+    mouId: "MGL/MOU/2025/001",
+    categorySequence: 8,
+    slabNumber: 2,
+    incentiveStatus: "not_eligible" as IncentiveStatus,
+    bookingReceiptUrl: "booking_veh024.pdf",
   },
 ];
 
