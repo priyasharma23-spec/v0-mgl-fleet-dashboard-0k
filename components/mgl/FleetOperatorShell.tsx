@@ -3315,34 +3315,6 @@ function FOMoUView() {
             </div>
           ))}
         </div>
-
-        {/* Per vehicle breakdown */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">By Category</p>
-          {[
-            { category: "HCV", type: "New Purchase", vehicles: 3, slab: 1, ratePerVehicle: 15000, status: "paid", amount: 13500 },
-            { category: "HCV", type: "New Purchase", vehicles: 2, slab: 2, ratePerVehicle: 18000, status: "eligible", amount: 29250 },
-            { category: "ICV", type: "New Purchase", vehicles: 2, slab: 1, ratePerVehicle: 12000, status: "eligible", amount: 21600 },
-          ].map((row, i) => (
-            <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg text-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-primary">{row.category}</span>
-                </div>
-                <div>
-                  <p className="font-medium text-foreground text-xs">{row.category} · {row.type} · Slab {row.slab}</p>
-                  <p className="text-xs text-muted-foreground">{row.vehicles} vehicles × ₹{row.ratePerVehicle.toLocaleString("en-IN")}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-bold text-sm text-green-700">₹{row.amount.toLocaleString("en-IN")}</p>
-                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${row.status === "paid" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                  {row.status === "paid" ? "Paid" : "Eligible"}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Potential to Earn */}
