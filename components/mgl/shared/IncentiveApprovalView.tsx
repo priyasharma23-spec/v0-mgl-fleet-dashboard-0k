@@ -25,6 +25,7 @@ interface SlabBonus {
   netAmount: number
   status: "pending_completion" | "eligible" | "pending_approval" | "approved" | "paid"
   vehicles: string[]
+  categorySequence: number
 }
 
 const STATUS_CONFIG: Record<SlabBonus["status"], { label: string; bg: string; text: string }> = {
@@ -110,6 +111,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
               netAmount: gross - tds,
               status,
               vehicles: slabVehicles.map(v => v.vehicleNumber || v.id),
+              categorySequence: slabVehicles[0]?.categorySequence ?? slab.fromVehicle,
             })
           })
         })
