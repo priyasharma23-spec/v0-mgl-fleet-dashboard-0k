@@ -469,7 +469,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                         {actionDone[selectedBonus.id] === "approved" ? "Slab Bonus Approved" : "Slab Bonus Rejected"}
                       </p>
                       <p className={`text-xs mt-1.5 ${actionDone[selectedBonus.id] === "approved" ? "text-green-700" : "text-red-700"}`}>
-                        {actionDone[selectedBonus.id] === "approved" ? "The bonus will be processed and credited to the FO wallet." : "The slab completion bonus has been rejected."}
+                        {actionDone[selectedBonus.id] === "approved" ? "The bonus will be processed and credited to the incentive wallet of the card associated with the vehicle." : "The slab completion bonus has been rejected."}
                       </p>
                     </div>
                   </div>
