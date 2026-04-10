@@ -164,7 +164,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ────────────────────────────────────────�����────�����───────────
+// ─── FO Signup Flow ────────────────────────────────────────������────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -3184,10 +3184,18 @@ function FOMoUView() {
   ]
 
   const mou = mous[selectedMouIndex]
+  
+  // Calculate vehicle stats for the selected MOU
   const vehiclesRegistered = myVehicles.length
   const vehiclesActive = myVehicles.filter(v => v.status === "CARD_ACTIVE").length
-
-  const daysToExpiry = Math.ceil((new Date(mou.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+  
+  // Enrich the MOU with calculated vehicle data
+  const enrichedMou = {
+    ...mou,
+    vehiclesRegistered,
+    vehiclesActive,
+    daysToExpiry: Math.ceil((new Date(mou.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+  }
 
   return (
     <div className="flex flex-col gap-5 p-5">
@@ -3230,20 +3238,20 @@ function FOMoUView() {
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-xs text-muted-foreground">MoU Number</p>
-            <p className="text-lg font-bold font-mono text-foreground mt-0.5">{mou.number}</p>
+            <p className="text-lg font-bold font-mono text-foreground mt-0.5">{enrichedMou.number}</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${mou.status === "Active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{mou.status}</span>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${enrichedMou.status === "Active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{enrichedMou.status}</span>
         </div>
 
         {/* Dates */}
         <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
           <div>
             <p className="text-xs text-muted-foreground">Executed Date</p>
-            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.executedDate}</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{enrichedMou.executedDate}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Expiry Date</p>
-            <p className={`text-sm font-semibold mt-0.5 ${daysToExpiry <= 30 ? "text-amber-600" : "text-foreground"}`}>{mou.expiryDate}</p>
+            <p className={`text-sm font-semibold mt-0.5 ${enrichedMou.daysToExpiry <= 30 ? "text-amber-600" : "text-foreground"}`}>{enrichedMou.expiryDate}</p>
           </div>
         </div>
 
@@ -3251,11 +3259,11 @@ function FOMoUView() {
         <div className="grid grid-cols-2 gap-4 pt-4">
           <div>
             <p className="text-xs text-muted-foreground">Incentive Program ID</p>
-            <p className="text-sm font-semibold text-foreground mt-0.5 font-mono">{mou.incentiveProgramId}</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5 font-mono">{enrichedMou.incentiveProgramId}</p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">Program Name</p>
-            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.incentiveProgramName}</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{enrichedMou.incentiveProgramName}</p>
           </div>
         </div>
       </div>
@@ -3265,10 +3273,10 @@ function FOMoUView() {
         <p className="text-sm font-semibold text-foreground mb-4">Vehicle Commitment</p>
         <div className="grid grid-cols-2 gap-3 mb-4">
           {[
-            { label: "Committed", value: mou.vehiclesCommitted, color: "text-foreground", bg: "bg-muted/30" },
-            { label: "Registered", value: mou.vehiclesRegistered, color: "text-blue-600", bg: "bg-blue-50" },
-            { label: "Active", value: mou.vehiclesActive, color: "text-green-600", bg: "bg-green-50" },
-            { label: "Pending", value: mou.vehiclesCommitted - mou.vehiclesRegistered, color: "text-amber-600", bg: "bg-amber-50" },
+            { label: "Committed", value: enrichedMou.vehiclesCommitted, color: "text-foreground", bg: "bg-muted/30" },
+            { label: "Registered", value: enrichedMou.vehiclesRegistered, color: "text-blue-600", bg: "bg-blue-50" },
+            { label: "Active", value: enrichedMou.vehiclesActive, color: "text-green-600", bg: "bg-green-50" },
+            { label: "Pending", value: enrichedMou.vehiclesCommitted - enrichedMou.vehiclesRegistered, color: "text-amber-600", bg: "bg-amber-50" },
           ].map(({ label, value, color, bg }) => (
             <div key={label} className={`${bg} rounded-xl p-4`}>
               <p className="text-xs text-muted-foreground">{label}</p>
@@ -3279,21 +3287,21 @@ function FOMoUView() {
         <div className="space-y-2 pt-3 border-t border-border">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">New Vehicles</span>
-            <span className="font-medium text-foreground">{mou.newVehicles}</span>
+            <span className="font-medium text-foreground">{enrichedMou.newVehicles}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Retrofitment</span>
-            <span className="font-medium text-foreground">{mou.retrofitVehicles}</span>
+            <span className="font-medium text-foreground">{enrichedMou.retrofitVehicles}</span>
           </div>
         </div>
         {/* Progress */}
         <div className="mt-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
             <span>Registration Progress</span>
-            <span className="font-semibold">{Math.round((mou.vehiclesRegistered / mou.vehiclesCommitted) * 100)}%</span>
+            <span className="font-semibold">{Math.round((enrichedMou.vehiclesRegistered / enrichedMou.vehiclesCommitted) * 100)}%</span>
           </div>
           <div className="h-2.5 bg-muted rounded-full overflow-hidden">
-            <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((mou.vehiclesRegistered / mou.vehiclesCommitted) * 100)}%` }} />
+            <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round((enrichedMou.vehiclesRegistered / enrichedMou.vehiclesCommitted) * 100)}%` }} />
           </div>
         </div>
       </div>
@@ -3325,8 +3333,8 @@ function FOMoUView() {
             <span className="text-xs font-bold text-red-600">PDF</span>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium text-foreground">MoU Agreement — {mou.number}</p>
-            <p className="text-xs text-muted-foreground">Signed copy · Executed {mou.executedDate}</p>
+                <p className="text-sm font-medium text-foreground">MoU Agreement — {enrichedMou.number}</p>
+                <p className="text-xs text-muted-foreground">Signed copy · Executed {enrichedMou.executedDate}</p>
           </div>
           <button className="text-xs text-primary font-medium hover:underline shrink-0">View PDF</button>
         </div>
