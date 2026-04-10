@@ -313,9 +313,6 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Slab Details</p>
                   <div className="bg-muted/30 rounded-lg p-4 space-y-2.5">
                     {[
-                      ["MOU Number", selectedBonus.mouId],
-                      ["Category", selectedBonus.category],
-                      ["Vehicle Type", selectedBonus.vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"],
                       ["Slab Range", selectedBonus.slabRange],
                       ["Fleet Operator", selectedBonus.foName],
                       ["Vehicles Registered", `${selectedBonus.vehiclesInSlab} of ${selectedBonus.slabSize}`],
