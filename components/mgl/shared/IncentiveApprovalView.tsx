@@ -130,6 +130,27 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
     return matchSearch && matchStatus
   })
 
+  const tableRows = filtered.map(bonus => {
+    const mouConfig = mockMOUIncentiveConfigs.find(c => c.mouId === bonus.mouId)
+    const slabConfig = mouConfig?.slabs.find(s => s.slabNumber === bonus.slabNumber)
+    const fromVehicle = slabConfig?.fromVehicle ?? 1
+    const toVehicle = slabConfig?.toVehicle ?? 5
+
+    const slabVehicles = mockVehicles.filter(v =>
+      v.mouId === bonus.mouId &&
+      v.category === bonus.category &&
+      v.vehicleType === bonus.vehicleType &&
+      (v.categorySequence ?? 0) >= fromVehicle &&
+      (v.categorySequence ?? 0) <= toVehicle
+    )
+
+    return {
+      ...bonus,
+      slabVehicles,
+      firstVehicle: slabVehicles[0],
+    }
+  })
+
   const counts = {
     pending_completion: slabBonuses.filter(b => b.status === "pending_completion").length,
     eligible: slabBonuses.filter(b => b.status === "eligible").length,
@@ -216,15 +237,16 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filtered.length === 0 && (
+                {tableRows.length === 0 && (
                   <tr><td colSpan={12} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
                 )}
-                {filtered.map(b => {
+                {tableRows.map(row => {
+                  const b = row
                   const actualStatus = actionDone[b.id] === "approved" ? "approved" : actionDone[b.id] === "rejected" ? "pending_completion" : b.status
                   const cfg = STATUS_CONFIG[actualStatus as SlabBonus["status"]]
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
-                      <td className="px-4 py-3 font-mono text-xs font-medium">{b.vehicles[0] || "—"}</td>
+                      <td className="px-4 py-3 font-mono text-xs font-medium">{row.firstVehicle?.vehicleNumber || b.vehicles[0] || "—"}</td>
                       <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground">{b.mouId}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground truncate">{b.foName}</td>
                       <td className="px-4 py-3 text-xs font-medium">{b.category}</td>
