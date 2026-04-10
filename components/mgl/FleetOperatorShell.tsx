@@ -164,7 +164,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ────────────────────────────────────────����────�����───────────
+// ─── FO Signup Flow ────────────────────────────────────────�����────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -1846,7 +1846,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 <p className="text-sm text-muted-foreground mb-4">Create a 4-digit PIN for your card. You'll use this PIN for all transactions.</p>
                 <input
                   type="password"
-                  placeholder="••�����"
+                  placeholder="���•�����"
                   value={activationPin}
                   onChange={(e) => setActivationPin(e.target.value.slice(0, 4))}
                   maxLength={4}
@@ -3301,51 +3301,19 @@ function FOMoUView() {
       {/* Incentives Earned */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-4">
         <p className="text-sm font-semibold text-foreground">Incentives Earned</p>
+        <p className="text-xs text-muted-foreground">Based on your MOU commitment and current slab rates, here&apos;s what you can earn by completing vehicle registrations.</p>
 
         {/* Summary row */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {[
             { label: "Total Earned", value: "₹42,750", color: "text-green-700", bg: "bg-green-50" },
-            { label: "Paid Out", value: "₹13,500", color: "text-blue-700", bg: "bg-blue-50" },
-            { label: "Pending", value: "₹29,250", color: "text-amber-700", bg: "bg-amber-50" },
+            { label: "Potential to Earn", value: "₹2,94,400", color: "text-primary", bg: "bg-primary/5" },
           ].map(({ label, value, color, bg }) => (
             <div key={label} className={`${bg} rounded-xl p-3 text-center`}>
               <p className={`text-lg font-bold ${color}`}>{value}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Potential to Earn */}
-      <div className="bg-card rounded-xl border border-border p-5 space-y-4">
-        <p className="text-sm font-semibold text-foreground">Potential to Earn</p>
-        <p className="text-xs text-muted-foreground">Based on your MOU commitment and current slab rates, here&apos;s what you can earn by completing vehicle registrations.</p>
-
-        <div className="space-y-3">
-          {[
-            { category: "HCV", type: "New Purchase", remaining: 7, nextSlab: 2, ratePerVehicle: 18000, potential: 126000 },
-            { category: "HCV", type: "New Purchase", remaining: 5, nextSlab: 3, ratePerVehicle: 20000, potential: 100000 },
-            { category: "ICV", type: "New Purchase", remaining: 3, nextSlab: 1, ratePerVehicle: 12000, potential: 32400 },
-            { category: "LCV", type: "New Purchase", remaining: 5, nextSlab: 1, ratePerVehicle: 8000, potential: 36000 },
-          ].map((row, i) => (
-            <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg text-sm border border-border">
-              <div>
-                <p className="font-medium text-xs text-foreground">{row.category} · {row.type} · Slab {row.nextSlab}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{row.remaining} more vehicles needed · ₹{row.ratePerVehicle.toLocaleString("en-IN")}/vehicle</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Up to</p>
-                <p className="font-bold text-primary">₹{row.potential.toLocaleString("en-IN")}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Total potential */}
-        <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-xl">
-          <p className="text-sm font-semibold text-foreground">Total Potential Earnings</p>
-          <p className="text-xl font-bold text-primary">₹2,94,400</p>
         </div>
       </div>
 
