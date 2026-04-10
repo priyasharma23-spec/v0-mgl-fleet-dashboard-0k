@@ -277,7 +277,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
             <div className="fixed top-0 right-0 bottom-0 w-96 bg-card border-l border-border shadow-2xl z-50 overflow-y-auto flex flex-col">
               <div className="sticky top-0 bg-gradient-to-b from-card via-card to-muted/5 border-b border-border p-6 flex items-center justify-between">
                 <div>
-                  <h2 className="font-bold text-lg text-foreground">Slab {selectedBonus.slabNumber} Bonus</h2>
+                  <h2 className="font-bold text-lg text-foreground">Incentive details</h2>
                   <p className="text-sm text-muted-foreground mt-1">{selectedBonus.mouId} • {selectedBonus.category} • {selectedBonus.vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p>
                 </div>
                 <button onClick={() => setSelectedBonus(null)} className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
