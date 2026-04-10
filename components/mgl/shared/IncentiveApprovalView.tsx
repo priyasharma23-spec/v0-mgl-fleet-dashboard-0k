@@ -154,11 +154,12 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
       (v.categorySequence ?? 0) <= toVehicle
     )
 
-    return {
-      ...bonus,
-      slabVehicles,
-      firstVehicle: slabVehicles[0],
-    }
+      return {
+        ...bonus,
+        slabVehicles,
+        firstVehicle: slabVehicles[0],
+        incentiveType: slabVehicles[0]?.incentiveType,
+      }
   })
 
   const counts = {
@@ -257,7 +258,16 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                   const statusCfg = VEHICLE_STATUS_CONFIG[vehicleStatus] ?? VEHICLE_STATUS_CONFIG["not_eligible"]
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
-                      <td className="px-4 py-3 font-mono text-xs font-medium">{row.firstVehicle?.vehicleNumber || b.vehicles[0] || "—"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-mono text-xs font-medium">{row.firstVehicle?.vehicleNumber || b.vehicles[0] || "—"}</span>
+                          {row.incentiveType === "milestone_slab" && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-[9px] font-semibold w-fit">
+                              ★ Milestone
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground">{b.mouId}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground truncate">{b.foName}</td>
                       <td className="px-4 py-3 text-xs font-medium">{b.category}</td>
