@@ -429,6 +429,9 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                 {/* Approval action */}
                 {(selectedBonus.status === "eligible" || selectedBonus.status === "pending_approval") && !actionDone[selectedBonus.id] && (role === "zic" || role === "admin") && (
                   <div className="space-y-3">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-900">Approving the incentive for vehicle number <span className="font-mono font-semibold">{selectedBonus.firstVehicle?.vehicleNumber || selectedBonus.vehicles[0] || "—"}</span></p>
+                    </div>
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Approval Decision</p>
                     <textarea value={approvalNote} onChange={e => setApprovalNote(e.target.value)}
                       placeholder="Add a note (optional)..."
