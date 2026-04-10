@@ -164,7 +164,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ────────────────────────────────────────��────�����───────────
+// ─── FO Signup Flow ────────────────────────────────────────���────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -1846,7 +1846,7 @@ function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string)
                 <p className="text-sm text-muted-foreground mb-4">Create a 4-digit PIN for your card. You'll use this PIN for all transactions.</p>
                 <input
                   type="password"
-                  placeholder="•••��"
+                  placeholder="••�����"
                   value={activationPin}
                   onChange={(e) => setActivationPin(e.target.value.slice(0, 4))}
                   maxLength={4}
@@ -3153,6 +3153,8 @@ function FOMoUView() {
       executedDate: myFO.mouExecutionDate || "15 Jan 2025",
       expiryDate: myFO.mouExpiryDate || "14 Jan 2026",
       status: "Active",
+      incentiveProgramId: "IDINC-2026-001",
+      incentiveProgramName: "MGL Retrofit Incentive 2026",
       vehiclesCommitted: 15,
       newVehicles: 10,
       retrofitVehicles: 5,
@@ -3162,6 +3164,8 @@ function FOMoUView() {
       executedDate: "20 Feb 2025",
       expiryDate: "19 Feb 2026",
       status: "Active",
+      incentiveProgramId: "IDINC-2026-002",
+      incentiveProgramName: "MGL New Purchase Incentive 2026",
       vehiclesCommitted: 20,
       newVehicles: 12,
       retrofitVehicles: 8,
@@ -3171,6 +3175,8 @@ function FOMoUView() {
       executedDate: "10 Jan 2024",
       expiryDate: "09 Jan 2025",
       status: "Expired",
+      incentiveProgramId: "IDINC-2025-001",
+      incentiveProgramName: "MGL Retrofit Incentive 2025",
       vehiclesCommitted: 10,
       newVehicles: 8,
       retrofitVehicles: 2,
@@ -3228,6 +3234,20 @@ function FOMoUView() {
           </div>
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${mou.status === "Active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{mou.status}</span>
         </div>
+
+        {/* Incentive Program Info */}
+        <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
+          <div>
+            <p className="text-xs text-muted-foreground">Incentive Program ID</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5 font-mono">{mou.incentiveProgramId}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Program Name</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.incentiveProgramName}</p>
+          </div>
+        </div>
+
+        {/* Dates */}
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
           <div>
             <p className="text-xs text-muted-foreground">Executed Date</p>
