@@ -34,6 +34,22 @@ export const INCENTIVE_RATES = {
   },
 } as const
 
+// Slab-based incentive types for MOUs
+export interface IncentiveSlab {
+  slabNumber: number
+  fromVehicle: number
+  toVehicle: number
+  rates: {
+    new_purchase: { HCV: number; ICV: number; LCV: number; Bus: number }
+    retrofit: { HCV: number; ICV: number; LCV: number; Bus: number }
+  }
+}
+
+export interface MOUIncentiveConfig {
+  mouId: string
+  slabs: IncentiveSlab[]
+}
+
 export type IncentiveStatus = 
   | "not_eligible"      // first vehicle in category, waiting for 2nd
   | "eligible"          // 2nd+ vehicle approved, awaiting ZIC/admin approval
@@ -182,6 +198,66 @@ export function getModelsByOEMAndCategory(oemId: string, category: VehicleCatego
   return oem?.models[category] || [];
 }
 
+// Mock MOU incentive configs
+export const mockMOUIncentiveConfigs: MOUIncentiveConfig[] = [
+  {
+    mouId: "MGL/MOU/2025/001",
+    slabs: [
+      {
+        slabNumber: 1,
+        fromVehicle: 1,
+        toVehicle: 5,
+        rates: {
+          new_purchase: { HCV: 15000, ICV: 12000, LCV: 8000, Bus: 10000 },
+          retrofit:     { HCV: 10000, ICV: 8000,  LCV: 5000, Bus: 7000  },
+        },
+      },
+      {
+        slabNumber: 2,
+        fromVehicle: 6,
+        toVehicle: 10,
+        rates: {
+          new_purchase: { HCV: 18000, ICV: 14000, LCV: 10000, Bus: 12000 },
+          retrofit:     { HCV: 12000, ICV: 10000, LCV: 7000,  Bus: 9000  },
+        },
+      },
+      {
+        slabNumber: 3,
+        fromVehicle: 11,
+        toVehicle: 15,
+        rates: {
+          new_purchase: { HCV: 20000, ICV: 16000, LCV: 12000, Bus: 14000 },
+          retrofit:     { HCV: 14000, ICV: 12000, LCV: 9000,  Bus: 11000 },
+        },
+      },
+    ],
+  },
+];
+
+// Helper functions for incentive calculations
+export function getIncentiveAmount(
+  mouId: string,
+  vehicleSequence: number,
+  vehicleType: "new_purchase" | "retrofit",
+  category: "HCV" | "ICV" | "LCV" | "Bus"
+): number | null {
+  const config = mockMOUIncentiveConfigs.find(c => c.mouId === mouId);
+  if (!config) return null;
+  const slab = config.slabs.find(s => vehicleSequence >= s.fromVehicle && vehicleSequence <= s.toVehicle);
+  if (!slab) return null;
+  return slab.rates[vehicleType][category] ?? null;
+}
+
+export function getSlabNumber(
+  mouId: string,
+  vehicleSequence: number
+): number | null {
+  const config = mockMOUIncentiveConfigs.find(c => c.mouId === mouId);
+  if (!config) return null;
+  const slab = config.slabs.find(s => vehicleSequence >= s.fromVehicle && vehicleSequence <= s.toVehicle);
+  return slab?.slabNumber ?? null;
+}
+
 // Vehicle category classification
 export function classifyVehicleCategory(grossWeight: number): VehicleCategory {
   if (grossWeight >= 15) return "HCV";
@@ -302,6 +378,7 @@ export interface Vehicle {
   vehicleType?: "new_purchase" | "retrofit";
   mouId?: string;                          // linked MOU number e.g. "MGL/MOU/2025/001"
   categorySequence?: number;               // order added within same MOU + category (1, 2, 3...)
+  slabNumber?: number;                     // which incentive slab this vehicle falls in
   incentiveStatus?: IncentiveStatus;       // eligibility and approval state
   incentiveAmount?: number;                // computed incentive amount in INR
   incentiveApprovedBy?: string;            // ZIC or admin user ID
@@ -587,6 +664,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,
+    slabNumber: 1,
     incentiveStatus: "paid",
     incentiveAmount: 15000,
   },
@@ -611,6 +689,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 2,
+    slabNumber: 1,
     incentiveStatus: "approved",
     incentiveAmount: 15000,
   },
@@ -632,6 +711,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,
+    slabNumber: 1,
     incentiveStatus: "not_eligible",
   },
   {
@@ -715,6 +795,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 2,
+    slabNumber: 1,
     incentiveStatus: "eligible",
     incentiveAmount: 12000,
   },
@@ -737,6 +818,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "new_purchase",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 3,
+    slabNumber: 1,
     incentiveStatus: "eligible",
     incentiveAmount: 15000,
   },
@@ -762,6 +844,7 @@ export const mockVehicles: Vehicle[] = [
     vehicleType: "retrofit",
     mouId: "MGL/MOU/2025/001",
     categorySequence: 1,
+    slabNumber: 1,
     incentiveStatus: "not_eligible",
   },
   {
