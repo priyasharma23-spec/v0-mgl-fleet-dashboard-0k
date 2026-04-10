@@ -334,29 +334,10 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                         <span className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${statusCfg.bg} ${statusCfg.text}`}>{statusCfg.label}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                          <button onClick={() => setSelectedBonus(b)}
-                            className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors" title="View details">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          {(actualStatus === "eligible" || actualStatus === "pending_approval") && (role === "zic" || role === "admin") && !actionDone[b.id] && (
-                            <>
-                              <button onClick={() => handleApprove(b.id)}
-                                className="p-1.5 hover:bg-green-100 rounded-lg text-green-600 transition-colors" title="Approve">
-                                <CheckCircle className="w-4 h-4" />
-                              </button>
-                              <button onClick={() => handleReject(b.id)}
-                                className="p-1.5 hover:bg-red-100 rounded-lg text-red-600 transition-colors" title="Reject">
-                                <XCircle className="w-4 h-4" />
-                              </button>
-                            </>
-                          )}
-                          {actionDone[b.id] && (
-                            <span className={`text-xs font-medium ${actionDone[b.id] === "approved" ? "text-green-600" : "text-red-600"}`}>
-                              {actionDone[b.id] === "approved" ? "✓ Approved" : "✗ Rejected"}
-                            </span>
-                          )}
-                        </div>
+                        <button onClick={() => setSelectedBonus(b)}
+                          className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors" title="View details">
+                          <Eye className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   )
