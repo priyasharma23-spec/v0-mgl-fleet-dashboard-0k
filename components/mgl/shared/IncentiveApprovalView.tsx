@@ -315,13 +315,69 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                 </div>
 
                 {/* Vehicles in Slab */}
-                <div className="space-y-3">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Vehicles in This Slab</p>
-                  <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                    {selectedBonus.vehicles.map((v, i) => (
-                      <div key={i} className="flex items-center justify-between py-2 border-b border-border/40 last:border-b-0">
-                        <span className="text-xs font-mono font-semibold text-foreground">{v}</span>
-                        <CheckCircle className="w-4 h-4 text-green-600" />
+                <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicles in This Slab</p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {Array.from({ length: selectedBonus.slabSize }, (_, i) => {
+                      const seq = selectedBonus.slabNumber === 1 ? i + 1 : (selectedBonus.slabNumber - 1) * selectedBonus.slabSize + i + 1
+                      const v = mockVehicles.find(x =>
+                        x.mouId === selectedBonus.mouId &&
+                        x.category === selectedBonus.category &&
+                        x.vehicleType === selectedBonus.vehicleType &&
+                        x.categorySequence === seq
+                      )
+                      const status = v?.incentiveStatus
+                      return (
+                        <div key={i} className={`flex flex-col items-center gap-1 p-2 rounded-xl border ${
+                          status === "paid" ? "bg-green-50 border-green-200" :
+                          status === "approved" ? "bg-blue-50 border-blue-200" :
+                          status === "eligible" ? "bg-amber-50 border-amber-200" :
+                          status === "not_eligible" ? "bg-gray-50 border-gray-200" :
+                          "bg-muted/50 border-dashed border-border"
+                        }`}>
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                            status === "paid" ? "bg-green-500 text-white" :
+                            status === "approved" ? "bg-blue-500 text-white" :
+                            status === "eligible" ? "bg-amber-500 text-white" :
+                            status === "not_eligible" ? "bg-gray-300 text-gray-600" :
+                            "bg-muted text-muted-foreground border-2 border-dashed border-border"
+                          }`}>
+                            {v ? seq : "—"}
+                          </div>
+                          <span className={`text-[9px] font-medium text-center leading-tight ${
+                            status === "paid" ? "text-green-700" :
+                            status === "approved" ? "text-blue-700" :
+                            status === "eligible" ? "text-amber-700" :
+                            status === "not_eligible" ? "text-gray-500" :
+                            "text-muted-foreground"
+                          }`}>
+                            {status === "paid" ? "Paid" :
+                             status === "approved" ? "Approved" :
+                             status === "eligible" ? "Eligible" :
+                             status === "not_eligible" ? "Not eligible" :
+                             "Empty"}
+                          </span>
+                          {v && (
+                            <span className="text-[8px] text-muted-foreground font-mono truncate w-full text-center">
+                              {v.vehicleNumber?.slice(-4) || v.id.slice(-4)}
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {/* Legend */}
+                  <div className="flex flex-wrap gap-3 pt-2 border-t border-border">
+                    {[
+                      { color: "bg-green-500", label: "Paid" },
+                      { color: "bg-blue-500", label: "Approved" },
+                      { color: "bg-amber-500", label: "Eligible" },
+                      { color: "bg-gray-300", label: "Not eligible" },
+                      { color: "bg-muted border-2 border-dashed border-border", label: "Empty slot" },
+                    ].map(({ color, label }) => (
+                      <div key={label} className="flex items-center gap-1.5">
+                        <div className={`w-3 h-3 rounded-full ${color}`} />
+                        <span className="text-[10px] text-muted-foreground">{label}</span>
                       </div>
                     ))}
                   </div>
