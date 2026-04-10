@@ -77,10 +77,22 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
             const tds = Math.round(gross * 0.1)
 
             // Derive status from vehicle incentive statuses
-            const hasPaid = slabVehicles.every(v => v.incentiveStatus === "paid")
-            const hasApproved = slabVehicles.some(v => v.incentiveStatus === "approved")
-            const hasEligible = slabVehicles.some(v => v.incentiveStatus === "eligible")
-            const status: SlabBonus["status"] = hasPaid ? "paid" : hasApproved ? "approved" : hasEligible ? "eligible" : completed ? "pending_approval" : "pending_completion"
+            const allPaid = slabVehicles.every(v => v.incentiveStatus === "paid")
+            const anyApproved = slabVehicles.some(v => v.incentiveStatus === "approved")
+            const anyEligible = slabVehicles.some(v => v.incentiveStatus === "eligible")
+            const anyPaid = slabVehicles.some(v => v.incentiveStatus === "paid")
+
+            // If any vehicle is paid, vehicle #1 (not_eligible) becomes eligible
+            // because the trigger rule: 1st vehicle eligible when 2nd is approved/paid
+            const hasSecondApprovedOrPaid = slabVehicles.some(v =>
+              (v.categorySequence ?? 0) >= (slab.fromVehicle + 1) &&
+              (v.incentiveStatus === "approved" || v.incentiveStatus === "paid" || v.l1ApprovedAt)
+            )
+
+            const status: SlabBonus["status"] = allPaid ? "paid" :
+              anyApproved ? "approved" :
+              (anyEligible || (anyPaid && hasSecondApprovedOrPaid)) ? "eligible" :
+              completed ? "pending_approval" : "pending_completion"
 
             bonuses.push({
               id: `${config.mouId}__${cat}__${vType}__${slab.slabNumber}`,
@@ -326,7 +338,19 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                         x.vehicleType === selectedBonus.vehicleType &&
                         x.categorySequence === seq
                       )
-                      const status = v?.incentiveStatus
+
+                      // Override: if this is the first vehicle in the slab and a 2nd exists with paid/approved status
+                      const isFirstInSlab = selectedBonus.slabNumber === 1 ? 1 : (selectedBonus.slabNumber - 1) * selectedBonus.slabSize + 1
+                      const secondInSlab = mockVehicles.find(x =>
+                        x.mouId === selectedBonus.mouId &&
+                        x.category === selectedBonus.category &&
+                        x.vehicleType === selectedBonus.vehicleType &&
+                        x.categorySequence === seq + 1
+                      )
+                      const effectiveStatus = (v?.incentiveStatus === "not_eligible" && seq === isFirstInSlab && (secondInSlab?.incentiveStatus === "paid" || secondInSlab?.incentiveStatus === "approved" || secondInSlab?.l1ApprovedAt))
+                        ? "eligible"
+                        : v?.incentiveStatus
+                      const status = effectiveStatus
                       return (
                         <div key={i} className={`flex flex-col items-center gap-1 p-2 rounded-xl border ${
                           status === "paid" ? "bg-green-50 border-green-200" :
