@@ -164,7 +164,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ────────────────────────────────────────���────�����───────────
+// ─── FO Signup Flow ────────────────────────────────────────����────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -3235,20 +3235,8 @@ function FOMoUView() {
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${mou.status === "Active" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>{mou.status}</span>
         </div>
 
-        {/* Incentive Program Info */}
-        <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
-          <div>
-            <p className="text-xs text-muted-foreground">Incentive Program ID</p>
-            <p className="text-sm font-semibold text-foreground mt-0.5 font-mono">{mou.incentiveProgramId}</p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Program Name</p>
-            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.incentiveProgramName}</p>
-          </div>
-        </div>
-
         {/* Dates */}
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+        <div className="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-border">
           <div>
             <p className="text-xs text-muted-foreground">Executed Date</p>
             <p className="text-sm font-semibold text-foreground mt-0.5">{mou.executedDate}</p>
@@ -3256,6 +3244,18 @@ function FOMoUView() {
           <div>
             <p className="text-xs text-muted-foreground">Expiry Date</p>
             <p className={`text-sm font-semibold mt-0.5 ${daysToExpiry <= 30 ? "text-amber-600" : "text-foreground"}`}>{mou.expiryDate}</p>
+          </div>
+        </div>
+
+        {/* Incentive Program Info */}
+        <div className="grid grid-cols-2 gap-4 pt-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Incentive Program ID</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5 font-mono">{mou.incentiveProgramId}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Program Name</p>
+            <p className="text-sm font-semibold text-foreground mt-0.5">{mou.incentiveProgramName}</p>
           </div>
         </div>
       </div>
