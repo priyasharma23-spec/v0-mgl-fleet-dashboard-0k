@@ -164,7 +164,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ────────────────────────────────────────������────�����───────────
+// ─── FO Signup Flow ────────────────────────────────────────�������────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
@@ -3223,12 +3223,12 @@ function FOMoUView() {
       </div>
 
       {/* Expiry warning */}
-      {daysToExpiry <= 30 && daysToExpiry > 0 && (
+      {enrichedMou.daysToExpiry <= 30 && enrichedMou.daysToExpiry > 0 && (
         <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
           <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-900">MoU Expiring Soon</p>
-            <p className="text-xs text-amber-700 mt-0.5">Your MoU expires in {daysToExpiry} days. Please contact your MIC officer for renewal.</p>
+            <p className="text-xs text-amber-700 mt-0.5">Your MoU expires in {enrichedMou.daysToExpiry} days. Please contact your MIC officer for renewal.</p>
           </div>
         </div>
       )}
