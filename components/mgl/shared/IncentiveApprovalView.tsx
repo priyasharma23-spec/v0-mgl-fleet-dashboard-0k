@@ -315,7 +315,6 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                   <div className="bg-muted/30 rounded-lg p-4 space-y-2.5">
                     {[
                       ["Slab Range", selectedBonus.slabRange],
-                      ["Fleet Operator", selectedBonus.foName],
                       ["Vehicles Registered", `${selectedBonus.vehiclesInSlab} of ${selectedBonus.slabSize}`],
                       ["Slab Complete", selectedBonus.vehiclesInSlab >= selectedBonus.slabSize ? "Yes" : `${selectedBonus.slabSize - selectedBonus.vehiclesInSlab} more needed`],
                     ].map(([label, value]) => (
