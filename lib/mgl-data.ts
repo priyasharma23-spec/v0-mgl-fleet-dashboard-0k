@@ -381,6 +381,7 @@ export interface Vehicle {
   slabNumber?: number;                     // which incentive slab this vehicle falls in
   incentiveStatus?: IncentiveStatus;       // eligibility and approval state
   incentiveAmount?: number;                // computed incentive amount in INR
+  incentiveType?: "standard" | "milestone_slab"; // type of incentive mechanism
   incentiveApprovedBy?: string;            // ZIC or admin user ID
   incentiveApprovedAt?: string;            // approval timestamp
   incentiveNote?: string;                  // reason or note from approver
@@ -666,6 +667,7 @@ export const mockVehicles: Vehicle[] = [
     categorySequence: 1,
     slabNumber: 1,
     incentiveStatus: "paid",
+    incentiveType: "standard",
     incentiveAmount: 15000,
   },
   {
@@ -691,6 +693,7 @@ export const mockVehicles: Vehicle[] = [
     categorySequence: 2,
     slabNumber: 1,
     incentiveStatus: "approved",
+    incentiveType: "standard",
     incentiveAmount: 15000,
   },
   {
@@ -713,6 +716,7 @@ export const mockVehicles: Vehicle[] = [
     categorySequence: 1,
     slabNumber: 1,
     incentiveStatus: "not_eligible",
+    incentiveType: "standard",
   },
   {
     id: "VEH004",
@@ -798,6 +802,7 @@ export const mockVehicles: Vehicle[] = [
     slabNumber: 1,
     incentiveStatus: "eligible",
     incentiveAmount: 12000,
+    incentiveType: "standard",
   },
   {
     id: "VEH008",
@@ -821,6 +826,7 @@ export const mockVehicles: Vehicle[] = [
     slabNumber: 1,
     incentiveStatus: "eligible",
     incentiveAmount: 15000,
+    incentiveType: "standard",
   },
   {
     id: "VEH009",
@@ -846,6 +852,7 @@ export const mockVehicles: Vehicle[] = [
     categorySequence: 1,
     slabNumber: 1,
     incentiveStatus: "not_eligible",
+    incentiveType: "standard",
   },
   {
     id: "VEH010",
@@ -956,6 +963,7 @@ export const mockVehicles: Vehicle[] = [
     slabNumber: 2,
     incentiveStatus: "eligible" as IncentiveStatus,
     incentiveAmount: 18000,
+    incentiveType: "milestone_slab",
     bookingReceiptUrl: "booking_veh020.pdf",
     rcBookUrl: "rc_veh020.pdf",
   },
@@ -984,6 +992,7 @@ export const mockVehicles: Vehicle[] = [
     slabNumber: 2,
     incentiveStatus: "eligible" as IncentiveStatus,
     incentiveAmount: 18000,
+    incentiveType: "milestone_slab",
     bookingReceiptUrl: "booking_veh021.pdf",
     rcBookUrl: "rc_veh021.pdf",
   },
@@ -1059,6 +1068,7 @@ export const mockVehicles: Vehicle[] = [
     categorySequence: 8,
     slabNumber: 2,
     incentiveStatus: "not_eligible" as IncentiveStatus,
+    incentiveType: "milestone_slab",
     bookingReceiptUrl: "booking_veh024.pdf",
   },
 ];
