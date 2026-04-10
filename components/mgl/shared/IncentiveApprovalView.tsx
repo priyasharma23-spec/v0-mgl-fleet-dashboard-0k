@@ -216,7 +216,11 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.vehicleType === "new_purchase" ? "New" : "Retrofit"}</td>
                       <td className="px-4 py-3 text-xs font-medium text-center">{b.slabNumber}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.slabRange}</td>
-                      <td className="px-4 py-3 text-xs font-medium">{b.vehiclesInSlab}/{b.slabSize}</td>
+                      <td className="px-4 py-3 text-xs text-center">
+                        <span className={`font-medium ${b.vehiclesInSlab >= b.slabSize ? "text-green-700" : "text-amber-700"}`}>
+                          {b.vehiclesInSlab}/{b.slabSize}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.grossAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.netAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3">
@@ -280,7 +284,8 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       ["Vehicle Type", selectedBonus.vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"],
                       ["Slab Range", selectedBonus.slabRange],
                       ["Fleet Operator", selectedBonus.foName],
-                      ["Vehicles Completed", `${selectedBonus.vehiclesInSlab}/${selectedBonus.slabSize}`],
+                      ["Vehicles Registered", `${selectedBonus.vehiclesInSlab} of ${selectedBonus.slabSize}`],
+                      ["Slab Complete", selectedBonus.vehiclesInSlab >= selectedBonus.slabSize ? "Yes" : `${selectedBonus.slabSize - selectedBonus.vehiclesInSlab} more needed`],
                     ].map(([label, value]) => (
                       <div key={label} className="flex items-center justify-between py-1.5 border-b border-border/40 last:border-b-0">
                         <span className="text-xs text-muted-foreground font-medium">{label}</span>
