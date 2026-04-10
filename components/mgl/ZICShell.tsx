@@ -1,4 +1,5 @@
 "use client"
+import IncentiveApprovalView from "@/components/mgl/shared/IncentiveApprovalView"
 
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -25,6 +26,7 @@ export default function ZICShell({ user, onLogout }: Props) {
       case "zic-vehicles": return <ZICVehiclesView />
       case "zic-cards": return <ZICCardsView />
       case "zic-reports": return <ZICReportsView />
+      case "zic-incentives": return <IncentiveApprovalView role="zic" />
       default: return <ZICDashboard onViewChange={setActiveView} />
     }
   }

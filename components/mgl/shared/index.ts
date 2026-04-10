@@ -41,6 +41,8 @@ export type { TransactionRecord } from "./TransactionDetailTray"
 export { default as ReportsView } from "./ReportsView"
 export type { ReportRole } from "./ReportsView"
 
+export { default as IncentiveApprovalView } from "./IncentiveApprovalView"
+
 // ─── Existing MGL Components (re-exported for unified imports) ────────────────
 export { default as StatCard } from "@/components/mgl/StatCard"
 
