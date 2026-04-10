@@ -301,6 +301,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                 <div>
                   <h2 className="font-bold text-lg text-foreground">Incentive details</h2>
                   <p className="text-sm text-muted-foreground mt-1">{selectedBonus.mouId} • {selectedBonus.category} • {selectedBonus.vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</p>
+                  <p className="font-mono text-xs font-medium text-foreground mt-1">{selectedBonus.firstVehicle?.vehicleNumber || selectedBonus.vehicles[0] || "—"}</p>
                 </div>
                 <button onClick={() => setSelectedBonus(null)} className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground">
                   <XCircle className="w-5 h-5" />
