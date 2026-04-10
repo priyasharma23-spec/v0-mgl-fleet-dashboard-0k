@@ -208,7 +208,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  {["Vehicle", "MOU", "FO Name", "Category", "Type", "Slab", "Range", "Count", "Gross", "Net", "Status", "Action"].map(h => (
+                  {["Vehicle", "MOU", "FO Name", "Category", "Type", "Slab", "Range", "Sequence", "Gross", "Net", "Status", "Action"].map(h => (
                     <th key={h} className="px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -229,6 +229,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.vehicleType === "new_purchase" ? "New" : "Retrofit"}</td>
                       <td className="px-4 py-3 text-xs font-medium text-center">{b.slabNumber}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.slabRange}</td>
+                      <td className="px-4 py-3 text-xs text-center text-muted-foreground">#{b.categorySequence}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.grossAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.netAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3">
