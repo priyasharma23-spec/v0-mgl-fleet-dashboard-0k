@@ -253,7 +253,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.vehicleType === "new_purchase" ? "New" : "Retrofit"}</td>
                       <td className="px-4 py-3 text-xs font-medium text-center">{b.slabNumber}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">{b.slabRange}</td>
-                      <td className="px-4 py-3 text-xs text-center text-muted-foreground">#{b.categorySequence}</td>
+                      <td className="px-4 py-3 text-xs text-center text-muted-foreground">{b.categorySequence}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.grossAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.netAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3">
