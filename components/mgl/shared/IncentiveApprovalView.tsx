@@ -69,8 +69,9 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
+          { label: "Not Eligible",     value: incentiveVehicles.filter(v => v.incentiveStatus === "not_eligible").length, color: "text-gray-500", bg: "bg-gray-100", status: "not_eligible" },
           { label: "Eligible",         value: counts.eligible,  color: "text-amber-600",  bg: "bg-amber-100",  status: "eligible"         },
           { label: "Pending Approval", value: counts.pending,   color: "text-purple-600", bg: "bg-purple-100", status: "pending_approval" },
           { label: "Approved",         value: counts.approved,  color: "text-blue-600",   bg: "bg-blue-100",   status: "approved"         },
@@ -86,6 +87,70 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
           </button>
         ))}
       </div>
+
+      {/* Waiting for trigger — vehicles that will become eligible when 2nd vehicle approved */}
+      {(() => {
+        const notEligible = incentiveVehicles.filter(v => v.incentiveStatus === "not_eligible")
+        if (notEligible.length === 0) return null
+
+        // Group by MOU + category + vehicleType
+        const groups = new Map<string, typeof notEligible>()
+        notEligible.forEach(v => {
+          const key = `${v.mouId}__${v.category}__${v.vehicleType}`
+          if (!groups.has(key)) groups.set(key, [])
+          groups.get(key)!.push(v)
+        })
+
+        return (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+              <p className="text-sm font-semibold text-amber-900">Waiting for 2nd Vehicle Trigger</p>
+            </div>
+            <p className="text-xs text-amber-700">These vehicles are the first in their category under a MOU. They will become eligible for incentive once the 2nd vehicle in the same category is approved.</p>
+            <div className="space-y-2">
+              {Array.from(groups.entries()).map(([key, vehicles]) => {
+                const v = vehicles[0]
+                // Check if 2nd vehicle exists in same group
+                const allInGroup = incentiveVehicles.filter(x =>
+                  x.mouId === v.mouId &&
+                  x.category === v.category &&
+                  x.vehicleType === v.vehicleType
+                )
+                const has2nd = allInGroup.length >= 2
+                const second = allInGroup.find(x => x.categorySequence === 2)
+
+                return (
+                  <div key={key} className="bg-white border border-amber-200 rounded-lg p-3 flex items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-xs font-medium text-foreground">{v.vehicleNumber || v.id}</span>
+                        <span className="text-xs text-muted-foreground">{v.foName}</span>
+                        <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded text-[10px] font-medium">{v.category} · {v.vehicleType === "new_purchase" ? "New Purchase" : "Retrofitment"}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{v.mouId}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {has2nd ? (
+                        <div className="flex items-center gap-1 text-xs text-green-700 font-medium">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          2nd vehicle exists
+                          {second && <span className="text-muted-foreground ml-1">({second.status === "CARD_ACTIVE" || second.l1ApprovedAt ? "approved" : "pending"})</span>}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1 text-xs text-amber-700">
+                          <Clock className="w-3.5 h-3.5" />
+                          Waiting for 2nd vehicle
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Search + Filter */}
       <div className="flex gap-3">
