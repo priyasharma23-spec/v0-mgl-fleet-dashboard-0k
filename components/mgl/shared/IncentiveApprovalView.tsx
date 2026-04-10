@@ -37,7 +37,7 @@ const STATUS_CONFIG: Record<SlabBonus["status"], { label: string; bg: string; te
 
 export default function IncentiveApprovalView({ role = "zic" }: Props) {
   const [search, setSearch] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("eligible")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
   const [selectedBonus, setSelectedBonus] = useState<SlabBonus | null>(null)
   const [approvalNote, setApprovalNote] = useState("")
   const [actionDone, setActionDone] = useState<Record<string, "approved" | "rejected">>({})
