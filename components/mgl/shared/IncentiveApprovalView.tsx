@@ -1,6 +1,6 @@
 "use client"
 import { useState, useMemo } from "react"
-import { CheckCircle, XCircle, Clock, Gift, Eye } from "lucide-react"
+import { CheckCircle, XCircle, Clock, Gift, Eye, X } from "lucide-react"
 import { mockVehicles, mockMOUIncentiveConfigs } from "@/lib/mgl-data"
 
 type Role = "admin" | "zic" | "finance"
@@ -52,6 +52,10 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
   const [selectedBonus, setSelectedBonus] = useState<SlabBonus | null>(null)
   const [approvalNote, setApprovalNote] = useState("")
   const [actionDone, setActionDone] = useState<Record<string, "approved" | "rejected">>({})
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [bulkNote, setBulkNote] = useState("")
+  const [bulkDone, setBulkDone] = useState(false)
 
   const slabBonuses = useMemo(() => {
     const bonuses: SlabBonus[] = []
@@ -236,28 +240,77 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
           </select>
         </div>
 
+        {/* Bulk action bar */}
+        {selectedRows.size > 0 && (
+          <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-xl mb-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-foreground">{selectedRows.size} vehicle{selectedRows.size > 1 ? "s" : ""} selected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setSelectedRows(new Set())}
+                className="text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted">
+                Clear
+              </button>
+              <button
+                onClick={() => { setShowBulkModal(true); setBulkDone(false) }}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
+                <CheckCircle className="w-3.5 h-3.5" /> Approve All Selected
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Table */}
         <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/40">
-                  {["Vehicle", "MOU", "FO Name", "Category", "Type", "Slab", "Range", "Sequence", "Gross", "Net", "Status", "Action"].map(h => (
-                    <th key={h} className="px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
+                  {["", "Vehicle", "MOU", "FO Name", "Category", "Type", "Slab", "Range", "Sequence", "Gross", "Net", "Status", "Action"].map((h, i) => (
+                    <th key={h || i} className="px-4 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {i === 0 ? (
+                        <input type="checkbox"
+                          checked={selectedRows.size === tableRows.filter(r => (r.incentiveStatus === "eligible" || r.incentiveStatus === "pending_approval") && !actionDone[r.vehicleId]).length && selectedRows.size > 0}
+                          onChange={e => {
+                            if (e.target.checked) {
+                              const eligible = tableRows.filter(r => (r.incentiveStatus === "eligible" || r.incentiveStatus === "pending_approval") && !actionDone[r.vehicleId]).map(r => r.vehicleId)
+                              setSelectedRows(new Set(eligible))
+                            } else {
+                              setSelectedRows(new Set())
+                            }
+                          }}
+                          className="w-4 h-4 rounded border-border"
+                        />
+                      ) : h}
+                    </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {tableRows.length === 0 && (
-                  <tr><td colSpan={12} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
+                  <tr><td colSpan={13} className="px-4 py-12 text-center text-sm text-muted-foreground">No slab bonuses found</td></tr>
                 )}
                 {tableRows.map(row => {
                   const b = row
                   const actualStatus = actionDone[b.id] === "approved" ? "approved" : actionDone[b.id] === "rejected" ? "pending_completion" : b.status
-                  const vehicleStatus = row.firstVehicle?.incentiveStatus ?? "not_eligible"
+                  const vehicleStatus = row.incentiveStatus ?? "not_eligible"
                   const statusCfg = VEHICLE_STATUS_CONFIG[vehicleStatus] ?? VEHICLE_STATUS_CONFIG["not_eligible"]
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
+                      <td className="px-4 py-3">
+                        {(row.incentiveStatus === "eligible" || row.incentiveStatus === "pending_approval") && !actionDone[row.vehicleId] && (
+                          <input type="checkbox"
+                            checked={selectedRows.has(row.vehicleId)}
+                            onChange={e => {
+                              const next = new Set(selectedRows)
+                              e.target.checked ? next.add(row.vehicleId) : next.delete(row.vehicleId)
+                              setSelectedRows(next)
+                            }}
+                            className="w-4 h-4 rounded border-border"
+                          />
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-0.5">
                           <span className="font-mono text-xs font-medium">{row.firstVehicle?.vehicleNumber || b.vehicles[0] || "—"}</span>
@@ -281,29 +334,10 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                         <span className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${statusCfg.bg} ${statusCfg.text}`}>{statusCfg.label}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1.5">
-                          <button onClick={() => setSelectedBonus(b)}
-                            className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors" title="View details">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          {(actualStatus === "eligible" || actualStatus === "pending_approval") && (role === "zic" || role === "admin") && !actionDone[b.id] && (
-                            <>
-                              <button onClick={() => handleApprove(b.id)}
-                                className="p-1.5 hover:bg-green-100 rounded-lg text-green-600 transition-colors" title="Approve">
-                                <CheckCircle className="w-4 h-4" />
-                              </button>
-                              <button onClick={() => handleReject(b.id)}
-                                className="p-1.5 hover:bg-red-100 rounded-lg text-red-600 transition-colors" title="Reject">
-                                <XCircle className="w-4 h-4" />
-                              </button>
-                            </>
-                          )}
-                          {actionDone[b.id] && (
-                            <span className={`text-xs font-medium ${actionDone[b.id] === "approved" ? "text-green-600" : "text-red-600"}`}>
-                              {actionDone[b.id] === "approved" ? "✓ Approved" : "✗ Rejected"}
-                            </span>
-                          )}
-                        </div>
+                        <button onClick={() => setSelectedBonus(b)}
+                          className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors" title="View details">
+                          <Eye className="w-4 h-4" />
+                        </button>
                       </td>
                     </tr>
                   )
@@ -482,6 +516,84 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       <p className={`text-xs mt-1.5 ${actionDone[selectedBonus.id] === "approved" ? "text-green-700" : "text-red-700"}`}>
                         {actionDone[selectedBonus.id] === "approved" ? "The bonus will be processed and credited to the incentive wallet of the card associated with the vehicle." : "The slab completion bonus has been rejected."}
                       </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Bulk approval modal */}
+        {showBulkModal && (
+          <>
+            <div className="fixed inset-0 bg-black/50 z-50" onClick={() => !bulkDone && setShowBulkModal(false)} />
+            <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+              <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
+                <div className="flex items-center justify-between p-5 border-b border-border">
+                  <div>
+                    <h3 className="font-semibold text-foreground">Bulk Approve Incentives</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{selectedRows.size} vehicle{selectedRows.size > 1 ? "s" : ""} selected for approval</p>
+                  </div>
+                  {!bulkDone && (
+                    <button onClick={() => setShowBulkModal(false)} className="p-2 hover:bg-muted rounded-lg">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {bulkDone ? (
+                  <div className="p-8 text-center">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <h4 className="font-semibold text-foreground">Incentives Approved</h4>
+                    <p className="text-sm text-muted-foreground mt-1">{selectedRows.size} vehicles approved successfully. Incentives will be credited to respective FO wallets.</p>
+                    <button onClick={() => { setShowBulkModal(false); setSelectedRows(new Set()) }}
+                      className="mt-4 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
+                      Done
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-5 space-y-4">
+                    {/* Summary of selected vehicles */}
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-2 max-h-48 overflow-y-auto">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicles to Approve</p>
+                      {tableRows.filter(r => selectedRows.has(r.vehicleId)).map(row => (
+                        <div key={row.vehicleId} className="flex items-center justify-between text-sm">
+                          <span className="font-mono text-xs">{row.firstVehicle?.vehicleNumber || row.vehicles[0]}</span>
+                          <span className="text-green-700 font-medium text-xs">₹{row.grossAmount.toLocaleString("en-IN")}</span>
+                        </div>
+                      ))}
+                      <div className="flex items-center justify-between text-sm pt-2 border-t border-border font-semibold">
+                        <span>Total Net Payable</span>
+                        <span className="text-green-700">
+                          ₹{tableRows
+                            .filter(r => selectedRows.has(r.vehicleId))
+                            .reduce((sum, r) => sum + Math.round(r.grossAmount * 0.9), 0)
+                            .toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <textarea value={bulkNote} onChange={e => setBulkNote(e.target.value)}
+                      placeholder="Add approval note (optional)..."
+                      rows={3}
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-card resize-none focus:outline-none focus:ring-2 focus:ring-primary/30" />
+
+                    <div className="flex gap-3">
+                      <button onClick={() => setShowBulkModal(false)}
+                        className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => {
+                          const next = { ...actionDone }
+                          selectedRows.forEach(vehicleId => { next[vehicleId] = "approved" })
+                          setActionDone(next)
+                          setBulkDone(true)
+                        }}
+                        className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 flex items-center justify-center gap-2">
+                        <CheckCircle className="w-4 h-4" /> Confirm Approval
+                      </button>
                     </div>
                   </div>
                 )}
