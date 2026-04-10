@@ -3144,26 +3144,68 @@ function FONotificationsView() {
 
 // ─── FO MOU View ───────────��───────────────────────────────────────────────���
 function FOMoUView() {
-  const mou = {
-    number: myFO.mouNumber || "MGL/MOU/2025/001",
-    executedDate: myFO.mouExecutionDate || "15 Jan 2025",
-    expiryDate: myFO.mouExpiryDate || "14 Jan 2026",
-    status: "Active",
-    vehiclesCommitted: 15,
-    newVehicles: 10,
-    retrofitVehicles: 5,
-    vehiclesRegistered: myVehicles.length,
-    vehiclesActive: myVehicles.filter(v => v.status === "CARD_ACTIVE").length,
-  }
+  const [selectedMouIndex, setSelectedMouIndex] = useState(0)
 
-  const daysToExpiry = Math.ceil((new Date(myFO.mouExpiryDate || "2026-01-14").getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+  // Multiple MOUs for the FO
+  const mous = [
+    {
+      number: myFO.mouNumber || "MGL/MOU/2025/001",
+      executedDate: myFO.mouExecutionDate || "15 Jan 2025",
+      expiryDate: myFO.mouExpiryDate || "14 Jan 2026",
+      status: "Active",
+      vehiclesCommitted: 15,
+      newVehicles: 10,
+      retrofitVehicles: 5,
+    },
+    {
+      number: "MGL/MOU/2025/002",
+      executedDate: "20 Feb 2025",
+      expiryDate: "19 Feb 2026",
+      status: "Active",
+      vehiclesCommitted: 20,
+      newVehicles: 12,
+      retrofitVehicles: 8,
+    },
+    {
+      number: "MGL/MOU/2024/001",
+      executedDate: "10 Jan 2024",
+      expiryDate: "09 Jan 2025",
+      status: "Expired",
+      vehiclesCommitted: 10,
+      newVehicles: 8,
+      retrofitVehicles: 2,
+    },
+  ]
+
+  const mou = mous[selectedMouIndex]
+  const vehiclesRegistered = myVehicles.length
+  const vehiclesActive = myVehicles.filter(v => v.status === "CARD_ACTIVE").length
+
+  const daysToExpiry = Math.ceil((new Date(mou.expiryDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
 
   return (
     <div className="flex flex-col gap-5 p-5">
       {/* Header */}
       <div>
-        <h1 className="text-xl font-bold text-foreground">My MoU</h1>
-        <p className="text-sm text-muted-foreground">Memorandum of Understanding with Mahanagar Gas Limited</p>
+        <h1 className="text-xl font-bold text-foreground">My MoUs</h1>
+        <p className="text-sm text-muted-foreground">Manage your Memorandum of Understanding with Mahanagar Gas Limited</p>
+      </div>
+
+      {/* MOU Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {mous.map((m, idx) => (
+          <button
+            key={idx}
+            onClick={() => setSelectedMouIndex(idx)}
+            className={`px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium transition-colors ${
+              selectedMouIndex === idx
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
+          >
+            <span className="font-mono">{m.number}</span>
+          </button>
+        ))}
       </div>
 
       {/* Expiry warning */}
