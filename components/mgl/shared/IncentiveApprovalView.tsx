@@ -36,6 +36,16 @@ const STATUS_CONFIG: Record<SlabBonus["status"], { label: string; bg: string; te
   paid:               { label: "Paid",                bg: "bg-green-100",   text: "text-green-700" },
 }
 
+const VEHICLE_STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
+  not_eligible:     { label: "Not eligible",     bg: "bg-gray-100",   text: "text-gray-600"   },
+  eligible:         { label: "Eligible",          bg: "bg-amber-100",  text: "text-amber-700"  },
+  pending_approval: { label: "Pending approval",  bg: "bg-purple-100", text: "text-purple-700" },
+  approved:         { label: "Approved",          bg: "bg-blue-100",   text: "text-blue-700"   },
+  paid:             { label: "Paid",              bg: "bg-green-100",  text: "text-green-700"  },
+  out_of_scope:     { label: "Out of scope",      bg: "bg-gray-100",   text: "text-gray-400"   },
+  pending_completion: { label: "In progress",     bg: "bg-amber-100",  text: "text-amber-700"  },
+}
+
 export default function IncentiveApprovalView({ role = "zic" }: Props) {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
@@ -243,7 +253,8 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                 {tableRows.map(row => {
                   const b = row
                   const actualStatus = actionDone[b.id] === "approved" ? "approved" : actionDone[b.id] === "rejected" ? "pending_completion" : b.status
-                  const cfg = STATUS_CONFIG[actualStatus as SlabBonus["status"]]
+                  const vehicleStatus = row.firstVehicle?.incentiveStatus ?? "not_eligible"
+                  const statusCfg = VEHICLE_STATUS_CONFIG[vehicleStatus] ?? VEHICLE_STATUS_CONFIG["not_eligible"]
                   return (
                     <tr key={b.id} className="hover:bg-muted/40 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs font-medium">{row.firstVehicle?.vehicleNumber || b.vehicles[0] || "—"}</td>
@@ -257,7 +268,7 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.grossAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3 font-bold text-green-700">₹{b.netAmount.toLocaleString("en-IN")}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${cfg.bg} ${cfg.text}`}>{cfg.label}</span>
+                        <span className={`px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${statusCfg.bg} ${statusCfg.text}`}>{statusCfg.label}</span>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
