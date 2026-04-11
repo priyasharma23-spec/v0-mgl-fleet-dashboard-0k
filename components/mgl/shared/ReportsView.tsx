@@ -131,8 +131,9 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
         
         {/* Combined Form Container */}
         <div className="bg-card rounded-xl border border-border p-5 space-y-5">
-          {/* Report Selection */}
-          <div>
+        {/* Report Selection & File Format */}
+        <div className="grid grid-cols-3 gap-4 items-end">
+          <div className="col-span-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
             <div className="relative">
               <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
@@ -154,6 +155,20 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
             )}
           </div>
 
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">File Format</label>
+            <div className="flex gap-2">
+              {["Excel", "CSV"].map(fmt => (
+                <button key={fmt} onClick={() => setFileFormat(fmt as "Excel" | "CSV")}
+                  title={fmt === "Excel" ? "Excel (.xlsx)" : "CSV (.csv)"}
+                  className={`flex-1 py-2.5 rounded-lg text-xs font-medium border transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/50"}`}>
+                  {fmt}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
           {/* Date Range */}
           <div>
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Select Date Range</label>
@@ -168,19 +183,6 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
                 <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
                   className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
               </div>
-            </div>
-          </div>
-
-          {/* File Format */}
-          <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">File Format</label>
-            <div className="flex gap-3">
-              {["Excel", "CSV"].map(fmt => (
-                <button key={fmt} onClick={() => setFileFormat(fmt as "Excel" | "CSV")}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/50"}`}>
-                  {fmt === "Excel" ? "📊 Excel (.xlsx)" : "📄 CSV (.csv)"}
-                </button>
-              ))}
             </div>
           </div>
 
