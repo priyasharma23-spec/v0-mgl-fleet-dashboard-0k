@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Download, FileText, Clock, CheckCircle, AlertCircle, ChevronDown } from "lucide-react"
+import * as XLSX from "xlsx"
 
 export type ReportRole = "admin" | "finance" | "mic" | "zic" | "fo"
 
@@ -23,6 +24,8 @@ const ALL_REPORT_TEMPLATES: ReportTemplate[] = [
   { id: "incentive-fo", name: "My Incentive Statement", desc: "Incentive credits and TDS details", format: "PDF", roles: ["fo"] },
   { id: "mou-compliance", name: "MOU Compliance Report", desc: "Vehicle commitment vs actual", format: "Excel", roles: ["admin", "mic"] },
   { id: "kyc-status", name: "KYC Status Report", desc: "FO KYC verification status", format: "Excel", roles: ["admin", "mic"] },
+  { id: "cashback-ledger", name: "Cashback Ledger", desc: "Cashback earned per transaction with station and vehicle details", format: "Excel", roles: ["admin", "finance", "fo"] },
+  { id: "incentive-ledger", name: "Incentive Ledger", desc: "Incentive credits with TDS, slab and approval details", format: "Excel", roles: ["admin", "finance", "zic", "fo"] },
 ]
 
 interface GeneratedReport {
@@ -57,6 +60,135 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
 
   const generateTransactionLedger = () => {
     handleGenerate(selectedTemplate!)
+  }
+
+  const generateCashbackLedger = (role: ReportRole) => {
+    const isFO = role === "fo"
+    
+    const headers = isFO
+      ? ["TXN ID", "Date", "Station", "Station Type", "Amount Paid (₹)", "Cashback Rate (%)", "Cashback Amount (₹)", "Status", "Vehicle No.", "Card No."]
+      : ["TXN ID", "Date", "FO Name", "Vehicle No.", "Station", "Amount Paid (₹)", "Cashback Rate (%)", "Cashback Amount (₹)", "Status", "Credited To"]
+
+    const stations = ["MGL Hind CNG Filling", "MGL Kurla Station", "MGL Andheri East", "MGL Goregaon", "MGL Thane"]
+    const stationTypes = ["COCO", "DODO", "MGL Tej"]
+    const vehicles = ["MH04AB1234", "MH04CD5678", "MH04EF9012"]
+    const fos = ["ABC Logistics Pvt. Ltd.", "Metro Freight Solutions", "Sunrise Transport Co."]
+    const statuses = ["Credited", "Credited", "Credited", "Pending", "Credited"]
+
+    const rows = Array.from({ length: 20 }, (_, i) => {
+      const amount = (500 + Math.random() * 1500).toFixed(2)
+      const rate = 2.5
+      const cashback = (Number(amount) * rate / 100).toFixed(2)
+      const date = new Date(2026, 2, 1 + i, 8 + i % 12).toLocaleDateString("en-IN")
+      const status = statuses[i % statuses.length]
+
+      return isFO ? [
+        `TXN${42100 + i}`,
+        date,
+        stations[i % stations.length],
+        stationTypes[i % stationTypes.length],
+        amount,
+        rate,
+        cashback,
+        status,
+        vehicles[i % vehicles.length],
+        `MGL****${4521 + i % 3}`,
+      ] : [
+        `TXN${42100 + i}`,
+        date,
+        fos[i % fos.length],
+        vehicles[i % vehicles.length],
+        stations[i % stations.length],
+        amount,
+        rate,
+        cashback,
+        status,
+        "Incentive Wallet",
+      ]
+    })
+
+    const totalCashback = rows.reduce((sum, r) => sum + Number(r[isFO ? 6 : 7]), 0)
+    rows.push(isFO
+      ? ["", "TOTAL", "", "", "", "", totalCashback.toFixed(2), "", "", ""]
+      : ["", "TOTAL", "", "", "", "", "", totalCashback.toFixed(2), "", ""]
+    )
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows])
+    ws["!cols"] = headers.map(() => ({ wch: 20 }))
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Cashback Ledger")
+    XLSX.writeFile(wb, `MGL_Cashback_Ledger_${role}_${new Date().toISOString().split("T")[0]}.xlsx`)
+  }
+
+  const generateIncentiveLedger = (role: ReportRole) => {
+    const isFO = role === "fo"
+
+    const headers = isFO
+      ? ["Incentive ID", "Date", "Vehicle No.", "Category", "Type", "Slab", "MOU No.", "Gross Amount (₹)", "TDS (₹)", "Net Amount (₹)", "Status"]
+      : ["Incentive ID", "Date", "FO Name", "Vehicle No.", "Category", "Type", "Slab", "MOU No.", "Gross Amount (₹)", "TDS (₹)", "Net Amount (₹)", "Approved By", "Status"]
+
+    const vehicles = ["MH04AB1234", "MH04CD5678", "MH04EF9012", "MH04HCV0006", "MH04HCV0007"]
+    const fos = ["ABC Logistics Pvt. Ltd.", "Metro Freight Solutions", "Sunrise Transport Co."]
+    const categories = ["HCV", "ICV", "LCV", "Bus"]
+    const types = ["New Purchase", "Retrofitment"]
+    const statuses = ["Paid", "Paid", "Approved", "Eligible", "Paid"]
+    const mou = "MGL/MOU/2025/001"
+    const rates: Record<string, number> = { HCV: 15000, ICV: 12000, LCV: 8000, Bus: 10000 }
+
+    const rows = Array.from({ length: 15 }, (_, i) => {
+      const cat = categories[i % categories.length]
+      const gross = rates[cat]
+      const tds = Math.round(gross * 0.1)
+      const net = gross - tds
+      const date = new Date(2026, 2, 1 + i * 2).toLocaleDateString("en-IN")
+      const status = statuses[i % statuses.length]
+      const slab = i < 5 ? 1 : 2
+
+      return isFO ? [
+        `INC${1001 + i}`,
+        date,
+        vehicles[i % vehicles.length],
+        cat,
+        types[i % types.length],
+        `Slab ${slab}`,
+        mou,
+        gross,
+        tds,
+        net,
+        status,
+      ] : [
+        `INC${1001 + i}`,
+        date,
+        fos[i % fos.length],
+        vehicles[i % vehicles.length],
+        cat,
+        types[i % types.length],
+        `Slab ${slab}`,
+        mou,
+        gross,
+        tds,
+        net,
+        status === "Paid" ? "ZIC Officer" : status === "Approved" ? "Admin" : "—",
+        status,
+      ]
+    })
+
+    const grossCol = isFO ? 7 : 8
+    const netCol = isFO ? 9 : 10
+    const totalGross = rows.reduce((sum, r) => sum + Number(r[grossCol] || 0), 0)
+    const totalNet = rows.reduce((sum, r) => sum + Number(r[netCol] || 0), 0)
+
+    const summaryRow = new Array(headers.length).fill("")
+    summaryRow[0] = "TOTAL"
+    summaryRow[grossCol] = totalGross
+    summaryRow[netCol] = totalNet
+    rows.push(summaryRow)
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows])
+    ws["!cols"] = headers.map(() => ({ wch: 18 }))
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Incentive Ledger")
+    XLSX.writeFile(wb, `MGL_Incentive_Ledger_${role}_${new Date().toISOString().split("T")[0]}.xlsx`)
   }
 
   const handleGenerate = (template: ReportTemplate) => {
@@ -184,11 +316,10 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
           {selectedTemplate && (
             <button
               onClick={() => {
-                if (selectedTemplate?.id === "txn-ledger") {
-                  generateTransactionLedger()
-                } else {
-                  handleGenerate(selectedTemplate!)
-                }
+                if (selectedTemplate?.id === "txn-ledger") generateTransactionLedger()
+                else if (selectedTemplate?.id === "cashback-ledger") generateCashbackLedger(role)
+                else if (selectedTemplate?.id === "incentive-ledger") generateIncentiveLedger(role)
+                else handleGenerate(selectedTemplate!)
               }}
               disabled={generating === selectedTemplate.id}
               className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
