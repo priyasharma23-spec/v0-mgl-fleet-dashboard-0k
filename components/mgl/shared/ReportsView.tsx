@@ -46,7 +46,6 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0])
   const [selectedReportId, setSelectedReportId] = useState<string>("")
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([
-    { id: 1, name: "Transaction Ledger", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 2:30 PM", status: "Ready", format: "CSV", createdAt: Date.now() - 3600000 },
     { id: 2, name: "Cashback Report", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 1:15 PM", status: "Ready", format: "Excel", createdAt: Date.now() - 7200000 },
   ])
   const [generating, setGenerating] = useState<string | null>(null)
