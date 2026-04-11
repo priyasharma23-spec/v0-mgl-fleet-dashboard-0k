@@ -17,6 +17,7 @@ import FOVehicleDetailTray from "@/components/mgl/FOVehicleDetailTray"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
+import ReportsView from "@/components/mgl/shared/ReportsView"
 import {
   mockVehicles, mockFleetOperators,
   oems, dealers, retrofitters,
@@ -130,6 +131,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
       case "fo-mou": return <FOMoUView />
+      case "fo-reports": return <ReportsView role="fo" title="My Reports" />
       case "fo-profile": return <FOProfileView onboardingType={onboardingType} />
       default: return <FODashboard onViewChange={setActiveView} />
     }
@@ -164,7 +166,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   )
 }
 
-// ─── FO Signup Flow ────────────────────────────────────────�������────�����───────────
+// ─── FO Signup Flow ────────────────────────────────────────��������────�����───────────
 function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin: () => void }) {
   const [step, setStep] = useState(1)
   const [showPass, setShowPass] = useState(false)
