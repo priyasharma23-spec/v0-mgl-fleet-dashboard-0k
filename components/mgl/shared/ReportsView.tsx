@@ -163,17 +163,6 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
               </div>
             </div>
 
-            {selectedTemplate && (
-              <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
-                <p className="text-xs text-muted-foreground">{selectedTemplate.desc}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">{selectedTemplate.format}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
           {/* Date Range */}
           <div>
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Select Date Range</label>
