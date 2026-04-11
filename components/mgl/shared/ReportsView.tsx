@@ -132,40 +132,45 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
         {/* Combined Form Container */}
         <div className="bg-card rounded-xl border border-border p-5 space-y-5">
         {/* Report Selection & File Format */}
-        <div className="grid grid-cols-3 gap-4 items-end">
-          <div className="col-span-2">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
-            <div className="relative">
-              <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
-                onChange={e => setSelectedReportId(e.target.value)}
-                className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
-                {visibleTemplates.map(template => (
-                  <option key={template.id} value={template.id}>{template.name}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-3">
+            <div className="flex gap-4 items-end">
+              <div className="flex-1">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
+                <div className="relative">
+                  <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
+                    onChange={e => setSelectedReportId(e.target.value)}
+                    className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+                    {visibleTemplates.map(template => (
+                      <option key={template.id} value={template.id}>{template.name}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Format</label>
+                <div className="inline-flex items-center gap-1 p-1 bg-muted/50 rounded-lg border border-border">
+                  {["Excel", "CSV"].map(fmt => (
+                    <button key={fmt} onClick={() => setFileFormat(fmt as "Excel" | "CSV")}
+                      title={fmt === "Excel" ? "Excel (.xlsx)" : "CSV (.csv)"}
+                      className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                      {fmt}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
+
             {selectedTemplate && (
-              <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-border/50">
+              <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
                 <p className="text-xs text-muted-foreground">{selectedTemplate.desc}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">{selectedTemplate.format}</span>
                 </div>
               </div>
             )}
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">File Format</label>
-            <div className="inline-flex items-center gap-1 p-1 bg-muted/50 rounded-lg border border-border">
-              {["Excel", "CSV"].map(fmt => (
-                <button key={fmt} onClick={() => setFileFormat(fmt as "Excel" | "CSV")}
-                  title={fmt === "Excel" ? "Excel (.xlsx)" : "CSV (.csv)"}
-                  className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-                  {fmt}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
 
