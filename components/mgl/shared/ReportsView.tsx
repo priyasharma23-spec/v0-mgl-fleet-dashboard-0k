@@ -46,6 +46,7 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0])
   const [selectedReportId, setSelectedReportId] = useState<string>("")
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([
+    { id: 1, name: "Transaction Ledger", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 2:30 PM", status: "Ready", format: "CSV", createdAt: Date.now() - 3600000 },
     { id: 2, name: "Cashback Report", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 1:15 PM", status: "Ready", format: "Excel", createdAt: Date.now() - 7200000 },
   ])
   const [generating, setGenerating] = useState<string | null>(null)
@@ -188,6 +189,78 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
         </div>
       </div>
 
+      {/* Recent Reports */}
+      {generatedReports.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-foreground">Report History</h2>
+            <span className="text-xs text-muted-foreground">{generatedReports.length} total</span>
+          </div>
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  {["Report", "Date Range", "Requested", "Format", "Status", "Action"].map(h => (
+                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {generatedReports.map(report => (
+                  <tr key={report.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-sm text-foreground">{report.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{report.dateRange}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{report.requestedAt}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-1 bg-muted/50 text-muted-foreground text-[10px] font-semibold rounded">{report.format}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {report.status === "Ready" ? (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <span className="text-xs font-semibold text-green-700">Ready</span>
+                        </div>
+                      ) : report.status === "Failed" ? (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                          <span className="text-xs font-semibold text-red-600">Failed</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                          <span className="text-xs font-semibold text-amber-600">Preparing</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {report.status === "Ready" ? (
+                        <div className="flex items-center gap-2">
+                          <button onClick={() => handleDownload(report)}
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                            <Download className="w-3.5 h-3.5" /> Download
+                          </button>
+                          <span className="text-[10px] text-muted-foreground">Exp: {getExpiryDate(report.createdAt)}</span>
+                        </div>
+                      ) : report.status === "Preparing" ? (
+                        <span className="text-xs text-muted-foreground">Processing...</span>
+                      ) : (
+                        <span className="text-xs text-red-600 font-medium">Retry</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
