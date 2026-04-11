@@ -8,6 +8,7 @@ import MICDashboard from "@/components/mgl/MICDashboard"
 import MICRegisterFO from "@/components/mgl/MICRegisterFO"
 import L1ApprovalQueue from "@/components/mgl/L1ApprovalQueue"
 import MICOperatorsList from "@/components/mgl/MICOperatorsList"
+import ReportsView from "@/components/mgl/shared/ReportsView"
 
 interface Props {
   user: { name: string; role: "mic" }
@@ -25,7 +26,7 @@ export default function MICShell({ user, onLogout }: Props) {
       case "mic-l1-queue": return <L1ApprovalQueue onViewChange={setActiveView} />
       case "mic-operators": return <MICOperatorsList onViewChange={setActiveView} />
       case "mic-mou": return <MICMoUView />
-      case "mic-reports": return <MICReportsView onViewChange={setActiveView} />
+      case "mic-reports": return <ReportsView role="mic" title="MIS & Reports" />
       default: return <MICDashboard onViewChange={setActiveView} />
     }
   }
@@ -111,7 +112,7 @@ function MICMoUView() {
   )
 }
 
-function MICReportsView({ onViewChange }: { onViewChange: (v: string) => void }) {
+function MICDashboardView({ onViewChange }: { onViewChange: (v: string) => void }) {
   const stats = [
     { label: "Total FOs Onboarded", value: "4", change: "+12%", positive: true },
     { label: "Vehicles Registered", value: "6", change: "+8%", positive: true },
