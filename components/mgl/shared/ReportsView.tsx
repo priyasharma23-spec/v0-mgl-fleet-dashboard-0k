@@ -45,7 +45,10 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
   const [dateFrom, setDateFrom] = useState(new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0])
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0])
   const [selectedReportId, setSelectedReportId] = useState<string>("")
-  const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([])
+  const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([
+    { id: 1, name: "Transaction Ledger", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 2:30 PM", status: "Ready", format: "CSV", createdAt: Date.now() - 3600000 },
+    { id: 2, name: "Cashback Report", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 1:15 PM", status: "Ready", format: "Excel", createdAt: Date.now() - 7200000 },
+  ])
   const [generating, setGenerating] = useState<string | null>(null)
 
   const visibleTemplates = ALL_REPORT_TEMPLATES.filter(t => t.roles.includes(role))
@@ -56,8 +59,8 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
     const newReport: GeneratedReport = {
       id: Date.now(),
       name: template.name,
-      dateRange: `${dateFrom} to ${dateTo}`,
-      requestedAt: new Date().toLocaleString(),
+      dateRange: `${new Date(dateFrom).toLocaleDateString("en-IN")} to ${new Date(dateTo).toLocaleDateString("en-IN")}`,
+      requestedAt: new Date().toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }),
       status: "Preparing",
       format: template.format,
       createdAt: Date.now(),
@@ -71,28 +74,63 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
     }, 2000)
   }
 
+  const handleDownload = (report: GeneratedReport) => {
+    const element = document.createElement("a")
+    element.setAttribute("href", `data:text/plain,${encodeURIComponent(JSON.stringify(report))}`)
+    element.setAttribute("download", `${report.name.toLowerCase().replace(/\s+/g, "-")}-${report.dateRange.replace(/\s+/g, "")}.${report.format === "CSV" ? "csv" : report.format === "PDF" ? "pdf" : "xlsx"}`)
+    element.style.display = "none"
+    document.body.appendChild(element)
+    element.click()
+    document.body.removeChild(element)
+  }
+
   const getExpiryDate = (createdAt: number) =>
     new Date(createdAt + 7 * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN")
 
   return (
-    <div className="flex flex-col gap-5 p-5">
+    <div className="flex flex-col gap-6 p-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">{title}</h1>
-          <p className="text-sm text-muted-foreground">Generate and download reports</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground mt-1">Generate custom reports or download recent ones</p>
       </div>
 
-      {/* Filters */}
+      {/* Quick Download Section */}
+      {generatedReports.filter(r => r.status === "Ready").length > 0 && (
+        <div className="bg-card rounded-xl border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-foreground">Quick Download</h2>
+            <span className="text-xs text-muted-foreground">{generatedReports.filter(r => r.status === "Ready").length} ready</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {generatedReports.filter(r => r.status === "Ready").slice(0, 4).map(report => (
+              <div key={report.id} className="flex items-start justify-between p-3 bg-muted/30 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground line-clamp-1">{report.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{report.dateRange}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Ready at {report.requestedAt}</p>
+                </div>
+                <button onClick={() => handleDownload(report)}
+                  className="shrink-0 ml-3 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 transition-colors flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" /> Download
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Generate New Report Section */}
       <div className="space-y-4">
+        <h2 className="text-sm font-semibold text-foreground">Generate New Report</h2>
+        
         {/* Report Selection */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report</label>
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
           <div className="relative">
             <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
               onChange={e => setSelectedReportId(e.target.value)}
-              className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30">
+              className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
               {visibleTemplates.map(template => (
                 <option key={template.id} value={template.id}>{template.name}</option>
               ))}
@@ -111,27 +149,27 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
 
         {/* Date Range */}
         <div className="bg-card rounded-xl border border-border p-5">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Date Range</label>
-          <div className="grid grid-cols-2 gap-4">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Select Date Range</label>
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-2 block">From</label>
               <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-2 block">To</label>
               <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
             </div>
           </div>
           {selectedTemplate && (
             <button
               onClick={() => handleGenerate(selectedTemplate)}
               disabled={generating === selectedTemplate.id}
-              className="w-full mt-4 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+              className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
               {generating === selectedTemplate.id ? (
                 <>
-                  <Clock className="w-4 h-4 animate-spin" /> Generating...
+                  <Clock className="w-4 h-4 animate-spin" /> Preparing Report...
                 </>
               ) : (
                 <>
@@ -143,53 +181,69 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
         </div>
       </div>
 
-      {/* Generated Reports */}
+      {/* Recent Reports */}
       {generatedReports.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-foreground mb-3">Generated Reports</p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-foreground">Report History</h2>
+            <span className="text-xs text-muted-foreground">{generatedReports.length} total</span>
+          </div>
           <div className="bg-card rounded-xl border border-border overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted/30">
-                  {["Report Name", "Date Range", "Requested", "Format", "Status", "Action"].map(h => (
+                  {["Report", "Date Range", "Requested", "Format", "Status", "Action"].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {generatedReports.map(report => (
-                  <tr key={report.id} className="hover:bg-muted/30">
-                    <td className="px-4 py-3 font-medium text-sm">{report.name}</td>
+                  <tr key={report.id} className="hover:bg-muted/40 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <FileText className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="font-medium text-sm text-foreground">{report.name}</span>
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{report.dateRange}</td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{report.requestedAt}</td>
                     <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-medium rounded">{report.format}</span>
+                      <span className="px-2 py-1 bg-muted/50 text-muted-foreground text-[10px] font-semibold rounded">{report.format}</span>
                     </td>
                     <td className="px-4 py-3">
                       {report.status === "Ready" ? (
-                        <span className="flex items-center gap-1 text-xs text-green-700 font-medium">
-                          <CheckCircle className="w-3.5 h-3.5" /> Ready
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <span className="text-xs font-semibold text-green-700">Ready</span>
+                        </div>
                       ) : report.status === "Failed" ? (
-                        <span className="flex items-center gap-1 text-xs text-red-600 font-medium">
-                          <AlertCircle className="w-3.5 h-3.5" /> Failed
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                          <span className="text-xs font-semibold text-red-600">Failed</span>
+                        </div>
                       ) : (
-                        <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
-                          <Clock className="w-3.5 h-3.5" /> Preparing
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                          <span className="text-xs font-semibold text-amber-600">Preparing</span>
+                        </div>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {report.status === "Ready" ? (
                         <div className="flex items-center gap-2">
-                          <button className="flex items-center gap-1 text-xs text-primary font-medium hover:underline">
+                          <button onClick={() => handleDownload(report)}
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors">
                             <Download className="w-3.5 h-3.5" /> Download
                           </button>
-                          <span className="text-xs text-muted-foreground">Expires {getExpiryDate(report.createdAt)}</span>
+                          <span className="text-[10px] text-muted-foreground">Exp: {getExpiryDate(report.createdAt)}</span>
                         </div>
+                      ) : report.status === "Preparing" ? (
+                        <span className="text-xs text-muted-foreground">Processing...</span>
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-xs text-red-600 font-medium">Retry</span>
                       )}
                     </td>
                   </tr>
