@@ -149,9 +149,6 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
             )}
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-border"></div>
-
           {/* Date Range */}
           <div>
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Select Date Range</label>
