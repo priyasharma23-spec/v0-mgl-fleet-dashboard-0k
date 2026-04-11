@@ -45,6 +45,7 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
   const [dateFrom, setDateFrom] = useState(new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0])
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0])
   const [selectedReportId, setSelectedReportId] = useState<string>("")
+  const [fileFormat, setFileFormat] = useState<"Excel" | "CSV">("Excel")
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([
     { id: 1, name: "Transaction Ledger", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 2:30 PM", status: "Ready", format: "CSV", createdAt: Date.now() - 3600000 },
     { id: 2, name: "Cashback Report", dateRange: "01/04/2026 to 12/04/2026", requestedAt: "12 Apr 2026, 1:15 PM", status: "Ready", format: "Excel", createdAt: Date.now() - 7200000 },
@@ -52,7 +53,11 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
   const [generating, setGenerating] = useState<string | null>(null)
 
   const visibleTemplates = ALL_REPORT_TEMPLATES.filter(t => t.roles.includes(role))
-  const selectedTemplate = visibleTemplates.find(t => t.id === selectedReportId) || visibleTemplates[0]
+  const selectedTemplate = visibleTemplates.find(t => t.id === selectedReportId) ?? visibleTemplates[0]
+
+  const generateTransactionLedger = () => {
+    handleGenerate(selectedTemplate!)
+  }
 
   const handleGenerate = (template: ReportTemplate) => {
     setGenerating(template.id)
@@ -62,7 +67,7 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
       dateRange: `${new Date(dateFrom).toLocaleDateString("en-IN")} to ${new Date(dateTo).toLocaleDateString("en-IN")}`,
       requestedAt: new Date().toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" }),
       status: "Preparing",
-      format: template.format,
+      format: fileFormat,
       createdAt: Date.now(),
     }
     setGeneratedReports(prev => [newReport, ...prev])
@@ -166,13 +171,32 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
             </div>
           </div>
 
+          {/* File Format */}
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">File Format</label>
+            <div className="flex gap-3">
+              {["Excel", "CSV"].map(fmt => (
+                <button key={fmt} onClick={() => setFileFormat(fmt as "Excel" | "CSV")}
+                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/50"}`}>
+                  {fmt === "Excel" ? "📊 Excel (.xlsx)" : "📄 CSV (.csv)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Divider */}
           <div className="h-px bg-border"></div>
 
           {/* Generate Button */}
           {selectedTemplate && (
             <button
-              onClick={() => handleGenerate(selectedTemplate)}
+              onClick={() => {
+                if (selectedTemplate?.id === "txn-ledger") {
+                  generateTransactionLedger()
+                } else {
+                  handleGenerate(selectedTemplate!)
+                }
+              }}
               disabled={generating === selectedTemplate.id}
               className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
               {generating === selectedTemplate.id ? (
