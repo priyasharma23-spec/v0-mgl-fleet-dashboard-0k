@@ -131,7 +131,6 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
         
         {/* Combined Form Container */}
         <div className="bg-card rounded-xl border border-border p-5 space-y-5">
-          {/* Report Selection & File Format */}
           <div className="flex gap-4 items-end">
             <div className="flex-1">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
@@ -205,6 +204,7 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
             </button>
           )}
         </div>
+      </div>
 
       {/* Recent Reports */}
       {generatedReports.length > 0 && (
