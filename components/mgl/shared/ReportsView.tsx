@@ -1,6 +1,6 @@
 "use client"
 import { useState } from "react"
-import { Download, FileText, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { Download, FileText, Clock, CheckCircle, AlertCircle, ChevronDown } from "lucide-react"
 
 export type ReportRole = "admin" | "finance" | "mic" | "zic" | "fo"
 
@@ -44,10 +44,12 @@ interface Props {
 export default function ReportsView({ role = "admin", foId, title = "MIS & Reports" }: Props) {
   const [dateFrom, setDateFrom] = useState(new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0])
   const [dateTo, setDateTo] = useState(new Date().toISOString().split("T")[0])
+  const [selectedReportId, setSelectedReportId] = useState<string>("")
   const [generatedReports, setGeneratedReports] = useState<GeneratedReport[]>([])
   const [generating, setGenerating] = useState<string | null>(null)
 
   const visibleTemplates = ALL_REPORT_TEMPLATES.filter(t => t.roles.includes(role))
+  const selectedTemplate = visibleTemplates.find(t => t.id === selectedReportId) || visibleTemplates[0]
 
   const handleGenerate = (template: ReportTemplate) => {
     setGenerating(template.id)
@@ -82,50 +84,62 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
         </div>
       </div>
 
-      {/* Date Range */}
-      <div className="bg-card rounded-xl border border-border p-4">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Date Range</p>
-        <div className="flex gap-4 flex-wrap">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">From</label>
-            <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-              className="block mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+      {/* Filters */}
+      <div className="space-y-4">
+        {/* Report Selection */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report</label>
+          <div className="relative">
+            <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
+              onChange={e => setSelectedReportId(e.target.value)}
+              className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30">
+              {visibleTemplates.map(template => (
+                <option key={template.id} value={template.id}>{template.name}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">To</label>
-            <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-              className="block mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
-          </div>
-        </div>
-      </div>
-
-      {/* Report Templates */}
-      <div>
-        <p className="text-sm font-semibold text-foreground mb-3">Available Reports</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {visibleTemplates.map(template => (
-            <div key={template.id} className="bg-card rounded-xl border border-border p-4 flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <FileText className="w-4 h-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-foreground">{template.name}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{template.desc}</p>
-                  <span className="inline-block mt-1.5 px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-medium rounded">
-                    {template.format}
-                  </span>
-                </div>
+          {selectedTemplate && (
+            <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-border/50">
+              <p className="text-xs text-muted-foreground">{selectedTemplate.desc}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">{selectedTemplate.format}</span>
               </div>
-              <button
-                onClick={() => handleGenerate(template)}
-                disabled={generating === template.id}
-                className="shrink-0 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors"
-              >
-                {generating === template.id ? "Generating..." : "Generate"}
-              </button>
             </div>
-          ))}
+          )}
+        </div>
+
+        {/* Date Range */}
+        <div className="bg-card rounded-xl border border-border p-5">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Date Range</label>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">From</label>
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">To</label>
+              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            </div>
+          </div>
+          {selectedTemplate && (
+            <button
+              onClick={() => handleGenerate(selectedTemplate)}
+              disabled={generating === selectedTemplate.id}
+              className="w-full mt-4 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+              {generating === selectedTemplate.id ? (
+                <>
+                  <Clock className="w-4 h-4 animate-spin" /> Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" /> Generate Report
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
