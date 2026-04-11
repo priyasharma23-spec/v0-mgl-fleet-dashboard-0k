@@ -157,11 +157,11 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
 
           <div>
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">File Format</label>
-            <div className="flex gap-2">
+            <div className="inline-flex items-center gap-1 p-1 bg-muted/50 rounded-lg border border-border">
               {["Excel", "CSV"].map(fmt => (
                 <button key={fmt} onClick={() => setFileFormat(fmt as "Excel" | "CSV")}
                   title={fmt === "Excel" ? "Excel (.xlsx)" : "CSV (.csv)"}
-                  className={`flex-1 py-2.5 rounded-lg text-xs font-medium border transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:border-primary/50"}`}>
+                  className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${fileFormat === fmt ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
                   {fmt}
                 </button>
               ))}
