@@ -390,8 +390,13 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
                     <td className="px-4 py-3">
                       {report.status === "Ready" ? (
                         <div className="flex items-center gap-2">
-                          <button onClick={() => handleDownload(report)}
-                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                          <button
+                            onClick={() => {
+                              if (report.name.includes("Cashback")) generateCashbackLedger(role)
+                              else if (report.name.includes("Incentive")) generateIncentiveLedger(role)
+                              else generateTransactionLedger()
+                            }}
+                            className="flex items-center gap-1 text-xs text-primary font-medium hover:underline">
                             <Download className="w-3.5 h-3.5" /> Download
                           </button>
                           <span className="text-[10px] text-muted-foreground">Exp: {getExpiryDate(report.createdAt)}</span>
