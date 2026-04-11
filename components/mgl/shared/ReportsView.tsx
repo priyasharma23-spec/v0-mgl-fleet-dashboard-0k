@@ -124,44 +124,55 @@ export default function ReportsView({ role = "admin", foId, title = "MIS & Repor
       <div className="space-y-4">
         <h2 className="text-sm font-semibold text-foreground">Generate New Report</h2>
         
-        {/* Report Selection */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
-          <div className="relative">
-            <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
-              onChange={e => setSelectedReportId(e.target.value)}
-              className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
-              {visibleTemplates.map(template => (
-                <option key={template.id} value={template.id}>{template.name}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        {/* Combined Form Container */}
+        <div className="bg-card rounded-xl border border-border p-5 space-y-5">
+          {/* Report Selection */}
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3 block">Select Report Type</label>
+            <div className="relative">
+              <select value={selectedReportId || (visibleTemplates[0]?.id || "")} 
+                onChange={e => setSelectedReportId(e.target.value)}
+                className="w-full appearance-none px-4 py-3 pr-10 border border-border rounded-lg text-sm bg-card text-foreground font-medium cursor-pointer hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all">
+                {visibleTemplates.map(template => (
+                  <option key={template.id} value={template.id}>{template.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            </div>
+            {selectedTemplate && (
+              <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-border/50">
+                <p className="text-xs text-muted-foreground">{selectedTemplate.desc}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">{selectedTemplate.format}</span>
+                </div>
+              </div>
+            )}
           </div>
-          {selectedTemplate && (
-            <div className="mt-3 p-3 bg-muted/30 rounded-lg border border-border/50">
-              <p className="text-xs text-muted-foreground">{selectedTemplate.desc}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">{selectedTemplate.format}</span>
+
+          {/* Divider */}
+          <div className="h-px bg-border"></div>
+
+          {/* Date Range */}
+          <div>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Select Date Range</label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">From</label>
+                <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-2 block">To</label>
+                <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                  className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
               </div>
             </div>
-          )}
-        </div>
-
-        {/* Date Range */}
-        <div className="bg-card rounded-xl border border-border p-5">
-          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4 block">Select Date Range</label>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">From</label>
-              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-2 block">To</label>
-              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                className="w-full px-3 py-2.5 border border-border rounded-lg text-sm bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all" />
-            </div>
           </div>
+
+          {/* Divider */}
+          <div className="h-px bg-border"></div>
+
+          {/* Generate Button */}
           {selectedTemplate && (
             <button
               onClick={() => handleGenerate(selectedTemplate)}
