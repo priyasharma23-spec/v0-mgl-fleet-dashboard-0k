@@ -119,6 +119,54 @@ function getRiskLevel(policy?: DriverPairingPolicy): { level: "low" | "medium" |
   return { level: "medium", label: "Balanced", color: "text-amber-600" }
 }
 
+const ASSIGNMENT_TYPES = [
+  {
+    id: "permanent",
+    icon: "🔒",
+    label: "Permanent",
+    desc: "Driver always operates this vehicle",
+    policyLabel: "Multi-use · 30-day expiry · Monthly reset",
+    policyDetail: "Best for dedicated driver-vehicle pairs. Code renews monthly.",
+    policy: { codeType: "multi_use", expiryHours: 720, repairingTrigger: "monthly", maxUsesPerCode: null },
+  },
+  {
+    id: "shift",
+    icon: "🕐",
+    label: "Shift-based",
+    desc: "Multiple drivers share one vehicle across shifts",
+    policyLabel: "Single-use · 12h expiry · Daily reset",
+    policyDetail: "New code each shift. Prevents previous shift driver from fueling.",
+    policy: { codeType: "single_use", expiryHours: 12, repairingTrigger: "never", maxUsesPerCode: 1 },
+  },
+  {
+    id: "trip",
+    icon: "🗺️",
+    label: "Trip-based",
+    desc: "Assigned per delivery run or trip",
+    policyLabel: "Single-use · 48h expiry · Per-trip reset",
+    policyDetail: "Code valid for trip duration. Expires automatically after 48h.",
+    policy: { codeType: "single_use", expiryHours: 48, repairingTrigger: "on_vehicle_change", maxUsesPerCode: 1 },
+  },
+  {
+    id: "pool",
+    icon: "🚛",
+    label: "Pool / Float",
+    desc: "Driver covers multiple vehicles across the fleet",
+    policyLabel: "Multi-use · 7-day expiry · On vehicle change",
+    policyDetail: "Flexible for pool drivers. Code resets when vehicle changes.",
+    policy: { codeType: "multi_use", expiryHours: 168, repairingTrigger: "on_vehicle_change", maxUsesPerCode: null },
+  },
+  {
+    id: "contractor",
+    icon: "📋",
+    label: "Contractor / Temp",
+    desc: "One-time or short-term assignment",
+    policyLabel: "Single-use · 48h expiry · No re-pairing",
+    policyDetail: "Tight security for temporary drivers. Code cannot be reused.",
+    policy: { codeType: "single_use", expiryHours: 48, repairingTrigger: "never", maxUsesPerCode: 1 },
+  },
+]
+
 export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: string }) {
   const [search, setSearch] = useState("")
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
@@ -133,7 +181,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
   const [showBindingModal, setShowBindingModal] = useState(false)
   const [bindingForm, setBindingForm] = useState({
     vehicleId: "",
-    authMode: "pairing_code" as "pairing_code" | "pin" | "biometric",
+    assignmentType: "",
     spendLimitPerFueling: "",
     spendLimitPerDay: "",
     shiftStart: "",
@@ -739,12 +787,11 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
         <>
           <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => !bindingCreated && setShowBindingModal(false)} />
           <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
-            <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
-              {/* Header */}
+            <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-sm">
               <div className="flex items-center justify-between p-5 border-b border-border">
                 <div>
-                  <h3 className="font-semibold text-foreground">Create Vehicle Binding</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{selectedDriver.name} · {selectedDriver.id}</p>
+                  <h3 className="font-semibold text-foreground">Assign Driver to Vehicle</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{selectedDriver.name}</p>
                 </div>
                 {!bindingCreated && (
                   <button onClick={() => setShowBindingModal(false)} className="p-2 hover:bg-muted rounded-lg">
@@ -753,50 +800,44 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                 )}
               </div>
 
-              {/* Step indicator */}
               {!bindingCreated && (
-                <div className="flex px-5 pt-4 gap-2">
-                  {["Vehicle", "Limits", "Policy"].map((label, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${bindingStep > i + 1 ? "bg-green-500 text-white" : bindingStep === i + 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
-                        {bindingStep > i + 1 ? "✓" : i + 1}
-                      </div>
-                      <span className="text-[10px] text-muted-foreground">{label}</span>
-                    </div>
+                <div className="flex items-center justify-center gap-2 pt-4 px-5">
+                  {[1, 2, 3].map(s => (
+                    <div key={s} className={`h-1.5 rounded-full transition-all ${s === bindingStep ? "w-8 bg-primary" : s < bindingStep ? "w-4 bg-primary/40" : "w-4 bg-muted"}`} />
                   ))}
                 </div>
               )}
 
               <div className="p-5 space-y-4">
                 {bindingCreated ? (
-                  <div className="text-center space-y-3 py-4">
+                  <div className="text-center space-y-4 py-2">
                     <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                       <CheckCircle className="w-7 h-7 text-green-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-foreground">Binding Created</h4>
+                      <h4 className="font-semibold text-foreground">Assignment Created</h4>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {selectedDriver.name} is now bound to {myVehicles.find(v => v.id === bindingForm.vehicleId)?.vehicleNumber || bindingForm.vehicleId}
+                        {selectedDriver.name} → {myVehicles.find(v => v.id === bindingForm.vehicleId)?.vehicleNumber}
                       </p>
                     </div>
-                    <div className="p-4 bg-muted/30 border border-border rounded-xl">
-                      <p className="text-xs text-muted-foreground mb-2">Pairing Code — share with driver</p>
+                    <div className="p-4 bg-muted/30 border border-border rounded-xl text-left space-y-2">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pairing Code</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-mono font-bold text-foreground tracking-widest">{generatedBindingCode}</span>
+                        <span className="text-3xl font-mono font-bold text-foreground tracking-widest">{generatedBindingCode}</span>
                         <button onClick={() => copyCode(generatedBindingCode)}
                           className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-medium">
                           {copiedCode ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                           {copiedCode ? "Copied!" : "Copy"}
                         </button>
                       </div>
+                      {(() => {
+                        const type = ASSIGNMENT_TYPES.find(t => t.id === bindingForm.assignmentType)
+                        return <p className="text-[10px] text-muted-foreground">{type?.policyLabel}</p>
+                      })()}
                     </div>
-                    <div className="flex gap-3">
-                      <button className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-                        Send via SMS
-                      </button>
-                      <button className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
-                        Send via WhatsApp
-                      </button>
+                    <div className="flex gap-2">
+                      <button className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted">📱 SMS</button>
+                      <button className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted">💬 WhatsApp</button>
                     </div>
                     <button onClick={() => setShowBindingModal(false)}
                       className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
@@ -806,106 +847,144 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                 ) : bindingStep === 1 ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Select Vehicle <span className="text-destructive">*</span></label>
+                      <p className="text-sm font-semibold text-foreground">Select vehicle & assignment type</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Choose how this driver will be using the vehicle.</p>
+                    </div>
+
+                    {/* Vehicle picker */}
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Vehicle <span className="text-destructive">*</span></label>
                       <select value={bindingForm.vehicleId} onChange={e => setBindingForm(f => ({ ...f, vehicleId: e.target.value }))}
                         className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
-                        <option value="">Select a vehicle</option>
-                        {myVehicles.filter(v => !mockDriverVehicleBindings.some(b => b.vehicleId === v.id && b.driverId === selectedDriver.id && b.state === "active")).map(v => (
-                          <option key={v.id} value={v.id}>{v.vehicleNumber} — {v.category} · {v.oem}</option>
-                        ))}
+                        <option value="">Select vehicle</option>
+                        {myVehicles.map(v => {
+                          const bound = mockDriverVehicleBindings.some(b => b.vehicleId === v.id && b.driverId === selectedDriver.id && b.state === "active")
+                          return <option key={v.id} value={v.id} disabled={bound}>{v.vehicleNumber} — {v.category}{bound ? " (already assigned)" : ""}</option>
+                        })}
                       </select>
                     </div>
+
+                    {/* Assignment type */}
                     <div>
-                      <label className="text-xs font-medium text-muted-foreground">Auth Mode</label>
-                      <div className="grid grid-cols-3 gap-2 mt-1">
-                        {[
-                          { value: "pairing_code", label: "Pairing Code" },
-                          { value: "pin", label: "PIN" },
-                          { value: "biometric", label: "Biometric" },
-                        ].map(opt => (
-                          <button key={opt.value} onClick={() => setBindingForm(f => ({ ...f, authMode: opt.value as any }))}
-                            className={`py-2 rounded-lg border text-xs font-medium transition-colors ${bindingForm.authMode === opt.value ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}>
-                            {opt.label}
+                      <label className="text-xs font-medium text-muted-foreground">Assignment Type <span className="text-destructive">*</span></label>
+                      <div className="space-y-2 mt-1">
+                        {ASSIGNMENT_TYPES.map(type => (
+                          <button key={type.id} onClick={() => setBindingForm(f => ({ ...f, assignmentType: type.id }))}
+                            className={`w-full p-3 rounded-xl border text-left transition-colors ${bindingForm.assignmentType === type.id ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"}`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-base">{type.icon}</span>
+                                  <p className="text-sm font-semibold text-foreground">{type.label}</p>
+                                </div>
+                                <p className="text-[11px] text-muted-foreground mt-0.5 ml-6">{type.desc}</p>
+                                <p className="text-[10px] text-primary/70 mt-1 ml-6">{type.policyLabel}</p>
+                              </div>
+                              {bindingForm.assignmentType === type.id && <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />}
+                            </div>
                           </button>
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground">Notes (optional)</label>
-                      <input type="text" value={bindingForm.notes} onChange={e => setBindingForm(f => ({ ...f, notes: e.target.value }))}
-                        placeholder="e.g. Pool driver, temporary assignment..."
-                        className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
-                    </div>
                   </div>
                 ) : bindingStep === 2 ? (
                   <div className="space-y-4">
-                    <p className="text-xs text-muted-foreground">Set optional spend limits and shift schedule for this binding. Leave blank to use fleet defaults.</p>
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Spend limits <span className="text-muted-foreground font-normal text-xs">(optional)</span></p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Override fleet defaults for this assignment only.</p>
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-medium text-muted-foreground">Per Fueling Limit (₹)</label>
+                        <label className="text-xs font-medium text-muted-foreground">Per Fueling (₹)</label>
                         <input type="number" value={bindingForm.spendLimitPerFueling}
                           onChange={e => setBindingForm(f => ({ ...f, spendLimitPerFueling: e.target.value }))}
-                          placeholder="e.g. 2000"
+                          placeholder="Fleet default"
                           className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
                       </div>
                       <div>
-                        <label className="text-xs font-medium text-muted-foreground">Daily Limit (₹)</label>
+                        <label className="text-xs font-medium text-muted-foreground">Per Day (₹)</label>
                         <input type="number" value={bindingForm.spendLimitPerDay}
                           onChange={e => setBindingForm(f => ({ ...f, spendLimitPerDay: e.target.value }))}
-                          placeholder="e.g. 5000"
-                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground">Shift Start</label>
-                        <input type="time" value={bindingForm.shiftStart}
-                          onChange={e => setBindingForm(f => ({ ...f, shiftStart: e.target.value }))}
-                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground">Shift End</label>
-                        <input type="time" value={bindingForm.shiftEnd}
-                          onChange={e => setBindingForm(f => ({ ...f, shiftEnd: e.target.value }))}
+                          placeholder="Fleet default"
                           className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
                       </div>
                     </div>
-                    <div className="p-3 bg-muted/30 rounded-lg border border-border text-xs text-muted-foreground">
-                      Leave blank to use fleet default limits. Per-binding limits can only be equal or stricter than fleet defaults.
+
+                    {/* Shift hours — shown for shift type */}
+                    {bindingForm.assignmentType === "shift" && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Shift Hours</label>
+                        <div className="grid grid-cols-2 gap-3 mt-1">
+                          <input type="time" value={bindingForm.shiftStart}
+                            onChange={e => setBindingForm(f => ({ ...f, shiftStart: e.target.value }))}
+                            className="px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                          <input type="time" value={bindingForm.shiftEnd}
+                            onChange={e => setBindingForm(f => ({ ...f, shiftEnd: e.target.value }))}
+                            className="px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Trip ID — shown for trip type */}
+                    {bindingForm.assignmentType === "trip" && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Trip ID / Reference</label>
+                        <input type="text" value={bindingForm.notes}
+                          onChange={e => setBindingForm(f => ({ ...f, notes: e.target.value }))}
+                          placeholder="e.g. TRIP-2026-0042"
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Notes</label>
+                      <input type="text" value={bindingForm.assignmentType !== "trip" ? bindingForm.notes : ""}
+                        onChange={e => setBindingForm(f => ({ ...f, notes: e.target.value }))}
+                        placeholder="Optional note..."
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
                     </div>
                   </div>
                 ) : (
+                  /* Step 3 — Confirm */
                   <div className="space-y-4">
-                    <p className="text-xs text-muted-foreground">Review the effective pairing policy for this binding. Inherited from fleet policy.</p>
-                    {(() => {
-                      const vehicle = myVehicles.find(v => v.id === bindingForm.vehicleId)
-                      const policy = resolveEffectivePolicy("FO001", vehicle?.category)
-                      return (
-                        <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Effective Policy</p>
-                          {[
-                            ["Code Type", policy.codeType === "single_use" ? "Single use" : "Multi use", policy.resolvedFrom.codeType],
-                            ["Expiry", policy.expiryHours === null ? "No expiry" : `${policy.expiryHours}h`, policy.resolvedFrom.expiryHours],
-                            ["Max Uses", policy.maxUses === null ? "Unlimited" : String(policy.maxUses), policy.resolvedFrom.maxUses],
-                            ["Re-pairing", policy.repairingTrigger, policy.resolvedFrom.repairingTrigger],
-                          ].map(([label, value, source]) => (
-                            <div key={label} className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">{label}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-foreground">{value}</span>
-                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${source === "platform" ? "bg-gray-100 text-gray-500" : source === "fleet" ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"}`}>
-                                  {source}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
+                    <p className="text-sm font-semibold text-foreground">Confirm assignment</p>
+
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-2 text-sm">
+                      {[
+                        ["Driver", selectedDriver.name],
+                        ["Vehicle", myVehicles.find(v => v.id === bindingForm.vehicleId)?.vehicleNumber || "—"],
+                        ["Type", ASSIGNMENT_TYPES.find(t => t.id === bindingForm.assignmentType)?.label || "—"],
+                        ["Per Fueling Limit", bindingForm.spendLimitPerFueling ? `₹${bindingForm.spendLimitPerFueling}` : "Fleet default"],
+                        ["Daily Limit", bindingForm.spendLimitPerDay ? `₹${bindingForm.spendLimitPerDay}` : "Fleet default"],
+                      ].map(([label, value]) => (
+                        <div key={label} className="flex items-center justify-between">
+                          <span className="text-muted-foreground">{label}</span>
+                          <span className="font-medium text-foreground">{value}</span>
                         </div>
-                      )
-                    })()}
+                      ))}
+                    </div>
+
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-2 text-sm">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pairing Policy</p>
+                      {(() => {
+                        const type = ASSIGNMENT_TYPES.find(t => t.id === bindingForm.assignmentType)
+                        return (
+                          <>
+                            <p className="text-xs text-foreground">{type?.policyLabel}</p>
+                            <p className="text-[10px] text-muted-foreground">{type?.policyDetail}</p>
+                          </>
+                        )
+                      })()}
+                    </div>
+
+                    <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                      <p className="text-xs text-primary">A pairing code will be generated. Share it with the driver to activate their access.</p>
+                    </div>
                   </div>
                 )}
 
-                {/* Navigation */}
                 {!bindingCreated && (
-                  <div className="flex gap-3 pt-2">
+                  <div className="flex gap-3">
                     {bindingStep > 1 && (
                       <button onClick={() => setBindingStep(s => s - 1)}
                         className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
@@ -915,19 +994,18 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                     {bindingStep < 3 ? (
                       <button
                         onClick={() => setBindingStep(s => s + 1)}
-                        disabled={bindingStep === 1 && !bindingForm.vehicleId}
+                        disabled={!bindingForm.vehicleId || !bindingForm.assignmentType}
                         className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
-                        Next
+                        Continue
                       </button>
                     ) : (
                       <button
                         onClick={() => {
-                          const code = generateCode()
-                          setGeneratedBindingCode(code)
+                          setGeneratedBindingCode(generateCode())
                           setBindingCreated(true)
                         }}
                         className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-                        Create Binding
+                        Create & Generate Code
                       </button>
                     )}
                   </div>
