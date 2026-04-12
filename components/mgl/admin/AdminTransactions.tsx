@@ -77,7 +77,7 @@ export default function AdminTransactions({ onViewChange }: { onViewChange: (v: 
     { id: "LOAD005", dateTime: "Mar 20, 2024 11:00 AM", fo: "City Express", amount: "₹30,000", status: "Successful" as const },
   ]
 
-  const parseAmount = (amt) => typeof amt === 'number' ? amt : parseInt((amt || '0').replace(/[₹,]/g, '')) || 0
+  const parseAmount = (amt: number | string) => typeof amt === 'number' ? amt : parseInt((amt || '0').replace(/[₹,]/g, '')) || 0
 
   const getStatusColor = (status: string) => {
     switch (status) {

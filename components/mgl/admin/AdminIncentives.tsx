@@ -317,7 +317,7 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
                 <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
-                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Status</label>
+                <div className="col-span-2"><label className="text-xs font-medium text-muted-foreground">Status</label>
                   <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
                     <option>All</option>
                   </select>
@@ -395,7 +395,7 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
                 <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
-                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Status</label>
+                <div className="col-span-2"><label className="text-xs font-medium text-muted-foreground">Status</label>
                   <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
                     <option>All Status</option>
                     <option>Active</option>
@@ -461,7 +461,7 @@ export default function AdminIncentives({ onViewChange }: { onViewChange: (v: st
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="text-xs font-medium text-muted-foreground">From Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
                 <div><label className="text-xs font-medium text-muted-foreground">To Date</label><input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" /></div>
-                <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Action</label>
+                <div className="col-span-2"><label className="text-xs font-medium text-muted-foreground">Action</label>
                   <select className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card">
                     <option>All Actions</option>
                     <option>Viewed Program</option>

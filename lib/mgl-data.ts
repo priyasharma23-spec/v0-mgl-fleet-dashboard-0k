@@ -321,6 +321,7 @@ export interface PairingPolicyConfig {
   scopeId?: string              // null=platform, fo_id=fleet, vehicle_type=HCV/ICV etc, pairing_id
   expiryHours?: number | null   // null = inherit from level above
   maxUses?: number | null       // null = inherit
+  maxUsesPerCode?: number | null
   codeType?: "single_use" | "multi_use" | null
   repairingTrigger?: "never" | "monthly" | "on_vehicle_change" | null
   deliveryMethod?: "sms" | "whatsapp" | "email" | null
@@ -526,6 +527,8 @@ export const mockDrivers: Driver[] = [
     pairingPolicy: { codeType: "multi_use", expiryHours: 72, maxUsesPerCode: null, repairingTrigger: "on_vehicle_change" },
   },
 ]
+
+export type Driver = (typeof mockDrivers)[number]
 
 export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
   {

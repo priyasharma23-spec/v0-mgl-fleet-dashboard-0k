@@ -332,7 +332,7 @@ export default function AdminFundManagement() {
                   <div><label className="text-xs font-medium text-muted-foreground">To Date</label>
                     <input type="date" className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
                   </div>
-                  <div colSpan={2}><label className="text-xs font-medium text-muted-foreground">Loaded By</label>
+                  <div className="col-span-2"><label className="text-xs font-medium text-muted-foreground">Loaded By</label>
                     <input type="text" placeholder="Search user..." className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
                   </div>
                 </div>

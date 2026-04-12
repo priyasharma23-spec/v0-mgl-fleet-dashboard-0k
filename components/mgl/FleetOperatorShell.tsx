@@ -54,7 +54,9 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
   const [selectedCardVehicle, setSelectedCardVehicle] = useState<string | null>(null)
-  const [actionModal, setActionModal] = useState<"reset-pin" | "lock" | "block" | "limits" | "replacement" | null>(null)
+  const [actionModal, setActionModal] = useState<"block" | "reset-pin" | "lock-unlock" | "limits" | "replacement" | null>(null)
+  const [activeTab, setActiveTab] = useState<string>("overview")
+  const [selectedTxn, setSelectedTxn] = useState<any>(null)
 
   // Determine if this is a new FO that needs to complete registration
   // Self-service flow: needs full KYB registration
@@ -1432,7 +1434,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   )
 }
 
-// ─── FO Cards View ────────────────�������──────────────────────────────────────
+// ─── FO Cards View ────────────────�������───────────────��──────────────────────
 function FOCardsView({ onViewChange, onManageCard }: { onViewChange: (v: string) => void; onManageCard?: (vehicleId: string) => void }) {
   const [activatingCard, setActivatingCard] = useState<string | null>(null)
   const [pinStep, setPinStep] = useState<"enter" | "confirm" | "done">("enter")
