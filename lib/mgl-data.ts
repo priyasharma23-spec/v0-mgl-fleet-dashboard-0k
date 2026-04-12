@@ -613,6 +613,7 @@ export function reissueBinding(
 }
 
 
+export interface FleetOperator {
   id: string;
   name: string;
   contactNumber: string;
