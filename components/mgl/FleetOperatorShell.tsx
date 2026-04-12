@@ -3493,9 +3493,9 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
           ["Total Vehicles", fo.totalVehicles],
           ["Active Cards", fo.activeCards],
         ].map(([label, value]) => (
-          <div key={label} className="flex items-start justify-between gap-4 text-sm">
+          <div key={String(label)} className="flex items-start justify-between gap-4 text-sm">
             <span className="text-muted-foreground shrink-0 w-36">{label}</span>
-            <span className="font-medium text-foreground text-right">{String(value)}</span>
+            <span className="font-medium text-foreground text-right">{value}</span>
           </div>
         ))}
       </div>

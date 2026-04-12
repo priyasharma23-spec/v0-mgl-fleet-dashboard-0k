@@ -161,6 +161,8 @@ export default function IncentiveApprovalView({ role = "zic" }: Props) {
       return {
         ...bonus,
         slabVehicles,
+        vehicleId: slabVehicles[0]?.id ?? "",
+        incentiveStatus: bonus.status,
         firstVehicle: slabVehicles[0],
         incentiveType: slabVehicles[0]?.incentiveType,
       }

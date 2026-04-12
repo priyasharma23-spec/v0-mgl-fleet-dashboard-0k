@@ -44,7 +44,7 @@ export default function AdminUserManagement() {
   const handleActivateDeactivate = (userId: number, newStatus: string) => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus } : u))
     if (selectedUser?.id === userId) {
-      setSelectedUser(prev => ({ ...prev, status: newStatus }))
+      setSelectedUser((prev: any) => ({ ...prev, status: newStatus }))
     }
   }
 

@@ -288,7 +288,7 @@ export function computeIncentiveEligibility(
   const groups = new Map<string, Vehicle[]>()
   
   vehicles
-    .filter(v => v.mouId === mouId && v.onboardingType === "MIC_ASSISTED" && v.vehicleType !== "existing_cng")
+    .filter(v => v.mouId === mouId && v.onboardingType === "MIC_ASSISTED")
     .forEach(v => {
       const key = `${v.category}_${v.vehicleType}`
       if (!groups.has(key)) groups.set(key, [])
@@ -345,6 +345,28 @@ export interface EffectivePairingPolicy {
 
 // Keep DriverPairingPolicy as alias for backward compat
 export type DriverPairingPolicy = PairingPolicyConfig
+
+export interface Driver {
+  id: string
+  foId: string
+  foName?: string
+  name: string
+  contactNumber?: string
+  phone?: string
+  email?: string
+  licenseNumber?: string
+  licenseExpiry?: string
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "active" | "inactive" | "suspended"
+  assignedVehicleId?: string
+  assignedVehicleIds: string[]
+  pairingCode?: string
+  pairingCodeExpiry?: string | null
+  pairingCodeUsed?: number
+  pairingPolicy: PairingPolicyConfig
+  createdAt: string
+  lastPairedAt?: string
+  notes?: string
+}
 
 // Platform-level default policy
 export const PLATFORM_DEFAULT_POLICY: PairingPolicyConfig = {
@@ -527,8 +549,6 @@ export const mockDrivers: Driver[] = [
     pairingPolicy: { codeType: "multi_use", expiryHours: 72, maxUsesPerCode: null, repairingTrigger: "on_vehicle_change" },
   },
 ]
-
-export type Driver = (typeof mockDrivers)[number]
 
 export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
   {
@@ -1529,6 +1549,7 @@ export const foStatusConfig: Record<FOStatus, { label: string; color: string; bg
   PENDING_ACTIVATION: { label: "Pending Activation", color: "text-amber-700", bg: "bg-amber-100" },
   ACTIVE: { label: "Active", color: "text-green-700", bg: "bg-green-100" },
   SUSPENDED: { label: "Suspended", color: "text-red-700", bg: "bg-red-100" },
+  INACTIVE: { label: "Inactive", color: "text-gray-600", bg: "bg-gray-100" },
 };
 
 // ─── Chart data ─────────────────────────────────────────────────────────────

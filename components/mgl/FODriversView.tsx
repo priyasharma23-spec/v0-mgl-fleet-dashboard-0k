@@ -7,7 +7,7 @@ import {
   type Driver, type DriverPairingPolicy
 } from "@/lib/mgl-data"
 
-const myDrivers = mockDrivers.filter(d => d.foId === "FO001")
+const myDrivers = mockDrivers.filter((d: Driver) => d.foId === "FO001")
 const myVehicles = mockVehicles.filter(v => v.foId === "FO001" && v.status === "CARD_ACTIVE")
 
 function generateCode() {
@@ -110,7 +110,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
   const [generatedBindingCode, setGeneratedBindingCode] = useState("")
 
   const drivers = myDrivers
-  const filtered = drivers.filter(d =>
+  const filtered = drivers.filter((d: Driver) =>
     !search ||
     d.name.toLowerCase().includes(search.toLowerCase()) ||
         (d.phone || "").includes(search) ||
@@ -119,9 +119,9 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
 
   const counts = {
     total: drivers.length,
-    active: drivers.filter(d => d.status === "active").length,
-    assigned: drivers.filter(d => d.assignedVehicleIds.length > 0).length,
-    unassigned: drivers.filter(d => d.assignedVehicleIds.length === 0).length,
+    active: drivers.filter((d: Driver) => d.status === "active" || d.status === "ACTIVE").length,
+    assigned: drivers.filter((d: Driver) => d.assignedVehicleIds.length > 0).length,
+    unassigned: drivers.filter((d: Driver) => d.assignedVehicleIds.length === 0).length,
   }
 
   const copyCode = (code: string) => {
@@ -180,7 +180,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
 
       {/* Driver List */}
       <div className="space-y-3">
-        {filtered.map(driver => {
+        {filtered.map((driver: Driver) => {
           const risk = getRiskLevel(driver.pairingPolicy)
           const vehicles = myVehicles.filter(v => driver.assignedVehicleIds.includes(v.id))
           return (
