@@ -398,12 +398,297 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 </div>
               )}
 
-              {detailTab === "pairing" && (
-                <div className="text-muted-foreground">Pairing tab content</div>
+              {detailTab === "pairing" && selectedDriver && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-4">Pairing code</h3>
+                    {selectedDriver.pairingCode ? (
+                      <>
+                        <div className="bg-gray-50 border border-border rounded-xl p-4 text-center mb-4">
+                          <div className="font-mono text-2xl font-bold tracking-widest text-foreground mb-3">
+                            {selectedDriver.pairingCode}
+                          </div>
+                          <div className="text-xs text-muted-foreground space-y-1">
+                            <p>Expires: {selectedDriver.pairingCodeExpiry ?? "No expiry"}</p>
+                            <p>Used: {selectedDriver.pairingCodeUsed ?? 0} times</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(selectedDriver.pairingCode || "")
+                              const btn = event?.target as HTMLElement
+                              const oldText = btn.textContent
+                              btn.textContent = "Copied!"
+                              setTimeout(() => {
+                                btn.textContent = oldText
+                              }, 2000)
+                            }}
+                            className="px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                          >
+                            Copy code
+                          </button>
+                          <button
+                            onClick={() => {
+                              window.open(
+                                `whatsapp://send?text=Your MGL Fleet pairing code is: ${selectedDriver.pairingCode}`,
+                                "_blank"
+                              )
+                            }}
+                            className="px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                          >
+                            Share via WhatsApp
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm("This will invalidate the current code. Continue?")) {
+                                const newCode = Math.random()
+                                  .toString(36)
+                                  .substring(2, 8)
+                                  .toUpperCase()
+                                setSelectedDriver({ ...selectedDriver, pairingCode: newCode })
+                              }
+                            }}
+                            className="px-3 py-2 bg-card border border-amber-300 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-50"
+                          >
+                            Regenerate
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground mb-4">No pairing code generated</p>
+                        <button
+                          onClick={() => {
+                            const newCode = Math.random()
+                              .toString(36)
+                              .substring(2, 8)
+                              .toUpperCase()
+                            setSelectedDriver({ ...selectedDriver, pairingCode: newCode })
+                          }}
+                          className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium"
+                        >
+                          Generate code
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <h3 className="font-semibold text-foreground mb-4">Pairing policy</h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between py-2 border-b border-border">
+                        <span className="text-muted-foreground">Expiry window</span>
+                        <span className="font-medium">{selectedDriver.pairingPolicy?.expiryHours ?? 24}h</span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-border">
+                        <span className="text-muted-foreground">Max uses</span>
+                        <span className="font-medium">
+                          {selectedDriver.pairingPolicy?.maxUsesPerCode === null
+                            ? "Unlimited"
+                            : selectedDriver.pairingPolicy?.maxUsesPerCode ?? 1}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-2 border-b border-border">
+                        <span className="text-muted-foreground">Auto-invalidate on</span>
+                        <span className="font-medium">
+                          {selectedDriver.pairingPolicy?.repairingTrigger ?? "never"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-2">
+                        <span className="text-muted-foreground">Delivery method</span>
+                        <span className="font-medium">{selectedDriver.pairingPolicy?.deliveryMethod ?? "Portal"}</span>
+                      </div>
+                      <button
+                        onClick={() => setDetailTab("policy")}
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-4"
+                      >
+                        Edit policy →
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
 
-              {detailTab === "policy" && (
-                <div className="text-muted-foreground">Policy tab content</div>
+              {detailTab === "policy" && selectedDriver && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-2">Pairing code policy</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      These settings apply to all vehicle bindings for this driver unless overridden per binding
+                    </p>
+
+                    <div className="space-y-6">
+                      {/* Code expiry */}
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">Code expiry window</label>
+                        <div className="flex flex-wrap gap-2">
+                          {["2h", "24h", "72h", "7d", "No expiry"].map((option) => (
+                            <button
+                              key={option}
+                              onClick={() => {
+                                let hours: number | null = 24
+                                if (option === "2h") hours = 2
+                                else if (option === "24h") hours = 24
+                                else if (option === "72h") hours = 72
+                                else if (option === "7d") hours = 168
+                                else if (option === "No expiry") hours = null
+                                setSelectedDriver({
+                                  ...selectedDriver,
+                                  pairingPolicy: { ...selectedDriver.pairingPolicy, expiryHours: hours },
+                                })
+                              }}
+                              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                                (selectedDriver.pairingPolicy?.expiryHours === (option === "2h" ? 2 : option === "24h" ? 24 : option === "72h" ? 72 : option === "7d" ? 168 : null) ||
+                                  (option === "No expiry" && selectedDriver.pairingPolicy?.expiryHours === null))
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Max uses */}
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">Max uses per code</label>
+                        <div className="flex flex-wrap gap-2">
+                          {[1, 3, 5, null].map((option) => (
+                            <button
+                              key={option === null ? "unlimited" : option}
+                              onClick={() => {
+                                setSelectedDriver({
+                                  ...selectedDriver,
+                                  pairingPolicy: { ...selectedDriver.pairingPolicy, maxUsesPerCode: option },
+                                })
+                              }}
+                              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                                selectedDriver.pairingPolicy?.maxUsesPerCode === option
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              }`}
+                            >
+                              {option === null ? "Unlimited" : `${option} use${option !== 1 ? "s" : ""}`}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Auto-invalidate */}
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">Auto-invalidate binding when</label>
+                        <div className="space-y-2">
+                          {["Driver phone changes", "Driver de-linked", "Vehicle reassigned", "Monthly reset"].map(
+                            (option) => (
+                              <label key={option} className="flex items-center gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedDriver.pairingPolicy?.repairingTrigger === option.toLowerCase().replace(/\s+/g, "_")}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedDriver({
+                                        ...selectedDriver,
+                                        pairingPolicy: {
+                                          ...selectedDriver.pairingPolicy,
+                                          repairingTrigger: option.toLowerCase().replace(/\s+/g, "_"),
+                                        },
+                                      })
+                                    }
+                                  }}
+                                  className="rounded"
+                                />
+                                <span className="text-sm text-foreground">{option}</span>
+                              </label>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Delivery method */}
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-3">Show pairing code via</label>
+                        <div className="flex flex-wrap gap-2">
+                          {["Portal only", "SMS to FO", "Both"].map((option) => (
+                            <button
+                              key={option}
+                              onClick={() => {
+                                setSelectedDriver({
+                                  ...selectedDriver,
+                                  pairingPolicy: { ...selectedDriver.pairingPolicy, deliveryMethod: option },
+                                })
+                              }}
+                              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                                selectedDriver.pairingPolicy?.deliveryMethod === option
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Risk indicator */}
+                      <div className="pt-4 border-t border-border">
+                        {(() => {
+                          const hours = selectedDriver.pairingPolicy?.expiryHours
+                          const maxUses = selectedDriver.pairingPolicy?.maxUsesPerCode
+                          if (maxUses === 1 && (hours === null || hours > 24)) {
+                            return (
+                              <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                High security
+                              </span>
+                            )
+                          } else if (hours !== null && hours <= 72) {
+                            return (
+                              <span className="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                                Balanced
+                              </span>
+                            )
+                          } else {
+                            return (
+                              <span className="inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+                                Open
+                              </span>
+                            )
+                          }
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <button
+                      onClick={() => {
+                        setTimeout(() => {
+                          alert("Policy saved")
+                        }, 300)
+                      }}
+                      className="flex-1 px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium hover:bg-green-200"
+                    >
+                      Save policy
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedDriver({
+                          ...selectedDriver,
+                          pairingPolicy: {
+                            codeType: "single_use",
+                            expiryHours: 24,
+                            repairingTrigger: "never",
+                            maxUsesPerCode: 1,
+                          },
+                        })
+                      }}
+                      className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                    >
+                      Reset to fleet defaults
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
