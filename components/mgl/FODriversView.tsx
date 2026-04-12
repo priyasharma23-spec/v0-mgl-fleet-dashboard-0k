@@ -149,8 +149,8 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   const counts = {
     total: drivers.length,
     active: drivers.filter((d: Driver) => d.status === "active" || d.status === "ACTIVE").length,
-    assigned: drivers.filter((d: Driver) => d.assignedVehicleIds.length > 0).length,
-    unassigned: drivers.filter((d: Driver) => d.assignedVehicleIds.length === 0).length,
+    assigned: drivers.filter((d: Driver) => (d.assignedVehicleIds?.length ?? 0) > 0).length,
+    unassigned: drivers.filter((d: Driver) => (d.assignedVehicleIds?.length ?? 0) === 0).length,
   }
 
   const copyCode = (code: string) => {
@@ -211,7 +211,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
       <div className="space-y-3">
         {filtered.map((driver: Driver) => {
           const risk = getRiskLevel(driver.pairingPolicy)
-          const vehicles = myVehicles.filter(v => driver.assignedVehicleIds.includes(v.id))
+          const vehicles = myVehicles.filter(v => (driver.assignedVehicleIds?.includes(v.id)) ?? false)
           return (
             <div key={driver.id} className="bg-card rounded-xl border border-border p-4 space-y-3">
               <div className="flex items-center justify-between gap-2">
@@ -327,9 +327,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   </div>
                   <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Assigned Vehicles</p>
-                    {selectedDriver.assignedVehicleIds.length === 0 ? (
+                    {(selectedDriver?.assignedVehicleIds?.length ?? 0) === 0 ? (
                       <p className="text-xs text-muted-foreground">No vehicles assigned</p>
-                    ) : myVehicles.filter(v => selectedDriver.assignedVehicleIds.includes(v.id)).map(v => (
+                    ) : myVehicles.filter(v => (selectedDriver?.assignedVehicleIds?.includes(v.id)) ?? false).map(v => (
                       <div key={v.id} className="flex items-center justify-between text-sm">
                         <span className="font-mono text-xs font-medium">{v.vehicleNumber}</span>
                         <span className="text-xs text-muted-foreground">{v.category} · {v.oem}</span>

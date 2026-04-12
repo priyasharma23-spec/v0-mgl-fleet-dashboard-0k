@@ -526,6 +526,7 @@ export const mockDrivers: Driver[] = [
     licenseExpiry: "2027-11-10",
     phone: "9876503456",
     status: "ACTIVE",
+    assignedVehicleIds: [],
     createdAt: "2025-03-19",
     pairingCode: "MT9163",
     pairingCodeExpiry: "2026-04-18",
