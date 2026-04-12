@@ -113,7 +113,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
   const filtered = drivers.filter(d =>
     !search ||
     d.name.toLowerCase().includes(search.toLowerCase()) ||
-    d.contactNumber.includes(search) ||
+        (d.phone || "").includes(search) ||
     d.licenseNumber?.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -192,7 +192,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{driver.name}</p>
-                    <p className="text-xs text-muted-foreground">{driver.contactNumber}</p>
+                    <p className="text-xs text-muted-foreground">{driver.phone || "—"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -284,7 +284,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Personal Details</p>
                     {[
                       ["Name", selectedDriver.name],
-                      ["Contact", selectedDriver.contactNumber],
+                      ["Contact", selectedDriver.phone || "—"],
                       ["License No.", selectedDriver.licenseNumber || "—"],
                       ["License Expiry", selectedDriver.licenseExpiry || "—"],
                       ["Status", selectedDriver.status],
