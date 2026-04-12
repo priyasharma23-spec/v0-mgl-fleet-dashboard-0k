@@ -15,6 +15,7 @@ import MGLSidebar from "@/components/mgl/MGLSidebar"
 import FOWalletView from "@/components/mgl/FOWalletView"
 import FOVehicleDetailTray from "@/components/mgl/FOVehicleDetailTray"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
+import FODriversView from "@/components/mgl/FODriversView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
 import ReportsView from "@/components/mgl/shared/ReportsView"
@@ -127,6 +128,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       )
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} onboardingType={onboardingType} />
+      case "fo-drivers": return <FODriversView onboardingType={onboardingType} />
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
@@ -3029,7 +3031,7 @@ function FOFundManagement() {
   )
 }
 
-// ─── FO Delivery Tracking ─────────────�����─────────�����────────────��────────���──────
+// ─── FO Delivery Tracking ─────────────�����─────────�����───���────────��────────���──────
 function FODeliveryTracking() {
   const dispatched = myVehicles.filter((v) => v.trackingId)
 
