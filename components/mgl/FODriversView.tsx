@@ -13,6 +13,9 @@ const AUTH_MODES = {
   vehicle_linked: { label: "Vehicle-linked", color: "bg-green-100 text-green-700", icon: "🔗" },
   shift_based: { label: "Shift-based", color: "bg-amber-100 text-amber-700", icon: "🕐" },
   trip_linked: { label: "Trip-linked", color: "bg-blue-100 text-blue-700", icon: "🗺️" },
+  VEHICLE_LINKED: { label: "Vehicle-linked", color: "bg-green-100 text-green-700", icon: "🔗" },
+  SHIFT_BASED: { label: "Shift-based", color: "bg-amber-100 text-amber-700", icon: "🕐" },
+  TRIP_LINKED: { label: "Trip-linked", color: "bg-blue-100 text-blue-700", icon: "🗺️" },
 }
 
 const BINDING_STATES = {
@@ -22,6 +25,14 @@ const BINDING_STATES = {
   SUSPENDED: { label: "Suspended", color: "bg-red-100 text-red-700" },
   REVOKED: { label: "Revoked", color: "bg-gray-100 text-gray-700" },
   EXPIRED: { label: "Expired", color: "bg-gray-100 text-gray-700" },
+}
+
+function normaliseAuthMode(mode: string): keyof typeof AUTH_MODES {
+  const lower = mode?.toLowerCase?.()
+  if (lower === "vehicle_linked") return "vehicle_linked"
+  if (lower === "shift_based") return "shift_based"
+  if (lower === "trip_linked") return "trip_linked"
+  return "vehicle_linked"
 }
 
 class ErrorBoundary extends React.Component<
@@ -205,8 +216,8 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 ) : activeBindings.length === 1 ? (
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm">{myVehicles.find(v => v.id === activeBindings[0].vehicleId)?.vehicleNumber || "—"}</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[activeBindings[0].authMode as keyof typeof AUTH_MODES]?.color ?? "bg-gray-100 text-gray-700"}`}>
-                      {AUTH_MODES[activeBindings[0].authMode as keyof typeof AUTH_MODES]?.label ?? activeBindings[0].authMode}}
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[normaliseAuthMode(activeBindings[0].authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
+                      {AUTH_MODES[normaliseAuthMode(activeBindings[0].authMode)]?.label ?? activeBindings[0].authMode}}
                     </span>
                   </div>
                 ) : (
@@ -334,8 +345,8 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="font-mono font-bold text-foreground">{vehicle?.vehicleNumber || "—"}</span>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[binding.authMode as keyof typeof AUTH_MODES]?.color ?? "bg-gray-100 text-gray-700"}`}>
-                                {AUTH_MODES[binding.authMode as keyof typeof AUTH_MODES]?.label ?? binding.authMode}}
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[normaliseAuthMode(binding.authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
+                                {AUTH_MODES[normaliseAuthMode(binding.authMode)]?.label ?? binding.authMode}}
                               </span>
                             </div>
                             <span className={`px-3 py-1 rounded text-xs font-medium ${stateBadge?.color ?? "bg-gray-100 text-gray-700"}`}>
