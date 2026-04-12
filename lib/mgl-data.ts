@@ -426,6 +426,107 @@ export function resolveEffectivePolicy(
 }
 
 
+// ─── Driver Vehicle Binding - First-Class Entity ────────────────────────────
+export type BindingState = "pending_binding" | "active" | "suspended" | "revoked"
+export type PairingCodeState = "pending" | "used" | "expired"
+export type AuthMode = "pairing_code" | "pin" | "biometric"
+
+export interface DriverVehicleBinding {
+  bindingId: string
+  driverId: string
+  vehicleId: string
+  foId: string
+  authMode: AuthMode
+  state: BindingState
+  pairingCode?: string
+  pairingCodeState?: PairingCodeState
+  effectivePolicy?: EffectivePairingPolicy
+  spendLimitPerFueling?: number | null
+  spendLimitPerDay?: number | null
+  shiftStart?: string
+  shiftEnd?: string
+  tripId?: string
+  createdAt: string
+  activatedAt?: string
+  revokedAt?: string
+  notes?: string
+}
+
+export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
+  {
+    bindingId: "BND001",
+    driverId: "DRV001",
+    vehicleId: "VEH001",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "RK7842",
+    pairingCodeState: "used",
+    spendLimitPerFueling: 2000,
+    spendLimitPerDay: 5000,
+    shiftStart: "06:00",
+    shiftEnd: "22:00",
+    createdAt: "2025-01-20",
+    activatedAt: "2026-04-10",
+  },
+  {
+    bindingId: "BND002",
+    driverId: "DRV002",
+    vehicleId: "VEH007",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "SP4521",
+    pairingCodeState: "pending",
+    spendLimitPerFueling: null,
+    spendLimitPerDay: null,
+    createdAt: "2025-03-07",
+  },
+  {
+    bindingId: "BND003",
+    driverId: "DRV003",
+    vehicleId: "VEH009",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "pending_binding",
+    pairingCode: "MT9163",
+    pairingCodeState: "pending",
+    createdAt: "2025-03-19",
+  },
+  {
+    bindingId: "BND004",
+    driverId: "DRV005",
+    vehicleId: "VEH002",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "AM3377",
+    pairingCodeState: "used",
+    spendLimitPerFueling: 3000,
+    spendLimitPerDay: 8000,
+    shiftStart: "05:00",
+    shiftEnd: "23:00",
+    createdAt: "2025-02-10",
+    activatedAt: "2026-03-15",
+    notes: "Pool driver — primary vehicle",
+  },
+  {
+    bindingId: "BND005",
+    driverId: "DRV005",
+    vehicleId: "VEH008",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "AM3377",
+    pairingCodeState: "used",
+    spendLimitPerFueling: 3000,
+    spendLimitPerDay: 8000,
+    createdAt: "2025-02-10",
+    activatedAt: "2026-03-20",
+    notes: "Pool driver — secondary vehicle",
+  },
+]
+
 
 export interface FleetOperator {
   id: string;

@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Search, Plus, User, Phone, CreditCard, Car, Shield, Copy, CheckCircle, AlertCircle, Clock, X, Eye, RefreshCw, ChevronRight } from "lucide-react"
-import { mockVehicles, type OnboardingType } from "@/lib/mgl-data"
+import { mockVehicles, mockDriverVehicleBindings, type OnboardingType } from "@/lib/mgl-data"
 
 // Local types for driver management
 export interface Driver {
@@ -296,6 +296,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                 { id: "details", label: "Details" },
                 { id: "pairing", label: "Pairing" },
                 { id: "policy", label: "Policy" },
+                { id: "bindings", label: "Bindings" },
               ].map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
                   className={`flex-1 py-2.5 text-xs font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
@@ -601,10 +602,121 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                   })()}
                 </>
               )}
-            </div>
-          </div>
-        </>
-      )}
+
+              {activeTab === "bindings" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Bindings</p>
+                    <button className="flex items-center gap-1 text-xs text-primary font-medium hover:underline">
+                      <Plus className="w-3.5 h-3.5" /> Add Binding
+                    </button>
+                  </div>
+
+                  {(() => {
+                    const bindings = mockDriverVehicleBindings.filter(b => b.driverId === selectedDriver.id)
+                    if (bindings.length === 0) return (
+                      <div className="text-center py-8 bg-muted/30 rounded-xl border border-dashed border-border">
+                        <Car className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                        <p className="text-sm text-muted-foreground">No vehicle bindings yet</p>
+                        <button className="mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium">
+                          Create Binding
+                        </button>
+                      </div>
+                    )
+
+                    return bindings.map(binding => {
+                      const vehicle = mockVehicles.find(v => v.id === binding.vehicleId)
+                      return (
+                        <div key={binding.bindingId} className="bg-muted/30 rounded-xl border border-border p-4 space-y-3">
+                          {/* Binding header */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <Car className="w-4 h-4 text-primary" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-foreground font-mono">{vehicle?.vehicleNumber || binding.vehicleId}</p>
+                                <p className="text-xs text-muted-foreground">{vehicle?.category} · {vehicle?.oem}</p>
+                              </div>
+                            </div>
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                              binding.state === "active" ? "bg-green-100 text-green-700" :
+                              binding.state === "pending_binding" ? "bg-amber-100 text-amber-700" :
+                              binding.state === "suspended" ? "bg-red-100 text-red-700" :
+                              "bg-gray-100 text-gray-600"
+                            }`}>
+                              {binding.state === "pending_binding" ? "Pending" :
+                               binding.state.charAt(0).toUpperCase() + binding.state.slice(1)}
+                            </span>
+                          </div>
+
+                          {/* Binding details */}
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <p className="text-muted-foreground">Pairing Code</p>
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <span className="font-mono font-bold text-foreground">{binding.pairingCode || "—"}</span>
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] font-medium ${
+                                  binding.pairingCodeState === "used" ? "bg-green-100 text-green-700" :
+                                  binding.pairingCodeState === "pending" ? "bg-amber-100 text-amber-700" :
+                                  "bg-red-100 text-red-700"
+                                }`}>{binding.pairingCodeState}</span>
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-muted-foreground">Auth Mode</p>
+                              <p className="font-medium mt-0.5 capitalize">{binding.authMode.replace("_", " ")}</p>
+                            </div>
+                            {binding.spendLimitPerFueling && (
+                              <div>
+                                <p className="text-muted-foreground">Per Fueling Limit</p>
+                                <p className="font-medium mt-0.5">₹{binding.spendLimitPerFueling.toLocaleString("en-IN")}</p>
+                              </div>
+                            )}
+                            {binding.spendLimitPerDay && (
+                              <div>
+                                <p className="text-muted-foreground">Daily Limit</p>
+                                <p className="font-medium mt-0.5">₹{binding.spendLimitPerDay.toLocaleString("en-IN")}</p>
+                              </div>
+                            )}
+                            {binding.shiftStart && (
+                              <div>
+                                <p className="text-muted-foreground">Shift</p>
+                                <p className="font-medium mt-0.5">{binding.shiftStart} – {binding.shiftEnd}</p>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-muted-foreground">Activated</p>
+                              <p className="font-medium mt-0.5">{binding.activatedAt || "Not yet"}</p>
+                            </div>
+                          </div>
+
+                          {binding.notes && (
+                            <p className="text-xs text-muted-foreground italic border-t border-border pt-2">{binding.notes}</p>
+                          )}
+
+                          {/* Binding actions */}
+                          <div className="flex gap-2 pt-1">
+                            {binding.state === "active" && (
+                              <button className="flex-1 py-1.5 border border-red-200 text-red-600 rounded-lg text-xs font-medium hover:bg-red-50 transition-colors">
+                                Suspend
+                              </button>
+                            )}
+                            {binding.state === "pending_binding" && (
+                              <button className="flex-1 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
+                                Send Pairing Code
+                              </button>
+                            )}
+                            <button className="flex-1 py-1.5 border border-border rounded-lg text-xs font-medium hover:bg-muted transition-colors">
+                              Edit Limits
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })
+                  })()}
+                </div>
+              )}
 
       {/* Generate Code Modal */}
       {showPairingModal && (
