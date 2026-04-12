@@ -717,6 +717,10 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                   })()}
                 </div>
               )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Generate Code Modal */}
       {showPairingModal && (
