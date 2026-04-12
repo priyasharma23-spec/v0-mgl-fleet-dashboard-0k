@@ -313,6 +313,120 @@ export function computeIncentiveEligibility(
 }
 
 
+// ─── Driver Pairing Policy - Three-Level Inheritance Model ───────────────────
+export type PolicyLevel = "platform" | "fleet" | "vehicle_type" | "pairing"
+
+export interface PairingPolicyConfig {
+  level: PolicyLevel
+  scopeId?: string              // null=platform, fo_id=fleet, vehicle_type=HCV/ICV etc, pairing_id
+  expiryHours?: number | null   // null = inherit from level above
+  maxUses?: number | null       // null = inherit
+  codeType?: "single_use" | "multi_use" | null
+  repairingTrigger?: "never" | "monthly" | "on_vehicle_change" | null
+  deliveryMethod?: "sms" | "whatsapp" | "email" | null
+}
+
+// Resolved effective policy — all fields populated after walking the chain
+export interface EffectivePairingPolicy {
+  expiryHours: number | null    // null = no expiry
+  maxUses: number | null        // null = unlimited
+  codeType: "single_use" | "multi_use"
+  repairingTrigger: "never" | "monthly" | "on_vehicle_change"
+  deliveryMethod: "sms" | "whatsapp" | "email"
+  resolvedFrom: {
+    expiryHours: PolicyLevel
+    maxUses: PolicyLevel
+    codeType: PolicyLevel
+    repairingTrigger: PolicyLevel
+    deliveryMethod: PolicyLevel
+  }
+}
+
+// Keep DriverPairingPolicy as alias for backward compat
+export type DriverPairingPolicy = PairingPolicyConfig
+
+// Platform-level default policy
+export const PLATFORM_DEFAULT_POLICY: PairingPolicyConfig = {
+  level: "platform",
+  expiryHours: 168,        // 7 days max at platform level
+  maxUses: null,           // unlimited
+  codeType: "multi_use",
+  repairingTrigger: "monthly",
+  deliveryMethod: "sms",
+}
+
+// Fleet-level policies per FO
+export const mockFleetPolicies: PairingPolicyConfig[] = [
+  {
+    level: "fleet",
+    scopeId: "FO001",
+    expiryHours: 24,         // override: tighter than platform
+    maxUses: null,           // inherit: unlimited
+    codeType: "multi_use",   // inherit
+    repairingTrigger: "monthly", // inherit
+    deliveryMethod: "whatsapp",  // override: prefer WhatsApp
+  },
+]
+
+// Vehicle-type-level policies
+export const mockVehicleTypePolicies: PairingPolicyConfig[] = [
+  {
+    level: "vehicle_type",
+    scopeId: "HCV",
+    expiryHours: 72,         // HCV drivers assigned less frequently — 72h override
+    maxUses: null,
+    codeType: null,          // inherit
+    repairingTrigger: null,  // inherit
+    deliveryMethod: null,    // inherit
+  },
+]
+
+// Policy resolution helper function
+export function resolveEffectivePolicy(
+  foId: string,
+  vehicleType?: string,
+  pairingOverride?: Partial<PairingPolicyConfig>
+): EffectivePairingPolicy {
+  const platform = PLATFORM_DEFAULT_POLICY
+  const fleet = mockFleetPolicies.find(p => p.scopeId === foId)
+  const vType = vehicleType ? mockVehicleTypePolicies.find(p => p.scopeId === vehicleType) : undefined
+
+  // Walk chain: pairing > vehicle_type > fleet > platform
+  // Take first non-null value, most restrictive wins for numeric fields
+  const resolve = <T>(field: keyof PairingPolicyConfig, fallback: T): { value: T; level: PolicyLevel } => {
+    if (pairingOverride?.[field] !== undefined && pairingOverride?.[field] !== null)
+      return { value: pairingOverride[field] as T, level: "pairing" }
+    if (vType?.[field] !== undefined && vType?.[field] !== null)
+      return { value: vType[field] as T, level: "vehicle_type" }
+    if (fleet?.[field] !== undefined && fleet?.[field] !== null)
+      return { value: fleet[field] as T, level: "fleet" }
+    return { value: (platform[field] ?? fallback) as T, level: "platform" }
+  }
+
+  const expiry = resolve<number | null>("expiryHours", 168)
+  const maxUses = resolve<number | null>("maxUses", null)
+  const codeType = resolve<"single_use" | "multi_use">("codeType", "multi_use")
+  const trigger = resolve<"never" | "monthly" | "on_vehicle_change">("repairingTrigger", "monthly")
+  const delivery = resolve<"sms" | "whatsapp" | "email">("deliveryMethod", "sms")
+
+  return {
+    expiryHours: expiry.value,
+    maxUses: maxUses.value,
+    codeType: codeType.value,
+    repairingTrigger: trigger.value,
+    deliveryMethod: delivery.value,
+    resolvedFrom: {
+      expiryHours: expiry.level,
+      maxUses: maxUses.level,
+      codeType: codeType.level,
+      repairingTrigger: trigger.level,
+      deliveryMethod: delivery.level,
+    }
+  }
+}
+
+
+
 export interface FleetOperator {
   id: string;
   name: string;
