@@ -441,6 +441,13 @@ export interface DriverVehicleBinding {
   pairingCode?: string
   pairingCodeState?: PairingCodeState
   effectivePolicy?: EffectivePairingPolicy
+  policyVersionRef?: string
+  policyStampedAt?: string
+  policyHistory?: Array<{
+    policy: EffectivePairingPolicy
+    stampedAt: string
+    reason: "initial" | "reissued" | "fleet_policy_changed"
+  }>
   spendLimitPerFueling?: number | null
   spendLimitPerDay?: number | null
   shiftStart?: string
@@ -462,6 +469,16 @@ export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
     state: "active",
     pairingCode: "RK7842",
     pairingCodeState: "used",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-01-20",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-01-20",
+        reason: "initial",
+      }
+    ],
     spendLimitPerFueling: 2000,
     spendLimitPerDay: 5000,
     shiftStart: "06:00",
@@ -478,6 +495,16 @@ export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
     state: "active",
     pairingCode: "SP4521",
     pairingCodeState: "pending",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-03-07",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-03-07",
+        reason: "initial",
+      }
+    ],
     spendLimitPerFueling: null,
     spendLimitPerDay: null,
     createdAt: "2025-03-07",
@@ -491,6 +518,16 @@ export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
     state: "pending_binding",
     pairingCode: "MT9163",
     pairingCodeState: "pending",
+    effectivePolicy: resolveEffectivePolicy("FO001", "ICV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-03-19",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "ICV"),
+        stampedAt: "2025-03-19",
+        reason: "initial",
+      }
+    ],
     createdAt: "2025-03-19",
   },
   {
@@ -502,6 +539,16 @@ export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
     state: "active",
     pairingCode: "AM3377",
     pairingCodeState: "used",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-02-10",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-02-10",
+        reason: "initial",
+      }
+    ],
     spendLimitPerFueling: 3000,
     spendLimitPerDay: 8000,
     shiftStart: "05:00",
@@ -519,6 +566,16 @@ export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
     state: "active",
     pairingCode: "AM3377",
     pairingCodeState: "used",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-02-10",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-02-10",
+        reason: "initial",
+      }
+    ],
     spendLimitPerFueling: 3000,
     spendLimitPerDay: 8000,
     createdAt: "2025-02-10",
@@ -527,8 +584,35 @@ export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
   },
 ]
 
+export function reissueBinding(
+  binding: DriverVehicleBinding,
+  vehicleType: string,
+  pairingOverride?: Partial<PairingPolicyConfig>
+): DriverVehicleBinding {
+  const newPolicy = resolveEffectivePolicy(binding.foId, vehicleType, pairingOverride)
+  const newCode = Math.random().toString(36).substring(2, 8).toUpperCase()
 
-export interface FleetOperator {
+  return {
+    ...binding,
+    pairingCode: newCode,
+    pairingCodeState: "pending",
+    effectivePolicy: newPolicy,
+    policyVersionRef: `FPOL-${binding.foId}-v${Date.now()}`,
+    policyStampedAt: new Date().toISOString().split("T")[0],
+    policyHistory: [
+      ...(binding.policyHistory ?? []),
+      {
+        policy: binding.effectivePolicy!,
+        stampedAt: binding.policyStampedAt ?? binding.createdAt,
+        reason: "reissued",
+      }
+    ],
+    activatedAt: undefined,
+    state: "pending_binding",
+  }
+}
+
+
   id: string;
   name: string;
   contactNumber: string;
