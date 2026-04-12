@@ -207,7 +207,7 @@ export default function LoginPage({ onLogin, activationData, showRegistration, o
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20 shadow-lg bg-white flex items-center justify-center">
                 <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-agxPFremWBWY82BTBrfdO5RnOzVori.png"
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/mgl_logo_128-r1jXdEm0UXVTtnVvMyFoT0xJl4gdyx.png"
                   alt="Mahanagar Gas Limited"
                   width={64}
                   height={64}
