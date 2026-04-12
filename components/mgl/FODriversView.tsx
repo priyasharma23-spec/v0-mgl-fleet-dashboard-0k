@@ -16,16 +16,15 @@ export interface Driver {
   assignedVehicleId?: string
   pairingCode?: string
   pairingCodeExpiry?: string
+  pairingPolicy?: DriverPairingPolicy
   createdAt: string
 }
 
 export interface DriverPairingPolicy {
-  id: string
-  policyName: string
-  description: string
-  maxRetries: number
-  expiryMinutes: number
-  requiresOTP: boolean
+  codeType: "single_use" | "multi_use"
+  expiryHours: number | null
+  maxUsesPerCode: number | null
+  repairingTrigger: "never" | "monthly" | "on_vehicle_change"
 }
 
 // Local mock drivers for FO001
@@ -41,6 +40,7 @@ const mockDrivers: Driver[] = [
     status: "ACTIVE",
     assignedVehicleId: "VEH001",
     createdAt: "2025-02-01",
+    pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
   },
   {
     id: "DRV002",
@@ -53,6 +53,7 @@ const mockDrivers: Driver[] = [
     status: "ACTIVE",
     assignedVehicleId: "VEH002",
     createdAt: "2025-02-05",
+    pairingPolicy: { codeType: "multi_use", expiryHours: 48, maxUsesPerCode: 5, repairingTrigger: "on_vehicle_change" },
   },
   {
     id: "DRV003",
@@ -64,6 +65,7 @@ const mockDrivers: Driver[] = [
     status: "ACTIVE",
     assignedVehicleId: "VEH003",
     createdAt: "2025-02-10",
+    pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "never" },
   },
   {
     id: "DRV004",
@@ -74,6 +76,7 @@ const mockDrivers: Driver[] = [
     phone: "9876504567",
     status: "INACTIVE",
     createdAt: "2025-01-15",
+    pairingPolicy: { codeType: "multi_use", expiryHours: null, maxUsesPerCode: null, repairingTrigger: "never" },
   },
   {
     id: "DRV005",
@@ -87,6 +90,7 @@ const mockDrivers: Driver[] = [
     pairingCode: "ABC123DEF456",
     pairingCodeExpiry: "2026-04-19",
     createdAt: "2025-03-10",
+    pairingPolicy: { codeType: "single_use", expiryHours: 72, maxUsesPerCode: 1, repairingTrigger: "monthly" },
   },
 ]
 
@@ -116,6 +120,8 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
   const [drivers, setDrivers] = useState(myDrivers)
   const [generatedCode, setGeneratedCode] = useState("")
   const [activeTab, setActiveTab] = useState<"details" | "pairing" | "policy">("details")
+  const [editingPolicy, setEditingPolicy] = useState(false)
+  const [draftPolicy, setDraftPolicy] = useState<DriverPairingPolicy | null>(null)
 
   const filtered = drivers.filter(d =>
     !search ||
@@ -367,30 +373,153 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
 
               {activeTab === "policy" && (
                 <>
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Security Settings</p>
-                    <div className="text-sm space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Pairing Status</span>
-                        <span className="font-medium text-foreground">{selectedDriver.pairingCode ? "Active" : "Inactive"}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">License Status</span>
-                        <span className="font-medium text-foreground">
-                          {new Date(selectedDriver.licenseExpiry) > new Date() ? "Valid" : "Expired"}
-                        </span>
-                      </div>
-                      {selectedDriver.licenseExpiry && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">License Expiry</span>
-                          <span className="font-medium text-foreground">{selectedDriver.licenseExpiry}</span>
+                  {(() => {
+                    const policy = editingPolicy ? draftPolicy! : selectedDriver.pairingPolicy
+                    const risk = getRiskLevel(policy)
+                    return (
+                      <div className="space-y-4">
+                        {/* Risk indicator — updates live */}
+                        <div className={`flex items-center gap-3 p-3 rounded-xl border ${risk.level === "low" ? "bg-green-50 border-green-200" : risk.level === "high" ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}>
+                          <Shield className={`w-5 h-5 shrink-0 ${risk.color}`} />
+                          <div>
+                            <p className={`text-sm font-semibold ${risk.color}`}>Security: {risk.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {risk.level === "low" ? "Strong — tight expiry and limited uses" :
+                               risk.level === "high" ? "Open — no expiry + unlimited uses. Add restrictions to reduce risk." :
+                               "Balanced between security and convenience"}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  <button className="w-full py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-                    Update Security Policy
-                  </button>
+
+                        {!editingPolicy ? (
+                          <>
+                            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Current Policy</p>
+                              {[
+                                ["Code Type", policy?.codeType === "single_use" ? "Single use" : "Multi use"],
+                                ["Expiry", policy?.expiryHours === null ? "No expiry" : `${policy?.expiryHours}h`],
+                                ["Max Uses", policy?.maxUsesPerCode === null ? "Unlimited" : String(policy?.maxUsesPerCode)],
+                                ["Re-pairing", policy?.repairingTrigger === "never" ? "Manual only" : policy?.repairingTrigger === "monthly" ? "Monthly reset" : "On vehicle change"],
+                              ].map(([label, value]) => (
+                                <div key={label} className="flex items-center justify-between text-sm">
+                                  <span className="text-muted-foreground">{label}</span>
+                                  <span className="font-medium text-foreground">{value ?? "—"}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <button
+                              onClick={() => { setEditingPolicy(true); setDraftPolicy({ ...selectedDriver.pairingPolicy! }) }}
+                              className="w-full py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+                              Edit Policy
+                            </button>
+                          </>
+                        ) : (
+                          <div className="space-y-4">
+
+                            {/* Code Type */}
+                            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Code Type</p>
+                              <div className="flex gap-2">
+                                {[
+                                  { value: "single_use", label: "Single use", desc: "Code expires after first use" },
+                                  { value: "multi_use", label: "Multi use", desc: "Code can be used multiple times" },
+                                ].map(opt => (
+                                  <button key={opt.value} onClick={() => setDraftPolicy(p => ({ ...p!, codeType: opt.value as any }))}
+                                    className={`flex-1 p-3 rounded-lg border text-left transition-colors ${draftPolicy?.codeType === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                                    <p className="text-xs font-semibold text-foreground">{opt.label}</p>
+                                    <p className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</p>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Expiry */}
+                            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Code Expiry</p>
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  { label: "24h", value: 24 },
+                                  { label: "48h", value: 48 },
+                                  { label: "7 days", value: 168 },
+                                  { label: "30 days", value: 720 },
+                                  { label: "No expiry", value: null },
+                                ].map(opt => (
+                                  <button key={String(opt.value)} onClick={() => setDraftPolicy(p => ({ ...p!, expiryHours: opt.value }))}
+                                    className={`py-2 rounded-lg border text-xs font-medium transition-colors ${draftPolicy?.expiryHours === opt.value ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}>
+                                    {opt.label}
+                                  </button>
+                                ))}
+                              </div>
+                              {draftPolicy?.expiryHours === null && (
+                                <p className="text-[10px] text-amber-600 flex items-center gap-1">
+                                  <AlertCircle className="w-3 h-3" /> No-expiry codes stay valid indefinitely. Pair with single-use to limit exposure.
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Max Uses — only for multi_use */}
+                            {draftPolicy?.codeType === "multi_use" && (
+                              <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Max Uses per Code</p>
+                                <div className="grid grid-cols-4 gap-2">
+                                  {[
+                                    { label: "1", value: 1 },
+                                    { label: "5", value: 5 },
+                                    { label: "10", value: 10 },
+                                    { label: "Unlimited", value: null },
+                                  ].map(opt => (
+                                    <button key={String(opt.value)} onClick={() => setDraftPolicy(p => ({ ...p!, maxUsesPerCode: opt.value }))}
+                                      className={`py-2 rounded-lg border text-xs font-medium transition-colors ${draftPolicy?.maxUsesPerCode === opt.value ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}>
+                                      {opt.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Re-pairing trigger */}
+                            <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Re-pairing Trigger</p>
+                              {[
+                                { value: "never", label: "Manual only", desc: "FO generates new code manually when needed" },
+                                { value: "monthly", label: "Monthly reset", desc: "Code resets every month — forces re-verification" },
+                                { value: "on_vehicle_change", label: "On vehicle change", desc: "New code required when driver switches vehicles" },
+                              ].map(opt => (
+                                <button key={opt.value} onClick={() => setDraftPolicy(p => ({ ...p!, repairingTrigger: opt.value as any }))}
+                                  className={`w-full p-3 rounded-lg border text-left transition-colors ${draftPolicy?.repairingTrigger === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}>
+                                  <p className="text-xs font-semibold text-foreground">{opt.label}</p>
+                                  <p className="text-[10px] text-muted-foreground mt-0.5">{opt.desc}</p>
+                                </button>
+                              ))}
+                            </div>
+
+                            {/* Policy summary */}
+                            <div className="bg-muted/20 border border-border rounded-xl p-3">
+                              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Policy Summary</p>
+                              <p className="text-xs text-foreground leading-relaxed">
+                                Driver gets a <strong>{draftPolicy?.codeType === "single_use" ? "single-use" : "reusable"}</strong> code
+                                {draftPolicy?.expiryHours ? ` valid for ${draftPolicy.expiryHours}h` : " with no expiry"}.
+                                {draftPolicy?.codeType === "multi_use" && draftPolicy?.maxUsesPerCode ? ` Max ${draftPolicy.maxUsesPerCode} uses.` : ""}
+                                {" "}Re-pairing is{" "}
+                                {draftPolicy?.repairingTrigger === "never" ? "manual only." : draftPolicy?.repairingTrigger === "monthly" ? "triggered monthly." : "triggered on vehicle change."}
+                              </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                              <button onClick={() => { setEditingPolicy(false); setDraftPolicy(null) }}
+                                className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                                Cancel
+                              </button>
+                              <button onClick={() => { setEditingPolicy(false); setDraftPolicy(null) }}
+                                className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                                Save Policy
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </>
               )}
             </div>
