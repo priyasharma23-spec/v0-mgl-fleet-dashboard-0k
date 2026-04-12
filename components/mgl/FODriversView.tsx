@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Search, Plus, User, Car, Shield, Copy, CheckCircle, AlertCircle, X, RefreshCw, ChevronRight } from "lucide-react"
 import {
   mockDrivers, mockVehicles, mockDriverVehicleBindings,
@@ -73,24 +73,38 @@ const ASSIGNMENT_TYPES = [
   },
 ]
 
-type BindingForm = {
-  assignmentType: string
-  vehicleId: string
-  spendLimitPerFueling: string
-  spendLimitPerDay: string
-  shiftStart: string
-  shiftEnd: string
-  tripId: string
-  notes: string
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: any) {
+    super(props)
+    this.state = { error: null }
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="p-6 bg-red-50 border border-red-200 rounded-xl">
+          <p className="font-bold text-red-700 mb-2">
+            Driver page crash:
+          </p>
+          <p className="text-sm font-mono text-red-600">
+            {this.state.error.message}
+          </p>
+          <pre className="text-xs text-red-500 mt-2 overflow-auto">
+            {this.state.error.stack}
+          </pre>
+        </div>
+      )
+    }
+    return this.props.children
+  }
 }
 
-const EMPTY_FORM: BindingForm = {
-  assignmentType: "", vehicleId: "",
-  spendLimitPerFueling: "", spendLimitPerDay: "",
-  shiftStart: "", shiftEnd: "", tripId: "", notes: "",
-}
-
-export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: string }) {
+function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: string }) {
   const [search, setSearch] = useState("")
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [activeTab, setActiveTab] = useState<"details" | "pairing" | "policy" | "bindings">("details")
@@ -856,5 +870,13 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
       )}
 
     </div>
+  )
+}
+
+export default function FODriversView(props: any) {
+  return (
+    <ErrorBoundary>
+      <FODriversViewInner {...props} />
+    </ErrorBoundary>
   )
 }
