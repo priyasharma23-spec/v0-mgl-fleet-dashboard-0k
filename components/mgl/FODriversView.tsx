@@ -217,7 +217,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm">{myVehicles.find(v => v.id === activeBindings[0].vehicleId)?.vehicleNumber || "—"}</span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[normaliseAuthMode(activeBindings[0].authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
-                      {AUTH_MODES[normaliseAuthMode(activeBindings[0].authMode)]?.label ?? activeBindings[0].authMode}}
+                      {AUTH_MODES[normaliseAuthMode(activeBindings[0].authMode)]?.label ?? activeBindings[0].authMode}
                     </span>
                   </div>
                 ) : (
@@ -346,7 +346,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                             <div className="flex items-center gap-2">
                               <span className="font-mono font-bold text-foreground">{vehicle?.vehicleNumber || "—"}</span>
                               <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[normaliseAuthMode(binding.authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
-                                {AUTH_MODES[normaliseAuthMode(binding.authMode)]?.label ?? binding.authMode}}
+                                {AUTH_MODES[normaliseAuthMode(binding.authMode)]?.label ?? binding.authMode}
                               </span>
                             </div>
                             <span className={`px-3 py-1 rounded text-xs font-medium ${stateBadge?.color ?? "bg-gray-100 text-gray-700"}`}>
