@@ -366,6 +366,9 @@ export interface Driver {
   createdAt: string
   lastPairedAt?: string
   notes?: string
+  inviteCode?: string
+  inviteCodeExpiry?: string
+  inviteCodeUsed?: boolean
 }
 
 // Platform-level default policy
@@ -500,6 +503,7 @@ export const mockDrivers: Driver[] = [
     lastPairedAt: "12 Apr 2026, 9:45 AM",
     createdAt: "2025-02-01",
     pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
+    inviteCodeUsed: true,
   },
   {
     id: "DRV002",
@@ -517,6 +521,7 @@ export const mockDrivers: Driver[] = [
     pairingCodeUsed: 0,
     createdAt: "2025-03-07",
     pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
+    inviteCodeUsed: true,
   },
   {
     id: "DRV003",
@@ -531,6 +536,9 @@ export const mockDrivers: Driver[] = [
     pairingCode: "MT9163",
     pairingCodeExpiry: "2026-04-18",
     pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
+    inviteCodeUsed: false,
+    inviteCode: "MT9163",
+    inviteCodeExpiry: "2026-04-30",
   },
   {
     id: "DRV005",
@@ -548,6 +556,7 @@ export const mockDrivers: Driver[] = [
     lastPairedAt: "20 Mar 2026, 3:20 PM",
     createdAt: "2025-02-10",
     pairingPolicy: { codeType: "multi_use", expiryHours: 72, maxUsesPerCode: null, repairingTrigger: "on_vehicle_change" },
+    inviteCodeUsed: true,
   },
 ]
 

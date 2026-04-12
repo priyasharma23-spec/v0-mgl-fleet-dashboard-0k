@@ -35,6 +35,13 @@ function normaliseAuthMode(mode: string): keyof typeof AUTH_MODES {
   return "vehicle_linked"
 }
 
+const generateInviteCode = () => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+  return Array.from({ length: 6 }, () => 
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join("")
+}
+
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { error: Error | null }
@@ -64,6 +71,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "unassigned" | "suspended">("all")
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [showAssignModal, setShowAssignModal] = useState(false)
+  const [showAddDriverModal, setShowAddDriverModal] = useState(false)
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false)
+  const [newDriverInviteCode, setNewDriverInviteCode] = useState("")
   const [assignStep, setAssignStep] = useState(1)
   const [bindings, setBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
   const [detailTab, setDetailTab] = useState<"details" | "vehicles" | "pairing" | "policy">("vehicles")
@@ -132,7 +142,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">Drivers</h2>
-        <button onClick={() => { setSelectedDriver(null); setShowAssignModal(false); }} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
+        <button onClick={() => setShowAddDriverModal(true)} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700">
           <Plus className="w-4 h-4 inline mr-1" /> Add Driver
         </button>
       </div>
@@ -223,6 +233,27 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 ) : (
                   <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-medium">{activeBindings.length} vehicles</span>
                 )}
+                {/* Invite code row */}
+                {driver.inviteCodeUsed === false ? (
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-medium">Invite pending</span>
+                    <span className="font-mono text-xs font-semibold text-foreground">{driver.inviteCode}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigator.clipboard.writeText(driver.inviteCode || "")
+                        alert("Code copied!")
+                      }}
+                      className="p-1 hover:bg-muted rounded"
+                    >
+                      <Copy className="w-3 h-3 text-muted-foreground" />
+                    </button>
+                  </div>
+                ) : driver.inviteCodeUsed === true ? (
+                  <div className="mt-2">
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Registered</span>
+                  </div>
+                ) : null}
               </div>
 
               {/* Right: Status & Chevron */}
@@ -319,6 +350,73 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   <div>
                     <label className="text-xs font-semibold text-muted-foreground">Registered</label>
                     <p className="text-foreground">{new Date(selectedDriver.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  
+                  {/* Invite Code Section */}
+                  <div className="border-t border-border pt-4">
+                    <label className="text-xs font-semibold text-muted-foreground mb-3 block">Invite code</label>
+                    {selectedDriver.inviteCodeUsed === false ? (
+                      <>
+                        <div className="bg-gray-50 border border-border rounded-xl p-4 text-center mb-4">
+                          <div className="font-mono text-2xl font-bold tracking-widest text-foreground mb-2">
+                            {selectedDriver.inviteCode || "—"}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Expires: {selectedDriver.inviteCodeExpiry || "No expiry"} · One-time use
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(selectedDriver.inviteCode || "")
+                              alert("Code copied!")
+                            }}
+                            className="px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                          >
+                            <Copy className="w-3 h-3 inline mr-1" /> Copy code
+                          </button>
+                          <button
+                            onClick={() => {
+                              window.open(
+                                `https://wa.me/?text=Your MGL Fleet invite code is: ${selectedDriver.inviteCode}. Download the MGL Fleet driver app and enter this code to register. Valid for 24 hours.`,
+                                "_blank"
+                              )
+                            }}
+                            className="px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                          >
+                            WhatsApp
+                          </button>
+                          <button
+                            onClick={() => {
+                              window.open(
+                                `sms:?body=Your MGL Fleet invite code is: ${selectedDriver.inviteCode}. Download the MGL Fleet driver app to register.`
+                              )
+                            }}
+                            className="px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                          >
+                            SMS
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (confirm("This will invalidate the current code. Continue?")) {
+                              const newCode = generateInviteCode()
+                              setSelectedDriver({ ...selectedDriver, inviteCode: newCode, inviteCodeExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0] })
+                            }
+                          }}
+                          className="w-full px-3 py-2 bg-card border border-amber-300 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-50"
+                        >
+                          Regenerate
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium mb-2">
+                          Code used · Driver registered
+                        </span>
+                        <p className="text-sm text-muted-foreground">Driver registered on {new Date(selectedDriver.createdAt).toLocaleDateString()}</p>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -816,6 +914,135 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Add Driver Modal */}
+      {showAddDriverModal && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => { setShowAddDriverModal(false); setShowSuccessScreen(false); }} />
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-card border border-border rounded-xl max-w-md w-full mx-4 p-6">
+              {showSuccessScreen ? (
+                // Success Screen
+                <div className="text-center space-y-6">
+                  <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Driver added</h3>
+                    <p className="text-sm text-muted-foreground mt-1">{selectedDriver?.name}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium mb-2">Invite code</p>
+                    <div className="bg-gray-50 border border-border rounded-xl p-4 text-center mb-3">
+                      <div className="font-mono text-3xl font-bold tracking-widest text-foreground">
+                        {newDriverInviteCode}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">Expires in 24 hours · one-time use</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(newDriverInviteCode)
+                        alert("Copied!")
+                      }}
+                      className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                    >
+                      Copy code
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.open(
+                          `https://wa.me/?text=Your MGL Fleet invite code is: ${newDriverInviteCode}. Download the MGL Fleet driver app and enter this code to register. Valid for 24 hours.`,
+                          "_blank"
+                        )
+                      }}
+                      className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                    >
+                      WhatsApp
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.open(`sms:?body=Your MGL Fleet invite code is: ${newDriverInviteCode}. Download the MGL Fleet driver app to register.`)
+                      }}
+                      className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                    >
+                      SMS
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => { setShowAddDriverModal(false); setShowSuccessScreen(false); }}
+                    className="w-full py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                // Add Driver Form
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-foreground">Add Driver</h3>
+                  
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1 block">Driver Name</label>
+                    <input type="text" placeholder="Enter driver name" className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-card" id="driverName" />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1 block">Mobile Number</label>
+                    <input type="tel" placeholder="Enter mobile number" className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-card" id="driverPhone" />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1 block">License Number</label>
+                    <input type="text" placeholder="Enter license number" className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-card" id="driverLicense" />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setShowAddDriverModal(false); }}
+                      className="flex-1 py-2 border border-border rounded-lg text-sm font-medium hover:bg-muted"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        const nameInput = (document.getElementById("driverName") as HTMLInputElement)?.value
+                        if (!nameInput) {
+                          alert("Please enter driver name")
+                          return
+                        }
+                        const newCode = generateInviteCode()
+                        const newDriver: Driver = {
+                          id: `DRV${Math.random().toString().slice(2, 5)}`,
+                          foId: "FO001",
+                          name: nameInput,
+                          phone: (document.getElementById("driverPhone") as HTMLInputElement)?.value,
+                          licenseNumber: (document.getElementById("driverLicense") as HTMLInputElement)?.value,
+                          status: "ACTIVE",
+                          assignedVehicleIds: [],
+                          pairingCode: "",
+                          createdAt: new Date().toISOString(),
+                          pairingPolicy: { level: "platform" as const, codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1 },
+                          inviteCode: newCode,
+                          inviteCodeExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                          inviteCodeUsed: false,
+                        }
+                        setSelectedDriver(newDriver)
+                        setNewDriverInviteCode(newCode)
+                        setShowSuccessScreen(true)
+                      }}
+                      className="flex-1 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700"
+                    >
+                      Save & Generate Code
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </>
