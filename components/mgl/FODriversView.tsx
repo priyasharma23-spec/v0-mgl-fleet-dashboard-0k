@@ -377,6 +377,17 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 getDriverBindings(selectedDriver.id).map((binding: DriverVehicleBinding) => {
                   const vehicle = myVehicles.find(v => v.id === binding.vehicleId)
                   const stateBadge = BINDING_STATES[binding.state as keyof typeof BINDING_STATES] ?? { label: binding.state, color: "bg-gray-100 text-gray-700" }
+                  
+                  // Parse date safely
+                  let pairedDateStr = "—"
+                  try {
+                    const dateObj = new Date(binding.activatedAt || binding.createdAt)
+                    if (!isNaN(dateObj.getTime())) {
+                      pairedDateStr = dateObj.toLocaleDateString()
+                    }
+                  } catch (e) {
+                    pairedDateStr = "—"
+                  }
 
                   return (
                     <div key={binding.id} className="border border-border rounded-xl p-3 space-y-2">
@@ -393,7 +404,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Paired: {new Date(binding.pairedAt).toLocaleDateString()}
+                        Paired: {pairedDateStr}
                       </div>
                     </div>
                   )
