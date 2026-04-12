@@ -14,9 +14,12 @@ export interface Driver {
   email?: string
   status: "ACTIVE" | "INACTIVE" | "PENDING_KYC"
   assignedVehicleId?: string
+  assignedVehicleIds?: string[]
   pairingCode?: string
   pairingCodeExpiry?: string
+  pairingCodeUsed?: number
   pairingPolicy?: DriverPairingPolicy
+  lastPairedAt?: string
   createdAt: string
 }
 
@@ -39,6 +42,11 @@ const mockDrivers: Driver[] = [
     email: "ramesh@abc.com",
     status: "ACTIVE",
     assignedVehicleId: "VEH001",
+    assignedVehicleIds: ["VEH001"],
+    pairingCode: "RAM123456",
+    pairingCodeExpiry: "2026-04-20",
+    pairingCodeUsed: 5,
+    lastPairedAt: "12 Apr 2026, 9:45 AM",
     createdAt: "2025-02-01",
     pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
   },
@@ -337,38 +345,109 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
               )}
 
               {activeTab === "pairing" && (
-                <>
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Current Pairing Code</p>
-                    {selectedDriver.pairingCode ? (
-                      <>
-                        <div className="flex items-center justify-between p-3 bg-card border border-border rounded-xl">
-                          <span className="text-2xl font-mono font-bold text-foreground tracking-widest">{selectedDriver.pairingCode}</span>
-                          <button onClick={() => copyCode(selectedDriver.pairingCode!)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-medium">
-                            {copiedCode ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                            {copiedCode ? "Copied!" : "Copy"}
-                          </button>
+                <div className="space-y-4">
+
+                  {/* Active Pairing Status */}
+                  {selectedDriver.pairingCode ? (
+                    <div className={`flex items-center gap-3 p-3 rounded-xl border ${selectedDriver.lastPairedAt ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${selectedDriver.lastPairedAt ? "bg-green-500" : "bg-amber-500"}`} />
+                      <div>
+                        <p className={`text-sm font-semibold ${selectedDriver.lastPairedAt ? "text-green-900" : "text-amber-900"}`}>
+                          {selectedDriver.lastPairedAt ? "Device Paired" : "Code Issued — Not Yet Paired"}
+                        </p>
+                        <p className={`text-xs mt-0.5 ${selectedDriver.lastPairedAt ? "text-green-700" : "text-amber-700"}`}>
+                          {selectedDriver.lastPairedAt ? `Last paired ${selectedDriver.lastPairedAt}` : "Driver has not yet used this code"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 rounded-xl border bg-muted/30 border-border">
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-400 shrink-0" />
+                      <p className="text-sm text-muted-foreground">No active pairing code</p>
+                    </div>
+                  )}
+
+                  {/* Current Code Details */}
+                  {selectedDriver.pairingCode && (
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Active Code</p>
+                      <div className="flex items-center justify-between p-3 bg-card border border-border rounded-xl">
+                        <span className="text-2xl font-mono font-bold text-foreground tracking-widest">{selectedDriver.pairingCode}</span>
+                        <button onClick={() => copyCode(selectedDriver.pairingCode!)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-medium hover:bg-primary/20">
+                          {copiedCode ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedCode ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                      {[
+                        ["Status", selectedDriver.pairingCodeExpiry ? new Date(selectedDriver.pairingCodeExpiry) > new Date() ? "Active" : "Expired" : "Active (No expiry)"],
+                        ["Expiry", selectedDriver.pairingCodeExpiry || "No expiry"],
+                        ["Times Used", String(selectedDriver.pairingCodeUsed ?? 0)],
+                        ["Max Uses", selectedDriver.pairingPolicy?.maxUsesPerCode === null ? "Unlimited" : String(selectedDriver.pairingPolicy?.maxUsesPerCode ?? "—")],
+                      ].map(([label, value]) => (
+                        <div key={label} className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">{label}</span>
+                          <span className={`font-medium ${label === "Status" && value === "Expired" ? "text-red-600" : label === "Status" ? "text-green-600" : "text-foreground"}`}>{value}</span>
                         </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Pairing History */}
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pairing Activity</p>
+                    {selectedDriver.lastPairedAt ? (
+                      <div className="space-y-3">
                         {[
-                          ["Expiry", selectedDriver.pairingCodeExpiry || "No expiry"],
-                          ["Status", selectedDriver.pairingCode ? "Active" : "Not generated"],
-                        ].map(([label, value]) => (
-                          <div key={label} className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">{label}</span>
-                            <span className="font-medium text-foreground">{value}</span>
+                          { date: selectedDriver.lastPairedAt, action: "Device paired successfully", vehicle: selectedDriver.assignedVehicleIds?.[0] ? mockVehicles.find(v => v.id === selectedDriver.assignedVehicleIds?.[0])?.vehicleNumber : "—", type: "success" },
+                          { date: selectedDriver.createdAt, action: "Driver added to fleet", vehicle: "—", type: "info" },
+                        ].map((entry, i, arr) => (
+                          <div key={i} className="flex gap-3">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-3 h-3 rounded-full shrink-0 ${entry.type === "success" ? "bg-green-600" : "bg-blue-600"}`} />
+                              {i < arr.length - 1 && <div className="w-0.5 h-6 bg-border mt-1" />}
+                            </div>
+                            <div className="pb-1 flex-1">
+                              <p className="text-xs font-medium text-foreground">{entry.action}</p>
+                              <p className="text-[10px] text-muted-foreground">{entry.date} {entry.vehicle !== "—" ? `· ${entry.vehicle}` : ""}</p>
+                            </div>
                           </div>
                         ))}
-                      </>
+                      </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground">No active pairing code</p>
+                      <p className="text-xs text-muted-foreground">No pairing activity yet</p>
                     )}
-                    <button onClick={() => handleGenerateCode(selectedDriver)}
-                      className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 flex items-center justify-center gap-2">
-                      <RefreshCw className="w-4 h-4" /> Generate New Code
-                    </button>
                   </div>
-                </>
+
+                  {/* Delivery options */}
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Send Code To Driver</p>
+                    <div className="flex gap-2">
+                      <button className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted flex items-center justify-center gap-1.5">
+                        📱 SMS
+                      </button>
+                      <button className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted flex items-center justify-center gap-1.5">
+                        💬 WhatsApp
+                      </button>
+                      <button className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted flex items-center justify-center gap-1.5">
+                        📧 Email
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <button onClick={() => handleGenerateCode(selectedDriver)}
+                    className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 flex items-center justify-center gap-2">
+                    <RefreshCw className="w-4 h-4" /> Generate New Code
+                  </button>
+
+                  {selectedDriver.pairingCode && (
+                    <button className="w-full py-2.5 border border-red-300 text-red-700 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors">
+                      Revoke Current Code
+                    </button>
+                  )}
+
+                </div>
               )}
 
               {activeTab === "policy" && (
