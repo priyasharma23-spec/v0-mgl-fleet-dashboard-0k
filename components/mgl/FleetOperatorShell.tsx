@@ -55,8 +55,6 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
   const [showWelcomeModal, setShowWelcomeModal] = useState(onboardingType === "MIC_ASSISTED")
   const [selectedCardVehicle, setSelectedCardVehicle] = useState<string | null>(null)
   const [actionModal, setActionModal] = useState<"block" | "reset-pin" | "lock-unlock" | "limits" | "replacement" | null>(null)
-  const [activeTab, setActiveTab] = useState<string>("overview")
-  const [selectedTxn, setSelectedTxn] = useState<any>(null)
 
   // Determine if this is a new FO that needs to complete registration
   // Self-service flow: needs full KYB registration
@@ -392,34 +390,34 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                     </p>
                 </div>
               )}
-              {activeTab === "pos" && (
+              {activeTab === "pos" && selectedTxn && (
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Card Wallet</span>
-                    <span className="font-medium text-red-600">-₹{selectedTxn.cardWalletDebit || "0"}</span>
+                    <span className="font-medium text-red-600">-₹{selectedTxn?.cardWalletDebit || "0"}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Incentive Wallet</span>
-                    <span className="font-medium text-red-600">-₹{selectedTxn.incentiveWalletDebit || "0"}</span>
+                    <span className="font-medium text-red-600">-₹{selectedTxn?.incentiveWalletDebit || "0"}</span>
                   </div>
                 </div>
               )}
-              {activeTab === "pos" && selectedTxn.cashbackEligible && (
+              {activeTab === "pos" && selectedTxn?.cashbackEligible && (
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Cashback Rate</span>
-                    <span className="font-medium text-green-700">{selectedTxn.cashbackPercent}%</span>
+                    <span className="font-medium text-green-700">{selectedTxn?.cashbackPercent}%</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Cashback Amount</span>
-                    <span className="font-bold text-green-700">+{selectedTxn.cashbackAmount}</span>
+                    <span className="font-bold text-green-700">+{selectedTxn?.cashbackAmount}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Status</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                      {selectedTxn.cashbackStatus}
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn?.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                      {selectedTxn?.cashbackStatus}
                     </span>
                   </div>
                 </div>
@@ -1237,13 +1235,13 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                   ))}
                 </div>
 
-              {activeTab === "pos" && (
+              {activeTab === "pos" && selectedTxn && (
                 <CashbackDetails data={{
-                  cashbackEligible: selectedTxn.cashbackEligible,
-                  cashbackPercent: selectedTxn.cashbackPercent,
-                  cashbackAmount: selectedTxn.cashbackAmount,
-                  cashbackStatus: selectedTxn.cashbackStatus,
-                  cashbackReason: selectedTxn.cashbackReason,
+                  cashbackEligible: selectedTxn?.cashbackEligible,
+                  cashbackPercent: selectedTxn?.cashbackPercent,
+                  cashbackAmount: selectedTxn?.cashbackAmount,
+                  cashbackStatus: selectedTxn?.cashbackStatus,
+                  cashbackReason: selectedTxn?.cashbackReason,
                 }} />
               )}
             </div>
