@@ -25,6 +25,21 @@ function getRiskLevel(policy?: DriverPairingPolicy) {
   return { level: "medium" as const, label: "Balanced", color: "text-amber-600" }
 }
 
+const EMPTY_FORM = {
+  name: "",
+  contactNumber: "",
+  licenseNumber: "",
+  licenseExpiry: "",
+  notes: "",
+  assignedVehicleIds: [] as string[],
+  pairingPolicy: {
+    codeType: "single_use" as const,
+    expiryHours: 24,
+    repairingTrigger: "never" as const,
+    maxUsesPerCode: 1,
+  },
+}
+
 const ASSIGNMENT_TYPES = [
   {
     id: "permanent",
