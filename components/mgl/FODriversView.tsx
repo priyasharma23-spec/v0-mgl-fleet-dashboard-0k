@@ -1,7 +1,94 @@
 "use client"
 import { useState } from "react"
 import { Search, Plus, User, Phone, CreditCard, Car, Shield, Copy, CheckCircle, AlertCircle, Clock, X, Eye, RefreshCw, ChevronRight } from "lucide-react"
-import { mockDrivers, mockVehicles, type Driver, type DriverPairingPolicy } from "@/lib/mgl-data"
+import { mockVehicles, type OnboardingType } from "@/lib/mgl-data"
+
+// Local types for driver management
+export interface Driver {
+  id: string
+  foId: string
+  name: string
+  licenseNumber: string
+  licenseExpiry: string
+  phone: string
+  email?: string
+  status: "ACTIVE" | "INACTIVE" | "PENDING_KYC"
+  assignedVehicleId?: string
+  pairingCode?: string
+  pairingCodeExpiry?: string
+  createdAt: string
+}
+
+export interface DriverPairingPolicy {
+  id: string
+  policyName: string
+  description: string
+  maxRetries: number
+  expiryMinutes: number
+  requiresOTP: boolean
+}
+
+// Local mock drivers for FO001
+const mockDrivers: Driver[] = [
+  {
+    id: "DRV001",
+    foId: "FO001",
+    name: "Ramesh Kumar",
+    licenseNumber: "MH04DL20250001",
+    licenseExpiry: "2028-05-15",
+    phone: "9876501234",
+    email: "ramesh@abc.com",
+    status: "ACTIVE",
+    assignedVehicleId: "VEH001",
+    createdAt: "2025-02-01",
+  },
+  {
+    id: "DRV002",
+    foId: "FO001",
+    name: "Anil Sharma",
+    licenseNumber: "MH04DL20250002",
+    licenseExpiry: "2027-08-22",
+    phone: "9876502345",
+    email: "anil@abc.com",
+    status: "ACTIVE",
+    assignedVehicleId: "VEH002",
+    createdAt: "2025-02-05",
+  },
+  {
+    id: "DRV003",
+    foId: "FO001",
+    name: "Suresh Singh",
+    licenseNumber: "MH04DL20250003",
+    licenseExpiry: "2026-12-10",
+    phone: "9876503456",
+    status: "ACTIVE",
+    assignedVehicleId: "VEH003",
+    createdAt: "2025-02-10",
+  },
+  {
+    id: "DRV004",
+    foId: "FO001",
+    name: "Vikram Patel",
+    licenseNumber: "MH04DL20250004",
+    licenseExpiry: "2029-03-18",
+    phone: "9876504567",
+    status: "INACTIVE",
+    createdAt: "2025-01-15",
+  },
+  {
+    id: "DRV005",
+    foId: "FO001",
+    name: "Mohit Joshi",
+    licenseNumber: "MH04DL20250005",
+    licenseExpiry: "2028-07-25",
+    phone: "9876505678",
+    email: "mohit@abc.com",
+    status: "PENDING_KYC",
+    pairingCode: "ABC123DEF456",
+    pairingCodeExpiry: "2026-04-19",
+    createdAt: "2025-03-10",
+  },
+]
 
 const myDrivers = mockDrivers.filter(d => d.foId === "FO001")
 const myVehicles = mockVehicles.filter(v => v.foId === "FO001" && v.status === "CARD_ACTIVE")
@@ -33,15 +120,15 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
   const filtered = drivers.filter(d =>
     !search ||
     d.name.toLowerCase().includes(search.toLowerCase()) ||
-    d.contactNumber.includes(search) ||
+    d.phone.includes(search) ||
     d.licenseNumber?.toLowerCase().includes(search.toLowerCase())
   )
 
   const counts = {
     total: drivers.length,
-    active: drivers.filter(d => d.status === "active").length,
-    assigned: drivers.filter(d => d.assignedVehicleIds.length > 0).length,
-    unassigned: drivers.filter(d => d.assignedVehicleIds.length === 0).length,
+    active: drivers.filter(d => d.status === "ACTIVE").length,
+    assigned: drivers.filter(d => d.assignedVehicleId).length,
+    unassigned: drivers.filter(d => !d.assignedVehicleId).length,
   }
 
   const handleGenerateCode = (driver: Driver) => {
@@ -99,8 +186,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
       {/* Driver Cards */}
       <div className="space-y-3">
         {filtered.map(driver => {
-          const risk = getRiskLevel(driver.pairingPolicy)
-          const assignedVehicles = myVehicles.filter(v => driver.assignedVehicleIds.includes(v.id))
+          const assignedVehicles = myVehicles.filter(v => v.id === driver.assignedVehicleId)
           return (
             <div key={driver.id} className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-start justify-between gap-3">
@@ -110,12 +196,12 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{driver.name}</p>
-                    <p className="text-xs text-muted-foreground">{driver.contactNumber}</p>
+                    <p className="text-xs text-muted-foreground">{driver.phone}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${driver.status === "active" ? "bg-green-100 text-green-700" : driver.status === "suspended" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"}`}>
-                    {driver.status.charAt(0).toUpperCase() + driver.status.slice(1)}
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${driver.status === "ACTIVE" ? "bg-green-100 text-green-700" : driver.status === "INACTIVE" ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
+                    {driver.status}
                   </span>
                   <button onClick={() => { setSelectedDriver(driver); setActiveTab("details") }}
                     className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-primary">
@@ -126,10 +212,10 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
 
               <div className="mt-3 pt-3 border-t border-border grid grid-cols-3 gap-3 text-xs">
                 <div>
-                  <p className="text-muted-foreground">Vehicles</p>
+                  <p className="text-muted-foreground">Vehicle</p>
                   <p className="font-medium mt-0.5">
                     {assignedVehicles.length > 0
-                      ? assignedVehicles.map(v => v.vehicleNumber).join(", ")
+                      ? assignedVehicles[0].vehicleNumber
                       : "Unassigned"}
                   </p>
                 </div>
@@ -146,8 +232,8 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                   </div>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Security</p>
-                  <p className={`font-medium mt-0.5 ${risk.color}`}>{risk.label}</p>
+                  <p className="text-muted-foreground">License</p>
+                  <p className="font-mono text-xs font-medium mt-0.5">{driver.licenseNumber}</p>
                 </div>
               </div>
 
@@ -211,7 +297,8 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Personal Details</p>
                     {[
                       ["Name", selectedDriver.name],
-                      ["Contact", selectedDriver.contactNumber],
+                      ["Contact", selectedDriver.phone],
+                      ["Email", selectedDriver.email || "—"],
                       ["License No.", selectedDriver.licenseNumber || "—"],
                       ["License Expiry", selectedDriver.licenseExpiry || "—"],
                       ["Status", selectedDriver.status],
@@ -222,19 +309,14 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                         <span className="font-medium text-foreground">{value}</span>
                       </div>
                     ))}
-                    {selectedDriver.notes && (
-                      <div className="pt-2 border-t border-border">
-                        <p className="text-xs text-muted-foreground">{selectedDriver.notes}</p>
-                      </div>
-                    )}
                   </div>
 
                   <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Assigned Vehicles</p>
-                    {selectedDriver.assignedVehicleIds.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">No vehicles assigned</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Assigned Vehicle</p>
+                    {!selectedDriver.assignedVehicleId ? (
+                      <p className="text-xs text-muted-foreground">No vehicle assigned</p>
                     ) : (
-                      myVehicles.filter(v => selectedDriver.assignedVehicleIds.includes(v.id)).map(v => (
+                      myVehicles.filter(v => v.id === selectedDriver.assignedVehicleId).map(v => (
                         <div key={v.id} className="flex items-center justify-between text-sm">
                           <span className="font-mono text-xs font-medium">{v.vehicleNumber}</span>
                           <span className="text-xs text-muted-foreground">{v.category} · {v.oem}</span>
@@ -264,8 +346,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                         </div>
                         {[
                           ["Expiry", selectedDriver.pairingCodeExpiry || "No expiry"],
-                          ["Times Used", String(selectedDriver.pairingCodeUsed ?? 0)],
-                          ["Last Paired", selectedDriver.lastPairedAt || "Never"],
+                          ["Status", selectedDriver.pairingCode ? "Active" : "Not generated"],
                         ].map(([label, value]) => (
                           <div key={label} className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">{label}</span>
@@ -286,45 +367,30 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
 
               {activeTab === "policy" && (
                 <>
-                  {(() => {
-                    const policy = selectedDriver.pairingPolicy
-                    const risk = getRiskLevel(policy)
-                    return (
-                      <div className="space-y-4">
-                        {/* Risk indicator */}
-                        <div className={`flex items-center gap-3 p-3 rounded-xl border ${risk.level === "low" ? "bg-green-50 border-green-200" : risk.level === "high" ? "bg-red-50 border-red-200" : "bg-amber-50 border-amber-200"}`}>
-                          <Shield className={`w-5 h-5 shrink-0 ${risk.color}`} />
-                          <div>
-                            <p className={`text-sm font-semibold ${risk.color}`}>Security: {risk.label}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {risk.level === "low" ? "Strong security configuration" :
-                               risk.level === "high" ? "High exposure — consider adding expiry or limiting uses" :
-                               "Balanced between security and convenience"}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="bg-muted/30 rounded-xl p-4 space-y-3">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pairing Policy</p>
-                          {[
-                            ["Code Type", policy?.codeType === "single_use" ? "Single use" : "Multi use"],
-                            ["Expiry", policy?.expiryHours === null ? "No expiry" : `${policy?.expiryHours}h`],
-                            ["Max Uses", policy?.maxUsesPerCode === null ? "Unlimited" : String(policy?.maxUsesPerCode)],
-                            ["Re-pairing Trigger", policy?.repairingTrigger === "never" ? "Manual only" : policy?.repairingTrigger === "monthly" ? "Monthly reset" : "On vehicle change"],
-                          ].map(([label, value]) => (
-                            <div key={label} className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">{label}</span>
-                              <span className="font-medium text-foreground">{value ?? "—"}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <button className="w-full py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
-                          Edit Policy
-                        </button>
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Security Settings</p>
+                    <div className="text-sm space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Pairing Status</span>
+                        <span className="font-medium text-foreground">{selectedDriver.pairingCode ? "Active" : "Inactive"}</span>
                       </div>
-                    )
-                  })()}
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">License Status</span>
+                        <span className="font-medium text-foreground">
+                          {new Date(selectedDriver.licenseExpiry) > new Date() ? "Valid" : "Expired"}
+                        </span>
+                      </div>
+                      {selectedDriver.licenseExpiry && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">License Expiry</span>
+                          <span className="font-medium text-foreground">{selectedDriver.licenseExpiry}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <button className="w-full py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+                    Update Security Policy
+                  </button>
                 </>
               )}
             </div>
