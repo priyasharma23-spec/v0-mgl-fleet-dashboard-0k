@@ -54,7 +54,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null)
   const [showAssignModal, setShowAssignModal] = useState(false)
   const [assignStep, setAssignStep] = useState(1)
-  const [bindings, setBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings)
+  const [bindings, setBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
   const [detailTab, setDetailTab] = useState<"details" | "vehicles" | "pairing" | "policy">("vehicles")
 
   // Assign flow state
@@ -66,7 +66,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   })
 
   const getDriverBindings = (driverId: string) =>
-    bindings.filter(b => b.driverId === driverId)
+    (bindings ?? []).filter(b => b.driverId === driverId)
 
   const getActiveBindingCount = (driverId: string) =>
     getDriverBindings(driverId).filter(b => b.state === "ACTIVE").length
@@ -205,8 +205,8 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 ) : activeBindings.length === 1 ? (
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm">{myVehicles.find(v => v.id === activeBindings[0].vehicleId)?.vehicleNumber || "—"}</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[activeBindings[0].authMode as keyof typeof AUTH_MODES].color}`}>
-                      {AUTH_MODES[activeBindings[0].authMode as keyof typeof AUTH_MODES].label}
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[activeBindings[0].authMode as keyof typeof AUTH_MODES]?.color ?? "bg-gray-100 text-gray-700"}`}>
+                      {AUTH_MODES[activeBindings[0].authMode as keyof typeof AUTH_MODES]?.label ?? activeBindings[0].authMode}}
                     </span>
                   </div>
                 ) : (
@@ -327,19 +327,19 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   ) : (
                     getDriverBindings(selectedDriver.id).map((binding: DriverVehicleBinding) => {
                       const vehicle = myVehicles.find(v => v.id === binding.vehicleId)
-                      const stateBadge = BINDING_STATES[binding.state as keyof typeof BINDING_STATES]
+                      const stateBadge = BINDING_STATES[binding.state as keyof typeof BINDING_STATES] ?? { label: binding.state, color: "bg-gray-100 text-gray-700" }
                       
                       return (
                         <div key={binding.id} className="border border-border rounded-xl p-4 space-y-3">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="font-mono font-bold text-foreground">{vehicle?.vehicleNumber || "—"}</span>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[binding.authMode as keyof typeof AUTH_MODES].color}`}>
-                                {AUTH_MODES[binding.authMode as keyof typeof AUTH_MODES].label}
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[binding.authMode as keyof typeof AUTH_MODES]?.color ?? "bg-gray-100 text-gray-700"}`}>
+                                {AUTH_MODES[binding.authMode as keyof typeof AUTH_MODES]?.label ?? binding.authMode}}
                               </span>
                             </div>
-                            <span className={`px-3 py-1 rounded text-xs font-medium ${stateBadge.color}`}>
-                              {stateBadge.label}
+                            <span className={`px-3 py-1 rounded text-xs font-medium ${stateBadge?.color ?? "bg-gray-100 text-gray-700"}`}>
+                              {stateBadge?.label ?? binding.state}
                             </span>
                           </div>
 
