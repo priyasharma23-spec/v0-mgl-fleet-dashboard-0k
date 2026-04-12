@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import { Search, Plus, User, Phone, CreditCard, Car, Shield, Copy, CheckCircle, AlertCircle, Clock, X, Eye, RefreshCw, ChevronRight } from "lucide-react"
-import { mockVehicles, mockDriverVehicleBindings, type OnboardingType } from "@/lib/mgl-data"
+import { mockVehicles, mockDriverVehicleBindings, resolveEffectivePolicy, type OnboardingType } from "@/lib/mgl-data"
 
 // Local types for driver management
 export interface Driver {
@@ -127,9 +127,22 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
   const [copiedCode, setCopiedCode] = useState(false)
   const [drivers, setDrivers] = useState(myDrivers)
   const [generatedCode, setGeneratedCode] = useState("")
-  const [activeTab, setActiveTab] = useState<"details" | "pairing" | "policy">("details")
+  const [activeTab, setActiveTab] = useState<"details" | "pairing" | "policy" | "bindings">("details")
   const [editingPolicy, setEditingPolicy] = useState(false)
   const [draftPolicy, setDraftPolicy] = useState<DriverPairingPolicy | null>(null)
+  const [showBindingModal, setShowBindingModal] = useState(false)
+  const [bindingForm, setBindingForm] = useState({
+    vehicleId: "",
+    authMode: "pairing_code" as "pairing_code" | "pin" | "biometric",
+    spendLimitPerFueling: "",
+    spendLimitPerDay: "",
+    shiftStart: "",
+    shiftEnd: "",
+    notes: "",
+  })
+  const [bindingStep, setBindingStep] = useState(1)
+  const [bindingCreated, setBindingCreated] = useState(false)
+  const [generatedBindingCode, setGeneratedBindingCode] = useState("")
 
   const filtered = drivers.filter(d =>
     !search ||
@@ -607,7 +620,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Bindings</p>
-                    <button className="flex items-center gap-1 text-xs text-primary font-medium hover:underline">
+                    <button onClick={() => { setShowBindingModal(true); setBindingStep(1); setBindingCreated(false); setBindingForm({ vehicleId: "", authMode: "pairing_code", spendLimitPerFueling: "", spendLimitPerDay: "", shiftStart: "", shiftEnd: "", notes: "" }) }} className="flex items-center gap-1 text-xs text-primary font-medium hover:underline">
                       <Plus className="w-3.5 h-3.5" /> Add Binding
                     </button>
                   </div>
@@ -618,7 +631,7 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                       <div className="text-center py-8 bg-muted/30 rounded-xl border border-dashed border-border">
                         <Car className="w-8 h-8 mx-auto mb-2 opacity-30" />
                         <p className="text-sm text-muted-foreground">No vehicle bindings yet</p>
-                        <button className="mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium">
+                        <button onClick={() => { setShowBindingModal(true); setBindingStep(1); setBindingCreated(false); setBindingForm({ vehicleId: "", authMode: "pairing_code", spendLimitPerFueling: "", spendLimitPerDay: "", shiftStart: "", shiftEnd: "", notes: "" }) }} className="mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-medium">
                           Create Binding
                         </button>
                       </div>
@@ -717,6 +730,209 @@ export default function FODriversView({ onboardingType = "MIC_ASSISTED" }: { onb
                   })()}
                 </div>
               )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {showBindingModal && selectedDriver && (
+        <>
+          <div className="fixed inset-0 bg-black/50 z-[60]" onClick={() => !bindingCreated && setShowBindingModal(false)} />
+          <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+            <div className="bg-card rounded-2xl border border-border shadow-xl w-full max-w-md">
+              {/* Header */}
+              <div className="flex items-center justify-between p-5 border-b border-border">
+                <div>
+                  <h3 className="font-semibold text-foreground">Create Vehicle Binding</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{selectedDriver.name} · {selectedDriver.id}</p>
+                </div>
+                {!bindingCreated && (
+                  <button onClick={() => setShowBindingModal(false)} className="p-2 hover:bg-muted rounded-lg">
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Step indicator */}
+              {!bindingCreated && (
+                <div className="flex px-5 pt-4 gap-2">
+                  {["Vehicle", "Limits", "Policy"].map((label, i) => (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${bindingStep > i + 1 ? "bg-green-500 text-white" : bindingStep === i + 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                        {bindingStep > i + 1 ? "✓" : i + 1}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="p-5 space-y-4">
+                {bindingCreated ? (
+                  <div className="text-center space-y-3 py-4">
+                    <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                      <CheckCircle className="w-7 h-7 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">Binding Created</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {selectedDriver.name} is now bound to {myVehicles.find(v => v.id === bindingForm.vehicleId)?.vehicleNumber || bindingForm.vehicleId}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-muted/30 border border-border rounded-xl">
+                      <p className="text-xs text-muted-foreground mb-2">Pairing Code — share with driver</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-mono font-bold text-foreground tracking-widest">{generatedBindingCode}</span>
+                        <button onClick={() => copyCode(generatedBindingCode)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-medium">
+                          {copiedCode ? <CheckCircle className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedCode ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <button className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                        Send via SMS
+                      </button>
+                      <button className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                        Send via WhatsApp
+                      </button>
+                    </div>
+                    <button onClick={() => setShowBindingModal(false)}
+                      className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                      Done
+                    </button>
+                  </div>
+                ) : bindingStep === 1 ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Select Vehicle <span className="text-destructive">*</span></label>
+                      <select value={bindingForm.vehicleId} onChange={e => setBindingForm(f => ({ ...f, vehicleId: e.target.value }))}
+                        className="w-full mt-1 px-3 py-2.5 border border-border rounded-lg text-sm bg-card">
+                        <option value="">Select a vehicle</option>
+                        {myVehicles.filter(v => !mockDriverVehicleBindings.some(b => b.vehicleId === v.id && b.driverId === selectedDriver.id && b.state === "active")).map(v => (
+                          <option key={v.id} value={v.id}>{v.vehicleNumber} — {v.category} · {v.oem}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Auth Mode</label>
+                      <div className="grid grid-cols-3 gap-2 mt-1">
+                        {[
+                          { value: "pairing_code", label: "Pairing Code" },
+                          { value: "pin", label: "PIN" },
+                          { value: "biometric", label: "Biometric" },
+                        ].map(opt => (
+                          <button key={opt.value} onClick={() => setBindingForm(f => ({ ...f, authMode: opt.value as any }))}
+                            className={`py-2 rounded-lg border text-xs font-medium transition-colors ${bindingForm.authMode === opt.value ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-foreground"}`}>
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Notes (optional)</label>
+                      <input type="text" value={bindingForm.notes} onChange={e => setBindingForm(f => ({ ...f, notes: e.target.value }))}
+                        placeholder="e.g. Pool driver, temporary assignment..."
+                        className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                    </div>
+                  </div>
+                ) : bindingStep === 2 ? (
+                  <div className="space-y-4">
+                    <p className="text-xs text-muted-foreground">Set optional spend limits and shift schedule for this binding. Leave blank to use fleet defaults.</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Per Fueling Limit (₹)</label>
+                        <input type="number" value={bindingForm.spendLimitPerFueling}
+                          onChange={e => setBindingForm(f => ({ ...f, spendLimitPerFueling: e.target.value }))}
+                          placeholder="e.g. 2000"
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Daily Limit (₹)</label>
+                        <input type="number" value={bindingForm.spendLimitPerDay}
+                          onChange={e => setBindingForm(f => ({ ...f, spendLimitPerDay: e.target.value }))}
+                          placeholder="e.g. 5000"
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Shift Start</label>
+                        <input type="time" value={bindingForm.shiftStart}
+                          onChange={e => setBindingForm(f => ({ ...f, shiftStart: e.target.value }))}
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground">Shift End</label>
+                        <input type="time" value={bindingForm.shiftEnd}
+                          onChange={e => setBindingForm(f => ({ ...f, shiftEnd: e.target.value }))}
+                          className="w-full mt-1 px-3 py-2 border border-border rounded-lg text-sm bg-card" />
+                      </div>
+                    </div>
+                    <div className="p-3 bg-muted/30 rounded-lg border border-border text-xs text-muted-foreground">
+                      Leave blank to use fleet default limits. Per-binding limits can only be equal or stricter than fleet defaults.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-xs text-muted-foreground">Review the effective pairing policy for this binding. Inherited from fleet policy.</p>
+                    {(() => {
+                      const vehicle = myVehicles.find(v => v.id === bindingForm.vehicleId)
+                      const policy = resolveEffectivePolicy("FO001", vehicle?.category)
+                      return (
+                        <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Effective Policy</p>
+                          {[
+                            ["Code Type", policy.codeType === "single_use" ? "Single use" : "Multi use", policy.resolvedFrom.codeType],
+                            ["Expiry", policy.expiryHours === null ? "No expiry" : `${policy.expiryHours}h`, policy.resolvedFrom.expiryHours],
+                            ["Max Uses", policy.maxUses === null ? "Unlimited" : String(policy.maxUses), policy.resolvedFrom.maxUses],
+                            ["Re-pairing", policy.repairingTrigger, policy.resolvedFrom.repairingTrigger],
+                          ].map(([label, value, source]) => (
+                            <div key={label} className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">{label}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-foreground">{value}</span>
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${source === "platform" ? "bg-gray-100 text-gray-500" : source === "fleet" ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"}`}>
+                                  {source}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    })()}
+                  </div>
+                )}
+
+                {/* Navigation */}
+                {!bindingCreated && (
+                  <div className="flex gap-3 pt-2">
+                    {bindingStep > 1 && (
+                      <button onClick={() => setBindingStep(s => s - 1)}
+                        className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted">
+                        Back
+                      </button>
+                    )}
+                    {bindingStep < 3 ? (
+                      <button
+                        onClick={() => setBindingStep(s => s + 1)}
+                        disabled={bindingStep === 1 && !bindingForm.vehicleId}
+                        className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-50">
+                        Next
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          const code = generateCode()
+                          setGeneratedBindingCode(code)
+                          setBindingCreated(true)
+                        }}
+                        className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
+                        Create Binding
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </>
