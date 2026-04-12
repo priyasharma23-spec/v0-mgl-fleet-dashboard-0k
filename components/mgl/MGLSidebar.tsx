@@ -41,6 +41,7 @@ const foNavItems: NavItem[] = [
   { icon: CreditCard, label: "My Cards", view: "fo-cards" },
   { icon: Gift, label: "Fund Management", view: "fo-funds" },
   { icon: Truck, label: "My Vehicles", view: "fo-vehicles" },
+  { icon: Users, label: "Drivers", view: "fo-drivers" },
   { icon: UserPlus, label: "Add Vehicle", view: "fo-add-vehicle" },
   { icon: MapPin, label: "Card Delivery", view: "fo-delivery" },
   { icon: Bell, label: "Notifications", view: "fo-notifications" },
