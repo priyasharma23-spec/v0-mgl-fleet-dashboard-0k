@@ -361,7 +361,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Vehicles Tab */}
           {detailTab === "vehicles" && selectedDriver && (
-            <div className="space-y-3 mt-4">
+            <div className="space-y-3 mt-4 pt-2">
               {getDriverBindings(selectedDriver.id).length === 0 ? (
                 <div className="text-center py-8">
                   <Car className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
@@ -390,23 +390,13 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   }
 
                   return (
-                    <div key={binding.id} className="border border-border rounded-xl p-3 space-y-3">
-                      <div className="flex flex-col gap-2">
-                        <span className="font-mono text-sm font-bold text-foreground truncate">{vehicle?.vehicleNumber || "—"}</span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium w-fit ${AUTH_MODES[normaliseAuthMode(binding.authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
-                          {AUTH_MODES[normaliseAuthMode(binding.authMode)]?.label ?? binding.authMode}
-                        </span>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-xs text-muted-foreground">State</span>
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium w-fit ${stateBadge?.color ?? "bg-gray-100 text-gray-700"}`}>
-                          {stateBadge?.label ?? binding.state}
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Paired: {pairedDateStr}
-                      </div>
-                    </div>
+                    <TraySection key={binding.id} title={vehicle?.vehicleNumber || "Unknown Vehicle"}>
+                      <TrayRow label="Auth Mode" value={AUTH_MODES[normaliseAuthMode(binding.authMode)]?.label ?? binding.authMode} />
+                      <TrayDivider />
+                      <TrayRow label="State" value={stateBadge?.label ?? binding.state} />
+                      <TrayDivider />
+                      <TrayRow label="Paired" value={pairedDateStr} />
+                    </TraySection>
                   )
                 })
               )}
@@ -415,7 +405,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Pairing Tab */}
           {detailTab === "pairing" && selectedDriver && (
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4 mt-4 pt-2">
               <TraySection title="Pairing Code">
                 {selectedDriver.pairingCode ? (
                   <>
@@ -453,7 +443,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Policy Tab */}
           {detailTab === "policy" && selectedDriver && (
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4 mt-4 pt-2">
               <TraySection title="Pairing Policy Settings">
                 <div className="space-y-3 text-sm">
                   <div>
