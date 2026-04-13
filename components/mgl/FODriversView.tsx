@@ -77,7 +77,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   const [newDriverInviteCode, setNewDriverInviteCode] = useState("")
   const [assignStep, setAssignStep] = useState(1)
   const [bindings, setBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
+  const [localBindings, setLocalBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
   const [detailTab, setDetailTab] = useState<"details" | "vehicles" | "pairing" | "policy">("vehicles")
+  const [unpairConfirm, setUnpairConfirm] = useState<string | null>(null)
 
   // Assign flow state
   const [assignForm, setAssignForm] = useState({
@@ -415,7 +417,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           {/* Vehicles Tab */}
           {detailTab === "vehicles" && selectedDriver && (
             <div className="space-y-3 mt-4 pt-2">
-              {getDriverBindings(selectedDriver.id).length === 0 ? (
+              {localBindings.filter(b => b.driverId === selectedDriver.id).length === 0 ? (
                 <div className="text-center py-8">
                   <Car className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
                   <p className="text-sm text-muted-foreground">No vehicles assigned</p>
@@ -427,9 +429,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   </button>
                 </div>
               ) : (
-                getDriverBindings(selectedDriver.id).map((binding: DriverVehicleBinding) => {
+                localBindings.filter(b => b.driverId === selectedDriver.id).map((binding: DriverVehicleBinding) => {
                   const vehicle = myVehicles.find(v => v.id === binding.vehicleId)
                   const stateBadge = BINDING_STATES[binding.state as keyof typeof BINDING_STATES] ?? { label: binding.state, color: "bg-gray-100 text-gray-700" }
+                  const showUnpairButton = binding.state === "ACTIVE" || binding.state === "PENDING_ACCEPTANCE"
                   
                   // Parse date safely
                   let pairedDateStr = "—"
@@ -449,6 +452,20 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                       <TrayRow label="State" value={stateBadge?.label ?? binding.state} />
                       <TrayDivider />
                       <TrayRow label="Paired" value={pairedDateStr} />
+                      {showUnpairButton && (
+                        <>
+                          <TrayDivider />
+                          <button
+                            onClick={() => setUnpairConfirm(binding.id)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors w-full justify-center"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                              <path d="M18 6L6 18M6 6l12 12"/>
+                            </svg>
+                            Unpair
+                          </button>
+                        </>
+                      )}
                     </TraySection>
                   )
                 })
@@ -673,6 +690,84 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           </div>
         </>
       )}
+
+      {/* Unpair Confirmation Modal */}
+      {unpairConfirm && (() => {
+        const binding = localBindings.find(b => b.id === unpairConfirm)
+        if (!binding) return null
+        return (
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/40 z-50"
+              onClick={() => setUnpairConfirm(null)}
+            />
+            {/* Modal */}
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-xl shadow-xl border border-border p-6 w-[360px] z-50">
+              
+              {/* Icon */}
+              <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </div>
+
+              <h3 className="font-semibold text-base text-foreground text-center mb-1">
+                Unpair vehicle?
+              </h3>
+              <p className="text-sm text-muted-foreground text-center mb-1">
+                {binding.vehicleId}
+              </p>
+              <p className="text-xs text-muted-foreground text-center mb-5">
+                The driver will lose access to this vehicle immediately. Their active session (if any) will be allowed to complete.
+              </p>
+
+              {/* Consequences list */}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-5 space-y-1.5">
+                <p className="text-xs font-medium text-amber-800">
+                  What happens:
+                </p>
+                {[
+                  "Binding set to REVOKED",
+                  "Pairing code invalidated",
+                  "Driver notified via app",
+                  "Cannot be undone — FO must re-assign to restore access",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <div className="w-1 h-1 rounded-full bg-amber-600 mt-1.5 flex-shrink-0"/>
+                    <p className="text-xs text-amber-700">{item}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setUnpairConfirm(null)}
+                  className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    // Mark binding as revoked in local state
+                    setLocalBindings(prev => 
+                      prev.map(b => b.id === unpairConfirm
+                        ? { ...b, state: "REVOKED" }
+                        : b
+                      )
+                    )
+                    setUnpairConfirm(null)
+                  }}
+                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Yes, unpair
+                </button>
+              </div>
+            </div>
+          </>
+        )
+      })()}
     </div>
   )
 }
