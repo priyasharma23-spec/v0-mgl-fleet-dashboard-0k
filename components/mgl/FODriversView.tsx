@@ -295,19 +295,72 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           }
         >
           {/* Tabs */}
-          <div className="flex border-b border-border -mx-4 px-4 gap-2 overflow-x-auto sticky top-0 bg-card -mb-4 pb-4">
-            {(["details", "vehicles", "pairing", "policy"] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setDetailTab(tab)}
-                className={`px-3 py-2 text-xs font-medium border-b-2 whitespace-nowrap transition-colors ${
-                  detailTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
+          {(() => {
+            const tabs = [
+              {
+                id: "details",
+                label: "Details",
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                )
+              },
+              {
+                id: "vehicles",
+                label: "Vehicles",
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M19 17h2c1.1 0 2-.9 2-2v-4l-3-5H4L1 11v4c0 1.1.9 2 2 2h2"/>
+                    <circle cx="7" cy="17" r="2"/>
+                    <circle cx="17" cy="17" r="2"/>
+                    <path d="M9 17h6"/>
+                  </svg>
+                )
+              },
+              {
+                id: "pairing",
+                label: "Pairing",
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                    <path d="M14 14h3v3M17 20v1M20 14v3M20 20h1"/>
+                  </svg>
+                )
+              },
+              {
+                id: "policy",
+                label: "Policy",
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                )
+              },
+            ]
+
+            return (
+              <div className="flex border-b border-border -mx-4 px-4 overflow-x-auto sticky top-0 bg-card">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setDetailTab(tab.id as typeof detailTab)}
+                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 text-[11px] font-medium transition-colors border-b-2 -mb-px ${
+                      detailTab === tab.id
+                        ? "border-primary text-primary"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tab.icon}
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )
+          })()}
 
           {/* Details Tab */}
           {detailTab === "details" && selectedDriver && (
