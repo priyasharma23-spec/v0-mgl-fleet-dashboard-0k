@@ -311,7 +311,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Details Tab */}
           {detailTab === "details" && selectedDriver && (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
               <TraySection title="Personal Information">
                 <TrayRow label="Full name" value={selectedDriver.name} />
                 <TrayRow label="Phone" value={selectedDriver.phone || "—"} />
@@ -361,7 +361,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Vehicles Tab */}
           {detailTab === "vehicles" && selectedDriver && (
-            <div className="space-y-3">
+            <div className="space-y-3 mt-4">
               {getDriverBindings(selectedDriver.id).length === 0 ? (
                 <div className="text-center py-8">
                   <Car className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
@@ -415,7 +415,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Pairing Tab */}
           {detailTab === "pairing" && selectedDriver && (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
               <TraySection title="Pairing Code">
                 {selectedDriver.pairingCode ? (
                   <>
@@ -453,7 +453,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Policy Tab */}
           {detailTab === "policy" && selectedDriver && (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
               <TraySection title="Pairing Policy Settings">
                 <div className="space-y-3 text-sm">
                   <div>
