@@ -68,7 +68,7 @@ export default function MICRegisterFO({ onViewChange }: MICRegisterFOProps) {
       <input
         type={type}
         placeholder={placeholder || `Enter ${label.toLowerCase()}`}
-        value={(form as Record<string, string>)[name] || ""}
+        value={(form as unknown as Record<string, string>)[name] || ""}
         onChange={(e) => setForm({ ...form, [name]: e.target.value })}
         className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
       />

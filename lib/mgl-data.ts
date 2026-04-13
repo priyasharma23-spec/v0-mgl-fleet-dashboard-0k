@@ -288,7 +288,7 @@ export function computeIncentiveEligibility(
   const groups = new Map<string, Vehicle[]>()
   
   vehicles
-    .filter(v => v.mouId === mouId && v.onboardingType === "MIC_ASSISTED" && v.vehicleType !== "existing_cng")
+    .filter(v => v.mouId === mouId && v.onboardingType === "MIC_ASSISTED")
     .forEach(v => {
       const key = `${v.category}_${v.vehicleType}`
       if (!groups.has(key)) groups.set(key, [])
@@ -310,6 +310,407 @@ export function computeIncentiveEligibility(
   })
   
   return result
+}
+
+
+// ─── Driver Pairing Policy - Three-Level Inheritance Model ───────────────────
+export type PolicyLevel = "platform" | "fleet" | "vehicle_type" | "pairing"
+
+export interface PairingPolicyConfig {
+  level: PolicyLevel
+  scopeId?: string              // null=platform, fo_id=fleet, vehicle_type=HCV/ICV etc, pairing_id
+  expiryHours?: number | null   // null = inherit from level above
+  maxUses?: number | null       // null = inherit
+  maxUsesPerCode?: number | null
+  codeType?: "single_use" | "multi_use" | null
+  repairingTrigger?: "never" | "monthly" | "on_vehicle_change" | null
+  deliveryMethod?: "sms" | "whatsapp" | "email" | null
+}
+
+// Resolved effective policy — all fields populated after walking the chain
+export interface EffectivePairingPolicy {
+  expiryHours: number | null    // null = no expiry
+  maxUses: number | null        // null = unlimited
+  codeType: "single_use" | "multi_use"
+  repairingTrigger: "never" | "monthly" | "on_vehicle_change"
+  deliveryMethod: "sms" | "whatsapp" | "email"
+  resolvedFrom: {
+    expiryHours: PolicyLevel
+    maxUses: PolicyLevel
+    codeType: PolicyLevel
+    repairingTrigger: PolicyLevel
+    deliveryMethod: PolicyLevel
+  }
+}
+
+// Keep DriverPairingPolicy as alias for backward compat
+export type DriverPairingPolicy = PairingPolicyConfig
+
+export interface Driver {
+  id: string
+  foId: string
+  foName?: string
+  name: string
+  contactNumber?: string
+  phone?: string
+  email?: string
+  licenseNumber?: string
+  licenseExpiry?: string
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "active" | "inactive" | "suspended"
+  assignedVehicleId?: string
+  assignedVehicleIds: string[]
+  pairingCode?: string
+  pairingCodeExpiry?: string | null
+  pairingCodeUsed?: number
+  pairingPolicy: PairingPolicyConfig
+  createdAt: string
+  lastPairedAt?: string
+  notes?: string
+  inviteCode?: string
+  inviteCodeExpiry?: string
+  inviteCodeUsed?: boolean
+}
+
+// Platform-level default policy
+export const PLATFORM_DEFAULT_POLICY: PairingPolicyConfig = {
+  level: "platform",
+  expiryHours: 168,        // 7 days max at platform level
+  maxUses: null,           // unlimited
+  codeType: "multi_use",
+  repairingTrigger: "monthly",
+  deliveryMethod: "sms",
+}
+
+// Fleet-level policies per FO
+export const mockFleetPolicies: PairingPolicyConfig[] = [
+  {
+    level: "fleet",
+    scopeId: "FO001",
+    expiryHours: 24,         // override: tighter than platform
+    maxUses: null,           // inherit: unlimited
+    codeType: "multi_use",   // inherit
+    repairingTrigger: "monthly", // inherit
+    deliveryMethod: "whatsapp",  // override: prefer WhatsApp
+  },
+]
+
+// Vehicle-type-level policies
+export const mockVehicleTypePolicies: PairingPolicyConfig[] = [
+  {
+    level: "vehicle_type",
+    scopeId: "HCV",
+    expiryHours: 72,         // HCV drivers assigned less frequently — 72h override
+    maxUses: null,
+    codeType: null,          // inherit
+    repairingTrigger: null,  // inherit
+    deliveryMethod: null,    // inherit
+  },
+]
+
+// Policy resolution helper function
+export function resolveEffectivePolicy(
+  foId: string,
+  vehicleType?: string,
+  pairingOverride?: Partial<PairingPolicyConfig>
+): EffectivePairingPolicy {
+  const platform = PLATFORM_DEFAULT_POLICY
+  const fleet = mockFleetPolicies.find(p => p.scopeId === foId)
+  const vType = vehicleType ? mockVehicleTypePolicies.find(p => p.scopeId === vehicleType) : undefined
+
+  // Walk chain: pairing > vehicle_type > fleet > platform
+  // Take first non-null value, most restrictive wins for numeric fields
+  const resolve = <T>(field: keyof PairingPolicyConfig, fallback: T): { value: T; level: PolicyLevel } => {
+    if (pairingOverride?.[field] !== undefined && pairingOverride?.[field] !== null)
+      return { value: pairingOverride[field] as T, level: "pairing" }
+    if (vType?.[field] !== undefined && vType?.[field] !== null)
+      return { value: vType[field] as T, level: "vehicle_type" }
+    if (fleet?.[field] !== undefined && fleet?.[field] !== null)
+      return { value: fleet[field] as T, level: "fleet" }
+    return { value: (platform[field] ?? fallback) as T, level: "platform" }
+  }
+
+  const expiry = resolve<number | null>("expiryHours", 168)
+  const maxUses = resolve<number | null>("maxUses", null)
+  const codeType = resolve<"single_use" | "multi_use">("codeType", "multi_use")
+  const trigger = resolve<"never" | "monthly" | "on_vehicle_change">("repairingTrigger", "monthly")
+  const delivery = resolve<"sms" | "whatsapp" | "email">("deliveryMethod", "sms")
+
+  return {
+    expiryHours: expiry.value,
+    maxUses: maxUses.value,
+    codeType: codeType.value,
+    repairingTrigger: trigger.value,
+    deliveryMethod: delivery.value,
+    resolvedFrom: {
+      expiryHours: expiry.level,
+      maxUses: maxUses.level,
+      codeType: codeType.level,
+      repairingTrigger: trigger.level,
+      deliveryMethod: delivery.level,
+    }
+  }
+}
+
+
+// ─── Driver Vehicle Binding - First-Class Entity ────────────────────────────
+export type BindingState = "pending_binding" | "active" | "suspended" | "revoked"
+export type PairingCodeState = "pending" | "used" | "expired"
+export type AuthMode = "pairing_code" | "pin" | "biometric"
+
+export interface DriverVehicleBinding {
+  bindingId: string
+  driverId: string
+  vehicleId: string
+  foId: string
+  authMode: AuthMode
+  state: BindingState
+  pairingCode?: string
+  pairingCodeState?: PairingCodeState
+  effectivePolicy?: EffectivePairingPolicy
+  policyVersionRef?: string
+  policyStampedAt?: string
+  policyHistory?: Array<{
+    policy: EffectivePairingPolicy
+    stampedAt: string
+    reason: "initial" | "reissued" | "fleet_policy_changed"
+  }>
+  spendLimitPerFueling?: number | null
+  spendLimitPerDay?: number | null
+  shiftStart?: string
+  shiftEnd?: string
+  tripId?: string
+  createdAt: string
+  activatedAt?: string
+  revokedAt?: string
+  notes?: string
+}
+
+export const mockDrivers: Driver[] = [
+  {
+    id: "DRV001",
+    foId: "FO001",
+    name: "Ramesh Kumar",
+    licenseNumber: "MH04DL20250001",
+    licenseExpiry: "2028-05-15",
+    phone: "9876501234",
+    email: "ramesh@abc.com",
+    status: "ACTIVE",
+    assignedVehicleId: "VEH001",
+    assignedVehicleIds: ["VEH001"],
+    pairingCode: "RK7842",
+    pairingCodeExpiry: "2026-04-20",
+    pairingCodeUsed: 5,
+    lastPairedAt: "12 Apr 2026, 9:45 AM",
+    createdAt: "2025-02-01",
+    pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
+    inviteCodeUsed: true,
+  },
+  {
+    id: "DRV002",
+    foId: "FO001",
+    name: "Suneel Patel",
+    licenseNumber: "MH04DL20250002",
+    licenseExpiry: "2028-08-22",
+    phone: "9876502345",
+    email: "suneel@abc.com",
+    status: "ACTIVE",
+    assignedVehicleId: "VEH007",
+    assignedVehicleIds: ["VEH007"],
+    pairingCode: "SP4521",
+    pairingCodeExpiry: "2026-04-15",
+    pairingCodeUsed: 0,
+    createdAt: "2025-03-07",
+    pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
+    inviteCodeUsed: true,
+  },
+  {
+    id: "DRV003",
+    foId: "FO001",
+    name: "Micheal Thomas",
+    licenseNumber: "MH04DL20250003",
+    licenseExpiry: "2027-11-10",
+    phone: "9876503456",
+    status: "ACTIVE",
+    assignedVehicleIds: [],
+    createdAt: "2025-03-19",
+    pairingCode: "MT9163",
+    pairingCodeExpiry: "2026-04-18",
+    pairingPolicy: { codeType: "single_use", expiryHours: 24, maxUsesPerCode: 1, repairingTrigger: "monthly" },
+    inviteCodeUsed: false,
+    inviteCode: "MT9163",
+    inviteCodeExpiry: "2026-04-30",
+  },
+  {
+    id: "DRV005",
+    foId: "FO001",
+    name: "Amalendu Mishra",
+    licenseNumber: "MH04DL20250005",
+    licenseExpiry: "2029-02-28",
+    phone: "9876505678",
+    email: "amalendu@abc.com",
+    status: "ACTIVE",
+    assignedVehicleIds: ["VEH002", "VEH008"],
+    pairingCode: "AM3377",
+    pairingCodeExpiry: "2026-04-22",
+    pairingCodeUsed: 8,
+    lastPairedAt: "20 Mar 2026, 3:20 PM",
+    createdAt: "2025-02-10",
+    pairingPolicy: { codeType: "multi_use", expiryHours: 72, maxUsesPerCode: null, repairingTrigger: "on_vehicle_change" },
+    inviteCodeUsed: true,
+  },
+]
+
+export const mockDriverVehicleBindings: DriverVehicleBinding[] = [
+  {
+    bindingId: "BND001",
+    driverId: "DRV001",
+    vehicleId: "VEH001",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "RK7842",
+    pairingCodeState: "used",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-01-20",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-01-20",
+        reason: "initial",
+      }
+    ],
+    spendLimitPerFueling: 2000,
+    spendLimitPerDay: 5000,
+    shiftStart: "06:00",
+    shiftEnd: "22:00",
+    createdAt: "2025-01-20",
+    activatedAt: "2026-04-10",
+  },
+  {
+    bindingId: "BND002",
+    driverId: "DRV002",
+    vehicleId: "VEH007",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "SP4521",
+    pairingCodeState: "pending",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-03-07",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-03-07",
+        reason: "initial",
+      }
+    ],
+    spendLimitPerFueling: null,
+    spendLimitPerDay: null,
+    createdAt: "2025-03-07",
+  },
+  {
+    bindingId: "BND003",
+    driverId: "DRV003",
+    vehicleId: "VEH009",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "pending_binding",
+    pairingCode: "MT9163",
+    pairingCodeState: "pending",
+    effectivePolicy: resolveEffectivePolicy("FO001", "ICV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-03-19",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "ICV"),
+        stampedAt: "2025-03-19",
+        reason: "initial",
+      }
+    ],
+    createdAt: "2025-03-19",
+  },
+  {
+    bindingId: "BND004",
+    driverId: "DRV005",
+    vehicleId: "VEH002",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "AM3377",
+    pairingCodeState: "used",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-02-10",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-02-10",
+        reason: "initial",
+      }
+    ],
+    spendLimitPerFueling: 3000,
+    spendLimitPerDay: 8000,
+    shiftStart: "05:00",
+    shiftEnd: "23:00",
+    createdAt: "2025-02-10",
+    activatedAt: "2026-03-15",
+    notes: "Pool driver — primary vehicle",
+  },
+  {
+    bindingId: "BND005",
+    driverId: "DRV005",
+    vehicleId: "VEH008",
+    foId: "FO001",
+    authMode: "pairing_code",
+    state: "active",
+    pairingCode: "AM3377",
+    pairingCodeState: "used",
+    effectivePolicy: resolveEffectivePolicy("FO001", "HCV"),
+    policyVersionRef: "FPOL-FO001-v1",
+    policyStampedAt: "2025-02-10",
+    policyHistory: [
+      {
+        policy: resolveEffectivePolicy("FO001", "HCV"),
+        stampedAt: "2025-02-10",
+        reason: "initial",
+      }
+    ],
+    spendLimitPerFueling: 3000,
+    spendLimitPerDay: 8000,
+    createdAt: "2025-02-10",
+    activatedAt: "2026-03-20",
+    notes: "Pool driver — secondary vehicle",
+  },
+]
+
+export function reissueBinding(
+  binding: DriverVehicleBinding,
+  vehicleType: string,
+  pairingOverride?: Partial<PairingPolicyConfig>
+): DriverVehicleBinding {
+  const newPolicy = resolveEffectivePolicy(binding.foId, vehicleType, pairingOverride)
+  const newCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+
+  return {
+    ...binding,
+    pairingCode: newCode,
+    pairingCodeState: "pending",
+    effectivePolicy: newPolicy,
+    policyVersionRef: `FPOL-${binding.foId}-v${Date.now()}`,
+    policyStampedAt: new Date().toISOString().split("T")[0],
+    policyHistory: [
+      ...(binding.policyHistory ?? []),
+      {
+        policy: binding.effectivePolicy!,
+        stampedAt: binding.policyStampedAt ?? binding.createdAt,
+        reason: "reissued",
+      }
+    ],
+    activatedAt: undefined,
+    state: "pending_binding",
+  }
 }
 
 
@@ -1158,6 +1559,7 @@ export const foStatusConfig: Record<FOStatus, { label: string; color: string; bg
   PENDING_ACTIVATION: { label: "Pending Activation", color: "text-amber-700", bg: "bg-amber-100" },
   ACTIVE: { label: "Active", color: "text-green-700", bg: "bg-green-100" },
   SUSPENDED: { label: "Suspended", color: "text-red-700", bg: "bg-red-100" },
+  INACTIVE: { label: "Inactive", color: "text-gray-600", bg: "bg-gray-100" },
 };
 
 // ─── Chart data ─────────────────────────────────────────────────────────────
