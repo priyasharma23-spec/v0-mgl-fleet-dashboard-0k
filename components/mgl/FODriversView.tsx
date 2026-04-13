@@ -311,7 +311,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Details Tab */}
           {detailTab === "details" && selectedDriver && (
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4 mt-4 pt-2">
               <TraySection title="Personal Information">
                 <TrayRow label="Full name" value={selectedDriver.name} />
                 <TrayRow label="Phone" value={selectedDriver.phone || "—"} />
