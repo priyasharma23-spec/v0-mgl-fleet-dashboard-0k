@@ -390,16 +390,16 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                   }
 
                   return (
-                    <div key={binding.id} className="border border-border rounded-xl p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-sm font-bold text-foreground">{vehicle?.vehicleNumber || "—"}</span>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${AUTH_MODES[normaliseAuthMode(binding.authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
+                    <div key={binding.id} className="border border-border rounded-xl p-3 space-y-3">
+                      <div className="flex flex-col gap-2">
+                        <span className="font-mono text-sm font-bold text-foreground truncate">{vehicle?.vehicleNumber || "—"}</span>
+                        <span className={`px-2 py-1 rounded text-xs font-medium w-fit ${AUTH_MODES[normaliseAuthMode(binding.authMode)]?.color ?? "bg-gray-100 text-gray-700"}`}>
                           {AUTH_MODES[normaliseAuthMode(binding.authMode)]?.label ?? binding.authMode}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">State</span>
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium ${stateBadge?.color ?? "bg-gray-100 text-gray-700"}`}>
+                      <div className="flex flex-col gap-2">
+                        <span className="text-xs text-muted-foreground">State</span>
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium w-fit ${stateBadge?.color ?? "bg-gray-100 text-gray-700"}`}>
                           {stateBadge?.label ?? binding.state}
                         </span>
                       </div>
