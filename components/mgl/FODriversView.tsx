@@ -430,9 +430,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 </div>
               ) : (
                 localBindings.filter(b => b.driverId === selectedDriver.id).map((binding: DriverVehicleBinding) => {
-                  const vehicle = myVehicles.find(v => v.id === binding.vehicleId)
+                  const vehicle = myVehicles.find(v => v.id === binding.vehicleId) || mockVehicles.find(v => v.id === binding.vehicleId)
                   const stateBadge = BINDING_STATES[binding.state as keyof typeof BINDING_STATES] ?? { label: binding.state, color: "bg-gray-100 text-gray-700" }
-                  const showUnpairButton = binding.state === "ACTIVE" || binding.state === "PENDING_ACCEPTANCE"
+                  const showUnpairButton = ["ACTIVE", "active", "PENDING_ACCEPTANCE", "pending_acceptance"].includes(binding.state)
                   
                   // Parse date safely
                   let pairedDateStr = "—"
@@ -452,6 +452,34 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                       <TrayRow label="State" value={stateBadge?.label ?? binding.state} />
                       <TrayDivider />
                       <TrayRow label="Paired" value={pairedDateStr} />
+                      {binding.pairingCode && (
+                        <>
+                          <TrayDivider />
+                          <div className="flex items-center justify-between py-2">
+                            <span className="text-xs text-muted-foreground">
+                              Pairing code
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-sm text-foreground tracking-widest bg-muted px-2 py-0.5 rounded">
+                                {binding.pairingCode}
+                              </span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                binding.pairingCodeState === "used"
+                                  ? "bg-green-50 text-green-700"
+                                  : binding.pairingCodeState === "pending"
+                                  ? "bg-amber-50 text-amber-700"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}>
+                                {binding.pairingCodeState === "used"
+                                  ? "Used"
+                                  : binding.pairingCodeState === "pending"
+                                  ? "Pending"
+                                  : binding.pairingCodeState}
+                              </span>
+                            </div>
+                          </div>
+                        </>
+                      )}
                       {showUnpairButton && (
                         <>
                           <TrayDivider />
