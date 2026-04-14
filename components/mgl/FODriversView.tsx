@@ -6,6 +6,7 @@ import {
   type Driver, type DriverVehicleBinding
 } from "@/lib/mgl-data"
 import { RightTray, TraySection, TrayRow, TrayDivider } from "./shared/RightTray"
+import { FilterPanel, FilterField, FilterSelect, FilterActions } from "./shared/FilterPanel"
 
 const myDrivers = mockDrivers.filter((d: Driver) => d.foId === "FO001")
 const myVehicles = mockVehicles.filter(v => v.foId === "FO001" && v.status === "CARD_ACTIVE")
@@ -198,33 +199,29 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
       </div>
 
       {/* Filter Bar */}
-      <div className="flex gap-3">
-        <div className="flex-1 relative">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search by name, mobile, or VRN..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-3 py-2 border border-border rounded-lg text-sm bg-card"
+      <FilterPanel
+        searchPlaceholder="Search by name, mobile, or ID..."
+        searchValue={search}
+        onSearchChange={setSearch}
+        activeFilterCount={statusFilter !== "all" ? 1 : 0}
+      >
+        <FilterField label="Status">
+          <FilterSelect 
+            value={statusFilter} 
+            onChange={setStatusFilter} 
+            options={[
+              { label: "All Status", value: "all" },
+              { label: "Active", value: "active" },
+              { label: "Unassigned", value: "unassigned" },
+              { label: "Suspended", value: "suspended" },
+            ]} 
           />
-        </div>
-        <div className="flex gap-2">
-          {(["all", "active", "unassigned", "suspended"] as const).map(status => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                statusFilter === status
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-foreground hover:bg-muted/80"
-              }`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
+        </FilterField>
+        <FilterActions 
+          onClear={() => { setStatusFilter("all"); setSearch("") }} 
+          onApply={() => {}} 
+        />
+      </FilterPanel>
 
       {/* Driver Cards */}
       <div className="space-y-3">
@@ -1141,9 +1138,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
       <p className="text-xs text-muted-foreground 
         text-center">
-        {policyScope === "auth_mode"
-          ? "Applies to all vehicles using this auth mode"
-          : "Overrides fleet policy for this pairing code only"}
+        {activePolicyMode === "pairing_code"
+          ? "Overrides fleet policy for specific pairing code"
+          : `Default policy for ${activePolicyMode.replace("_", " ")} assignments`}
       </p>
 
     </div>
