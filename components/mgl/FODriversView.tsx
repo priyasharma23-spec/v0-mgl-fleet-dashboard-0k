@@ -719,6 +719,446 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
         </>
       )}
 
+      {/* Assign Vehicle Modal */}
+      {showAssignModal && selectedDriver && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 z-50"
+            onClick={() => setShowAssignModal(false)}
+          />
+
+          {/* Modal */}
+          <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background rounded-xl shadow-xl border border-border w-[480px] z-50 max-h-[90vh] overflow-y-auto">
+
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <div>
+                <h3 className="font-semibold text-base">
+                  Assign Vehicle
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {selectedDriver.name} · Step {assignStep} of 3
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAssignModal(false)}
+                className="p-1.5 hover:bg-muted rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Step indicators */}
+            <div className="flex items-center px-5 pt-4 gap-2">
+              {["Select Vehicle", "Auth Mode", "Review"].map(
+                (label, i) => (
+                  <React.Fragment key={label}>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
+                        assignStep > i + 1 
+                          ? "bg-primary text-primary-foreground"
+                          : assignStep === i + 1
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {assignStep > i + 1 ? "✓" : i + 1}
+                      </div>
+                      <span className={`text-xs font-medium ${
+                        assignStep === i + 1 
+                          ? "text-foreground" 
+                          : "text-muted-foreground"
+                      }`}>
+                        {label}
+                      </span>
+                    </div>
+                    {i < 2 && (
+                      <div className={`flex-1 h-px ${
+                        assignStep > i + 1 
+                          ? "bg-primary" 
+                          : "bg-border"
+                      }`} />
+                    )}
+                  </React.Fragment>
+                )
+              )}
+            </div>
+
+            {/* Step content */}
+            <div className="p-5">
+
+              {/* STEP 1: Select Vehicle */}
+              {assignStep === 1 && (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Select a vehicle to assign to{" "}
+                    <span className="font-medium text-foreground">
+                      {selectedDriver.name}
+                    </span>
+                  </p>
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    {myVehicles.map(v => {
+                      const alreadyAssigned = 
+                        localBindings.some(b => 
+                          b.vehicleId === v.id && 
+                          b.driverId === selectedDriver.id &&
+                          ["active","ACTIVE",
+                           "PENDING_ACCEPTANCE",
+                           "pending_acceptance"]
+                            .includes(b.state))
+                      return (
+                        <button
+                          key={v.id}
+                          disabled={alreadyAssigned}
+                          onClick={() => setAssignForm(
+                            f => ({...f, vehicleId: v.id})
+                          )}
+                          className={`w-full p-3 rounded-xl border text-left transition-all ${
+                            alreadyAssigned 
+                              ? "opacity-40 cursor-not-allowed border-border bg-muted"
+                              : assignForm.vehicleId === v.id
+                              ? "border-primary bg-primary/5"
+                              : "border-border hover:border-primary/50 bg-card"
+                          }`}>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-mono font-semibold text-sm">
+                                {v.vehicleNumber}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {v.model} · {v.category}
+                              </p>
+                            </div>
+                            {alreadyAssigned && (
+                              <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                                Already assigned
+                              </span>
+                            )}
+                            {assignForm.vehicleId === v.id && 
+                              !alreadyAssigned && (
+                              <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                <svg width="10" height="10"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="white"
+                                  strokeWidth="3">
+                                  <path d="M20 6L9 17l-5-5"/>
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: Auth Mode */}
+              {assignStep === 2 && (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Choose how this driver is authorised 
+                    to fuel this vehicle
+                  </p>
+
+                  {/* Auth mode cards */}
+                  <div className="space-y-2">
+                    {[
+                      {
+                        id: "vehicle_linked",
+                        label: "Vehicle-linked",
+                        desc: "Driver can fuel at any time",
+                        icon: (
+                          <svg width="16" height="16"
+                            viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" 
+                            strokeWidth="2">
+                            <path d="M19 17h2c1.1 0 2-.9 2-2v-4l-3-5H4L1 11v4c0 1.1.9 2 2 2h2"/>
+                            <circle cx="7" cy="17" r="2"/>
+                            <circle cx="17" cy="17" r="2"/>
+                          </svg>
+                        )
+                      },
+                      {
+                        id: "shift_based",
+                        label: "Shift-based",
+                        desc: "Driver can fuel within shift hours",
+                        icon: (
+                          <svg width="16" height="16"
+                            viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                          </svg>
+                        )
+                      },
+                      {
+                        id: "trip_linked",
+                        label: "Trip-linked",
+                        desc: "Driver can fuel for a single trip window",
+                        icon: (
+                          <svg width="16" height="16"
+                            viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2">
+                            <circle cx="12" cy="10" r="3"/>
+                            <path d="M12 2a8 8 0 00-8 8c0 5.4 7 12 8 12s8-6.6 8-12a8 8 0 00-8-8z"/>
+                          </svg>
+                        )
+                      },
+                    ].map(mode => (
+                      <button
+                        key={mode.id}
+                        onClick={() => setAssignForm(
+                          f => ({...f, authMode: mode.id as any})
+                        )}
+                        className={`w-full p-3 rounded-xl border text-left transition-all flex items-center gap-3 ${
+                          assignForm.authMode === mode.id
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/50 bg-card"
+                        }`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                          assignForm.authMode === mode.id
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          {mode.icon}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">
+                            {mode.label}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {mode.desc}
+                          </p>
+                        </div>
+                        {assignForm.authMode === mode.id && (
+                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                            <svg width="10" height="10"
+                              viewBox="0 0 24 24" fill="none"
+                              stroke="white" strokeWidth="3">
+                              <path d="M20 6L9 17l-5-5"/>
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Shift schedule inputs */}
+                  {assignForm.authMode === "shift_based" && (
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-3 border border-border">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Shift Schedule
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">
+                            Start time
+                          </label>
+                          <input
+                            type="time"
+                            value={assignForm.shifts[0].start}
+                            onChange={e => setAssignForm(f => ({
+                              ...f,
+                              shifts: [{
+                                ...f.shifts[0],
+                                start: e.target.value
+                              }]
+                            }))}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">
+                            End time
+                          </label>
+                          <input
+                            type="time"
+                            value={assignForm.shifts[0].end}
+                            onChange={e => setAssignForm(f => ({
+                              ...f,
+                              shifts: [{
+                                ...f.shifts[0],
+                                end: e.target.value
+                              }]
+                            }))}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Trip inputs */}
+                  {assignForm.authMode === "trip_linked" && (
+                    <div className="bg-muted/30 rounded-xl p-4 space-y-3 border border-border">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Trip Details
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">
+                            Date
+                          </label>
+                          <input type="date"
+                            value={assignForm.trip.date}
+                            onChange={e => setAssignForm(f => ({
+                              ...f, trip: {
+                                ...f.trip, 
+                                date: e.target.value
+                              }
+                            }))}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">
+                            Window start
+                          </label>
+                          <input type="time"
+                            value={assignForm.trip.start}
+                            onChange={e => setAssignForm(f => ({
+                              ...f, trip: {
+                                ...f.trip, 
+                                start: e.target.value
+                              }
+                            }))}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">
+                            Origin
+                          </label>
+                          <input type="text"
+                            placeholder="e.g. Andheri East"
+                            value={assignForm.trip.origin}
+                            onChange={e => setAssignForm(f => ({
+                              ...f, trip: {
+                                ...f.trip, 
+                                origin: e.target.value
+                              }
+                            }))}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs text-muted-foreground mb-1 block">
+                            Destination
+                          </label>
+                          <input type="text"
+                            placeholder="e.g. Pune"
+                            value={assignForm.trip.destination}
+                            onChange={e => setAssignForm(f => ({
+                              ...f, trip: {
+                                ...f.trip, 
+                                destination: e.target.value
+                              }
+                            }))}
+                            className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* STEP 3: Review */}
+              {assignStep === 3 && (() => {
+                const vehicle = myVehicles.find(
+                  v => v.id === assignForm.vehicleId)
+                return (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Review the assignment before confirming
+                    </p>
+                    <div className="bg-muted/30 rounded-xl border border-border overflow-hidden">
+                      {[
+                        ["Driver", selectedDriver.name],
+                        ["Vehicle", vehicle?.vehicleNumber 
+                          || assignForm.vehicleId],
+                        ["Model", vehicle?.model || "—"],
+                        ["Auth mode", 
+                          assignForm.authMode === 
+                            "vehicle_linked" 
+                            ? "Vehicle-linked" 
+                            : assignForm.authMode === 
+                              "shift_based" 
+                            ? "Shift-based" 
+                            : "Trip-linked"],
+                        ...(assignForm.authMode === 
+                          "shift_based" 
+                          ? [["Shift hours", 
+                              `${assignForm.shifts[0].start}–${assignForm.shifts[0].end}`]] 
+                          : []),
+                        ...(assignForm.authMode === 
+                          "trip_linked" 
+                          ? [
+                              ["Trip date", 
+                                assignForm.trip.date],
+                              ["Route", 
+                                `${assignForm.trip.origin} → ${assignForm.trip.destination}`],
+                            ] 
+                          : []),
+                        ["Status after", 
+                          "Pending driver acceptance"],
+                      ].map(([label, value], i) => (
+                        <div key={i} 
+                          className="flex justify-between items-center px-4 py-3 border-b border-border last:border-0 text-sm">
+                          <span className="text-muted-foreground">
+                            {label}
+                          </span>
+                          <span className="font-medium">
+                            {value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+                      <p className="text-xs text-amber-700">
+                        The driver will receive a 
+                        notification to accept this 
+                        assignment. Scan & Pay will be 
+                        unlocked once they accept.
+                      </p>
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+
+            {/* Footer buttons */}
+            <div className="flex gap-3 px-5 pb-5">
+              {assignStep > 1 && (
+                <button
+                  onClick={() => setAssignStep(s => s - 1)}
+                  className="flex-1 py-2.5 border border-border rounded-lg text-sm font-medium hover:bg-muted transition-colors">
+                  Back
+                </button>
+              )}
+              {assignStep < 3 ? (
+                <button
+                  disabled={assignStep === 1 && 
+                    !assignForm.vehicleId}
+                  onClick={() => setAssignStep(s => s + 1)}
+                  className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  Next
+                </button>
+              ) : (
+                <button
+                  onClick={handleAssignVehicle}
+                  className="flex-1 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                  Confirm Assignment
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Unpair Confirmation Modal */}
       {unpairConfirm && (() => {
         const binding = localBindings.find(b => b.id === unpairConfirm)
