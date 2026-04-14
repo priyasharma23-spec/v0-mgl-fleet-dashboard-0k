@@ -1138,9 +1138,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
       <p className="text-xs text-muted-foreground 
         text-center">
-        {policyScope === "auth_mode"
-          ? "Applies to all vehicles using this auth mode"
-          : "Overrides fleet policy for this pairing code only"}
+        {activePolicyMode === "pairing_code"
+          ? "Overrides fleet policy for specific pairing code"
+          : `Default policy for ${activePolicyMode.replace("_", " ")} assignments`}
       </p>
 
     </div>
