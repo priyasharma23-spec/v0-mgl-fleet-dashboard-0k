@@ -76,6 +76,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)
   const [newDriverInviteCode, setNewDriverInviteCode] = useState("")
   const [assignStep, setAssignStep] = useState(1)
+  const [vehicleSearch, setVehicleSearch] = useState("")
   const [bindings, setBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
   const [localBindings, setLocalBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
   const [detailTab, setDetailTab] = useState<"details" | "vehicles" | "pairing" | "policy">("vehicles")
@@ -131,6 +132,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
     
     setBindings([...bindings, newBinding])
     setShowAssignModal(false)
+    setVehicleSearch("")
     setAssignStep(1)
     setAssignForm({
       vehicleId: "",
@@ -725,7 +727,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-black/40 z-50"
-            onClick={() => setShowAssignModal(false)}
+            onClick={() => {
+              setShowAssignModal(false)
+              setVehicleSearch("")
+            }}
           />
 
           {/* Modal */}
@@ -742,7 +747,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                 </p>
               </div>
               <button
-                onClick={() => setShowAssignModal(false)}
+                onClick={() => {
+                  setShowAssignModal(false)
+                  setVehicleSearch("")
+                }}
                 className="p-1.5 hover:bg-muted rounded-lg">
                 <X className="w-4 h-4" />
               </button>
@@ -795,8 +803,27 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                       {selectedDriver.name}
                     </span>
                   </p>
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="text"
+                      placeholder="Search by vehicle number or model..."
+                      value={vehicleSearch}
+                      onChange={e => setVehicleSearch(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2 border border-border rounded-lg text-sm bg-background"
+                      autoFocus
+                    />
+                  </div>
                   <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                    {myVehicles.map(v => {
+                    {myVehicles
+                      .filter(v => {
+                        if (!vehicleSearch) return true
+                        const q = vehicleSearch.toLowerCase()
+                        return v.vehicleNumber.toLowerCase().includes(q) || 
+                          v.model.toLowerCase().includes(q) ||
+                          v.category.toLowerCase().includes(q)
+                      })
+                      .map(v => {
                       const alreadyAssigned = 
                         localBindings.some(b => 
                           b.vehicleId === v.id && 
