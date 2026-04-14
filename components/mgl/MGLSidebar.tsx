@@ -46,7 +46,6 @@ const foNavItems: NavItem[] = [
   { icon: MapPin, label: "Card Delivery", view: "fo-delivery" },
   { icon: Bell, label: "Notifications", view: "fo-notifications" },
   { icon: BarChart2, label: "Reports", view: "fo-reports" },
-  { icon: User, label: "My Profile", view: "fo-profile" },
 ];
 
 const adminNavItems: NavItem[] = [
@@ -162,6 +161,7 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
           <p className="text-sidebar-foreground/40 text-[10px] font-semibold uppercase tracking-widest px-2 py-2 mt-4">General</p>
           {[
             { icon: Settings, label: "Settings", view: "settings" },
+            { icon: User, label: "My Profile", view: "fo-profile" },
             { icon: HelpCircle, label: "Help & Support", view: "help" },
           ].map((item) => {
             const Icon = item.icon;
