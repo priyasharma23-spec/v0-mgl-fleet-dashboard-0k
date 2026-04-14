@@ -87,6 +87,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
     maxUsesPerCode: number | null
     repairingTrigger: string
   } | null>(null)
+  const [policyScope, setPolicyScope] = useState<"auth_mode" | "pairing_code">("auth_mode")
 
   // Assign flow state
   const [assignForm, setAssignForm] = useState({
@@ -113,6 +114,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
         repairingTrigger: "on_vehicle_change",
       })
     }
+    setPolicyScope("auth_mode")
   }, [selectedDriver])
 
   const getDriverBindings = (driverId: string) =>
@@ -584,48 +586,188 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   ]
 
   const triggerOptions = [
-    { 
-      id: "on_vehicle_change", 
+    {
+      id: "on_vehicle_change",
       label: "On vehicle change",
-      desc: "New code generated when vehicle changes"
+      desc: "New code when vehicle changes"
     },
-    { 
-      id: "monthly", 
+    {
+      id: "monthly",
       label: "Monthly",
-      desc: "Auto-regenerates on 1st of each month"
+      desc: "Auto-regenerates on 1st of month"
     },
-    { 
-      id: "manual", 
+    {
+      id: "manual",
       label: "Manual only",
-      desc: "FO manually regenerates code"
+      desc: "FO manually regenerates"
     },
   ]
 
-  // Risk indicator
   const getRisk = () => {
-    if (policy.maxUsesPerCode === 1 && 
-      policy.expiryHours && 
-      policy.expiryHours <= 24) 
-      return { label: "High security", 
+    if (policy.maxUsesPerCode === 1 &&
+      policy.expiryHours &&
+      policy.expiryHours <= 24)
+      return { label: "High security",
         color: "bg-green-50 text-green-700 border-green-200" }
-    if (policy.maxUsesPerCode === null && 
+    if (policy.maxUsesPerCode === null &&
       policy.expiryHours === null)
-      return { label: "Open access", 
+      return { label: "Open access",
         color: "bg-red-50 text-red-700 border-red-200" }
-    return { label: "Balanced", 
+    return { label: "Balanced",
       color: "bg-amber-50 text-amber-700 border-amber-200" }
   }
   const risk = getRisk()
 
   return (
-    <div className="space-y-4 mt-4 pt-2">
+    <div className="space-y-4 mt-4">
+
+      {/* Policy scope toggle */}
+      <div className="bg-muted/30 rounded-xl 
+        p-1 flex border border-border">
+        <button
+          onClick={() => setPolicyScope("auth_mode")}
+          className={`flex-1 py-2 px-3 rounded-lg 
+            text-xs font-medium transition-all
+            flex items-center justify-center gap-2
+            ${policyScope === "auth_mode"
+              ? "bg-background shadow-sm text-foreground border border-border"
+              : "text-muted-foreground hover:text-foreground"}`}>
+          <svg width="12" height="12"
+            viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2">
+            <path d="M19 17h2c1.1 0 2-.9 2-2v-4l-3-5H4L1 11v4c0 1.1.9 2 2 2h2"/>
+            <circle cx="7" cy="17" r="2"/>
+            <circle cx="17" cy="17" r="2"/>
+          </svg>
+          Auth Mode Default
+        </button>
+        <button
+          onClick={() => setPolicyScope("pairing_code")}
+          className={`flex-1 py-2 px-3 rounded-lg 
+            text-xs font-medium transition-all
+            flex items-center justify-center gap-2
+            ${policyScope === "pairing_code"
+              ? "bg-background shadow-sm text-foreground border border-border"
+              : "text-muted-foreground hover:text-foreground"}`}>
+          <svg width="12" height="12"
+            viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7"/>
+            <rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/>
+            <path d="M14 14h3v3M17 20v1M20 14v3M20 20h1"/>
+          </svg>
+          Pairing Code Override
+        </button>
+      </div>
+
+      {/* Scope description */}
+      <div className={`px-3 py-2.5 rounded-xl 
+        border text-xs
+        ${policyScope === "auth_mode"
+          ? "bg-blue-50 border-blue-200 text-blue-700"
+          : "bg-purple-50 border-purple-200 text-purple-700"}`}>
+        {policyScope === "auth_mode"
+          ? "Applies to all vehicles assigned to this driver based on their auth mode. Acts as the default unless a pairing code override exists."
+          : "Overrides the auth mode default for a specific pairing code only. Use when a one-off exception is needed."}
+      </div>
+
+      {/* Auth mode selector — only for auth_mode scope */}
+      {policyScope === "auth_mode" && (
+        <TraySection title="Auth Mode">
+          <div className="flex gap-2 pt-1">
+            {[
+              { id: "vehicle_linked", 
+                label: "Vehicle-linked" },
+              { id: "shift_based", 
+                label: "Shift-based" },
+              { id: "trip_linked", 
+                label: "Trip-linked" },
+            ].map(mode => (
+              <button
+                key={mode.id}
+                className={`flex-1 py-2 px-2 
+                  rounded-lg text-[11px] font-medium 
+                  border transition-all text-center
+                  ${(selectedDriver.pairingPolicy as any)
+                    ?.authMode === mode.id
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border text-muted-foreground hover:border-primary/50"}`}
+                onClick={() => {
+                  if (selectedDriver.pairingPolicy) {
+                    (selectedDriver.pairingPolicy as any)
+                      .authMode = mode.id
+                  }
+                }}>
+                {mode.label}
+              </button>
+            ))}
+          </div>
+        </TraySection>
+      )}
+
+      {/* Pairing code selector — only for pairing_code scope */}
+      {policyScope === "pairing_code" && (() => {
+        const driverBindings = localBindings.filter(
+          b => b.driverId === selectedDriver.id &&
+          ["active","ACTIVE"].includes(b.state))
+        return driverBindings.length === 0 ? (
+          <div className="bg-muted/30 rounded-xl 
+            p-4 text-center border border-border">
+            <p className="text-xs text-muted-foreground">
+              No active bindings found.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Assign a vehicle first to set 
+              pairing code overrides.
+            </p>
+          </div>
+        ) : (
+          <TraySection title="Select Pairing Code">
+            <div className="space-y-2 pt-1">
+              {driverBindings.map(b => {
+                const v = myVehicles.find(
+                  v => v.id === b.vehicleId) ||
+                  mockVehicles.find(
+                    v => v.id === b.vehicleId)
+                return (
+                  <div key={b.id}
+                    className="flex items-center 
+                    justify-between p-3 rounded-xl 
+                    border border-border bg-card">
+                    <div>
+                      <p className="font-mono 
+                        text-sm font-semibold">
+                        {b.pairingCode ?? "—"}
+                      </p>
+                      <p className="text-xs 
+                        text-muted-foreground mt-0.5">
+                        {v?.vehicleNumber ?? 
+                          b.vehicleId}
+                      </p>
+                    </div>
+                    <span className={`text-xs 
+                      px-2 py-0.5 rounded-full 
+                      font-medium
+                      ${b.pairingCodeState === "used"
+                        ? "bg-green-50 text-green-700"
+                        : "bg-amber-50 text-amber-700"}`}>
+                      {b.pairingCodeState ?? "pending"}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </TraySection>
+        )
+      })()}
 
       {/* Risk indicator */}
       <div className={`flex items-center 
         justify-between px-3 py-2.5 rounded-xl 
         border ${risk.color}`}>
         <div className="flex items-center gap-2">
-          <svg width="14" height="14" 
+          <svg width="14" height="14"
             viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -634,8 +776,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
             {risk.label}
           </span>
         </div>
-        <span className="text-xs">
-          Driver-level override
+        <span className="text-xs capitalize">
+          {policyScope === "auth_mode" 
+            ? "Auth mode level" 
+            : "Code level override"}
         </span>
       </div>
 
@@ -643,16 +787,17 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
       <TraySection title="Code Type">
         <div className="flex gap-2 pt-1">
           {[
-            { id: "single_use", label: "Single use",
+            { id: "single_use", 
+              label: "Single use",
               desc: "One fueling per code" },
-            { id: "multi_use", label: "Multi use",
+            { id: "multi_use", 
+              label: "Multi use",
               desc: "Reusable until expiry" },
           ].map(opt => (
             <button
               key={opt.id}
-              onClick={() => setDraftPolicy(p => p ? {
-                ...p, codeType: opt.id
-              } : p)}
+              onClick={() => setDraftPolicy(
+                p => p ? {...p, codeType: opt.id} : p)}
               className={`flex-1 p-3 rounded-xl 
                 border text-left transition-all
                 ${policy.codeType === opt.id
@@ -676,9 +821,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           {expiryOptions.map(opt => (
             <button
               key={String(opt.value)}
-              onClick={() => setDraftPolicy(p => p ? {
-                ...p, expiryHours: opt.value
-              } : p)}
+              onClick={() => setDraftPolicy(
+                p => p ? {
+                  ...p, expiryHours: opt.value
+                } : p)}
               className={`px-3 py-1.5 rounded-lg 
                 text-xs font-medium border 
                 transition-all
@@ -691,16 +837,18 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
         </div>
       </TraySection>
 
-      {/* Max uses — shown for all code types */}
+      {/* Max uses */}
       <TraySection title="Max Uses Per Code">
         <div className="flex flex-wrap gap-2 pt-1">
           {[1, 3, 5, 10, null].map(n => (
             <button
               key={String(n)}
-              disabled={policy.codeType === "single_use" && n !== 1}
-              onClick={() => setDraftPolicy(p => p ? {
-                ...p, maxUsesPerCode: n
-              } : p)}
+              disabled={policy.codeType === 
+                "single_use" && n !== 1}
+              onClick={() => setDraftPolicy(
+                p => p ? {
+                  ...p, maxUsesPerCode: n
+                } : p)}
               className={`px-3 py-1.5 rounded-lg 
                 text-xs font-medium border 
                 transition-all
@@ -713,6 +861,13 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
             </button>
           ))}
         </div>
+        {policy.codeType === "single_use" && (
+          <p className="text-[10px] 
+            text-muted-foreground mt-2">
+            Single use codes are always 
+            limited to 1 use
+          </p>
+        )}
       </TraySection>
 
       {/* Re-pairing trigger */}
@@ -721,9 +876,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           {triggerOptions.map(opt => (
             <button
               key={opt.id}
-              onClick={() => setDraftPolicy(p => p ? {
-                ...p, repairingTrigger: opt.id
-              } : p)}
+              onClick={() => setDraftPolicy(
+                p => p ? {
+                  ...p, repairingTrigger: opt.id
+                } : p)}
               className={`w-full p-3 rounded-xl 
                 border text-left transition-all
                 flex items-center gap-3
@@ -768,12 +924,10 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
             "save-policy-btn")
           if (btn) {
             btn.textContent = "Saved ✓"
-            btn.classList.add(
-              "bg-green-600", "border-green-600")
+            btn.classList.add("bg-green-600")
             setTimeout(() => {
               btn.textContent = "Save Policy"
-              btn.classList.remove(
-                "bg-green-600", "border-green-600")
+              btn.classList.remove("bg-green-600")
             }, 2000)
           }
         }}
@@ -785,11 +939,11 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
         Save Policy
       </button>
 
-      {/* Inherit from fleet note */}
       <p className="text-xs text-muted-foreground 
         text-center">
-        Overrides fleet-level policy for this 
-        driver only
+        {policyScope === "auth_mode"
+          ? "Applies to all vehicles using this auth mode"
+          : "Overrides fleet policy for this pairing code only"}
       </p>
 
     </div>
