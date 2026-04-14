@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Search, Plus, User, Car, Shield, Copy, CheckCircle, AlertCircle, X, RefreshCw, ChevronRight, Clock, MapPin, Calendar } from "lucide-react"
 import {
   mockDrivers, mockVehicles, mockDriverVehicleBindings,
@@ -81,6 +81,12 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
   const [localBindings, setLocalBindings] = useState<DriverVehicleBinding[]>(mockDriverVehicleBindings ?? [])
   const [detailTab, setDetailTab] = useState<"details" | "vehicles" | "pairing" | "policy">("vehicles")
   const [unpairConfirm, setUnpairConfirm] = useState<string | null>(null)
+  const [draftPolicy, setDraftPolicy] = useState<{
+    codeType: string
+    expiryHours: number | null
+    maxUsesPerCode: number | null
+    repairingTrigger: string
+  } | null>(null)
 
   // Assign flow state
   const [assignForm, setAssignForm] = useState({
@@ -89,6 +95,25 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
     shifts: [{ days: [], start: "06:00", end: "14:00" }],
     trip: { date: "", start: "", end: "", origin: "", destination: "", notes: "" },
   })
+
+  // Sync draft policy when selected driver changes
+  useEffect(() => {
+    if (selectedDriver?.pairingPolicy) {
+      setDraftPolicy({
+        codeType: selectedDriver.pairingPolicy.codeType ?? "single_use",
+        expiryHours: selectedDriver.pairingPolicy.expiryHours ?? 24,
+        maxUsesPerCode: selectedDriver.pairingPolicy.maxUsesPerCode ?? 1,
+        repairingTrigger: selectedDriver.pairingPolicy.repairingTrigger ?? "on_vehicle_change",
+      })
+    } else {
+      setDraftPolicy({
+        codeType: "single_use",
+        expiryHours: 24,
+        maxUsesPerCode: 1,
+        repairingTrigger: "on_vehicle_change",
+      })
+    }
+  }, [selectedDriver])
 
   const getDriverBindings = (driverId: string) =>
     (bindings ?? []).filter(b => b.driverId === driverId)
@@ -543,7 +568,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
 
           {/* Policy Tab */}
           {detailTab === "policy" && selectedDriver && (() => {
-  const policy = selectedDriver.pairingPolicy ?? {
+  const policy = draftPolicy ?? {
     codeType: "single_use",
     expiryHours: 24,
     maxUsesPerCode: 1,
@@ -625,12 +650,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           ].map(opt => (
             <button
               key={opt.id}
-              onClick={() => {
-                if (selectedDriver.pairingPolicy) {
-                  selectedDriver.pairingPolicy
-                    .codeType = opt.id as any
-                }
-              }}
+              onClick={() => setDraftPolicy(p => p ? {
+                ...p, codeType: opt.id
+              } : p)}
               className={`flex-1 p-3 rounded-xl 
                 border text-left transition-all
                 ${policy.codeType === opt.id
@@ -654,12 +676,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           {expiryOptions.map(opt => (
             <button
               key={String(opt.value)}
-              onClick={() => {
-                if (selectedDriver.pairingPolicy) {
-                  selectedDriver.pairingPolicy
-                    .expiryHours = opt.value
-                }
-              }}
+              onClick={() => setDraftPolicy(p => p ? {
+                ...p, expiryHours: opt.value
+              } : p)}
               className={`px-3 py-1.5 rounded-lg 
                 text-xs font-medium border 
                 transition-all
@@ -672,31 +691,29 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
         </div>
       </TraySection>
 
-      {/* Max uses — only for multi_use */}
-      {policy.codeType === "multi_use" && (
-        <TraySection title="Max Uses Per Code">
-          <div className="flex flex-wrap gap-2 pt-1">
-            {[1, 3, 5, 10, null].map(n => (
-              <button
-                key={String(n)}
-                onClick={() => {
-                  if (selectedDriver.pairingPolicy) {
-                    selectedDriver.pairingPolicy
-                      .maxUsesPerCode = n
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-lg 
-                  text-xs font-medium border 
-                  transition-all
-                  ${policy.maxUsesPerCode === n
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background border-border hover:border-primary/50"}`}>
-                {n === null ? "Unlimited" : n}
-              </button>
-            ))}
-          </div>
-        </TraySection>
-      )}
+      {/* Max uses — shown for all code types */}
+      <TraySection title="Max Uses Per Code">
+        <div className="flex flex-wrap gap-2 pt-1">
+          {[1, 3, 5, 10, null].map(n => (
+            <button
+              key={String(n)}
+              disabled={policy.codeType === "single_use" && n !== 1}
+              onClick={() => setDraftPolicy(p => p ? {
+                ...p, maxUsesPerCode: n
+              } : p)}
+              className={`px-3 py-1.5 rounded-lg 
+                text-xs font-medium border 
+                transition-all
+                ${policy.maxUsesPerCode === n
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : policy.codeType === "single_use" && n !== 1
+                  ? "opacity-30 cursor-not-allowed border-border bg-background"
+                  : "bg-background border-border hover:border-primary/50"}`}>
+              {n === null ? "Unlimited" : n}
+            </button>
+          ))}
+        </div>
+      </TraySection>
 
       {/* Re-pairing trigger */}
       <TraySection title="Re-pairing Trigger">
@@ -704,12 +721,9 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           {triggerOptions.map(opt => (
             <button
               key={opt.id}
-              onClick={() => {
-                if (selectedDriver.pairingPolicy) {
-                  selectedDriver.pairingPolicy
-                    .repairingTrigger = opt.id as any
-                }
-              }}
+              onClick={() => setDraftPolicy(p => p ? {
+                ...p, repairingTrigger: opt.id
+              } : p)}
               className={`w-full p-3 rounded-xl 
                 border text-left transition-all
                 flex items-center gap-3
@@ -744,10 +758,14 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
       {/* Save button */}
       <button
         onClick={() => {
-          // In production: PATCH /drivers/{id}/policy
-          // For now just show visual feedback
+          if (selectedDriver && draftPolicy) {
+            selectedDriver.pairingPolicy = {
+              ...selectedDriver.pairingPolicy,
+              ...draftPolicy,
+            } as any
+          }
           const btn = document.getElementById(
-            'save-policy-btn')
+            "save-policy-btn")
           if (btn) {
             btn.textContent = "Saved ✓"
             btn.classList.add(
