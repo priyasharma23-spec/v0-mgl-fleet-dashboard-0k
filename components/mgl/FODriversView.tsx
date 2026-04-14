@@ -979,6 +979,42 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         Shift Schedule
                       </p>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-2 block">
+                          Working days
+                        </label>
+                        <div className="flex gap-2 flex-wrap">
+                          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => {
+                            const selected = (assignForm.shifts[0].days as string[]).includes(day)
+                            return (
+                              <button
+                                key={day}
+                                type="button"
+                                onClick={() => {
+                                  const currentDays = assignForm.shifts[0].days as string[]
+                                  const newDays = selected
+                                    ? currentDays.filter(d => d !== day)
+                                    : [...currentDays, day]
+                                  setAssignForm(f => ({
+                                    ...f,
+                                    shifts: [{
+                                      ...f.shifts[0],
+                                      days: newDays
+                                    }]
+                                  }))
+                                }}
+                                className={`w-10 h-10 rounded-lg text-xs font-semibold transition-all border ${
+                                  selected
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "bg-background text-muted-foreground border-border hover:border-primary/50"
+                                }`}
+                              >
+                                {day}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="text-xs text-muted-foreground mb-1 block">
