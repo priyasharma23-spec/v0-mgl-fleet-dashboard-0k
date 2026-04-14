@@ -542,53 +542,241 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           )}
 
           {/* Policy Tab */}
-          {detailTab === "policy" && selectedDriver && (
-            <div className="space-y-4 mt-4 pt-2">
-              <TraySection title="Pairing Policy Settings">
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="font-medium text-foreground mb-2">Code Expiry Window</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {["2h", "24h", "72h", "7d", "No expiry"].map((option) => (
-                        <span key={option} className={`px-2 py-1 rounded text-xs font-medium ${
-                          (selectedDriver.pairingPolicy?.expiryHours === (option === "2h" ? 2 : option === "24h" ? 24 : option === "72h" ? 72 : option === "7d" ? 168 : null) ||
-                            (option === "No expiry" && selectedDriver.pairingPolicy?.expiryHours === null))
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}>
-                          {option}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+          {detailTab === "policy" && selectedDriver && (() => {
+  const policy = selectedDriver.pairingPolicy ?? {
+    codeType: "single_use",
+    expiryHours: 24,
+    maxUsesPerCode: 1,
+    repairingTrigger: "on_vehicle_change",
+  }
 
-                  <div>
-                    <p className="font-medium text-foreground mb-2">Max Uses</p>
-                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                      {selectedDriver.pairingPolicy?.maxUsesPerCode === null ? "Unlimited" : selectedDriver.pairingPolicy?.maxUsesPerCode ?? 1}
-                    </span>
-                  </div>
+  const expiryOptions = [
+    { label: "2h", value: 2 },
+    { label: "24h", value: 24 },
+    { label: "72h", value: 72 },
+    { label: "7 days", value: 168 },
+    { label: "No expiry", value: null },
+  ]
 
-                  <div>
-                    <p className="font-medium text-foreground mb-2">Security Level</p>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      selectedDriver.pairingPolicy?.maxUsesPerCode === 1 && (selectedDriver.pairingPolicy?.expiryHours === null || selectedDriver.pairingPolicy?.expiryHours && selectedDriver.pairingPolicy?.expiryHours > 24)
-                        ? "bg-green-100 text-green-700"
-                        : selectedDriver.pairingPolicy?.expiryHours && selectedDriver.pairingPolicy?.expiryHours <= 72
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-red-100 text-red-700"
-                    }`}>
-                      {selectedDriver.pairingPolicy?.maxUsesPerCode === 1 && (selectedDriver.pairingPolicy?.expiryHours === null || selectedDriver.pairingPolicy?.expiryHours > 24)
-                        ? "High"
-                        : selectedDriver.pairingPolicy?.expiryHours && selectedDriver.pairingPolicy?.expiryHours <= 72
-                        ? "Balanced"
-                        : "Open"}
-                    </span>
-                  </div>
+  const triggerOptions = [
+    { 
+      id: "on_vehicle_change", 
+      label: "On vehicle change",
+      desc: "New code generated when vehicle changes"
+    },
+    { 
+      id: "monthly", 
+      label: "Monthly",
+      desc: "Auto-regenerates on 1st of each month"
+    },
+    { 
+      id: "manual", 
+      label: "Manual only",
+      desc: "FO manually regenerates code"
+    },
+  ]
+
+  // Risk indicator
+  const getRisk = () => {
+    if (policy.maxUsesPerCode === 1 && 
+      policy.expiryHours && 
+      policy.expiryHours <= 24) 
+      return { label: "High security", 
+        color: "bg-green-50 text-green-700 border-green-200" }
+    if (policy.maxUsesPerCode === null && 
+      policy.expiryHours === null)
+      return { label: "Open access", 
+        color: "bg-red-50 text-red-700 border-red-200" }
+    return { label: "Balanced", 
+      color: "bg-amber-50 text-amber-700 border-amber-200" }
+  }
+  const risk = getRisk()
+
+  return (
+    <div className="space-y-4 mt-4 pt-2">
+
+      {/* Risk indicator */}
+      <div className={`flex items-center 
+        justify-between px-3 py-2.5 rounded-xl 
+        border ${risk.color}`}>
+        <div className="flex items-center gap-2">
+          <svg width="14" height="14" 
+            viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span className="text-xs font-semibold">
+            {risk.label}
+          </span>
+        </div>
+        <span className="text-xs">
+          Driver-level override
+        </span>
+      </div>
+
+      {/* Code type */}
+      <TraySection title="Code Type">
+        <div className="flex gap-2 pt-1">
+          {[
+            { id: "single_use", label: "Single use",
+              desc: "One fueling per code" },
+            { id: "multi_use", label: "Multi use",
+              desc: "Reusable until expiry" },
+          ].map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => {
+                if (selectedDriver.pairingPolicy) {
+                  selectedDriver.pairingPolicy
+                    .codeType = opt.id as any
+                }
+              }}
+              className={`flex-1 p-3 rounded-xl 
+                border text-left transition-all
+                ${policy.codeType === opt.id
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/50"}`}>
+              <p className="text-xs font-semibold">
+                {opt.label}
+              </p>
+              <p className="text-[10px] 
+                text-muted-foreground mt-0.5">
+                {opt.desc}
+              </p>
+            </button>
+          ))}
+        </div>
+      </TraySection>
+
+      {/* Expiry window */}
+      <TraySection title="Code Expiry">
+        <div className="flex flex-wrap gap-2 pt-1">
+          {expiryOptions.map(opt => (
+            <button
+              key={String(opt.value)}
+              onClick={() => {
+                if (selectedDriver.pairingPolicy) {
+                  selectedDriver.pairingPolicy
+                    .expiryHours = opt.value
+                }
+              }}
+              className={`px-3 py-1.5 rounded-lg 
+                text-xs font-medium border 
+                transition-all
+                ${policy.expiryHours === opt.value
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background border-border hover:border-primary/50"}`}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </TraySection>
+
+      {/* Max uses — only for multi_use */}
+      {policy.codeType === "multi_use" && (
+        <TraySection title="Max Uses Per Code">
+          <div className="flex flex-wrap gap-2 pt-1">
+            {[1, 3, 5, 10, null].map(n => (
+              <button
+                key={String(n)}
+                onClick={() => {
+                  if (selectedDriver.pairingPolicy) {
+                    selectedDriver.pairingPolicy
+                      .maxUsesPerCode = n
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-lg 
+                  text-xs font-medium border 
+                  transition-all
+                  ${policy.maxUsesPerCode === n
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background border-border hover:border-primary/50"}`}>
+                {n === null ? "Unlimited" : n}
+              </button>
+            ))}
+          </div>
+        </TraySection>
+      )}
+
+      {/* Re-pairing trigger */}
+      <TraySection title="Re-pairing Trigger">
+        <div className="space-y-2 pt-1">
+          {triggerOptions.map(opt => (
+            <button
+              key={opt.id}
+              onClick={() => {
+                if (selectedDriver.pairingPolicy) {
+                  selectedDriver.pairingPolicy
+                    .repairingTrigger = opt.id as any
+                }
+              }}
+              className={`w-full p-3 rounded-xl 
+                border text-left transition-all
+                flex items-center gap-3
+                ${policy.repairingTrigger === opt.id
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-primary/50"}`}>
+              <div className="flex-1">
+                <p className="text-xs font-medium">
+                  {opt.label}
+                </p>
+                <p className="text-[10px] 
+                  text-muted-foreground mt-0.5">
+                  {opt.desc}
+                </p>
+              </div>
+              {policy.repairingTrigger === opt.id && (
+                <div className="w-4 h-4 rounded-full 
+                  bg-primary flex items-center 
+                  justify-center flex-shrink-0">
+                  <svg width="8" height="8"
+                    viewBox="0 0 24 24" fill="none"
+                    stroke="white" strokeWidth="3">
+                    <path d="M20 6L9 17l-5-5"/>
+                  </svg>
                 </div>
-              </TraySection>
-            </div>
-          )}
+              )}
+            </button>
+          ))}
+        </div>
+      </TraySection>
+
+      {/* Save button */}
+      <button
+        onClick={() => {
+          // In production: PATCH /drivers/{id}/policy
+          // For now just show visual feedback
+          const btn = document.getElementById(
+            'save-policy-btn')
+          if (btn) {
+            btn.textContent = "Saved ✓"
+            btn.classList.add(
+              "bg-green-600", "border-green-600")
+            setTimeout(() => {
+              btn.textContent = "Save Policy"
+              btn.classList.remove(
+                "bg-green-600", "border-green-600")
+            }, 2000)
+          }
+        }}
+        id="save-policy-btn"
+        className="w-full py-2.5 bg-primary 
+          text-primary-foreground rounded-xl 
+          text-sm font-medium 
+          hover:bg-primary/90 transition-all">
+        Save Policy
+      </button>
+
+      {/* Inherit from fleet note */}
+      <p className="text-xs text-muted-foreground 
+        text-center">
+        Overrides fleet-level policy for this 
+        driver only
+      </p>
+
+    </div>
+  )
+})()}
         </RightTray>
       )}
 
