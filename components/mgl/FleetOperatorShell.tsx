@@ -16,6 +16,7 @@ import FOWalletView from "@/components/mgl/FOWalletView"
 import FOVehicleDetailTray from "@/components/mgl/FOVehicleDetailTray"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
 import FODriversView from "@/components/mgl/FODriversView"
+import FOSettingsView from "@/components/mgl/FOSettingsView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
 import ReportsView from "@/components/mgl/shared/ReportsView"
@@ -129,6 +130,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-vehicles": return <FOVehiclesList onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-add-vehicle": return <FOAddVehicle onViewChange={setActiveView} onboardingType={onboardingType} />
       case "fo-drivers": return <FODriversView onboardingType={onboardingType} />
+      case "fo-settings": return <FOSettingsView />
       case "fo-funds": return <FOFundManagement />
       case "fo-delivery": return <FODeliveryTracking />
       case "fo-notifications": return <FONotificationsView />
