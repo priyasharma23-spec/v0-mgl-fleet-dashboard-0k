@@ -1368,6 +1368,59 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                         </div>
                       ))}
                     </div>
+                    {/* Generated pairing code */}
+                    <div className="bg-muted/30 border border-border rounded-xl overflow-hidden">
+                      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          Pairing Code
+                        </p>
+                        <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium">
+                          Auto-generated
+                        </span>
+                      </div>
+                      <div className="px-4 py-4 text-center">
+                        <p className="font-mono font-bold text-3xl tracking-widest text-foreground">
+                          {(() => {
+                            const seed = (assignForm.vehicleId + (selectedDriver?.id ?? "")).slice(-6)
+                            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+                            let code = ""
+                            for (let i = 0; i < 6; i++) {
+                              code += chars[(seed.charCodeAt(i % seed.length) + i * 7) % chars.length]
+                            }
+                            return code
+                          })()}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Share this code with the driver to activate fueling
+                        </p>
+                      </div>
+                      <div className="px-4 pb-4 flex gap-2">
+                        <button
+                          onClick={() => {
+                            const seed = (assignForm.vehicleId + (selectedDriver?.id ?? "")).slice(-6)
+                            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+                            let code = ""
+                            for (let i = 0; i < 6; i++) {
+                              code += chars[(seed.charCodeAt(i % seed.length) + i * 7) % chars.length]
+                            }
+                            navigator.clipboard.writeText(code)
+                          }}
+                          className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted transition-colors flex items-center justify-center gap-1.5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2"/>
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                          </svg>
+                          Copy
+                        </button>
+                        <button
+                          className="flex-1 py-2 border border-border rounded-lg text-xs font-medium hover:bg-muted transition-colors flex items-center justify-center gap-1.5">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9a16 16 0 006.29 6.29l1.56-1.56a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>
+                          </svg>
+                          WhatsApp
+                        </button>
+                      </div>
+                    </div>
                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
                       <p className="text-xs text-amber-700">
                         The driver will receive a 
