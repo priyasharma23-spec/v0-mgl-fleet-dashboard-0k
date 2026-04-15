@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet, Copy, Mail, Smartphone, FileText } from "lucide-react"
+import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet, Copy, Mail, Smartphone } from "lucide-react"
 import { KPICard } from "@/components/mgl/shared"
 import { mockFleetOperators, mockVehicles } from "@/lib/mgl-data"
 
@@ -23,22 +23,7 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
             {showTransactions && <p className="text-xs text-muted-foreground">{fo.name}</p>}
           </div>
           <div className="flex items-center gap-2">
-            {!showTransactions && !editMode && (
-              <>
-                {fo.onboardingType === "MIC_ASSISTED" && fo.mouNumber && (
-                  <button
-                    onClick={() => {
-                      const el = document.getElementById("mou-section")
-                      el?.scrollIntoView({ behavior: "smooth" })
-                    }}
-                    title="View MOU Details"
-                    className="p-2 hover:bg-muted rounded-lg">
-                    <FileText className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                )}
-                <button onClick={() => { setEditData({...fo}); setEditMode(true) }} className="p-2 hover:bg-muted rounded-lg"><Edit3 className="w-4 h-4 text-muted-foreground" /></button>
-              </>
-            )}
+            {!showTransactions && !editMode && <button onClick={() => { setEditData({...fo}); setEditMode(true) }} className="p-2 hover:bg-muted rounded-lg"><Edit3 className="w-4 h-4 text-muted-foreground" /></button>}
             {editMode && <button onClick={() => { setEditMode(false); setEditData(null) }} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>}
             <button onClick={onClose} className="p-2 hover:bg-muted rounded-lg"><X className="w-4 h-4" /></button>
           </div>
