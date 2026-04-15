@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Search, Download, Eye, X, ArrowRight, Filter, Edit3, Check, Users, CheckCircle, AlertTriangle, CreditCard, Wallet, Copy, Mail, Smartphone } from "lucide-react"
 import { KPICard } from "@/components/mgl/shared"
-import { mockFleetOperators, mockVehicles, mockMOUIncentiveConfigs } from "@/lib/mgl-data"
+import { mockFleetOperators, mockVehicles } from "@/lib/mgl-data"
 
 function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClose: () => void; fleetOperators: any[] }) {
   const [editMode, setEditMode] = useState(false)
@@ -88,31 +88,6 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
                 <p className="text-xs text-blue-600">Unused: {fo.cashbackUnused}</p>
               </div>
             </div>
-            {fo.onboardingType === "MIC_ASSISTED" && 
-              fo.mouNumber && (
-              <div className="p-3 bg-muted/30 rounded-lg 
-                flex items-center justify-between">
-                <div>
-                  <p className="text-xs 
-                    text-muted-foreground">MOU</p>
-                  <p className="font-mono text-sm 
-                    font-semibold mt-0.5">
-                    {fo.mouNumber}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs 
-                    text-muted-foreground">Expires</p>
-                  <p className="text-sm font-medium mt-0.5">
-                    {fo.mouExpiryDate
-                      ? new Date(fo.mouExpiryDate)
-                          .toLocaleDateString("en-IN",
-                            { month:"short", year:"numeric" })
-                      : "—"}
-                  </p>
-                </div>
-              </div>
-            )}
             <div className="bg-muted/30 rounded-xl p-4 space-y-2">
               <p className="text-sm font-semibold">Bank Account Details</p>
               <div className="space-y-1 text-sm">
@@ -174,140 +149,6 @@ function FODetailDrawer({ foId, onClose, fleetOperators }: { foId: string; onClo
                 ))}
               </div>
             </div>
-            {/* MOU Details */}
-            {fo.onboardingType === "MIC_ASSISTED" && (
-              <div className="bg-muted/30 rounded-xl p-4 
-                space-y-3">
-                
-                <div className="flex items-center 
-                  justify-between">
-                  <p className="text-sm font-semibold">
-                    MOU Details
-                  </p>
-                  {fo.mouExpiryDate && (() => {
-                    const expiry = new Date(fo.mouExpiryDate)
-                    const today = new Date()
-                    const daysLeft = Math.ceil(
-                      (expiry.getTime() - today.getTime()) / 
-                      (1000 * 60 * 60 * 24))
-                    return (
-                      <span className={`text-xs px-2 py-0.5 
-                        rounded-full font-medium
-                        ${daysLeft > 90 
-                          ? "bg-green-100 text-green-700"
-                          : daysLeft > 30 
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-red-100 text-red-700"}`}>
-                        {daysLeft > 0 
-                          ? `${daysLeft}d remaining` 
-                          : "Expired"}
-                      </span>
-                    )
-                  })()}
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      MOU Number
-                    </span>
-                    <span className="font-mono font-medium">
-                      {fo.mouNumber ?? "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Execution Date
-                    </span>
-                    <span className="font-medium">
-                      {fo.mouExecutionDate 
-                        ? new Date(fo.mouExecutionDate)
-                            .toLocaleDateString("en-IN", 
-                              { day:"numeric", 
-                                month:"short", 
-                                year:"numeric" })
-                        : "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Expiry Date
-                    </span>
-                    <span className="font-medium">
-                      {fo.mouExpiryDate
-                        ? new Date(fo.mouExpiryDate)
-                            .toLocaleDateString("en-IN",
-                              { day:"numeric",
-                                month:"short",
-                                year:"numeric" })
-                        : "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Onboarding Type
-                    </span>
-                    <span className={`text-xs px-2 py-0.5 
-                      rounded-full font-medium
-                      ${fo.onboardingType === "MIC_ASSISTED"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-purple-100 text-purple-700"}`}>
-                      {fo.onboardingType === "MIC_ASSISTED"
-                        ? "MIC Assisted"
-                        : "Self Service"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Incentive slabs */}
-                {(() => {
-                  const mouConfig = mockMOUIncentiveConfigs
-                    .find(c => c.mouId === fo.mouNumber)
-                  if (!mouConfig) return null
-                  return (
-                    <div className="mt-2 pt-3 
-                      border-t border-border">
-                      <p className="text-xs font-semibold 
-                        text-muted-foreground uppercase 
-                        tracking-wide mb-2">
-                        Incentive Slabs
-                      </p>
-                      <div className="space-y-2">
-                        {mouConfig.slabs.map((slab, i) => (
-                          <div key={i}
-                            className="flex items-center 
-                            justify-between p-2.5 
-                            bg-background rounded-lg 
-                            border border-border text-xs">
-                            <div>
-                              <p className="font-medium">
-                                {slab.vehicleCategory} · 
-                                {slab.vehicleType}
-                              </p>
-                              <p className="text-muted-foreground mt-0.5">
-                                {slab.minVehicles}–
-                                {slab.maxVehicles ?? "∞"} vehicles
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-semibold 
-                                text-green-700">
-                                ₹{slab.incentiveAmount
-                                  .toLocaleString("en-IN")}
-                              </p>
-                              <p className="text-muted-foreground">
-                                per vehicle
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })()}
-
-              </div>
-            )}
             <button onClick={() => setShowTransactions(true)} className="w-full py-3 border border-green-600 text-green-600 rounded-lg text-sm font-medium hover:bg-green-50 flex items-center justify-center gap-2">View Transaction History →</button>
             <p className="text-xs text-muted-foreground text-center">Read-only access • FO-funded wallet modifications restricted</p>
           </div>
