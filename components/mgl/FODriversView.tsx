@@ -1143,7 +1143,6 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
           : `Default policy for ${activePolicyMode.replace("_", " ")} assignments`}
       </p>
 
-    </div>
   )
 })()}
         </RightTray>
