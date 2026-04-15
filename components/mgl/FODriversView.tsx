@@ -8,7 +8,7 @@ import {
 import { RightTray, TraySection, TrayRow, TrayDivider } from "./shared/RightTray"
 import { FilterPanel, FilterField, FilterSelect, FilterActions } from "./shared/FilterPanel"
 
-const myDrivers = mockDrivers.filter((d: Driver) => d.foId === "FO001")
+// myDrivers moved inside component
 const myVehicles = mockVehicles.filter(v => v.foId === "FO001" && v.status === "CARD_ACTIVE")
 
 const AUTH_MODES = {
@@ -1262,6 +1262,7 @@ function FODriversViewInner({ onboardingType = "MIC_ASSISTED" }: { onboardingTyp
                           inviteCodeExpiry: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                           inviteCodeUsed: false,
                         }
+                        setLocalDrivers(prev => [...prev, newDriver])
                         setSelectedDriver(newDriver)
                         setNewDriverInviteCode(newCode)
                         setShowSuccessScreen(true)
