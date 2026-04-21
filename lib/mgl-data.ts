@@ -786,22 +786,7 @@ export interface Vehicle {
   incentiveApprovedBy?: string;            // ZIC or admin user ID
   incentiveApprovedAt?: string;            // approval timestamp
   incentiveNote?: string;
-  vahaaanData?: {
-    status: string;
-    blacklist_status: string;
-    registered_at: string;
-    issue_date: string;
-    expiry_date: string;
-    owner_data: { name: string; mobile: string };
-    vehicle_data: {
-      maker_description: string; maker_model: string;
-      category: string; fuel_type: string; body_type: string;
-      chassis_number: string; engine_number: string;
-      color: string; gross_weight: string; manufactured_date: string;
-    };
-    insurance_data: { company: string; policy_number: string; expiry_date: string };
-    pucc_data: { pucc_number: string; expiry_date: string };
-  };                  // reason or note from approver
+  vahaaanData?: { status: string; blacklist_status: string; registered_at: string; issue_date: string; expiry_date: string; owner_data: { name: string; mobile: string }; vehicle_data: { maker_description: string; maker_model: string; category: string; fuel_type: string; body_type: string; chassis_number: string; engine_number: string; color: string; gross_weight: string; manufactured_date: string }; insurance_data: { company: string; policy_number: string; expiry_date: string }; pucc_data: { pucc_number: string; expiry_date: string } };                  // reason or note from approver
 }
 
 export interface Notification {

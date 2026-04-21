@@ -675,7 +675,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
           const steps: { label: string; status: "done" | "active" | "pending" }[] = v.onboardingType === "SELF_SERVICE" ? [
             { label: "RC Uploaded", status: "done" },
             { label: "Vehicle Verified", status: "done" },
-            { label: "MIC Review", status: ["APPROVED","CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "SUBMITTED" ? "active" : "pending" },
+            { label: "MIC Approval", status: ["APPROVED","CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "SUBMITTED" ? "active" : "pending" },
             { label: "Approved", status: ["CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "APPROVED" ? "active" : "pending" },
             { label: "Card Issued", status: ["CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "CARD_ISSUED" ? "active" : "pending" },
           ] : [
