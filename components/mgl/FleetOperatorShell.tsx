@@ -728,7 +728,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                        v.status === "SUBMITTED" ? "Under MIC Review" :
                        v.status === "APPROVED" ? "Approved" :
                        v.status === "CARD_ISSUED" ? "Card Being Issued" :
-                       v.status === "L1_REJECTED" ? "Action Required" :
                        v.status === "CARD_PRINTED" ? "Card Printing" :
                        v.status === "CARD_DISPATCHED" ? "Card Dispatched" :
                        v.status === "CARD_ACTIVE" ? "Active" :
