@@ -117,25 +117,31 @@ export default function FOVehicleDetailTray({
                 <VehicleStatusBadge status={v.status} />
                 <span className="text-xs text-muted-foreground">{v.onboardingType === "MIC_ASSISTED" ? "MIC Assisted" : "Self-Service"}</span>
               </div>
-              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-                {[
-                  ["Registration Type", v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],
-                  ["Vehicle Number", v.vehicleNumber],
-                  ["OEM", v.oem],
-                  ["Model", v.model],
-                  ["Category", v.category],
-                  ["Dealership", v.dealership],
-                  ["Booking Date", v.bookingDate],
-                  ["Registration Date", v.registrationDate],
-                  ["Delivery Date", v.deliveryDate],
-                ].map(([label, value]) => value ? (
-                  <div key={label} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="font-medium text-foreground text-right">{value}</span>
+              {v.onboardingType === "SELF_SERVICE" && v.vahaaanData ? (
+                <div className="space-y-3">
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registration</p>
+                    {[["Vehicle Number", v.vehicleNumber],["Status", v.vahaaanData.status],["Blacklisted", v.vahaaanData.blacklist_status === "false" ? "No" : "Yes"],["RTO", v.vahaaanData.registered_at],["Issue Date", v.vahaaanData.issue_date],["Expiry Date", v.vahaaanData.expiry_date],["Owner", v.vahaaanData.owner_data.name],["Mobile", v.vahaaanData.owner_data.mobile]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>) : null)}
                   </div>
-                ) : null)}
-              </div>
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</p>
+                    {[["Make", v.vahaaanData.vehicle_data.maker_description],["Model", v.vahaaanData.vehicle_data.maker_model],["Category", v.vahaaanData.vehicle_data.category],["Fuel Type", v.vahaaanData.vehicle_data.fuel_type],["Body Type", v.vahaaanData.vehicle_data.body_type],["Chassis No.", v.vahaaanData.vehicle_data.chassis_number],["Engine No.", v.vahaaanData.vehicle_data.engine_number],["Colour", v.vahaaanData.vehicle_data.color],["GVW", v.vahaaanData.vehicle_data.gross_weight + " kg"],["Mfg. Date", v.vahaaanData.vehicle_data.manufactured_date]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>) : null)}
+                  </div>
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Insurance</p>
+                    {[["Company", v.vahaaanData.insurance_data.company],["Policy No.", v.vahaaanData.insurance_data.policy_number],["Expiry", v.vahaaanData.insurance_data.expiry_date]].map(([label, value]) => (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>))}
+                  </div>
+                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">PUCC</p>
+                    {[["PUCC No.", v.vahaaanData.pucc_data.pucc_number],["Expiry", v.vahaaanData.pucc_data.expiry_date]].map(([label, value]) => (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground">{value}</span></div>))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+                  {[["Registration Type", v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],["Vehicle Number", v.vehicleNumber],["OEM", v.oem],["Model", v.model],["Category", v.category],["Dealership", v.dealership],["Booking Date", v.bookingDate],["Registration Date", v.registrationDate],["Delivery Date", v.deliveryDate]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right">{value}</span></div>) : null)}
+                </div>
+              )}
               {v.onboardingType === "MIC_ASSISTED" && (
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MOU & Incentive</p>
