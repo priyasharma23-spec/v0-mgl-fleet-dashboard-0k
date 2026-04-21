@@ -1549,6 +1549,9 @@ export const mockNotifications: Notification[] = [
 // ─── Status helpers ─────────────────────────────────────────────────────────
 export const vehicleStatusConfig: Record<VehicleStatus, { label: string; color: string; bg: string }> = {
   DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },
+  SUBMITTED: { label: "Under MIC Review", color: "text-amber-700", bg: "bg-amber-100" },
+  APPROVED: { label: "Approved", color: "text-blue-700", bg: "bg-blue-100" },
+  CARD_ISSUED: { label: "Card Being Issued", color: "text-purple-700", bg: "bg-purple-100" },
   L1_SUBMITTED: { label: "L1 Submitted", color: "text-blue-700", bg: "bg-blue-100" },
   L1_APPROVED: { label: "L1 Approved", color: "text-green-700", bg: "bg-green-100" },
   L1_REJECTED: { label: "L1 Rejected", color: "text-red-700", bg: "bg-red-100" },
