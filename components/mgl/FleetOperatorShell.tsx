@@ -673,8 +673,9 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
       <div className="space-y-3">
         {filtered.map((v) => {
           const steps: { label: string; status: "done" | "active" | "pending" }[] = v.onboardingType === "SELF_SERVICE" ? [
-            { label: "Registered", status: "done" },
-            { label: "Under Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
+            { label: "RC Uploaded", status: "done" },
+            { label: "Vehicle Verified", status: "done" },
+            { label: "MIC Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
             { label: "Card Issued", status: v.cardActivatedAt ? "done" : v.cardNumber ? "active" : "pending" },
           ] : [
             { label: "Registered", status: "done" },
@@ -714,17 +715,22 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 <div className="flex items-center gap-2">
                   {v.onboardingType === "SELF_SERVICE" ? (
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      v.status === "DRAFT" ? "bg-gray-100 text-gray-600" :
                       v.status === "L1_SUBMITTED" ? "bg-amber-100 text-amber-700" :
-                      v.status === "L1_APPROVED" || v.status === "CARD_ACTIVE" || v.status === "CARD_DISPATCHED" || v.status === "CARD_PRINTED" ? "bg-green-100 text-green-700" :
+                      v.status === "L1_APPROVED" ? "bg-blue-100 text-blue-700" :
                       v.status === "L1_REJECTED" ? "bg-red-100 text-red-700" :
+                      v.status === "CARD_PRINTED" ? "bg-purple-100 text-purple-700" :
+                      v.status === "CARD_DISPATCHED" ? "bg-indigo-100 text-indigo-700" :
+                      v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-700" :
                       "bg-gray-100 text-gray-600"
                     }`}>
-                      {v.status === "L1_SUBMITTED" ? "Under Review" :
-                       v.status === "L1_APPROVED" ? "Approved" :
-                       v.status === "L1_REJECTED" ? "Rejected" :
-                       v.status === "CARD_ACTIVE" ? "Active" :
-                       v.status === "CARD_DISPATCHED" ? "Card Dispatched" :
+                      {v.status === "DRAFT" ? "Submitted" :
+                       v.status === "L1_SUBMITTED" ? "Under MIC Review" :
+                       v.status === "L1_APPROVED" ? "Card Being Issued" :
+                       v.status === "L1_REJECTED" ? "Action Required" :
                        v.status === "CARD_PRINTED" ? "Card Printing" :
+                       v.status === "CARD_DISPATCHED" ? "Card Dispatched" :
+                       v.status === "CARD_ACTIVE" ? "Active" :
                        v.status}
                     </span>
                   ) : (
@@ -769,6 +775,70 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 </div>
               )}
 
+              {/* SELF_SERVICE: Submitted/Under Review banner */}
+              {v.onboardingType === "SELF_SERVICE" && 
+                v.status === "DRAFT" && (
+                <div className="border-l-4 border-amber-500 
+                  bg-amber-50 px-3 py-2 rounded-r-lg 
+                  flex items-center gap-2 mb-3">
+                  <svg width="16" height="16" 
+                    viewBox="0 0 24 24" fill="none"
+                    stroke="#d97706" strokeWidth="2"
+                    strokeLinecap="round" 
+                    className="shrink-0">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
+                  <div>
+                    <p className="text-xs font-semibold 
+                      text-amber-900">
+                      Submitted for MIC Review
+                    </p>
+                    <p className="text-[11px] text-amber-700">
+                      Your vehicle details are being verified. 
+                      We will notify you once reviewed.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* SELF_SERVICE: Rejected banner */}
+              {v.onboardingType === "SELF_SERVICE" && 
+                v.status === "L1_REJECTED" && (
+                <div className="border-l-4 border-red-500 
+                  bg-red-50 px-3 py-2 rounded-r-lg 
+                  flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <svg width="16" height="16"
+                      viewBox="0 0 24 24" fill="none"
+                      stroke="#dc2626" strokeWidth="2"
+                      strokeLinecap="round"
+                      className="shrink-0">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M15 9l-6 6M9 9l6 6"/>
+                    </svg>
+                    <div>
+                      <p className="text-xs font-semibold 
+                        text-red-900">
+                        Action Required
+                      </p>
+                      <p className="text-[11px] text-red-700">
+                        Your submission was rejected. 
+                        Please re-submit with correct documents.
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => openVehicle(v)}
+                    className="text-xs font-medium text-red-700 
+                      border border-red-300 px-2 py-1 
+                      rounded-lg hover:bg-red-100 
+                      shrink-0 ml-2">
+                    Fix
+                  </button>
+                </div>
+              )}
+
               {/* L1 Approved banner */}
               {v.status === "L1_APPROVED" && (
                 <div className="border-l-4 border-blue-600 bg-blue-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
@@ -776,8 +846,8 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-blue-600 shrink-0" />
                       <div>
-                        <p className="text-xs font-semibold text-blue-900">Approved</p>
-                        <p className="text-[11px] text-blue-700">Card issuance in progress</p>
+                        <p className="text-xs font-semibold text-blue-900">MIC Approved</p>
+                        <p className="text-[11px] text-blue-700">Your card is being issued and will be dispatched shortly</p>
                       </div>
                     </div>
                   ) : (
@@ -795,8 +865,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 </div>
               )}
 
-              {/* Action Required banner */}
-              {(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && (
+              {(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && v.onboardingType !== "SELF_SERVICE" && (
                 <div className="border-l-4 border-red-600 bg-red-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
