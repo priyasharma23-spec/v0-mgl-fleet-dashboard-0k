@@ -371,7 +371,7 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                     <p className="text-xs text-muted-foreground">We will send a 6-digit OTP to {form.contact || "+91 98765 XXXXX"}</p>
                   </div>
                 </div>
-                {!otpSent ? (
+                {otpSent === false ? (
                   <button onClick={() => setOtpSent(true)}
                     className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
                     Send OTP
@@ -383,51 +383,18 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                       <input
                         type="text" maxLength={6}
                         value={otp} onChange={(e) => setOtp(e.target.value)}
-                        placeholder="• • • • • •"
+                        placeholder="dot dot dot"
                         className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm tracking-[0.5em] text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
-                      Demo: enter any 6 digits. <button onClick={() => setOtpSent(false)} className="text-primary hover:underline">Resend OTP</button>
+                      Demo: enter any 6 digits.
                     </p>
-                </div>
-              )}
-              {activeTab === "pos" && selectedTxn && (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Card Wallet</span>
-                    <span className="font-medium text-red-600">-₹{selectedTxn?.cardWalletDebit || "0"}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Incentive Wallet</span>
-                    <span className="font-medium text-red-600">-₹{selectedTxn?.incentiveWalletDebit || "0"}</span>
-                  </div>
-                </div>
-              )}
-              {activeTab === "pos" && selectedTxn?.cashbackEligible && (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Cashback Rate</span>
-                    <span className="font-medium text-green-700">{selectedTxn?.cashbackPercent}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Cashback Amount</span>
-                    <span className="font-bold text-green-700">+{selectedTxn?.cashbackAmount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn?.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                      {selectedTxn?.cashbackStatus}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             </>
           )}
-
           {step === 4 && (
             <div className="flex flex-col items-center justify-center py-4 gap-4 text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -1237,15 +1204,6 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                   ))}
                 </div>
 
-              {activeTab === "pos" && selectedTxn && (
-                <CashbackDetails data={{
-                  cashbackEligible: selectedTxn?.cashbackEligible,
-                  cashbackPercent: selectedTxn?.cashbackPercent,
-                  cashbackAmount: selectedTxn?.cashbackAmount,
-                  cashbackStatus: selectedTxn?.cashbackStatus,
-                  cashbackReason: selectedTxn?.cashbackReason,
-                }} />
-              )}
             </div>
         )}
 
