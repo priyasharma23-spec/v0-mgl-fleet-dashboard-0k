@@ -371,7 +371,7 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                     <p className="text-xs text-muted-foreground">We will send a 6-digit OTP to {form.contact || "+91 98765 XXXXX"}</p>
                   </div>
                 </div>
-                {!otpSent ? (
+                {otpSent === false ? (
                   <button onClick={() => setOtpSent(true)}
                     className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90">
                     Send OTP
@@ -383,51 +383,18 @@ function FOSignupFlow({ onComplete, onLogin }: { onComplete: () => void; onLogin
                       <input
                         type="text" maxLength={6}
                         value={otp} onChange={(e) => setOtp(e.target.value)}
-                        placeholder="• • • • • •"
+                        placeholder="dot dot dot"
                         className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm tracking-[0.5em] text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
-                      Demo: enter any 6 digits. <button onClick={() => setOtpSent(false)} className="text-primary hover:underline">Resend OTP</button>
+                      Demo: enter any 6 digits.
                     </p>
-                </div>
-              )}
-              {activeTab === "pos" && selectedTxn && (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Wallet Debit</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Card Wallet</span>
-                    <span className="font-medium text-red-600">-₹{selectedTxn?.cardWalletDebit || "0"}</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Incentive Wallet</span>
-                    <span className="font-medium text-red-600">-₹{selectedTxn?.incentiveWalletDebit || "0"}</span>
-                  </div>
-                </div>
-              )}
-              {activeTab === "pos" && selectedTxn?.cashbackEligible && (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cashback</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Cashback Rate</span>
-                    <span className="font-medium text-green-700">{selectedTxn?.cashbackPercent}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Cashback Amount</span>
-                    <span className="font-bold text-green-700">+{selectedTxn?.cashbackAmount}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Status</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedTxn?.cashbackStatus === "Credited" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
-                      {selectedTxn?.cashbackStatus}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             </>
           )}
-
           {step === 4 && (
             <div className="flex flex-col items-center justify-center py-4 gap-4 text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -903,6 +870,14 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
     insurance: null as File | null,
   })
 
+  const [rcOcrLoading, setRcOcrLoading] = useState(false)
+  const [rcOcrDone, setRcOcrDone] = useState(false)
+  const [vahaaanLoading, setVahaaanLoading] = useState(false)
+  const [vahaaanData, setVahaaanData] = useState<any>(null)
+  const [vahaaanVerified, setVahaaanVerified] = useState(false)
+
+  const fo = onboardingType === "SELF_SERVICE" ? myFO_SS : myFO
+
   const selectedOEM = oems.find(o => o.id === form.oemId)
   const availableDealers = form.oemId ? getDealersByOEM(form.oemId) : []
   const availableCategories = form.oemId ? getCategoriesByOEM(form.oemId) : []
@@ -962,7 +937,13 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
 
   const l1Steps = ["Registration Type", "Vehicle Details", "Documentation", "Driver Details", "Review & Submit"]
   const l2Steps = ["Vehicle Details", "L2 Documents", "Review & Submit"]
-  const selfServiceSteps = ["Vehicle & Documents", "Driver Details", "Review & Submit"]
+  const selfServiceSteps = [
+    "RC Upload",
+    "Vehicle Verification",
+    "Driver Details",
+    "Review & Submit",
+    "Card Issuance"
+  ]
   const steps = onboardingType === "SELF_SERVICE" ? selfServiceSteps : mode === "l1" ? l1Steps : l2Steps
 
   if (submitted) {
@@ -1146,16 +1127,266 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 1 - Vehicle & Documents */}
+        {/* SELF_SERVICE: Step 1 - RC Upload */}
         {onboardingType === "SELF_SERVICE" && step === 1 && (
           <div className="space-y-4">
-            <Field label="Vehicle Number" name="vehicleNumber" required />
 
-            {/* Documents */}
-            <div className="pt-2 border-t border-border space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
-              <FileField label="RC Book" fieldName="rcBook" required />
+            {/* Upload instruction */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1565C0" strokeWidth="2" strokeLinecap="round" className="shrink-0 mt-0.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-blue-800">Upload your RC Book</p>
+                <p className="text-xs text-blue-700 mt-0.5">We will automatically read your vehicle number and details from the RC document.</p>
+              </div>
             </div>
+
+            {/* RC Upload */}
+            <FileField label="RC Book (front page)" fieldName="rcBook" required />
+
+            {/* Simulate OCR */}
+            {form.rcBook && !rcOcrDone && (
+              <button
+                onClick={() => {
+                  setRcOcrLoading(true)
+                  setTimeout(() => {
+                    setForm(f => ({
+                      ...f,
+                      vehicleNumber: "MH04GH9012"
+                    }))
+                    setRcOcrLoading(false)
+                    setRcOcrDone(true)
+                  }, 2000)
+                }}
+                disabled={rcOcrLoading}
+                className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-60 flex items-center justify-center gap-2">
+                {rcOcrLoading ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.25"/>
+                      <path d="M21 12a9 9 0 00-9-9"/>
+                    </svg>
+                    Reading RC...
+                  </>
+                ) : "Read RC with OCR"}
+              </button>
+            )}
+
+            {/* OCR Result */}
+            {rcOcrDone && (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M20 6L9 17l-5-5"/>
+                  </svg>
+                  <p className="text-sm font-semibold text-green-800">RC read successfully</p>
+                </div>
+                <div className="flex justify-between items-center bg-white border border-green-200 rounded-lg px-4 py-3">
+                  <span className="text-xs text-muted-foreground">Vehicle Number</span>
+                  <span className="font-mono font-bold text-foreground tracking-widest">{form.vehicleNumber}</span>
+                </div>
+                <p className="text-xs text-green-700">
+                  Not matching? 
+                  <button 
+                    onClick={() => {
+                      setRcOcrDone(false)
+                      setForm(f => ({...f, vehicleNumber: ""}))
+                    }}
+                    className="underline ml-1">
+                    Re-upload
+                  </button>
+                </p>
+              </div>
+            )}
+
+            {/* Manual entry fallback */}
+            {!rcOcrDone && (
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">
+                  Having trouble? 
+                  <button
+                    onClick={() => {
+                      setRcOcrDone(true)
+                    }}
+                    className="text-primary underline ml-1 text-xs">
+                    Enter vehicle number manually
+                  </button>
+                </p>
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* SELF_SERVICE: Step 2 - Vehicle Verification */}
+        {onboardingType === "SELF_SERVICE" && step === 2 && (
+          <div className="space-y-4">
+
+            {/* RC number display */}
+            <div className="flex items-center justify-between bg-muted/30 border border-border rounded-xl px-4 py-3">
+              <span className="text-xs text-muted-foreground">Vehicle Number</span>
+              <span className="font-mono font-bold tracking-widest text-foreground">{form.vehicleNumber || "MH04GH9012"}</span>
+            </div>
+
+            {/* Fetch from Vahaan */}
+            {!vahaaanData && (
+              <button
+                onClick={() => {
+                  setVahaaanLoading(true)
+                  setTimeout(() => {
+                    setVahaaanData({
+                      owner_name: "Rajesh Kumar",
+                      registration_date: "2022-03-15",
+                      expiry_date: "2037-03-14",
+                      rto: "MH-04, Mumbai Central",
+                      status: "ACTIVE",
+                      blacklist_status: "false",
+                      vehicle_data: {
+                        maker: "Tata Motors",
+                        model: "Tata LPT 1918",
+                        category: "HCV",
+                        fuel_type: "CNG",
+                        body_type: "GOODS",
+                        chassis_number: "MAT445203NEB12345",
+                        engine_number: "275IDTCR4CNL12345",
+                        color: "WHITE",
+                        gross_weight: "19000",
+                        seating_capacity: "2",
+                        manufactured_date: "2022-02",
+                      },
+                      insurance_data: {
+                        company: "National Insurance Co. Ltd",
+                        policy_number: "420100/31/2024/12345",
+                        expiry_date: "2025-03-14",
+                      },
+                      pucc_data: {
+                        pucc_number: "PUCC123456",
+                        expiry_date: "2025-09-15",
+                      }
+                    })
+                    setVahaaanLoading(false)
+                  }, 2500)
+                }}
+                disabled={vahaaanLoading}
+                className="w-full py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 disabled:opacity-60 flex items-center justify-center gap-2">
+                {vahaaanLoading ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.25"/>
+                      <path d="M21 12a9 9 0 00-9-9"/>
+                    </svg>
+                    Fetching from Vahaan...
+                  </>
+                ) : "Fetch Vehicle Details"}
+              </button>
+            )}
+
+            {/* Vahaan data display */}
+            {vahaaanData && (
+              <div className="space-y-3">
+
+                {/* Status banner */}
+                <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium ${vahaaanData.status === "ACTIVE" ? "bg-green-50 border-green-200 text-green-700" : "bg-red-50 border-red-200 text-red-700"}`}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    {vahaaanData.status === "ACTIVE" ? <path d="M20 6L9 17l-5-5"/> : <path d="M18 6L6 18M6 6l12 12"/>}
+                  </svg>
+                  RC Status: {vahaaanData.status}
+                  {vahaaanData.blacklist_status === "false" && " · Not blacklisted"}
+                </div>
+
+                {/* Owner details */}
+                <div className="bg-card border border-border rounded-xl overflow-hidden">
+                  <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Owner Details</p>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {[
+                      ["Owner", vahaaanData.owner_name],
+                      ["RTO", vahaaanData.rto],
+                      ["Registration Date", vahaaanData.registration_date],
+                      ["Expiry Date", vahaaanData.expiry_date],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-medium">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vehicle details */}
+                <div className="bg-card border border-border rounded-xl overflow-hidden">
+                  <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {[
+                      ["Make & Model", vahaaanData.vehicle_data.maker + " " + vahaaanData.vehicle_data.model],
+                      ["Category", vahaaanData.vehicle_data.category],
+                      ["Fuel Type", vahaaanData.vehicle_data.fuel_type],
+                      ["Body Type", vahaaanData.vehicle_data.body_type],
+                      ["Chassis No.", vahaaanData.vehicle_data.chassis_number],
+                      ["Engine No.", vahaaanData.vehicle_data.engine_number],
+                      ["Colour", vahaaanData.vehicle_data.color],
+                      ["GVW", vahaaanData.vehicle_data.gross_weight + " kg"],
+                      ["Mfg. Date", vahaaanData.vehicle_data.manufactured_date],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-medium text-right max-w-[55%]">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Insurance */}
+                <div className="bg-card border border-border rounded-xl overflow-hidden">
+                  <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Insurance</p>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {[
+                      ["Company", vahaaanData.insurance_data.company],
+                      ["Policy No.", vahaaanData.insurance_data.policy_number],
+                      ["Expiry", vahaaanData.insurance_data.expiry_date],
+                    ].map(([label, value]) => (
+                      <div key={label} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                        <span className="text-muted-foreground">{label}</span>
+                        <span className="font-medium">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Confirm button */}
+                <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
+                  <input
+                    type="checkbox"
+                    id="vahaan-confirm"
+                    checked={vahaaanVerified}
+                    onChange={e => setVahaaanVerified(e.target.checked)}
+                    className="w-4 h-4 accent-green-600"
+                  />
+                  <label htmlFor="vahaan-confirm" className="text-sm text-green-800 cursor-pointer">
+                    I confirm the above vehicle details are correct
+                  </label>
+                </div>
+
+                {/* Re-fetch option */}
+                <button
+                  onClick={() => {
+                    setVahaaanData(null)
+                    setVahaaanVerified(false)
+                  }}
+                  className="text-xs text-muted-foreground underline w-full text-center">
+                  Details incorrect? Re-fetch
+                </button>
+
+              </div>
+            )}
+
           </div>
         )}
 
@@ -1176,14 +1407,72 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 2 - Driver Details */}
-        {onboardingType === "SELF_SERVICE" && step === 2 && (
+        {/* SELF_SERVICE: Step 3 - Driver Details */}
+        {onboardingType === "SELF_SERVICE" && step === 3 && (
           <div className="space-y-4">
             <p className="text-xs text-muted-foreground">Driver details are optional and can be updated later.</p>
             <Field label="Driver Name" name="driverName" />
             <Field label="Driver Contact" name="driverContact" type="tel" />
             <Field label="Driver License Number" name="driverLicense" />
             <FileField label="Driver License Copy" fieldName="driverLicenseFile" />
+          </div>
+        )}
+
+        {/* SELF_SERVICE: Step 5 - Card Issuance */}
+        {onboardingType === "SELF_SERVICE" && step === 5 && (
+          <div className="space-y-4">
+
+            <div className="text-center py-4">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-foreground">Card will be issued</h3>
+              <p className="text-sm text-muted-foreground mt-1">Your fuel card is being processed</p>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Details</p>
+              </div>
+              <div className="divide-y divide-border">
+                {[
+                  ["Vehicle", form.vehicleNumber],
+                  ["Card Type", "MGL Fleet CNG Card"],
+                  ["Issuance", "Within 3-5 business days"],
+                  ["Delivery", "Courier to registered address"],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex justify-between items-center px-4 py-2.5 text-sm">
+                    <span className="text-muted-foreground">{label}</span>
+                    <span className="font-medium">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Delivery address */}
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Card Delivery Address</label>
+              <textarea
+                value={form.deliveryAddress}
+                onChange={e => setForm({
+                  ...form,
+                  deliveryAddress: e.target.value
+                })}
+                rows={3}
+                placeholder="Enter delivery address for the card"
+                className="w-full mt-1 px-3 py-2.5 rounded-lg border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-xs text-amber-700">
+                Your vehicle will be reviewed by MIC before the card is dispatched. You will be notified via SMS once the card is shipped.
+              </p>
+            </div>
+
           </div>
         )}
 
@@ -1207,46 +1496,50 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 3 - Review & Submit */}
-        {onboardingType === "SELF_SERVICE" && step === 3 && (
+        {/* SELF_SERVICE: Step 4 - Card Issuance */}
+        {onboardingType === "SELF_SERVICE" && step === 4 && (
           <div className="space-y-4">
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Vehicle No.</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+            <div className="text-center py-2">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
               </div>
+              <h3 className="font-bold text-base text-foreground">Ready to issue your fuel card</h3>
+              <p className="text-sm text-muted-foreground mt-1">Review and confirm to proceed</p>
             </div>
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium">{form.driverName || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Contact</p><p className="font-medium">{form.driverContact || "—"}</p></div>
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Summary</p>
               </div>
-            </div>
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
               {[
-                { label: "RC Book", file: form.rcBook },
-                { label: "Driver License", file: form.driverLicenseFile },
-              ].filter(d => d.file).map((doc, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                  <span className="text-foreground">{doc.label}</span>
-                  <span className="text-green-600 text-xs ml-auto font-medium">{doc.file?.name}</span>
+                ["Vehicle", form.vehicleNumber || "MH04GH9012"],
+                ["Card Type", "MGL Fleet CNG Card"],
+                ["Category", vahaaanData?.vehicle_data?.category || "HCV"],
+                ["Fuel Type", vahaaanData?.vehicle_data?.fuel_type || "CNG"],
+                ["Issuance", "Within 3–5 business days"],
+              ].map(([label, value]) => (
+                <div key={label} className="flex justify-between items-center px-4 py-2.5 text-sm border-b border-border last:border-0">
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className="font-medium">{value}</span>
                 </div>
-                  ))}
-                </div>
-
-              {activeTab === "pos" && selectedTxn && (
-                <CashbackDetails data={{
-                  cashbackEligible: selectedTxn?.cashbackEligible,
-                  cashbackPercent: selectedTxn?.cashbackPercent,
-                  cashbackAmount: selectedTxn?.cashbackAmount,
-                  cashbackStatus: selectedTxn?.cashbackStatus,
-                  cashbackReason: selectedTxn?.cashbackReason,
-                }} />
-              )}
+              ))}
             </div>
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Delivery Address</p>
+              </div>
+              <div className="px-4 py-3 text-sm text-foreground">
+                {myFO_SS?.registeredAddress || "As per FO registered address on file"}
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-xs text-amber-700">
+                Your vehicle will be reviewed by MIC before the card is dispatched. You will be notified via SMS once the card is shipped.
+              </p>
+            </div>
+          </div>
         )}
 
         {/* L1: Step 5 - Review & Submit */}
@@ -1424,10 +1717,15 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           {step === 1 ? "Cancel" : "Back"}
         </button>
         <button onClick={() => {
-          const maxStep = onboardingType === "SELF_SERVICE" ? 3 : mode === "l1" ? 5 : 3
+          const maxStep = onboardingType === "SELF_SERVICE" ? 5 : mode === "l1" ? 5 : 3
           step < maxStep ? setStep(step + 1) : setSubmitted(true)
-        }} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-          {onboardingType === "SELF_SERVICE" && step === 3 ? "Submit Vehicle" : (mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next"}
+        }} 
+        disabled={
+          (onboardingType === "SELF_SERVICE" && step === 1 && !rcOcrDone) ||
+          (onboardingType === "SELF_SERVICE" && step === 2 && !vahaaanVerified)
+        }
+        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed">
+          {onboardingType === "SELF_SERVICE" && step === 5 ? "Submit Vehicle" : (onboardingType === "SELF_SERVICE" && step === 4 ? "Review & Continue" : (mode === "l1" && step === 5) || (mode === "l2" && step === 3) ? (mode === "l1" ? "Submit for L1 Approval" : "Submit for L2 Approval") : "Next")}
         </button>
       </div>
     </div>
