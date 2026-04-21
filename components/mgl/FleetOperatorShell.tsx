@@ -1494,37 +1494,50 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
           </div>
         )}
 
-        {/* SELF_SERVICE: Step 4 - Review & Submit */}
+        {/* SELF_SERVICE: Step 4 - Card Issuance */}
         {onboardingType === "SELF_SERVICE" && step === 4 && (
           <div className="space-y-4">
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Vehicle No.</p><p className="font-medium">{form.vehicleNumber || "—"}</p></div>
+            <div className="text-center py-2">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
               </div>
+              <h3 className="font-bold text-base text-foreground">Ready to issue your fuel card</h3>
+              <p className="text-sm text-muted-foreground mt-1">Review and confirm to proceed</p>
             </div>
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Driver Details</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                <div><p className="text-xs text-muted-foreground">Name</p><p className="font-medium">{form.driverName || "—"}</p></div>
-                <div><p className="text-xs text-muted-foreground">Contact</p><p className="font-medium">{form.driverContact || "—"}</p></div>
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Card Summary</p>
               </div>
-            </div>
-            <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Documents</p>
               {[
-                { label: "RC Book", file: form.rcBook },
-                { label: "Driver License", file: form.driverLicenseFile },
-              ].filter(d => d.file).map((doc, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm">
-                  <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                  <span className="text-foreground">{doc.label}</span>
-                  <span className="text-green-600 text-xs ml-auto font-medium">{doc.file?.name}</span>
+                ["Vehicle", form.vehicleNumber || "MH04GH9012"],
+                ["Card Type", "MGL Fleet CNG Card"],
+                ["Category", vahaaanData?.vehicle_data?.category || "HCV"],
+                ["Fuel Type", vahaaanData?.vehicle_data?.fuel_type || "CNG"],
+                ["Issuance", "Within 3–5 business days"],
+              ].map(([label, value]) => (
+                <div key={label} className="flex justify-between items-center px-4 py-2.5 text-sm border-b border-border last:border-0">
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className="font-medium">{value}</span>
                 </div>
-                  ))}
-                </div>
-
+              ))}
             </div>
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Delivery Address</p>
+              </div>
+              <div className="px-4 py-3 text-sm text-foreground">
+                {fo?.registeredAddress || myFO_SS?.registeredAddress || "As per FO registered address on file"}
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-xs text-amber-700">
+                Your vehicle will be reviewed by MIC before the card is dispatched. You will be notified via SMS once the card is shipped.
+              </p>
+            </div>
+          </div>
         )}
 
         {/* L1: Step 5 - Review & Submit */}
