@@ -725,7 +725,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                       v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-700" :
                       "bg-gray-100 text-gray-600"
                     }`}>
-                       v.status === "SUBMITTED" ? "Under MIC Review" :
+                      {v.status === "SUBMITTED" ? "Under MIC Review" :
                        v.status === "APPROVED" ? "Approved" :
                        v.status === "CARD_ISSUED" ? "Card Being Issued" :
                        v.status === "CARD_PRINTED" ? "Card Printing" :
