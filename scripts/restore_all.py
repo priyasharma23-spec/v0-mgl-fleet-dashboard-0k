@@ -71,7 +71,7 @@ for i, l in enumerate(lines):
         if f'id: "{vid}"' in l:
             current_veh = vid
     if current_veh and '  },' in l:
-        if 'vahaaanData' not in ''.join(lines[max(0,i-5):i+1]):
+        if 'vahaaanData' not in ''.join(lines[max(0,i-30):i+1]):
             lines.insert(i, veh_vahaan[current_veh])
             remaining.discard(current_veh)
             current_veh = None
