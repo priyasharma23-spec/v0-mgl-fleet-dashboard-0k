@@ -1342,6 +1342,7 @@ export const mockVehicles: Vehicle[] = [
     mouId: "MGL/MOU/2025/001",
     categorySequence: 4,
     incentiveStatus: "not_eligible",
+    vahaaanData: { status: "ACTIVE", blacklist_status: "false", registered_at: "RTO Goregaon, Maharashtra", issue_date: "2023-11-20", expiry_date: "2038-11-19", owner_data: { name: "Priya Transport Services", mobile: "9876543210" }, vehicle_data: { maker_description: "EICHER MOTORS LTD", maker_model: "PRO 2095", category: "ICV", fuel_type: "CNG", body_type: "GOODS CARRIER", chassis_number: "MBIEB4BPNM12345", engine_number: "E494CPNM12345", color: "WHITE", gross_weight: "9500", manufactured_date: "2023-10" }, insurance_data: { company: "New India Assurance Co. Ltd", policy_number: "31010031230100000", expiry_date: "2025-11-19" }, pucc_data: { pucc_number: "PUCC789012", expiry_date: "2025-05-20" } },
   },
   {
     id: "VEH020",
