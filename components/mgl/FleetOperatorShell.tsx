@@ -802,41 +802,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                 </div>
               )}
 
-              {/* SELF_SERVICE: Rejected banner */}
-              {v.onboardingType === "SELF_SERVICE" && 
-                v.status === "L1_REJECTED" && (
-                <div className="border-l-4 border-red-500 
-                  bg-red-50 px-3 py-2 rounded-r-lg 
-                  flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <svg width="16" height="16"
-                      viewBox="0 0 24 24" fill="none"
-                      stroke="#dc2626" strokeWidth="2"
-                      strokeLinecap="round"
-                      className="shrink-0">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M15 9l-6 6M9 9l6 6"/>
-                    </svg>
-                    <div>
-                      <p className="text-xs font-semibold 
-                        text-red-900">
-                        Action Required
-                      </p>
-                      <p className="text-[11px] text-red-700">
-                        Your submission was rejected. 
-                        Please re-submit with correct documents.
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => openVehicle(v)}
-                    className="text-xs font-medium text-red-700 
-                      border border-red-300 px-2 py-1 
-                      rounded-lg hover:bg-red-100 
-                      shrink-0 ml-2">
-                    Fix
-                  </button>
-                </div>
               )}
 
               {/* L1 Approved banner */}
