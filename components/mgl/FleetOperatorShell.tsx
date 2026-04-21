@@ -880,7 +880,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
 }
 
 // ─── FO Add Vehicle ──────────────────────────────────────────────────────────
-
 function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onViewChange: (v: string) => void; onboardingType?: "MIC_ASSISTED" | "SELF_SERVICE" }) {
   const [mode, setMode] = useState<"l1" | "l2">("l1")
   const [step, setStep] = useState(1)
