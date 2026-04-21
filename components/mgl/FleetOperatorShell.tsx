@@ -876,6 +876,8 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
   const [vahaaanData, setVahaaanData] = useState<any>(null)
   const [vahaaanVerified, setVahaaanVerified] = useState(false)
 
+  const fo = onboardingType === "SELF_SERVICE" ? myFO_SS : myFO
+
   const selectedOEM = oems.find(o => o.id === form.oemId)
   const availableDealers = form.oemId ? getDealersByOEM(form.oemId) : []
   const availableCategories = form.oemId ? getCategoriesByOEM(form.oemId) : []
@@ -1529,7 +1531,7 @@ function FOAddVehicle({ onViewChange, onboardingType = "SELF_SERVICE" }: { onVie
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Delivery Address</p>
               </div>
               <div className="px-4 py-3 text-sm text-foreground">
-                {fo?.registeredAddress || myFO_SS?.registeredAddress || "As per FO registered address on file"}
+                {myFO_SS?.registeredAddress || "As per FO registered address on file"}
               </div>
             </div>
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
