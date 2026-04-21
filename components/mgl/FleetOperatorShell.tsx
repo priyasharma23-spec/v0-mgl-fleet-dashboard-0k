@@ -675,9 +675,8 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
           const steps: { label: string; status: "done" | "active" | "pending" }[] = v.onboardingType === "SELF_SERVICE" ? [
             { label: "RC Uploaded", status: "done" },
             { label: "Vehicle Verified", status: "done" },
-            { label: "MIC Approval", status: ["APPROVED","CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "SUBMITTED" ? "active" : "pending" },
-            { label: "Approved", status: ["CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "APPROVED" ? "active" : "pending" },
-            { label: "Card Issued", status: ["CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "CARD_ISSUED" ? "active" : "pending" },
+            { label: "MIC Approval", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
+            { label: "Card Issued", status: v.cardActivatedAt ? "done" : v.cardNumber ? "active" : "pending" },
           ] : [
             { label: "Registered", status: "done" },
             { label: "L1 Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },
@@ -717,17 +716,18 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                   {v.onboardingType === "SELF_SERVICE" ? (
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                       v.status === "DRAFT" ? "bg-gray-100 text-gray-600" :
-                      v.status === "SUBMITTED" ? "bg-amber-100 text-amber-700" :
-                      v.status === "APPROVED" ? "bg-blue-100 text-blue-700" :
-                      v.status === "CARD_ISSUED" ? "bg-purple-100 text-purple-700" :
+                      v.status === "L1_SUBMITTED" ? "bg-amber-100 text-amber-700" :
+                      v.status === "L1_APPROVED" ? "bg-blue-100 text-blue-700" :
+                      v.status === "L1_REJECTED" ? "bg-red-100 text-red-700" :
                       v.status === "CARD_PRINTED" ? "bg-purple-100 text-purple-700" :
                       v.status === "CARD_DISPATCHED" ? "bg-indigo-100 text-indigo-700" :
                       v.status === "CARD_ACTIVE" ? "bg-green-100 text-green-700" :
                       "bg-gray-100 text-gray-600"
                     }`}>
-                      {v.status === "SUBMITTED" ? "Under MIC Review" :
-                       v.status === "APPROVED" ? "Approved" :
-                       v.status === "CARD_ISSUED" ? "Card Being Issued" :
+                      {v.status === "DRAFT" ? "Submitted" :
+                       v.status === "L1_SUBMITTED" ? "Under MIC Review" :
+                       v.status === "L1_APPROVED" ? "Card Being Issued" :
+                       v.status === "L1_REJECTED" ? "Action Required" :
                        v.status === "CARD_PRINTED" ? "Card Printing" :
                        v.status === "CARD_DISPATCHED" ? "Card Dispatched" :
                        v.status === "CARD_ACTIVE" ? "Active" :
