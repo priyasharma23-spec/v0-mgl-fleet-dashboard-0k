@@ -138,3 +138,20 @@ else:
     print('FOVehicleDetailTray: already has vahaaanData')
 with open('/vercel/share/v0-project/components/mgl/FOVehicleDetailTray.tsx', 'w') as f:
     f.write(content)
+
+# vehicleStatusConfig in mgl-data.ts
+with open('/vercel/share/v0-project/lib/mgl-data.ts') as f:
+    content = f.read()
+if 'SUBMITTED: { label:' not in content:
+    content = content.replace(
+        'DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },',
+        'DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },
+  SUBMITTED: { label: "Under MIC Review", color: "text-amber-700", bg: "bg-amber-100" },
+  APPROVED: { label: "Approved", color: "text-blue-700", bg: "bg-blue-100" },
+  CARD_ISSUED: { label: "Card Being Issued", color: "text-purple-700", bg: "bg-purple-100" },'
+    )
+    with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
+        f.write(content)
+    print('vehicleStatusConfig: updated')
+else:
+    print('vehicleStatusConfig: already has SUBMITTED')
