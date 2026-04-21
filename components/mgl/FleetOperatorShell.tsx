@@ -725,7 +725,7 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
                       "bg-gray-100 text-gray-600"
                     }`}>
                       {v.status === "DRAFT" ? "Submitted" :
-                       v.status === "SUBMITTED" ? "Under MIC Review" :
+                       v.status === "SUBMITTED" ? "Submitted" :
                        v.status === "APPROVED" ? "Approved" :
                        v.status === "CARD_ISSUED" ? "Card Being Issued" :
                        v.status === "CARD_PRINTED" ? "Card Printing" :
