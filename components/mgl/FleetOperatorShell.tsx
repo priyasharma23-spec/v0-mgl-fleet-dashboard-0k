@@ -866,7 +866,6 @@ function FOVehiclesList({ onViewChange, onboardingType = "MIC_ASSISTED" }: { onV
               )}
 
               {(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && v.onboardingType !== "SELF_SERVICE" && (
-                <div className="border-l-4 border-red-600 bg-red-50 px-3 py-2 rounded-r-lg flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
                     <div>
