@@ -1685,4 +1685,3 @@ export const mockROStations: ROStation[] = [
   { id: 76, name: "Joaquim Petroleum, Deonar", ownership: "OMC (IOCL)", address: "Sion - Trombay Rd, Opposite Telecom Factory Road, Deonar, Chembur, Mumbai", latitude: 19.04453741, longitude: 72.9162323, mapsLink: "https://www.google.com/maps?q=19.04453741,72.9162323" },
   { id: 77, name: "Venus Auto Centre, Kalamboli", ownership: "OMC (IOCL)", address: "National Highway No-4, Sector 2, Kalamboli, Navi Mumbai 410206", latitude: 19.01309283, longitude: 73.10815768, mapsLink: "https://www.google.com/maps?q=19.01309283,73.10815768" },
 ]
-];
