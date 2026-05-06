@@ -155,3 +155,19 @@ if 'SUBMITTED: { label:' not in content:
     print('vehicleStatusConfig: updated')
 else:
     print('vehicleStatusConfig: already has SUBMITTED')
+
+# Admin profile nav item
+with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx') as f:
+    content = f.read()
+if 'admin-profile' not in content:
+    with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx') as f:
+        lines = f.readlines()
+    for i, l in enumerate(lines):
+        if '"admin-config"' in l:
+            lines.insert(i+1, '  { icon: User, label: "My Profile", view: "admin-profile" },\n')
+            break
+    with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx', 'w') as f:
+        f.writelines(lines)
+    print('Admin profile nav: added')
+else:
+    print('Admin profile nav: already exists')

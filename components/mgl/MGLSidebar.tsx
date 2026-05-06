@@ -23,6 +23,7 @@ const micNavItems: NavItem[] = [
   { icon: CheckSquare, label: "L1 Approvals", view: "mic-l1-queue", badge: 2 },
   { icon: FileText, label: "MoU Management", view: "mic-mou" },
   { icon: BarChart2, label: "Reports", view: "mic-reports" },
+  { icon: User, label: "My Profile", view: "mic-profile" },
 ];
 
 const zicNavItems: NavItem[] = [
@@ -32,6 +33,7 @@ const zicNavItems: NavItem[] = [
   { icon: CreditCard, label: "Card Orders", view: "zic-cards" },
   { icon: BarChart2, label: "Reports", view: "zic-reports" },
   { icon: Gift, label: "Incentives", view: "zic-incentives" },
+  { icon: User, label: "My Profile", view: "zic-profile" },
 ];
 
 const foNavItems: NavItem[] = [
@@ -63,6 +65,7 @@ const adminNavItems: NavItem[] = [
   { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
   { icon: Activity, label: "Analytics", view: "admin-analytics" },
   { icon: Settings, label: "Configuration", view: "admin-config" },
+  { icon: User, label: "My Profile", view: "admin-profile" },
 ];
 
 interface MGLSidebarProps {
