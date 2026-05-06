@@ -3797,11 +3797,6 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
             </span>
           </div>
         </div>
-        {/* TDS */}
-        <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">Applicable TDS</span>
-          <span className="font-medium text-foreground">{fo.gstn ? "2%" : "10%"} <span className="text-xs text-muted-foreground">({fo.gstn ? "GST registered" : "Non-GST"})</span></span>
-        </div>
         {/* Entity Type */}
         {(fo as any).entityType && (
           <div className="flex items-start justify-between gap-4 text-sm">
