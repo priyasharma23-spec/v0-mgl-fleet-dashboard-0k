@@ -1,6 +1,7 @@
 "use client"
 import IncentiveApprovalView from "@/components/mgl/shared/IncentiveApprovalView"
 import ReportsView from "@/components/mgl/shared/ReportsView"
+import UserProfileView from "@/components/mgl/shared/UserProfileView"
 
 import { useState } from "react"
 import MGLHeader from "@/components/mgl/MGLHeader"
@@ -28,6 +29,7 @@ export default function ZICShell({ user, onLogout }: Props) {
       case "zic-cards": return <ZICCardsView />
       case "zic-reports": return <ReportsView role="zic" title="MIS & Reports" />
       case "zic-incentives": return <IncentiveApprovalView role="zic" />
+      case "zic-profile": return <UserProfileView user={user} roleLabel="ZIC Officer" zone="Zone 1 - Mumbai" />
       default: return <ZICDashboard onViewChange={setActiveView} />
     }
   }
