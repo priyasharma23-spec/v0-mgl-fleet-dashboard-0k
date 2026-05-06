@@ -13,7 +13,6 @@ import AdminTransactions from "@/components/mgl/admin/AdminTransactions"
 import AdminSettlements from "@/components/mgl/admin/AdminSettlements"
 import AdminReports from "@/components/mgl/admin/AdminReports"
 import AdminAnalytics from "@/components/mgl/admin/AdminAnalytics"
-import UserProfileView from "@/components/mgl/shared/UserProfileView"
 import AdminConfig from "@/components/mgl/admin/AdminConfig"
 import AdminUserManagement from "@/components/mgl/admin/AdminUserManagement"
 import AdminFundManagement from "@/components/mgl/admin/AdminFundManagement"
@@ -43,7 +42,6 @@ export default function MGLAdminShell({ user, onLogout }: Props) {
       case "admin-reports": return <AdminReports />
       case "admin-analytics": return <AdminAnalytics />
       case "admin-config": return <AdminConfig />
-      case "admin-profile": return <UserProfileView user={user} roleLabel={user.department === "finance" ? "Finance Manager" : "MGL Administrator"} />
       default: return <AdminDashboard onViewChange={setActiveView} />
     }
   }
