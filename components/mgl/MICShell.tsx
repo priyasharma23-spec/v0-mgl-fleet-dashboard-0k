@@ -28,7 +28,7 @@ export default function MICShell({ user, onLogout }: Props) {
       case "mic-operators": return <MICOperatorsList onViewChange={setActiveView} />
       case "mic-mou": return <MICMoUView />
       case "mic-reports": return <ReportsView role="mic" title="MIS & Reports" />
-      case "mic-profile": return <UserProfileView user={user} roleLabel="MIC Officer" region="Mumbai" />
+      case "mic-profile": return <UserProfileView user={user} roleLabel="MIC Officer" region="Mumbai" passwordMode="set" />
       default: return <MICDashboard onViewChange={setActiveView} />
     }
   }
