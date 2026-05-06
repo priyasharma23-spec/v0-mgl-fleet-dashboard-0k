@@ -29,7 +29,7 @@ export default function ZICShell({ user, onLogout }: Props) {
       case "zic-cards": return <ZICCardsView />
       case "zic-reports": return <ReportsView role="zic" title="MIS & Reports" />
       case "zic-incentives": return <IncentiveApprovalView role="zic" />
-      case "zic-profile": return <UserProfileView user={user} roleLabel="ZIC Officer" zone="Zone 1 - Mumbai" passwordMode="change" />
+      case "zic-profile": return <UserProfileView user={user} roleLabel="ZIC Officer" zone="Zone 1 - Mumbai" />
       default: return <ZICDashboard onViewChange={setActiveView} />
     }
   }

@@ -10,11 +10,10 @@ interface Props {
   roleLabel: string
   zone?: string
   region?: string
-  passwordMode?: "set" | "change"
 }
 
 export default function UserProfileView({ 
-  user, roleLabel, zone, region, passwordMode = "change"
+  user, roleLabel, zone, region 
 }: Props) {
   return (
     <div className="flex flex-col gap-5 p-5 max-w-2xl mx-auto">
