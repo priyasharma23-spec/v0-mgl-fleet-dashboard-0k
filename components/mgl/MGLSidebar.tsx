@@ -169,6 +169,7 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
             return (
               <button
                 key={item.view}
+                onClick={() => { onViewChange(item.view); onClose(); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"
               >
                 <Icon className="w-4 h-4 shrink-0" />
