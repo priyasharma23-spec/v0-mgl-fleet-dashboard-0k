@@ -65,6 +65,7 @@ const adminNavItems: NavItem[] = [
   { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
   { icon: Activity, label: "Analytics", view: "admin-analytics" },
   { icon: Settings, label: "Configuration", view: "admin-config" },
+  { icon: User, label: "My Profile", view: "admin-profile" },
 ];
 
 interface MGLSidebarProps {
