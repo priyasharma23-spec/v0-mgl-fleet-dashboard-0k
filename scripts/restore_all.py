@@ -1,10 +1,13 @@
-# ── FleetOperatorShell.tsx ──────────────────────────────────────
+# MGL Fleet Connect - Restore Script
+# Run this after v0 overwrites to restore all SELF_SERVICE changes
+
+# 1. FleetOperatorShell.tsx
 with open('/vercel/share/v0-project/components/mgl/FleetOperatorShell.tsx') as f:
     content = f.read()
 
 content = content.replace(
     '{ label: "RC Uploaded", status: "done" },\n            { label: "Vehicle Verified", status: "done" },\n            { label: "MIC Review", status: v.l1ApprovedAt ? "done" : v.l1SubmittedAt ? "active" : "pending" },\n            { label: "Card Issued", status: v.cardActivatedAt ? "done" : v.cardNumber ? "active" : "pending" },',
-    '{ label: "RC Uploaded", status: "done" },\n            { label: "Vehicle Verified", status: "done" },\n            { label: "MIC Approval", status: ["APPROVED","CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "SUBMITTED" ? "active" : "pending" },\n            { label: "Approved", status: ["CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "APPROVED" ? "active" : "pending" },\n            { label: "Card Issued", status: ["CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "CARD_ISSUED" ? "active" : "pending" },'
+    '{ label: "RC Uploaded", status: "done" },\n            { label: "Vehicle Verified", status: "done" },\n            { label: "Approved", status: ["APPROVED","CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "SUBMITTED" ? "active" : "pending" },\n            { label: "Approved", status: ["CARD_ISSUED","CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "APPROVED" ? "active" : "pending" },\n            { label: "Card Issued", status: ["CARD_PRINTED","CARD_DISPATCHED","CARD_ACTIVE"].includes(v.status) ? "done" : v.status === "CARD_ISSUED" ? "active" : "pending" },'
 )
 content = content.replace(
     'v.status === "L1_SUBMITTED" ? "bg-amber-100 text-amber-700" :\n                      v.status === "L1_APPROVED" ? "bg-blue-100 text-blue-700" :\n                      v.status === "L1_REJECTED" ? "bg-red-100 text-red-700" :',
@@ -12,7 +15,7 @@ content = content.replace(
 )
 content = content.replace(
     'v.status === "L1_SUBMITTED" ? "Under MIC Review" :\n                       v.status === "L1_APPROVED" ? "Card Being Issued" :\n                       v.status === "L1_REJECTED" ? "Action Required" :',
-    'v.status === "SUBMITTED" ? "Under MIC Review" :\n                       v.status === "APPROVED" ? "Approved" :\n                       v.status === "CARD_ISSUED" ? "Card Being Issued" :'
+    'v.status === "SUBMITTED" ? "Submitted" :\n                       v.status === "APPROVED" ? "Approved" :\n                       v.status === "CARD_ISSUED" ? "Card Being Issued" :'
 )
 content = content.replace(
     '{(v.status === "L1_REJECTED" || v.status === "L2_REJECTED") && (',
@@ -20,11 +23,9 @@ content = content.replace(
 )
 with open('/vercel/share/v0-project/components/mgl/FleetOperatorShell.tsx', 'w') as f:
     f.write(content)
-print('FleetOperatorShell: SUBMITTED badge:', '"SUBMITTED" ? "bg-amber-100' in content)
-print('FleetOperatorShell: Action Required hidden:', 'onboardingType !== "SELF_SERVICE"' in content)
-print('FleetOperatorShell: MIC Approval step:', 'MIC Approval' in content)
+print('FleetOperatorShell: done')
 
-# ── mgl-data.ts statuses ────────────────────────────────────────
+# 2. mgl-data.ts statuses
 with open('/vercel/share/v0-project/lib/mgl-data.ts') as f:
     lines = f.readlines()
 for i, l in enumerate(lines):
@@ -40,23 +41,37 @@ for i, l in enumerate(lines):
                 break
 with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
     f.writelines(lines)
-print('mgl-data: statuses fixed')
+print('mgl-data statuses: done')
 
-# ── mgl-data.ts vahaaanData interface ───────────────────────────
+# 3. vehicleStatusConfig
+with open('/vercel/share/v0-project/lib/mgl-data.ts') as f:
+    content = f.read()
+if 'SUBMITTED: { label:' not in content:
+    content = content.replace(
+        'DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },',
+        'DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },\n  SUBMITTED: { label: "Under MIC Review", color: "text-amber-700", bg: "bg-amber-100" },\n  APPROVED: { label: "Approved", color: "text-blue-700", bg: "bg-blue-100" },\n  CARD_ISSUED: { label: "Card Being Issued", color: "text-purple-700", bg: "bg-purple-100" },'
+    )
+    with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
+        f.write(content)
+    print('vehicleStatusConfig: updated')
+else:
+    print('vehicleStatusConfig: already has SUBMITTED')
+
+# 4. vahaaanData interface
 with open('/vercel/share/v0-project/lib/mgl-data.ts') as f:
     content = f.read()
 if 'vahaaanData?' not in content:
     content = content.replace(
-        '  incentiveNote?: string;',
-        '  incentiveNote?: string;\n  vahaaanData?: { status: string; blacklist_status: string; registered_at: string; issue_date: string; expiry_date: string; owner_data: { name: string; mobile: string }; vehicle_data: { maker_description: string; maker_model: string; category: string; fuel_type: string; body_type: string; chassis_number: string; engine_number: string; color: string; gross_weight: string; manufactured_date: string }; insurance_data: { company: string; policy_number: string; expiry_date: string }; pucc_data: { pucc_number: string; expiry_date: string } };'
+        'incentiveNote?: string;',
+        'incentiveNote?: string;\n  vahaaanData?: { status: string; blacklist_status: string; registered_at: string; issue_date: string; expiry_date: string; owner_data: { name: string; mobile: string }; vehicle_data: { maker_description: string; maker_model: string; category: string; fuel_type: string; body_type: string; chassis_number: string; engine_number: string; color: string; gross_weight: string; manufactured_date: string }; insurance_data: { company: string; policy_number: string; expiry_date: string }; pucc_data: { pucc_number: string; expiry_date: string } };'
     )
-    print('mgl-data: interface updated')
+    with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
+        f.write(content)
+    print('vahaaanData interface: updated')
 else:
-    print('mgl-data: interface already has vahaaanData')
-with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
-    f.write(content)
+    print('vahaaanData interface: already exists')
 
-# ── mgl-data.ts vahaaanData mock data ───────────────────────────
+# 5. vahaaanData mock data
 with open('/vercel/share/v0-project/lib/mgl-data.ts') as f:
     lines = f.readlines()
 veh_vahaan = {
@@ -68,7 +83,7 @@ remaining = set(veh_vahaan.keys())
 current_veh = None
 for i, l in enumerate(lines):
     for vid in list(remaining):
-        if f'id: "{vid}"' in l:
+        if 'id: "' + vid + '"' in l:
             current_veh = vid
     if current_veh and '  },' in l:
         if 'vahaaanData' not in ''.join(lines[max(0,i-30):i+1]):
@@ -79,95 +94,62 @@ for i, l in enumerate(lines):
                 break
 with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
     f.writelines(lines)
-print('mgl-data: vahaan mock remaining:', remaining)
+print('vahaaanData mock:', 'remaining=' + str(remaining))
 
-# ── FOVehicleDetailTray.tsx ──────────────────────────────────────
+# 6. FOVehicleDetailTray.tsx
 with open('/vercel/share/v0-project/components/mgl/FOVehicleDetailTray.tsx') as f:
     content = f.read()
 if 'vahaaanData' not in content:
-    old = '''              <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-                {[
-                  ["Registration Type", v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],
-                  ["Vehicle Number", v.vehicleNumber],
-                  ["OEM", v.oem],
-                  ["Model", v.model],
-                  ["Category", v.category],
-                  ["Dealership", v.dealership],
-                  ["Booking Date", v.bookingDate],
-                  ["Registration Date", v.registrationDate],
-                  ["Delivery Date", v.deliveryDate],
-                ].map(([label, value]) => value ? (
-                  <div key={label} className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="font-medium text-foreground text-right">{value}</span>
-                  </div>
-                ) : null)}
-              </div>'''
-    new = '''              {v.onboardingType === "SELF_SERVICE" && v.vahaaanData ? (
-                <div className="space-y-3">
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registration</p>
-                    {[["Vehicle Number", v.vehicleNumber],["Status", v.vahaaanData.status],["Blacklisted", v.vahaaanData.blacklist_status === "false" ? "No" : "Yes"],["RTO", v.vahaaanData.registered_at],["Issue Date", v.vahaaanData.issue_date],["Expiry Date", v.vahaaanData.expiry_date],["Owner", v.vahaaanData.owner_data.name],["Mobile", v.vahaaanData.owner_data.mobile]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>) : null)}
-                  </div>
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</p>
-                    {[["Make", v.vahaaanData.vehicle_data.maker_description],["Model", v.vahaaanData.vehicle_data.maker_model],["Category", v.vahaaanData.vehicle_data.category],["Fuel Type", v.vahaaanData.vehicle_data.fuel_type],["Body Type", v.vahaaanData.vehicle_data.body_type],["Chassis No.", v.vahaaanData.vehicle_data.chassis_number],["Engine No.", v.vahaaanData.vehicle_data.engine_number],["Colour", v.vahaaanData.vehicle_data.color],["GVW", v.vahaaanData.vehicle_data.gross_weight + " kg"],["Mfg. Date", v.vahaaanData.vehicle_data.manufactured_date]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>) : null)}
-                  </div>
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Insurance</p>
-                    {[["Company", v.vahaaanData.insurance_data.company],["Policy No.", v.vahaaanData.insurance_data.policy_number],["Expiry", v.vahaaanData.insurance_data.expiry_date]].map(([label, value]) => (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>))}
-                  </div>
-                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">PUCC</p>
-                    {[["PUCC No.", v.vahaaanData.pucc_data.pucc_number],["Expiry", v.vahaaanData.pucc_data.expiry_date]].map(([label, value]) => (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground">{value}</span></div>))}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-muted/30 rounded-xl p-4 space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>
-                  {[["Registration Type", v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],["Vehicle Number", v.vehicleNumber],["OEM", v.oem],["Model", v.model],["Category", v.category],["Dealership", v.dealership],["Booking Date", v.bookingDate],["Registration Date", v.registrationDate],["Delivery Date", v.deliveryDate]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right">{value}</span></div>) : null)}
-                </div>
-              )}'''
+    old = '              <div className="bg-muted/30 rounded-xl p-4 space-y-2">\n                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>\n                {[\n                  ["Registration Type", v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],\n                  ["Vehicle Number", v.vehicleNumber],\n                  ["OEM", v.oem],\n                  ["Model", v.model],\n                  ["Category", v.category],\n                  ["Dealership", v.dealership],\n                  ["Booking Date", v.bookingDate],\n                  ["Registration Date", v.registrationDate],\n                  ["Delivery Date", v.deliveryDate],\n                ].map(([label, value]) => value ? (\n                  <div key={label} className="flex items-center justify-between text-sm">\n                    <span className="text-muted-foreground">{label}</span>\n                    <span className="font-medium text-foreground text-right">{value}</span>\n                  </div>\n                ) : null)}\n              </div>'
+    new = '              {v.onboardingType === "SELF_SERVICE" && v.vahaaanData ? (\n                <div className="space-y-3">\n                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">\n                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Registration</p>\n                    {[["Vehicle Number", v.vehicleNumber],["Status", v.vahaaanData.status],["Blacklisted", v.vahaaanData.blacklist_status === "false" ? "No" : "Yes"],["RTO", v.vahaaanData.registered_at],["Issue Date", v.vahaaanData.issue_date],["Expiry Date", v.vahaaanData.expiry_date],["Owner", v.vahaaanData.owner_data.name],["Mobile", v.vahaaanData.owner_data.mobile]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>) : null)}\n                  </div>\n                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">\n                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</p>\n                    {[["Make", v.vahaaanData.vehicle_data.maker_description],["Model", v.vahaaanData.vehicle_data.maker_model],["Category", v.vahaaanData.vehicle_data.category],["Fuel Type", v.vahaaanData.vehicle_data.fuel_type],["Body Type", v.vahaaanData.vehicle_data.body_type],["Chassis No.", v.vahaaanData.vehicle_data.chassis_number],["Engine No.", v.vahaaanData.vehicle_data.engine_number],["Colour", v.vahaaanData.vehicle_data.color],["GVW", v.vahaaanData.vehicle_data.gross_weight + " kg"],["Mfg. Date", v.vahaaanData.vehicle_data.manufactured_date]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>) : null)}\n                  </div>\n                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">\n                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Insurance</p>\n                    {[["Company", v.vahaaanData.insurance_data.company],["Policy No.", v.vahaaanData.insurance_data.policy_number],["Expiry", v.vahaaanData.insurance_data.expiry_date]].map(([label, value]) => (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right max-w-[60%]">{value}</span></div>))}\n                  </div>\n                  <div className="bg-muted/30 rounded-xl p-4 space-y-2">\n                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">PUCC</p>\n                    {[["PUCC No.", v.vahaaanData.pucc_data.pucc_number],["Expiry", v.vahaaanData.pucc_data.expiry_date]].map(([label, value]) => (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground">{value}</span></div>))}\n                  </div>\n                </div>\n              ) : (\n                <div className="bg-muted/30 rounded-xl p-4 space-y-2">\n                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Vehicle Details</p>\n                  {[["Registration Type", v.onboardingType === "SELF_SERVICE" ? "Self-Service" : v.vehicleType === "retrofit" ? "Retrofitment" : "New Purchase"],["Vehicle Number", v.vehicleNumber],["OEM", v.oem],["Model", v.model],["Category", v.category],["Dealership", v.dealership],["Booking Date", v.bookingDate],["Registration Date", v.registrationDate],["Delivery Date", v.deliveryDate]].map(([label, value]) => value ? (<div key={label} className="flex items-center justify-between text-sm"><span className="text-muted-foreground">{label}</span><span className="font-medium text-foreground text-right">{value}</span></div>) : null)}\n                </div>\n              )}'
     if old in content:
         content = content.replace(old, new)
         print('FOVehicleDetailTray: updated')
     else:
-        print('FOVehicleDetailTray: old text not found - may need manual fix')
+        print('FOVehicleDetailTray: old text not found')
 else:
     print('FOVehicleDetailTray: already has vahaaanData')
 with open('/vercel/share/v0-project/components/mgl/FOVehicleDetailTray.tsx', 'w') as f:
     f.write(content)
 
-# vehicleStatusConfig in mgl-data.ts
-with open('/vercel/share/v0-project/lib/mgl-data.ts') as f:
-    content = f.read()
-if 'SUBMITTED: { label:' not in content:
-    content = content.replace(
-        'DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },',
-        'DRAFT: { label: "Draft", color: "text-gray-600", bg: "bg-gray-100" },
-  SUBMITTED: { label: "Under MIC Review", color: "text-amber-700", bg: "bg-amber-100" },
-  APPROVED: { label: "Approved", color: "text-blue-700", bg: "bg-blue-100" },
-  CARD_ISSUED: { label: "Card Being Issued", color: "text-purple-700", bg: "bg-purple-100" },'
-    )
-    with open('/vercel/share/v0-project/lib/mgl-data.ts', 'w') as f:
-        f.write(content)
-    print('vehicleStatusConfig: updated')
-else:
-    print('vehicleStatusConfig: already has SUBMITTED')
+# 7. MGLSidebar - remove My Profile from main nav arrays
+with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx') as f:
+    lines = f.readlines()
+lines = [l for l in lines if not (
+    'My Profile' in l and
+    ('mic-profile' in l or 'zic-profile' in l or 'admin-profile' in l) and
+    'role ===' not in l
+)]
+with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx', 'w') as f:
+    f.writelines(lines)
+print('MGLSidebar: My Profile removed from main nav')
 
-# Admin profile nav item
+# 8. MGLSidebar - fix General section My Profile routing
 with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx') as f:
     content = f.read()
-if 'admin-profile' not in content:
-    with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx') as f:
-        lines = f.readlines()
-    for i, l in enumerate(lines):
-        if '"admin-config"' in l:
-            lines.insert(i+1, '  { icon: User, label: "My Profile", view: "admin-profile" },\n')
-            break
+if 'role === "mgl-admin" ? "admin-profile"' not in content:
+    content = content.replace(
+        '{ icon: User, label: "My Profile", view: "fo-profile" },',
+        '{ icon: User, label: "My Profile", view: role === "mgl-admin" ? "admin-profile" : role === "mic" ? "mic-profile" : role === "zic" ? "zic-profile" : "fo-profile" },'
+    )
     with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx', 'w') as f:
-        f.writelines(lines)
-    print('Admin profile nav: added')
+        f.write(content)
+    print('MGLSidebar: General My Profile routing fixed')
 else:
-    print('Admin profile nav: already exists')
+    print('MGLSidebar: General My Profile routing already correct')
+
+# 9. MGLSidebar - wire onClick to General section
+with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx') as f:
+    content = f.read()
+if 'onViewChange(item.view); onClose()' not in content:
+    content = content.replace(
+        'key={item.view}\n                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"',
+        'key={item.view}\n                onClick={() => { onViewChange(item.view); onClose(); }}\n                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"'
+    )
+    with open('/vercel/share/v0-project/components/mgl/MGLSidebar.tsx', 'w') as f:
+        f.write(content)
+    print('MGLSidebar: General onClick wired')
+else:
+    print('MGLSidebar: General onClick already wired')
+
+print('\nAll done!')
