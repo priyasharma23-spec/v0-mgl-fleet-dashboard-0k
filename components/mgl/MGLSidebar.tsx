@@ -23,6 +23,7 @@ const micNavItems: NavItem[] = [
   { icon: CheckSquare, label: "L1 Approvals", view: "mic-l1-queue", badge: 2 },
   { icon: FileText, label: "MoU Management", view: "mic-mou" },
   { icon: BarChart2, label: "Reports", view: "mic-reports" },
+  { icon: User, label: "My Profile", view: "mic-profile" },
 ];
 
 const zicNavItems: NavItem[] = [
@@ -32,6 +33,7 @@ const zicNavItems: NavItem[] = [
   { icon: CreditCard, label: "Card Orders", view: "zic-cards" },
   { icon: BarChart2, label: "Reports", view: "zic-reports" },
   { icon: Gift, label: "Incentives", view: "zic-incentives" },
+  { icon: User, label: "My Profile", view: "zic-profile" },
 ];
 
 const foNavItems: NavItem[] = [
@@ -63,6 +65,7 @@ const adminNavItems: NavItem[] = [
   { icon: FileSpreadsheet, label: "MIS & Reports", view: "admin-reports" },
   { icon: Activity, label: "Analytics", view: "admin-analytics" },
   { icon: Settings, label: "Configuration", view: "admin-config" },
+  { icon: User, label: "My Profile", view: "admin-profile" },
 ];
 
 interface MGLSidebarProps {
@@ -162,14 +165,13 @@ export default function MGLSidebar({ role, activeView, onViewChange, open, onClo
           <p className="text-sidebar-foreground/40 text-[10px] font-semibold uppercase tracking-widest px-2 py-2 mt-4">General</p>
           {[
             { icon: Settings, label: "Settings", view: "settings" },
-            { icon: User, label: "My Profile", view: role === "mgl-admin" ? "admin-profile" : role === "mic" ? "mic-profile" : role === "zic" ? "zic-profile" : "fo-profile" },
+            { icon: User, label: "My Profile", view: "fo-profile" },
             { icon: HelpCircle, label: "Help & Support", view: "help" },
           ].map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.view}
-                onClick={() => { onViewChange(item.view); onClose(); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"
               >
                 <Icon className="w-4 h-4 shrink-0" />
