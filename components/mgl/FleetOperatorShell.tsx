@@ -3791,11 +3791,16 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
         <div className="flex items-start justify-between gap-4 text-sm">
           <span className="text-muted-foreground shrink-0 w-36">PAN Number</span>
           <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">{fo.pan}</span>
+            <span className="font-medium text-foreground font-mono">{fo.pan}</span>
             <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
               <CheckCircle className="w-3 h-3" /> Verified
             </span>
           </div>
+        </div>
+        {/* Name on PAN */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">Name on PAN</span>
+          <span className="font-medium text-foreground text-right">{fo.name}</span>
         </div>
         {/* Entity Type */}
         {(fo as any).entityType && (
@@ -3839,11 +3844,6 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
         <div className="flex items-start justify-between gap-4 text-sm">
           <span className="text-muted-foreground shrink-0 w-36">Trade Name</span>
           <span className="font-medium text-foreground text-right">{(fo as any).gstnTradeName || "—"}</span>
-        </div>
-        {/* Entity Type */}
-        <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">Entity Type</span>
-          <span className="font-medium text-foreground">{(fo as any).entityType || "—"}</span>
         </div>
         {/* GST Status */}
         <div className="flex items-start justify-between gap-4 text-sm">
