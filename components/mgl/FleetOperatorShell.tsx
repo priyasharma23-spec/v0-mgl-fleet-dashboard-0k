@@ -17,6 +17,7 @@ import FOVehicleDetailTray from "@/components/mgl/FOVehicleDetailTray"
 import CardDetailsView from "@/components/mgl/CardDetailsView"
 import FODriversView from "@/components/mgl/FODriversView"
 import FOSettingsView from "@/components/mgl/FOSettingsView"
+import FOHelpSupportView from "@/components/mgl/FOHelpSupportView"
 import FOCNGStationsView from "@/components/mgl/FOCNGStationsView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
@@ -138,6 +139,7 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-mou": return <FOMoUView />
       case "fo-reports": return <ReportsView role="fo" title="My Reports" />
       case "fo-profile": return <FOProfileView onboardingType={onboardingType} />
+      case "help": return <FOHelpSupportView />
       case "fo-cng-stations": return <FOCNGStationsView />
       default: return <FODashboard onViewChange={setActiveView} />
     }
@@ -3791,24 +3793,29 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
         <div className="flex items-start justify-between gap-4 text-sm">
           <span className="text-muted-foreground shrink-0 w-36">PAN Number</span>
           <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground font-mono">{fo.pan}</span>
+            <span className="font-medium text-foreground">{fo.pan}</span>
             <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
               <CheckCircle className="w-3 h-3" /> Verified
             </span>
           </div>
         </div>
-        {/* Name on PAN */}
+        {/* GSTN — verified or not provided */}
         <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">Name on PAN</span>
-          <span className="font-medium text-foreground text-right">{fo.name}</span>
-        </div>
-        {/* Entity Type */}
-        {(fo as any).entityType && (
-          <div className="flex items-start justify-between gap-4 text-sm">
-            <span className="text-muted-foreground shrink-0 w-36">Entity Type</span>
-            <span className="font-medium text-foreground">{(fo as any).entityType}</span>
+          <span className="text-muted-foreground shrink-0 w-36">GSTN Number</span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{fo.gstn || "Not provided"}</span>
+            {fo.gstn && (
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
+                <CheckCircle className="w-3 h-3" /> Verified
+              </span>
+            )}
           </div>
-        )}
+        </div>
+        {/* TDS */}
+        <div className="flex items-start justify-between gap-4 text-sm">
+          <span className="text-muted-foreground shrink-0 w-36">Applicable TDS</span>
+          <span className="font-medium text-foreground">{fo.gstn ? "2%" : "10%"} <span className="text-xs text-muted-foreground">({fo.gstn ? "GST registered" : "Non-GST"})</span></span>
+        </div>
       </div>
 
       {/* Contact Details */}
@@ -3823,40 +3830,6 @@ function FOProfileView({ onboardingType = "MIC_ASSISTED" }: { onboardingType?: s
             <span className="font-medium text-foreground text-right">{value}</span>
           </div>
         ))}
-      </div>
-
-      {/* GSTN Details */}
-      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
-        <p className="text-sm font-semibold text-foreground border-b border-border pb-2">GST Details</p>
-        {/* GSTN Number */}
-        <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">GSTN Number</span>
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground font-mono">{fo.gstn || "Not provided"}</span>
-            {fo.gstn && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-semibold">
-                <CheckCircle className="w-3 h-3" /> Verified
-              </span>
-            )}
-          </div>
-        </div>
-        {/* Trade Name */}
-        <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">Trade Name</span>
-          <span className="font-medium text-foreground text-right">{(fo as any).gstnTradeName || "—"}</span>
-        </div>
-        {/* GST Status */}
-        <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">GST Status</span>
-          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${fo.gstn ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"}`}>
-            {fo.gstn ? "Registered" : "Not Registered"}
-          </span>
-        </div>
-        {/* TDS Rate */}
-        <div className="flex items-start justify-between gap-4 text-sm">
-          <span className="text-muted-foreground shrink-0 w-36">Applicable TDS</span>
-          <span className="font-medium text-foreground">{fo.gstn ? "2%" : "10%"} <span className="text-xs text-muted-foreground">({fo.gstn ? "GST registered" : "Non-GST"})</span></span>
-        </div>
       </div>
 
       {/* Login Details */}
