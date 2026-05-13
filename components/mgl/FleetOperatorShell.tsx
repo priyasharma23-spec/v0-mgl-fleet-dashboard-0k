@@ -18,6 +18,7 @@ import CardDetailsView from "@/components/mgl/CardDetailsView"
 import FODriversView from "@/components/mgl/FODriversView"
 import FOSettingsView from "@/components/mgl/FOSettingsView"
 import FOCNGStationsView from "@/components/mgl/FOCNGStationsView"
+import FOHelpSupportView from "@/components/mgl/FOHelpSupportView"
 import CashbackDetails from "@/components/mgl/shared/CashbackDetails"
 import TransactionDetailTray, { TransactionRecord } from "@/components/mgl/shared/TransactionDetailTray"
 import ReportsView from "@/components/mgl/shared/ReportsView"
@@ -139,6 +140,8 @@ export default function FleetOperatorShell({ user, onLogout, onboardingType = "S
       case "fo-reports": return <ReportsView role="fo" title="My Reports" />
       case "fo-profile": return <FOProfileView onboardingType={onboardingType} />
       case "fo-cng-stations": return <FOCNGStationsView />
+      case "fo-help": return <FOHelpSupportView />
+      case "help": return <FOHelpSupportView />
       default: return <FODashboard onViewChange={setActiveView} />
     }
   }
